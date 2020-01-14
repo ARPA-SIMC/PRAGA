@@ -1,0 +1,2 @@
+GRID /home/laura/CRITERIA3D/DATA/METEOGRID/DBGridXML_ERG5_v1.xml
+XMLToNetcdf /home/laura/xmlWeekly.xml
