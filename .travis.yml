@@ -28,7 +28,7 @@ before_script:
   - qmake -v
 
 script: 
-    - bash deploy/PRAGA/build.sh
+    - bash deploy/build.sh
     
 after_success:
     - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
