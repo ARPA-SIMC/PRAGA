@@ -1051,6 +1051,8 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
             break;
         }
     }
+
+    /*
     if (myProject.meteoGridDbHandler!= nullptr)
     {
         this->ui->actionShowGridHide->setChecked(true);
@@ -1058,7 +1060,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         meteoGridObj->setDrawBorders(false);
         meteoGridLegend->setVisible(false);
         meteoGridObj->redrawRequested();
-    }
+    }*/
 }
 
 bool MainWindow::loadMeteoPoints(QString dbName)
@@ -1212,6 +1214,7 @@ void MainWindow::redrawMeteoGrid(visualizationType showType, bool showInterpolat
         }
     }
 
+    /*
     if (myProject.nrMeteoPoints != 0)
     {
         // hide all meteo points
@@ -1219,7 +1222,7 @@ void MainWindow::redrawMeteoGrid(visualizationType showType, bool showInterpolat
             pointList[i]->setVisible(false);
         meteoPointsLegend->setVisible(false);
         this->ui->actionShowPointsHide->setChecked(true);
-    }
+    }*/
 
     meteoGridObj->redrawRequested();
 }
