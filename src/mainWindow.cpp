@@ -387,7 +387,8 @@ void MainWindow::on_actionNewMeteoPointsArkimet_triggered()
     {
         myProject.closeMeteoPointsDB();
         myProject.setIsElabMeteoPointsValue(false);
-
+        dbFile.close();
+        dbFile.setPermissions(QFile::ReadOther | QFile::WriteOther);
         if (! dbFile.remove())
         {
             myProject.logError("Remove file failed: " + dbName + "\n" + dbFile.errorString());
