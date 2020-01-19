@@ -1344,6 +1344,7 @@ bool PragaProject::downloadDailyDataArkimet(QStringList variables, bool prec0024
     }
 
     if (showInfo) myInfo.close();
+    delete myDownload;
     return true;
 }
 
@@ -1426,6 +1427,7 @@ bool PragaProject::downloadHourlyDataArkimet(QStringList variables, QDate startD
     }
 
     if (showInfo) myInfo.close();
+    delete myDownload;
     return true;
 }
 
