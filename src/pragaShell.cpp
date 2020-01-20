@@ -148,9 +148,12 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
             if (meteoVar != noMeteoVar) variables << meteoVar;
         }
         else if (argumentList.at(i).left(4) == "-d1:")
-            dateIni = QDate::fromString(argumentList[i].right(argumentList[i].length()-4), "DD/MM/YYYY");
+        {
+            QString dateIniStr = argumentList[i].right(argumentList[i].length()-4);
+            dateIni = QDate::fromString(dateIniStr, "dd/MM/yyyy");
+        }
         else if (argumentList.at(i).left(4) == "-d2:")
-            dateFin = QDate::fromString(argumentList[i].right(argumentList[i].length()-4), "DD/MM/YYYY");
+            dateFin = QDate::fromString(argumentList[i].right(argumentList[i].length()-4), "dd/MM/yyyy");
     }
 
     if (! myProject->interpolationMeteoGridPeriod(dateIni, dateFin, variables, saveRasters))
