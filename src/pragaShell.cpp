@@ -156,6 +156,8 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
             dateFin = QDate::fromString(argumentList[i].right(argumentList[i].length()-4), "dd/MM/yyyy");
     }
 
+    if (variables.size() == 0)
+
     if (! myProject->interpolationMeteoGridPeriod(dateIni, dateFin, variables, saveRasters))
         return false;
 

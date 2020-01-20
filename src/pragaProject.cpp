@@ -1609,6 +1609,13 @@ gis::Crit3DRasterGrid* PragaProject::getPragaMapFromVar(meteoVariable myVar)
 
 bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, bool saveRasters)
 {
+    // check variables
+    if (variables.size() == 0)
+    {
+        logError("No variable");
+        return false;
+    }
+
     // check meteo point
     if (! meteoPointsLoaded || nrMeteoPoints == 0)
     {
