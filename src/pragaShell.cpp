@@ -135,7 +135,7 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
         return false;
     }
 
-    QDate dateIni = QDate::currentDate(), dateFin = QDate::currentDate();
+    QDate dateIni, dateFin;
     bool saveRasters = false;
     QList <meteoVariable> variables;
     meteoVariable meteoVar;
