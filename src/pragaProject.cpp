@@ -1651,7 +1651,8 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
     std::string id;
     std::string errString;
-    QString myError, rasterName;
+    QString myError, rasterName, varName;
+    QDateTime myTime;
     int myHour;
     QDate myDate = dateIni;
     gis::Crit3DRasterGrid* myGrid = new gis::Crit3DRasterGrid();
@@ -1676,8 +1677,14 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
         for (myHour = 1; myHour <= 24; myHour++)
         {
+            myTime = QDateTime(myDate, QTime(0, 0));
+            logInfo(myTime.toString("dd/MM/yyyy hh:00"));
+
             foreach (meteoVariable myVar, variables)
             {
+                varName = QString::fromStdString(getMeteoVarName(myVar));
+                logInfo("Interpolating " + varName);
+
                 if (getVarFrequency(myVar) == hourly)
                 {
                     if (myVar == airRelHumidity && interpolationSettings.getUseDewPoint()) {
