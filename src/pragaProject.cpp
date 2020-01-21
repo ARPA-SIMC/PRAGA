@@ -1590,7 +1590,10 @@ void PragaProject::savePragaParameters()
 
 QString getMapFileOutName(meteoVariable myVar, QDate myDate, int myHour)
 {
-    QString name = QString::fromStdString(MapDailyMeteoVarToString.at(myVar));
+    std::string myName = getMeteoVarName(myVar);
+    if (myName == "") return "";
+
+    QString name = QString::fromStdString(myName);
     name += "_" + myDate.toString(Qt::ISODate);
     name += "_" + QString::number(myHour);
 
@@ -1638,30 +1641,33 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     }
 
     if (interpolationSettings.getUseTAD())
-        if (! loadTopographicDistanceMaps())
+    {
+        logInfo("Loading topographic distance maps...");
+        if (! loadTopographicDistanceMaps(false))
             return false;
+    }
 
     //order variables for derived computation
 
     std::string id;
     std::string errString;
-    QString myError;
+    QString myError, rasterName;
     int myHour;
     QDate myDate = dateIni;
     gis::Crit3DRasterGrid* myGrid = new gis::Crit3DRasterGrid();
 
     myGrid->initializeGrid(*DEM.header);
 
-    unsigned currentYear = unsigned(NODATA);
+    int currentYear = NODATA;
 
-    logInfo("Loading meteo points data...");
+    logInfo("Loading meteo points data... ");
     if (! loadMeteoPointsData(dateIni, dateFin, false))
         return false;
 
     while (myDate <= dateFin)
     {
         // check proxy grid series
-        if (currentYear != unsigned(myDate.year()))
+        if (currentYear != myDate.year())
         {
             logInfo("Interpolating proxy grid series...");
             if (checkProxyGridSeries(&interpolationSettings, DEM, proxyGridSeries, myDate))
@@ -1696,7 +1702,11 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
                     }
 
                     //save raster
-                    if (saveRasters) gis::writeEsriGrid(getProjectPath().toStdString() + PATH_METEOGRID + getMapFileOutName(myVar, myDate, myHour).toStdString(), getPragaMapFromVar(myVar), &errString);
+                    if (saveRasters)
+                    {
+                        rasterName = getMapFileOutName(myVar, myDate, myHour);
+                        if (rasterName != "") gis::writeEsriGrid(getProjectPath().toStdString() + rasterName.toStdString(), getPragaMapFromVar(myVar), &errString);
+                    }
 
                     meteoGridDbHandler->meteoGrid()->aggregateMeteoGrid(myVar, hourly, getCrit3DDate(myDate), myHour, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
 

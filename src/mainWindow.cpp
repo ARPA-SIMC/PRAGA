@@ -1696,7 +1696,7 @@ void MainWindow::on_actionWriteTAD_triggered()
 
 void MainWindow::on_actionLoadTAD_triggered()
 {
-    myProject.loadTopographicDistanceMaps();
+    myProject.loadTopographicDistanceMaps(true);
 }
 
 void MainWindow::on_meteoPoints_clicked()
