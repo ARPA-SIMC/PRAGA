@@ -355,122 +355,6 @@ void MainWindow::on_actionOpen_DEM_triggered()
 
 }
 
-void MainWindow::on_actionOpen_meteo_points_triggered()
-{
-    QString dbName = QFileDialog::getOpenFileName(this, tr("Open DB meteo points"), "", tr("DB files (*.db)"));
-    if (dbName != "") loadMeteoPoints(dbName);
-}
-
-
-void MainWindow::on_actionOpen_meteo_grid_triggered()
-{
-    QString xmlName = QFileDialog::getOpenFileName(this, tr("Open XML DB meteo grid"), "", tr("xml files (*.xml)"));
-    if (xmlName != "") loadMeteoGrid(xmlName);
-}
-
-
-void MainWindow::on_actionNewMeteoPointsArkimet_triggered()
-{
-    resetMeteoPoints();
-
-    QString templateFileName = myProject.getDefaultPath() + PATH_TEMPLATE + "template_meteo_arkimet.db";
-
-    QString dbName = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("DB files (*.db)"));
-    if (dbName == "")
-    {
-        qDebug() << "missing new db file name";
-        return;
-    }
-
-    QFile dbFile(dbName);
-    if (dbFile.exists())
-    {
-        myProject.closeMeteoPointsDB();
-        myProject.setIsElabMeteoPointsValue(false);
-        dbFile.close();
-        dbFile.setPermissions(QFile::ReadOther | QFile::WriteOther);
-        if (! dbFile.remove())
-        {
-            myProject.logError("Remove file failed: " + dbName + "\n" + dbFile.errorString());
-            return;
-        }
-    }
-
-    if (! QFile::copy(templateFileName, dbName))
-    {
-        myProject.logError("Copy file failed: " + templateFileName);
-        return;
-    }
-
-    Download myDownload(dbName);
-
-    QStringList dataset = myDownload.getDbArkimet()->getDatasetsList();
-
-    QDialog datasetDialog;
-
-    datasetDialog.setWindowTitle("Datasets");
-    datasetDialog.setFixedWidth(500);
-    QVBoxLayout layout;
-
-    for (int i = 0; i < dataset.size(); i++)
-    {
-        QCheckBox* dat = new QCheckBox(dataset[i]);
-        layout.addWidget(dat);
-
-        datasetCheckbox.append(dat);
-    }
-
-    all = new QCheckBox("ALL");
-    layout.addSpacing(30);
-    layout.addWidget(all);
-
-    connect(all, SIGNAL(toggled(bool)), this, SLOT(enableAllDataset(bool)));
-
-    for (int i = 0; i < dataset.size(); i++)
-    {
-        connect(datasetCheckbox[i], SIGNAL(toggled(bool)), this, SLOT(disableAllButton(bool)));
-    }
-
-    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
-                                         | QDialogButtonBox::Cancel);
-
-    connect(buttonBox, SIGNAL(accepted()), &datasetDialog, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), &datasetDialog, SLOT(reject()));
-
-    layout.addWidget(buttonBox);
-    datasetDialog.setLayout(&layout);
-
-    QString datasetSelected = selectArkimetDataset(&datasetDialog);
-
-    if (!datasetSelected.isEmpty())
-    {
-        myDownload.getDbArkimet()->setDatasetsActive(datasetSelected);
-        QStringList datasets = datasetSelected.remove("'").split(",");
-
-        FormInfo myInfo;
-        myInfo.start("download points properties...", 0);
-            if (myDownload.getPointProperties(datasets))
-            {
-                myProject.loadMeteoPointsDB(dbName);
-                this->addMeteoPoints();
-            }
-            else
-            {
-                QMessageBox::information(nullptr, "Network Error!", "Error in function getPointProperties");
-            }
-
-        myInfo.close();
-    }
-    else
-    {
-        QFile::remove(dbName);
-    }
-
-    delete buttonBox;
-    delete all;
-}
-
-
 QString MainWindow::selectArkimetDataset(QDialog* datasetDialog) {
 
         datasetDialog->exec();
@@ -544,7 +428,7 @@ void MainWindow::disableAllButton(bool toggled)
     }
 }
 
-void MainWindow::on_actionDownload_meteo_data_triggered()
+void MainWindow::on_actionMeteopointDownload_triggered()
 {
     if(myProject.nrMeteoPoints == 0)
     {
@@ -898,7 +782,7 @@ void MainWindow::on_timeEdit_timeChanged(const QTime &time)
         }
     }
 
-    void MainWindow::on_actionMeteoGrid_Export_NetCDF_triggered()
+    void MainWindow::on_actionMeteogridExportNetcdf_triggered()
     {
         if (! myProject.checkMeteoGridForExport()) return;
 
@@ -1344,57 +1228,6 @@ void MainWindow::on_dateEdit_dateChanged(const QDate &date)
 {
     Q_UNUSED(date)
     this->on_dateChanged();
-}
-
-
-void MainWindow::on_actionClose_meteo_points_triggered()
-{
-    resetMeteoPoints();
-    meteoPointsLegend->setVisible(false);
-
-    myProject.closeMeteoPointsDB();
-
-    myProject.setIsElabMeteoPointsValue(false);
-    ui->groupBoxElab->hide();
-
-    this->ui->meteoPoints->setChecked(false);
-    this->ui->meteoPoints->setEnabled(false);
-
-    showPointsGroup->setEnabled(false);
-    this->ui->menuShowPointsAnomaly->setEnabled(false);
-
-    if (myProject.meteoGridDbHandler != nullptr)
-    {
-        this->ui->grid->setChecked(true);
-    }
-}
-
-
-void MainWindow::on_actionClose_meteo_grid_triggered()
-{
-
-    if (myProject.meteoGridDbHandler != nullptr)
-    {
-        myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.isLoaded = false;
-        meteoGridObj->clear();
-        meteoGridObj->redrawRequested();
-        meteoGridLegend->setVisible(false);
-        myProject.closeMeteoGridDB();
-        ui->groupBoxElab->hide();
-        ui->meteoGridOpacitySlider->setEnabled(false);
-
-        this->ui->grid->setChecked(false);
-        this->ui->grid->setEnabled(false);
-
-        showGridGroup->setEnabled(false);
-        this->ui->menuShowGridAnomaly->setEnabled(false);
-
-        if (myProject.meteoPointsDbHandler != nullptr)
-        {
-            this->ui->meteoPoints->setChecked(true);
-        }
-    }
-
 }
 
 void MainWindow::on_actionInterpolation_to_DEM_triggered()
@@ -2138,8 +1971,8 @@ void MainWindow::on_actionOpen_project_triggered()
 
     if (myProject.isProjectLoaded)
     {
-        on_actionClose_meteo_grid_triggered();
-        on_actionClose_meteo_points_triggered();
+        on_actionMeteogridClose_triggered();
+        on_actionMeteopointClose_triggered();
         clearDEM();
 
         this->ui->labelFrequency->setText("None");
@@ -2163,8 +1996,8 @@ void MainWindow::on_actionClose_project_triggered()
 {
     if (! myProject.isProjectLoaded) return;
 
-    on_actionClose_meteo_grid_triggered();
-    on_actionClose_meteo_points_triggered();
+    on_actionMeteogridClose_triggered();
+    on_actionMeteopointClose_triggered();
     this->ui->labelFrequency->setText("None");
     this->ui->labelVariable->setText(("None"));
 
@@ -2271,3 +2104,164 @@ void MainWindow::on_actionInterpolateSaveGridPeriod_triggered()
     myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables, false);
 }
 
+void MainWindow::on_actionMeteopointNewArkimet_triggered()
+{
+    resetMeteoPoints();
+
+    QString templateFileName = myProject.getDefaultPath() + PATH_TEMPLATE + "template_meteo_arkimet.db";
+
+    QString dbName = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("DB files (*.db)"));
+    if (dbName == "")
+    {
+        qDebug() << "missing new db file name";
+        return;
+    }
+
+    QFile dbFile(dbName);
+    if (dbFile.exists())
+    {
+        myProject.closeMeteoPointsDB();
+        myProject.setIsElabMeteoPointsValue(false);
+        dbFile.close();
+        dbFile.setPermissions(QFile::ReadOther | QFile::WriteOther);
+        if (! dbFile.remove())
+        {
+            myProject.logError("Remove file failed: " + dbName + "\n" + dbFile.errorString());
+            return;
+        }
+    }
+
+    if (! QFile::copy(templateFileName, dbName))
+    {
+        myProject.logError("Copy file failed: " + templateFileName);
+        return;
+    }
+
+    Download myDownload(dbName);
+
+    QStringList dataset = myDownload.getDbArkimet()->getDatasetsList();
+
+    QDialog datasetDialog;
+
+    datasetDialog.setWindowTitle("Datasets");
+    datasetDialog.setFixedWidth(500);
+    QVBoxLayout layout;
+
+    for (int i = 0; i < dataset.size(); i++)
+    {
+        QCheckBox* dat = new QCheckBox(dataset[i]);
+        layout.addWidget(dat);
+
+        datasetCheckbox.append(dat);
+    }
+
+    all = new QCheckBox("ALL");
+    layout.addSpacing(30);
+    layout.addWidget(all);
+
+    connect(all, SIGNAL(toggled(bool)), this, SLOT(enableAllDataset(bool)));
+
+    for (int i = 0; i < dataset.size(); i++)
+    {
+        connect(datasetCheckbox[i], SIGNAL(toggled(bool)), this, SLOT(disableAllButton(bool)));
+    }
+
+    QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                         | QDialogButtonBox::Cancel);
+
+    connect(buttonBox, SIGNAL(accepted()), &datasetDialog, SLOT(accept()));
+    connect(buttonBox, SIGNAL(rejected()), &datasetDialog, SLOT(reject()));
+
+    layout.addWidget(buttonBox);
+    datasetDialog.setLayout(&layout);
+
+    QString datasetSelected = selectArkimetDataset(&datasetDialog);
+
+    if (!datasetSelected.isEmpty())
+    {
+        myDownload.getDbArkimet()->setDatasetsActive(datasetSelected);
+        QStringList datasets = datasetSelected.remove("'").split(",");
+
+        FormInfo myInfo;
+        myInfo.start("download points properties...", 0);
+            if (myDownload.getPointProperties(datasets))
+            {
+                myProject.loadMeteoPointsDB(dbName);
+                this->addMeteoPoints();
+            }
+            else
+            {
+                QMessageBox::information(nullptr, "Network Error!", "Error in function getPointProperties");
+            }
+
+        myInfo.close();
+    }
+    else
+    {
+        QFile::remove(dbName);
+    }
+
+    delete buttonBox;
+    delete all;
+}
+
+void MainWindow::on_actionMeteopointOpen_triggered()
+{
+    QString dbName = QFileDialog::getOpenFileName(this, tr("Open DB meteo points"), "", tr("DB files (*.db)"));
+    if (dbName != "") loadMeteoPoints(dbName);
+}
+
+void MainWindow::on_actionMeteopointClose_triggered()
+{
+    resetMeteoPoints();
+    meteoPointsLegend->setVisible(false);
+
+    myProject.closeMeteoPointsDB();
+
+    myProject.setIsElabMeteoPointsValue(false);
+    ui->groupBoxElab->hide();
+
+    this->ui->meteoPoints->setChecked(false);
+    this->ui->meteoPoints->setEnabled(false);
+
+    showPointsGroup->setEnabled(false);
+    this->ui->menuShowPointsAnomaly->setEnabled(false);
+
+    if (myProject.meteoGridDbHandler != nullptr)
+    {
+        this->ui->grid->setChecked(true);
+    }
+}
+
+void MainWindow::on_actionMeteogridOpen_triggered()
+{
+    QString xmlName = QFileDialog::getOpenFileName(this, tr("Open XML DB meteo grid"), "", tr("xml files (*.xml)"));
+    if (xmlName != "") loadMeteoGrid(xmlName);
+}
+
+void MainWindow::on_actionMeteogridClose_triggered()
+{
+
+    if (myProject.meteoGridDbHandler != nullptr)
+    {
+        myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.isLoaded = false;
+        meteoGridObj->clear();
+        meteoGridObj->redrawRequested();
+        meteoGridLegend->setVisible(false);
+        myProject.closeMeteoGridDB();
+        ui->groupBoxElab->hide();
+        ui->meteoGridOpacitySlider->setEnabled(false);
+
+        this->ui->grid->setChecked(false);
+        this->ui->grid->setEnabled(false);
+
+        showGridGroup->setEnabled(false);
+        this->ui->menuShowGridAnomaly->setEnabled(false);
+
+        if (myProject.meteoPointsDbHandler != nullptr)
+        {
+            this->ui->meteoPoints->setChecked(true);
+        }
+    }
+
+}
