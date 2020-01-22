@@ -135,21 +135,28 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
         return false;
     }
 
-    QDate dateIni = QDate::currentDate(), dateFin = QDate::currentDate();
+    QDate dateIni, dateFin;
     bool saveRasters = false;
     QList <meteoVariable> variables;
     meteoVariable meteoVar;
 
-    for (int i = 0; i < argumentList.size(); i++)
+    for (int i = 1; i < argumentList.size(); i++)
     {
-        if (argumentList.at(i).left(3) == "-v:")
+        if (argumentList[i].left(3) == "-v:")
         {
-            meteoVar = getMeteoVar(argumentList.at(i).right(argumentList.at(i).length()-3).toStdString());
+            meteoVar = getMeteoVar(argumentList[i].right(argumentList[i].length()-3).toStdString());
             if (meteoVar != noMeteoVar) variables << meteoVar;
         }
+        else if (argumentList.at(i).left(4) == "-d1:")
+        {
+            QString dateIniStr = argumentList[i].right(argumentList[i].length()-4);
+            dateIni = QDate::fromString(dateIniStr, "dd/MM/yyyy");
+        }
+        else if (argumentList.at(i).left(4) == "-d2:")
+            dateFin = QDate::fromString(argumentList[i].right(argumentList[i].length()-4), "dd/MM/yyyy");
+        else if (argumentList.at(i).left(2) == "-r")
+            saveRasters = true;
     }
-
-    QString projectName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT);
 
     if (! myProject->interpolationMeteoGridPeriod(dateIni, dateFin, variables, saveRasters))
         return false;

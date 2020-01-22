@@ -40,12 +40,14 @@
     private slots:
 
         void on_actionOpen_DEM_triggered();
-        void on_actionNewMeteoPointsArkimet_triggered();
-        void on_actionOpen_meteo_points_triggered();
-        void on_actionOpen_meteo_grid_triggered();
-        void on_actionDownload_meteo_data_triggered();
-        void on_actionClose_meteo_points_triggered();
-        void on_actionClose_meteo_grid_triggered();
+
+        void on_actionMeteopointNewArkimet_triggered();
+        void on_actionMeteopointOpen_triggered();
+        void on_actionMeteopointClose_triggered();
+        void on_actionMeteopointDownload_triggered();
+
+        void on_actionMeteogridOpen_triggered();
+        void on_actionMeteogridClose_triggered();
 
         void on_actionOpen_project_triggered();
         void on_actionClose_project_triggered();
@@ -117,7 +119,7 @@
             void on_actionNetCDF_Open_triggered();
             void on_actionNetCDF_Close_triggered();
             void on_actionNetCDF_ShowMetadata_triggered();
-            void on_actionMeteoGrid_Export_NetCDF_triggered();
+            void on_actionMeteogridExportNetcdf_triggered();
         #endif
 
 
