@@ -663,9 +663,8 @@ void MainWindow::updateDateTime()
 {
     int myHour = myProject.getCurrentHour();
     this->ui->dateEdit->setDate(myProject.getCurrentDate());
-    this->ui->timeEdit->setTime(QTime(myHour,0,0));
+    this->ui->timeEdit->setValue(myHour);
 }
-
 
 void MainWindow::on_dateChanged()
 {
@@ -683,19 +682,16 @@ void MainWindow::on_dateChanged()
     redrawMeteoGrid(currentGridVisualization, false);
 }
 
-
-void MainWindow::on_timeEdit_timeChanged(const QTime &time)
+void MainWindow::on_timeEdit_valueChanged(int myHour)
 {
-    //hour
-    if (time.hour() != myProject.getCurrentHour())
+    if (myHour != myProject.getCurrentHour())
     {
-        myProject.setCurrentHour(time.hour());
+        myProject.setCurrentHour(myHour);
     }
 
     redrawMeteoPoints(currentPointsVisualization, true);
     redrawMeteoGrid(currentGridVisualization, false);
 }
-
 
 
 #ifdef NETCDF
