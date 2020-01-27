@@ -1677,7 +1677,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
         for (myHour = 1; myHour <= 24; myHour++)
         {
-            myTime = QDateTime(myDate, QTime(0, 0));
+            myTime = QDateTime(myDate, QTime(myHour, 0));
             logInfo(myTime.toString("dd/MM/yyyy hh:00"));
 
             foreach (meteoVariable myVar, variables)
