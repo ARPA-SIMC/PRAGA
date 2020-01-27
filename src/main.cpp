@@ -76,10 +76,16 @@ int main(int argc, char *argv[])
     }
     else if (myProject.modality == MODE_CONSOLE)
     {
-        return pragaShell(&myProject);
+        if (pragaShell(&myProject))
+            return 0;
+        else
+            return 1;
     }
     else if (myProject.modality == MODE_BATCH)
     {
-        return pragaBatch(&myProject, argv[1]);
+        if (pragaBatch(&myProject, argv[1]))
+            return 0;
+        else
+            return 1;
     }
 }
