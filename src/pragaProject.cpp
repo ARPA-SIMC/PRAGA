@@ -1657,8 +1657,6 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     QDate myDate = dateIni;
     gis::Crit3DRasterGrid* myGrid = new gis::Crit3DRasterGrid();
 
-    myGrid->initializeGrid(*DEM.header);
-
     int currentYear = NODATA;
 
     logInfo("Loading meteo points data... ");
@@ -1708,11 +1706,14 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
                         if (! interpolationDemMain(myVar, getCrit3DTime(myDate, myHour), getPragaMapFromVar(myVar), false)) return false;
                     }
 
+                    myGrid = getPragaMapFromVar(myVar);
+                    if (myGrid == nullptr) return false;
+
                     //save raster
                     if (saveRasters)
                     {
                         rasterName = getMapFileOutName(myVar, myDate, myHour);
-                        if (rasterName != "") gis::writeEsriGrid(getProjectPath().toStdString() + rasterName.toStdString(), getPragaMapFromVar(myVar), &errString);
+                        if (rasterName != "") gis::writeEsriGrid(getProjectPath().toStdString() + rasterName.toStdString(), myGrid, &errString);
                     }
 
                     meteoGridDbHandler->meteoGrid()->aggregateMeteoGrid(myVar, hourly, getCrit3DDate(myDate), myHour, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
@@ -1722,7 +1723,11 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
         }
 
         //aggregate hourly to daily
+        foreach (meteoVariable myVar, variables)
+        {
+            varName = QString::fromStdString(getMeteoVarName(myVar));
 
+        }
 
         //interpolation daily var (not aggregated, e.g. daily minimum temperature, daily precipitation, maximum wind intensity)
         foreach (meteoVariable myVar, variables)
@@ -1754,7 +1759,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
     // saving hourly and meteo grid data to DB
     logInfo("Save meteo grid data");
-    meteoGridDbHandler->saveGridData(&myError, QDateTime(dateIni, QTime(0,0,0)), QDateTime(dateFin.addDays(1), QTime(0,0,0)), variables);
+    meteoGridDbHandler->saveGridData(&myError, QDateTime(dateIni, QTime(1,0,0)), QDateTime(dateFin.addDays(1), QTime(0,0,0)), variables);
 
     // restore original proxy grids
     logInfo("Restoring proxy grids");
