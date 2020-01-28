@@ -137,15 +137,27 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
 
     QDate dateIni, dateFin;
     bool saveRasters = false;
-    QList <meteoVariable> variables;
+    QList <meteoVariable> hourlyVariables;
+    QList <meteoVariable> dailyDerivedVariables;
+    QList <meteoVariable> dailyVariables;
     meteoVariable meteoVar;
 
     for (int i = 1; i < argumentList.size(); i++)
     {
-        if (argumentList[i].left(3) == "-v:")
+        if (argumentList[i].left(4) == "-vh:")
         {
-            meteoVar = getMeteoVar(argumentList[i].right(argumentList[i].length()-3).toStdString());
-            if (meteoVar != noMeteoVar) variables << meteoVar;
+            meteoVar = getMeteoVar(argumentList[i].right(argumentList[i].length()-4).toStdString());
+            if (meteoVar != noMeteoVar) hourlyVariables << meteoVar;
+        }
+        if (argumentList[i].left(4) == "-vd:")
+        {
+            meteoVar = getMeteoVar(argumentList[i].right(argumentList[i].length()-4).toStdString());
+            if (meteoVar != noMeteoVar) dailyVariables << meteoVar;
+        }
+        if (argumentList[i].left(4) == "-vr:")
+        {
+            meteoVar = getMeteoVar(argumentList[i].right(argumentList[i].length()-4).toStdString());
+            if (meteoVar != noMeteoVar) dailyDerivedVariables << meteoVar;
         }
         else if (argumentList.at(i).left(4) == "-d1:")
         {
@@ -158,7 +170,7 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
             saveRasters = true;
     }
 
-    if (! myProject->interpolationMeteoGridPeriod(dateIni, dateFin, variables, saveRasters))
+    if (! myProject->interpolationMeteoGridPeriod(dateIni, dateFin, hourlyVariables, dailyDerivedVariables, dailyVariables, saveRasters))
         return false;
 
     return true;
