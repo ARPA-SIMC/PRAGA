@@ -42,6 +42,8 @@ void PragaProject::clearPragaProject()
 {
     if (isProjectLoaded) clearProject();
 
+    dataRaster.clear();
+
     if (clima != nullptr)
     {
         delete clima;

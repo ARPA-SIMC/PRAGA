@@ -26,7 +26,7 @@
     private:
 
     public:
-
+        gis::Crit3DRasterGrid dataRaster;
         Crit3DDailyMeteoMaps* pragaDailyMaps;
         PragaHourlyMeteoMaps* pragaHourlyMaps;
 
