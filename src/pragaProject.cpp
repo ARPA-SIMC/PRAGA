@@ -1782,11 +1782,11 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin,
 
 }
 
-bool PragaProject::interpolationMeteoGrid(meteoVariable myVar, frequencyType myFrequency, const Crit3DTime& myTime,
-                              gis::Crit3DRasterGrid *myRaster, bool showInfo)
+bool PragaProject::interpolationMeteoGrid(meteoVariable myVar, frequencyType myFrequency, const Crit3DTime& myTime, bool showInfo)
 {
     if (meteoGridDbHandler != nullptr)
     {
+        gis::Crit3DRasterGrid *myRaster = new gis::Crit3DRasterGrid;
         if (!interpolationDemMain(myVar, myTime, myRaster, showInfo))
         {
             return false;

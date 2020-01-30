@@ -64,8 +64,7 @@
         bool downloadDailyDataArkimet(QStringList variables, bool prec0024, QDate startDate, QDate endDate, bool showInfo);
         bool downloadHourlyDataArkimet(QStringList variables, QDate startDate, QDate endDate, bool showInfo);
 
-        bool interpolationMeteoGrid(meteoVariable myVar, frequencyType myFrequency, const Crit3DTime& myTime,
-                                    gis::Crit3DRasterGrid *myRaster, bool showInfo);
+        bool interpolationMeteoGrid(meteoVariable myVar, frequencyType myFrequency, const Crit3DTime& myTime, bool showInfo);
         bool interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin,
                                           QList <meteoVariable> hourlyVariables, QList <meteoVariable> dailyDerivedVariables, QList <meteoVariable> dailyVariables,
                                           bool saveRasters);
