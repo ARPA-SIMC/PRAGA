@@ -1815,8 +1815,11 @@ bool PragaProject::gridAggregateGridHourlyInDaily(meteoVariable dailyVar, Crit3D
         {
             meteoPoint = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row, col);
             if (meteoPoint->active)
-                return aggregatedHourlyToDaily(dailyVar, meteoPoint, dateIni, dateFin, meteoSettings);
+                if (! aggregatedHourlyToDaily(dailyVar, meteoPoint, dateIni, dateFin, meteoSettings))
+                    return false;
         }
+
+    return true;
 }
 
 
