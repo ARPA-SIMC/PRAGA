@@ -1738,7 +1738,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin,
             gridAggregateGridHourlyInDaily(dailyAirTemperatureAvg, getCrit3DDate(myDate), getCrit3DDate(myDate));
 
         //interpolation daily var (not aggregated, e.g. daily minimum temperature, daily precipitation, maximum wind intensity)
-        foreach (meteoVariable myVar, dailyVariables)
+        foreach (myVar, dailyVariables)
         {
             if (getVarFrequency(myVar) == daily)
             {
@@ -1815,8 +1815,11 @@ bool PragaProject::gridAggregateGridHourlyInDaily(meteoVariable dailyVar, Crit3D
         {
             meteoPoint = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row, col);
             if (meteoPoint->active)
-                return aggregatedHourlyToDaily(dailyVar, meteoPoint, dateIni, dateFin, meteoSettings);
+                if (! aggregatedHourlyToDaily(dailyVar, meteoPoint, dateIni, dateFin, meteoSettings))
+                    return false;
         }
+
+    return true;
 }
 
 
