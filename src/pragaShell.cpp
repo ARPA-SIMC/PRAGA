@@ -54,6 +54,11 @@ bool PragaProject::executePragaCommand(QStringList argumentList, bool* isCommand
         *isCommandFound = true;
         return cmdInterpolationGridPeriod(this, argumentList);
     }
+    else if (command == "GRIDAGGREGATION" || command == "GRIDAGGR")
+    {
+        *isCommandFound = true;
+        return cmdAggregationGridPeriod(this, argumentList);
+    }
     else if (command == "NETCDF" || command == "NETCDFEXPORT")
     {
         *isCommandFound = true;
@@ -138,7 +143,6 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
     QDate dateIni, dateFin;
     bool saveRasters = false;
     QList <meteoVariable> hourlyVariables;
-    QList <meteoVariable> dailyDerivedVariables;
     QList <meteoVariable> dailyVariables;
     meteoVariable meteoVar;
 
@@ -154,11 +158,6 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
             meteoVar = getMeteoVar(argumentList[i].right(argumentList[i].length()-4).toStdString());
             if (meteoVar != noMeteoVar) dailyVariables << meteoVar;
         }
-        if (argumentList[i].left(4) == "-vr:")
-        {
-            meteoVar = getMeteoVar(argumentList[i].right(argumentList[i].length()-4).toStdString());
-            if (meteoVar != noMeteoVar) dailyDerivedVariables << meteoVar;
-        }
         else if (argumentList.at(i).left(4) == "-d1:")
         {
             QString dateIniStr = argumentList[i].right(argumentList[i].length()-4);
@@ -170,7 +169,41 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
             saveRasters = true;
     }
 
-    if (! myProject->interpolationMeteoGridPeriod(dateIni, dateFin, hourlyVariables, dailyDerivedVariables, dailyVariables, saveRasters))
+    if (! myProject->interpolationMeteoGridPeriod(dateIni, dateFin, hourlyVariables, dailyVariables, saveRasters))
+        return false;
+
+    return true;
+}
+
+bool cmdAggregationGridPeriod(PragaProject* myProject, QStringList argumentList)
+{
+    if (argumentList.size() < 2)
+    {
+        myProject->logError("Missing parameters for aggregation");
+        return false;
+    }
+
+    QDate dateIni, dateFin;
+    QList <meteoVariable> variables;
+    meteoVariable meteoVar;
+
+    for (int i = 1; i < argumentList.size(); i++)
+    {
+        if (argumentList[i].left(3) == "-v:")
+        {
+            meteoVar = getMeteoVar(argumentList[i].right(argumentList[i].length()-3).toStdString());
+            if (meteoVar != noMeteoVar) variables << meteoVar;
+        }
+        else if (argumentList.at(i).left(4) == "-d1:")
+        {
+            QString dateIniStr = argumentList[i].right(argumentList[i].length()-4);
+            dateIni = QDate::fromString(dateIniStr, "dd/MM/yyyy");
+        }
+        else if (argumentList.at(i).left(4) == "-d2:")
+            dateFin = QDate::fromString(argumentList[i].right(argumentList[i].length()-4), "dd/MM/yyyy");
+    }
+
+    if (! myProject->aggregationMeteoGrid(dateIni, dateFin, variables))
         return false;
 
     return true;

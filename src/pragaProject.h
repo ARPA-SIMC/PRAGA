@@ -66,12 +66,13 @@
 
         bool interpolationMeteoGrid(meteoVariable myVar, frequencyType myFrequency, const Crit3DTime& myTime, bool showInfo);
         bool interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin,
-                                          QList <meteoVariable> hourlyVariables, QList <meteoVariable> dailyDerivedVariables, QList <meteoVariable> dailyVariables,
+                                          QList <meteoVariable> hourlyVariables, QList <meteoVariable> dailyVariables,
                                           bool saveRasters);
         bool interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin,
                                           QList <meteoVariable> hourlyVariables, bool saveRasters);
         bool saveGrid(meteoVariable myVar, frequencyType myFrequency, const Crit3DTime& myTime, bool showInfo);
-        bool gridAggregateGridHourlyInDaily(meteoVariable dailyVar, Crit3DDate dateIni, Crit3DDate dateFin);
+        bool gridAggregateVarHourlyInDaily(meteoVariable dailyVar, Crit3DDate dateIni, Crit3DDate dateFin);
+        bool aggregationMeteoGrid(QDate dateIni, QDate dateFin, QList <meteoVariable> variables);
 
         bool elaborationPointsCycle(bool isAnomaly, bool showInfo);
         bool elaborationPointsCycleGrid(bool isAnomaly, bool showInfo);
