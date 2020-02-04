@@ -1713,11 +1713,11 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
             foreach (myVar, variables)
             {
-                varName = QString::fromStdString(getMeteoVarName(myVar));
-                logInfo("Interpolating " + varName);
-
                 if (getVarFrequency(myVar) == hourly)
                 {
+                    varName = QString::fromStdString(getMeteoVarName(myVar));
+                    logInfo("Interpolating " + varName);
+
                     if (myVar == airRelHumidity && interpolationSettings.getUseDewPoint()) {
                         if (interpolationSettings.getUseInterpolatedTForRH())
                             passInterpolatedTemperatureToHumidityPoints(getCrit3DTime(myDate, myHour));
@@ -1760,6 +1760,9 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
         {
             if (getVarFrequency(myVar) == daily)
             {
+                varName = QString::fromStdString(getMeteoVarName(myVar));
+                logInfo("Interpolating " + varName);
+
                 if (myVar == dailyReferenceEvapotranspirationHS) {
                     pragaDailyMaps->computeHSET0Map(&gisSettings, getCrit3DDate(myDate));
                 }
