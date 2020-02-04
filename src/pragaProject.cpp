@@ -1606,7 +1606,7 @@ gis::Crit3DRasterGrid* PragaProject::getPragaMapFromVar(meteoVariable myVar)
 {
     gis::Crit3DRasterGrid* myGrid = nullptr;
 
-    myGrid = hourlyMeteoMaps->getMapFromVar(myVar);
+    myGrid = getHourlyMeteoRaster(myVar);
     if (myGrid == nullptr) myGrid = pragaHourlyMaps->getMapFromVar(myVar);
 
     return myGrid;
@@ -1671,7 +1671,8 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin,
     int currentYear = NODATA;
 
     logInfo("Loading meteo points data... ");
-    if (! loadMeteoPointsData(dateIni, dateFin, false))
+    //load also one day in advance (for transmissivity)
+    if (! loadMeteoPointsData(dateIni.addDays(-1), dateFin, false))
         return false;
 
     while (myDate <= dateFin)
@@ -1746,7 +1747,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin,
                     pragaDailyMaps->computeHSET0Map(&gisSettings, getCrit3DDate(myDate));
                 }
                 else {
-                    if (! interpolationDemMain(myVar, getCrit3DTime(myDate, myHour), pragaDailyMaps->getMapFromVar(myVar), false)) return false;
+                    if (! interpolationDemMain(myVar, getCrit3DTime(myDate, myHour), getPragaMapFromVar(myVar), false)) return false;
                 }
 
                 // fix daily temperatures consistency
@@ -1755,7 +1756,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin,
                 }
 
                 //save raster
-                if (saveRasters) gis::writeEsriGrid(getProjectPath().toStdString() + PATH_METEOGRID + getMapFileOutName(myVar, myDate, myHour).toStdString(), pragaDailyMaps->getMapFromVar(myVar), &errString);
+                if (saveRasters) gis::writeEsriGrid(getProjectPath().toStdString() + PATH_METEOGRID + getMapFileOutName(myVar, myDate, myHour).toStdString(), getPragaMapFromVar(myVar), &errString);
 
                 meteoGridDbHandler->meteoGrid()->aggregateMeteoGrid(myVar, daily, getCrit3DDate(myDate), myHour, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
 
