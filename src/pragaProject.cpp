@@ -1614,13 +1614,8 @@ gis::Crit3DRasterGrid* PragaProject::getPragaMapFromVar(meteoVariable myVar)
     return myGrid;
 }
 
-bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QList <meteoVariable> hourlyVariables, bool saveRasters)
-{
-    QList <meteoVariable> dailyVariables;
-    return interpolationMeteoGridPeriod(dateIni, dateFin, hourlyVariables, dailyVariables, saveRasters);
-}
 
-bool PragaProject::gridAggregateVarHourlyInDaily(meteoVariable dailyVar, Crit3DDate dateIni, Crit3DDate dateFin)
+bool PragaProject::timeAggregateGridVarHourlyInDaily(meteoVariable dailyVar, Crit3DDate dateIni, Crit3DDate dateFin)
 {
     Crit3DDate myDate;
     Crit3DMeteoPoint* meteoPoint;
@@ -1637,21 +1632,19 @@ bool PragaProject::gridAggregateVarHourlyInDaily(meteoVariable dailyVar, Crit3DD
     return true;
 }
 
-bool PragaProject::aggregationMeteoGrid(QDate dateIni, QDate dateFin, QList <meteoVariable> variables)
+bool PragaProject::timeAggregateGrid(QDate dateIni, QDate dateFin, QList <meteoVariable> variables)
 {
     foreach (meteoVariable myVar, variables)
         if (getVarFrequency(myVar) == daily)
-            if (! gridAggregateVarHourlyInDaily(myVar, getCrit3DDate(dateIni), getCrit3DDate(dateFin))) return false;
+            if (! timeAggregateGridVarHourlyInDaily(myVar, getCrit3DDate(dateIni), getCrit3DDate(dateFin))) return false;
 
     return true;
 }
 
-bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin,
-                                                QList <meteoVariable> hourlyVariables, QList <meteoVariable> dailyVariables,
-                                                bool saveRasters)
+bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, bool saveRasters)
 {
     // check variables
-    if (hourlyVariables.size() == 0 && dailyVariables.size() == 0)
+    if (variables.size() == 0)
     {
         logError("No variable");
         return false;
@@ -1703,14 +1696,6 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin,
     if (! loadMeteoPointsData(dateIni.addDays(-1), dateFin, false))
         return false;
 
-    QList <meteoVariable> allVariables;
-
-    foreach (myVar, hourlyVariables)
-        allVariables << myVar;
-
-    foreach (myVar, dailyVariables)
-        allVariables << myVar;
-
     while (myDate <= dateFin)
     {
         // check proxy grid series
@@ -1726,7 +1711,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin,
             myTime = QDateTime(myDate, QTime(myHour, 0));
             logInfo(myTime.toString("dd/MM/yyyy hh:00"));
 
-            foreach (myVar, hourlyVariables)
+            foreach (myVar, variables)
             {
                 varName = QString::fromStdString(getMeteoVarName(myVar));
                 logInfo("Interpolating " + varName);
@@ -1764,14 +1749,14 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin,
                         if (rasterName != "") gis::writeEsriGrid(getProjectPath().toStdString() + rasterName.toStdString(), myGrid, &errString);
                     }
 
-                    meteoGridDbHandler->meteoGrid()->aggregateMeteoGrid(myVar, hourly, getCrit3DDate(myDate), myHour, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
+                    meteoGridDbHandler->meteoGrid()->spatialAggregateMeteoGrid(myVar, hourly, getCrit3DDate(myDate), myHour, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
 
                 }
             }
         }
 
         //interpolation daily var (not aggregated, e.g. daily minimum temperature, daily precipitation, maximum wind intensity)
-        foreach (myVar, dailyVariables)
+        foreach (myVar, variables)
         {
             if (getVarFrequency(myVar) == daily)
             {
@@ -1790,7 +1775,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin,
                 //save raster
                 if (saveRasters) gis::writeEsriGrid(getProjectPath().toStdString() + PATH_METEOGRID + getMapFileOutName(myVar, myDate, myHour).toStdString(), getPragaMapFromVar(myVar), &errString);
 
-                meteoGridDbHandler->meteoGrid()->aggregateMeteoGrid(myVar, daily, getCrit3DDate(myDate), myHour, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
+                meteoGridDbHandler->meteoGrid()->spatialAggregateMeteoGrid(myVar, daily, getCrit3DDate(myDate), myHour, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
 
             }
         }
@@ -1800,7 +1785,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin,
 
     // saving hourly and daily meteo grid data to DB
     logInfo("Save meteo grid data");
-    meteoGridDbHandler->saveGridData(&myError, QDateTime(dateIni, QTime(1,0,0)), QDateTime(dateFin.addDays(1), QTime(0,0,0)), allVariables);
+    meteoGridDbHandler->saveGridData(&myError, QDateTime(dateIni, QTime(1,0,0)), QDateTime(dateFin.addDays(1), QTime(0,0,0)), variables);
 
     // restore original proxy grids
     logInfo("Restoring proxy grids");
@@ -1821,7 +1806,7 @@ bool PragaProject::interpolationMeteoGrid(meteoVariable myVar, frequencyType myF
             return false;
         }
 
-        meteoGridDbHandler->meteoGrid()->aggregateMeteoGrid(myVar, myFrequency, myTime.date, myTime.getHour(),
+        meteoGridDbHandler->meteoGrid()->spatialAggregateMeteoGrid(myVar, myFrequency, myTime.date, myTime.getHour(),
                             myTime.getMinutes(), &DEM, myRaster, interpolationSettings.getMeteoGridAggrMethod());
         meteoGridDbHandler->meteoGrid()->fillMeteoRaster();
     }
