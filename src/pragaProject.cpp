@@ -89,6 +89,7 @@ bool PragaProject::loadPragaProject(QString myFileName)
     if (DEM.isLoaded)
     {
         pragaDailyMaps = new Crit3DDailyMeteoMaps(DEM);
+        pragaHourlyMaps = new PragaHourlyMeteoMaps(DEM);
     }
 
     isProjectLoaded = true;
@@ -1608,6 +1609,7 @@ gis::Crit3DRasterGrid* PragaProject::getPragaMapFromVar(meteoVariable myVar)
 
     myGrid = getHourlyMeteoRaster(myVar);
     if (myGrid == nullptr) myGrid = pragaHourlyMaps->getMapFromVar(myVar);
+    if (myGrid == nullptr) myGrid = pragaDailyMaps->getMapFromVar(myVar);
 
     return myGrid;
 }
@@ -1704,8 +1706,8 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin,
                         hourlyMeteoMaps->computeRelativeHumidityMap(hourlyMeteoMaps->mapHourlyRelHum);
                     }
                     else if (myVar == windVectorDirection || myVar == windVectorIntensity) {
-                        if (! interpolationDemMain(myVar, getCrit3DTime(myDate, myHour), getPragaMapFromVar(windVectorX), false)) return false;
-                        if (! interpolationDemMain(myVar, getCrit3DTime(myDate, myHour), getPragaMapFromVar(windVectorY), false)) return false;
+                        if (! interpolationDemMain(windVectorX, getCrit3DTime(myDate, myHour), getPragaMapFromVar(windVectorX), false)) return false;
+                        if (! interpolationDemMain(windVectorY, getCrit3DTime(myDate, myHour), getPragaMapFromVar(windVectorY), false)) return false;
                         if (! pragaHourlyMaps->computeWindVector()) return false;
                     }
                     else if (myVar == leafWetness) {
