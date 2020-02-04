@@ -1702,7 +1702,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin,
                         if (! interpolationDemMain(airDewTemperature, getCrit3DTime(myDate, myHour), hourlyMeteoMaps->mapHourlyTdew, false)) return false;
                         hourlyMeteoMaps->computeRelativeHumidityMap(hourlyMeteoMaps->mapHourlyRelHum);
                     }
-                    if (myVar == windVectorDirection || myVar == windVectorIntensity) {
+                    else if (myVar == windVectorDirection || myVar == windVectorIntensity) {
                         if (! interpolationDemMain(myVar, getCrit3DTime(myDate, myHour), getPragaMapFromVar(windVectorX), false)) return false;
                         if (! interpolationDemMain(myVar, getCrit3DTime(myDate, myHour), getPragaMapFromVar(windVectorY), false)) return false;
                         if (! pragaHourlyMaps->computeWindVector()) return false;

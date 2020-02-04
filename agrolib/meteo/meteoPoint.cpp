@@ -669,10 +669,6 @@ float Crit3DMeteoPoint::getMeteoPointValueH(const Crit3DDate& myDate, int myHour
     {
         return NODATA;
     }
-    if (myHour <= 0 || myHour > 24)
-    {
-        return NODATA;
-    }
 
     // day index
     int d = obsDataH[0].date.daysTo(myDate);

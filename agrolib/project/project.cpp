@@ -1546,11 +1546,14 @@ bool Project::interpolateDemRadiation(const Crit3DTime& myTime, gis::Crit3DRaste
 
     // at least a meteoPoint with transmissivity data
     if (! computeTransmissivity(&radSettings, meteoPoints, nrMeteoPoints, intervalWidth, myTime, DEM))
+    {
+        // TODO: add flag to parameters. Could be NOT wanted
         if (! computeTransmissivityFromTRange(meteoPoints, nrMeteoPoints, myTime))
         {
-            logError("Function interpolateRasterRadiation: it is not possible to compute transmissivity.");
+            logError("Function interpolateDemRadiation: cannot compute transmissivity.");
             return false;
         }
+    }
 
     if (! checkAndPassDataToInterpolation(quality, atmTransmissivity, meteoPoints, nrMeteoPoints,
                                         myTime, &qualityInterpolationSettings,
@@ -1605,8 +1608,8 @@ bool Project::interpolationDemMain(meteoVariable myVar, const Crit3DTime& myTime
 
     if (myVar == globalIrradiance)
     {
-        Crit3DTime measureTime = myTime.addSeconds(-1800);
-        return interpolateDemRadiation(measureTime, myRaster, showInfo);
+        Crit3DTime halfHour = myTime.addSeconds(-1800);
+        return interpolateDemRadiation(halfHour, myRaster, showInfo);
     }
     else
     {
