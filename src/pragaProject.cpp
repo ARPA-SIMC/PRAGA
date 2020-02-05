@@ -1811,7 +1811,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     }
 
     // saving hourly and daily meteo grid data to DB
-    logInfo("Save meteo grid data");
+    logInfo("Saving meteo grid data");
     meteoGridDbHandler->saveGridData(&myError, QDateTime(dateIni, QTime(1,0,0)), QDateTime(dateFin.addDays(1), QTime(0,0,0)), variables);
 
     // restore original proxy grids
