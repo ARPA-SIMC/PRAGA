@@ -1708,8 +1708,6 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
         for (myHour = 1; myHour <= 24; myHour++)
         {
-            myHour = 24;
-
             myTime = QDateTime(myDate, QTime(myHour, 0));
             logInfo(myTime.toString("dd/MM/yyyy hh:00"));
 
