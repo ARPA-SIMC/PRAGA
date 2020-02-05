@@ -673,7 +673,7 @@ void MainWindow::on_dateChanged()
     if (date != myProject.getCurrentDate())
     {
         myProject.setCurrentDate(date);
-        myProject.loadMeteoPointsData(date, date, true);
+        myProject.loadMeteoPointsData(date, date, true, true, true);
         myProject.loadMeteoGridData(date, date, true);
 
     }
@@ -799,7 +799,7 @@ void MainWindow::drawMeteoPoints()
     if (! myProject.meteoPointsLoaded || myProject.nrMeteoPoints == 0) return;
     addMeteoPoints();
 
-    myProject.loadMeteoPointsData (myProject.getCurrentDate(), myProject.getCurrentDate(), true);
+    myProject.loadMeteoPointsData (myProject.getCurrentDate(), myProject.getCurrentDate(), true, true, true);
 
     ui->meteoPoints->setEnabled(true);
     ui->meteoPoints->setChecked(true);

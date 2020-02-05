@@ -1687,13 +1687,25 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     QDate myDate = dateIni;
     gis::Crit3DRasterGrid* myGrid = new gis::Crit3DRasterGrid();
     meteoVariable myVar;
+    frequencyType freq;
+    bool isDaily = false, isHourly = false;
+
+    // find out needed frequency
+    foreach (myVar, variables)
+    {
+        freq = getVarFrequency(myVar);
+        if (freq == hourly)
+            isHourly = true;
+        else if (freq == daily)
+            isDaily = true;
+    }
 
     int currentYear = NODATA;
 
     logInfo("Loading meteo points data... ");
     //load also one day in advance (for transmissivity)
     //to do: load only needed frequency
-    if (! loadMeteoPointsData(dateIni.addDays(-1), dateFin, false))
+    if (! loadMeteoPointsData(dateIni.addDays(-1), dateFin, isHourly, isDaily, false))
         return false;
 
     while (myDate <= dateFin)
