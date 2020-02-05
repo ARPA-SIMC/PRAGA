@@ -1634,9 +1634,34 @@ bool PragaProject::timeAggregateGridVarHourlyInDaily(meteoVariable dailyVar, Cri
 
 bool PragaProject::timeAggregateGrid(QDate dateIni, QDate dateFin, QList <meteoVariable> variables)
 {
+    // check variables
+    if (variables.size() == 0)
+    {
+        logError("No variable");
+        return false;
+    }
+
+    // check meteo grid
+    if (! meteoGridLoaded)
+    {
+        logError("No meteo grid");
+        return false;
+    }
+
+    // check dates
+    if (dateIni.isNull() || dateFin.isNull() || dateIni > dateFin)
+    {
+        logError("Wrong period");
+        return false;
+    }
+
+    logInfo("Loading grid data... ");
+    loadMeteoGridData(dateIni, dateFin, false);
+
     foreach (meteoVariable myVar, variables)
         if (getVarFrequency(myVar) == daily)
             if (! timeAggregateGridVarHourlyInDaily(myVar, getCrit3DDate(dateIni), getCrit3DDate(dateFin))) return false;
+
 
     return true;
 }
@@ -1704,7 +1729,6 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
     logInfo("Loading meteo points data... ");
     //load also one day in advance (for transmissivity)
-    //to do: load only needed frequency
     if (! loadMeteoPointsData(dateIni.addDays(-1), dateFin, isHourly, isDaily, false))
         return false;
 
