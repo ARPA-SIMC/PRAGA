@@ -1713,90 +1713,97 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
         // check proxy grid series
         if (currentYear != myDate.year())
         {
-            logInfo("Interpolating proxy grid series...");
             if (checkProxyGridSeries(&interpolationSettings, DEM, proxyGridSeries, myDate))
+            {
+                logInfo("Interpolating proxy grid series...");
                 if (! readProxyValues()) return false;
+            }
         }
 
-        for (myHour = 1; myHour <= 24; myHour++)
+        if (isHourly)
         {
-            logInfo("Interpolating hourly variables for " + myDate.toString("dd/MM/yyyy") + " " + QString("%1").arg(myHour, 2, 10, QChar('0')) + ":00");
-
-            foreach (myVar, variables)
+            for (myHour = 1; myHour <= 24; myHour++)
             {
-                if (getVarFrequency(myVar) == hourly)
+                logInfo("Interpolating hourly variables for " + myDate.toString("dd/MM/yyyy") + " " + QString("%1").arg(myHour, 2, 10, QChar('0')) + ":00");
+
+                foreach (myVar, variables)
                 {
-                    varName = QString::fromStdString(getMeteoVarName(myVar));
-                    logInfo(varName);
-
-                    if (myVar == airRelHumidity && interpolationSettings.getUseDewPoint()) {
-                        if (interpolationSettings.getUseInterpolatedTForRH())
-                            passInterpolatedTemperatureToHumidityPoints(getCrit3DTime(myDate, myHour));
-                        if (! interpolationDemMain(airDewTemperature, getCrit3DTime(myDate, myHour), hourlyMeteoMaps->mapHourlyTdew, false)) return false;
-                        hourlyMeteoMaps->computeRelativeHumidityMap(hourlyMeteoMaps->mapHourlyRelHum);
-                    }
-                    else if (myVar == windVectorDirection || myVar == windVectorIntensity) {
-                        if (! interpolationDemMain(windVectorX, getCrit3DTime(myDate, myHour), getPragaMapFromVar(windVectorX), false)) return false;
-                        if (! interpolationDemMain(windVectorY, getCrit3DTime(myDate, myHour), getPragaMapFromVar(windVectorY), false)) return false;
-                        if (! pragaHourlyMaps->computeWindVector()) return false;
-                    }
-                    else if (myVar == leafWetness) {
-                        hourlyMeteoMaps->computeLeafWetnessMap() ;
-                    }
-                    else if (myVar == referenceEvapotranspiration) {
-                        hourlyMeteoMaps->computeET0PMMap(DEM, radiationMaps);
-                    }
-                    else {
-                        if (! interpolationDemMain(myVar, getCrit3DTime(myDate, myHour), getPragaMapFromVar(myVar), false)) return false;
-                    }
-
-                    myGrid = getPragaMapFromVar(myVar);
-                    if (myGrid == nullptr) return false;
-
-                    //save raster
-                    if (saveRasters)
+                    if (getVarFrequency(myVar) == hourly)
                     {
-                        rasterName = getMapFileOutName(myVar, myDate, myHour);
-                        if (rasterName != "") gis::writeEsriGrid(getProjectPath().toStdString() + rasterName.toStdString(), myGrid, &errString);
+                        varName = QString::fromStdString(getMeteoVarName(myVar));
+                        logInfo(varName);
+
+                        if (myVar == airRelHumidity && interpolationSettings.getUseDewPoint()) {
+                            if (interpolationSettings.getUseInterpolatedTForRH())
+                                passInterpolatedTemperatureToHumidityPoints(getCrit3DTime(myDate, myHour));
+                            if (! interpolationDemMain(airDewTemperature, getCrit3DTime(myDate, myHour), hourlyMeteoMaps->mapHourlyTdew, false)) return false;
+                            hourlyMeteoMaps->computeRelativeHumidityMap(hourlyMeteoMaps->mapHourlyRelHum);
+                        }
+                        else if (myVar == windVectorDirection || myVar == windVectorIntensity) {
+                            if (! interpolationDemMain(windVectorX, getCrit3DTime(myDate, myHour), getPragaMapFromVar(windVectorX), false)) return false;
+                            if (! interpolationDemMain(windVectorY, getCrit3DTime(myDate, myHour), getPragaMapFromVar(windVectorY), false)) return false;
+                            if (! pragaHourlyMaps->computeWindVector()) return false;
+                        }
+                        else if (myVar == leafWetness) {
+                            hourlyMeteoMaps->computeLeafWetnessMap() ;
+                        }
+                        else if (myVar == referenceEvapotranspiration) {
+                            hourlyMeteoMaps->computeET0PMMap(DEM, radiationMaps);
+                        }
+                        else {
+                            if (! interpolationDemMain(myVar, getCrit3DTime(myDate, myHour), getPragaMapFromVar(myVar), false)) return false;
+                        }
+
+                        myGrid = getPragaMapFromVar(myVar);
+                        if (myGrid == nullptr) return false;
+
+                        //save raster
+                        if (saveRasters)
+                        {
+                            rasterName = getMapFileOutName(myVar, myDate, myHour);
+                            if (rasterName != "") gis::writeEsriGrid(getProjectPath().toStdString() + rasterName.toStdString(), myGrid, &errString);
+                        }
+
+                        meteoGridDbHandler->meteoGrid()->spatialAggregateMeteoGrid(myVar, hourly, getCrit3DDate(myDate), myHour, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
+
                     }
-
-                    meteoGridDbHandler->meteoGrid()->spatialAggregateMeteoGrid(myVar, hourly, getCrit3DDate(myDate), myHour, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
-
                 }
             }
         }
 
-        //interpolation daily var
-        logInfo("Interpolating daily variables for " + myDate.toString("dd/MM/yyyy"));
-
-        foreach (myVar, variables)
+        if (isDaily)
         {
-            if (getVarFrequency(myVar) == daily)
+            logInfo("Interpolating daily variables for " + myDate.toString("dd/MM/yyyy"));
+
+            foreach (myVar, variables)
             {
-                varName = QString::fromStdString(getMeteoVarName(myVar));
-                logInfo(varName);
-
-                if (myVar == dailyReferenceEvapotranspirationHS) {
-                    pragaDailyMaps->computeHSET0Map(&gisSettings, getCrit3DDate(myDate));
-                }
-                else {
-                    if (! interpolationDemMain(myVar, getCrit3DTime(myDate, 0), getPragaMapFromVar(myVar), false)) return false;
-                }
-
-                // fix daily temperatures consistency
-                if (myVar == dailyAirTemperatureMax || myVar == dailyAirTemperatureMin) {
-                    if (! pragaDailyMaps->fixDailyThermalConsistency()) return false;
-                }
-
-                //save raster
-                if (saveRasters)
+                if (getVarFrequency(myVar) == daily)
                 {
-                    rasterName = getMapFileOutName(myVar, myDate, 0);
-                    gis::writeEsriGrid(getProjectPath().toStdString() + rasterName.toStdString(), getPragaMapFromVar(myVar), &errString);
+                    varName = QString::fromStdString(getMeteoVarName(myVar));
+                    logInfo(varName);
+
+                    if (myVar == dailyReferenceEvapotranspirationHS) {
+                        pragaDailyMaps->computeHSET0Map(&gisSettings, getCrit3DDate(myDate));
+                    }
+                    else {
+                        if (! interpolationDemMain(myVar, getCrit3DTime(myDate, 0), getPragaMapFromVar(myVar), false)) return false;
+                    }
+
+                    // fix daily temperatures consistency
+                    if (myVar == dailyAirTemperatureMax || myVar == dailyAirTemperatureMin) {
+                        if (! pragaDailyMaps->fixDailyThermalConsistency()) return false;
+                    }
+
+                    //save raster
+                    if (saveRasters)
+                    {
+                        rasterName = getMapFileOutName(myVar, myDate, 0);
+                        gis::writeEsriGrid(getProjectPath().toStdString() + rasterName.toStdString(), getPragaMapFromVar(myVar), &errString);
+                    }
+
+                    meteoGridDbHandler->meteoGrid()->spatialAggregateMeteoGrid(myVar, daily, getCrit3DDate(myDate), myHour, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
+
                 }
-
-                meteoGridDbHandler->meteoGrid()->spatialAggregateMeteoGrid(myVar, daily, getCrit3DDate(myDate), myHour, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
-
             }
         }
 
