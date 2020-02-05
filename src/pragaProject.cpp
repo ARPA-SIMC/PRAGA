@@ -1598,7 +1598,7 @@ QString getMapFileOutName(meteoVariable myVar, QDate myDate, int myHour)
 
     QString name = QString::fromStdString(myName);
     name += "_" + myDate.toString(Qt::ISODate);
-    name += "_" + QString::number(myHour);
+    if (getVarFrequency(myVar) == hourly) name += "_" + QString::number(myHour);
 
     return name;
 }
@@ -1683,7 +1683,6 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     std::string id;
     std::string errString;
     QString myError, rasterName, varName;
-    QDateTime myTime;
     int myHour;
     QDate myDate = dateIni;
     gis::Crit3DRasterGrid* myGrid = new gis::Crit3DRasterGrid();
@@ -1693,6 +1692,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
     logInfo("Loading meteo points data... ");
     //load also one day in advance (for transmissivity)
+    //to do: load only needed frequency
     if (! loadMeteoPointsData(dateIni.addDays(-1), dateFin, false))
         return false;
 
@@ -1708,15 +1708,14 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
         for (myHour = 1; myHour <= 24; myHour++)
         {
-            myTime = QDateTime(myDate, QTime(myHour, 0));
-            logInfo(myTime.toString("dd/MM/yyyy hh:00"));
+            logInfo("Interpolating hourly variables for " + myDate.toString("dd/MM/yyyy") + " " + QString("%1").arg(myHour, 2, 10, QChar('0')) + ":00");
 
             foreach (myVar, variables)
             {
                 if (getVarFrequency(myVar) == hourly)
                 {
                     varName = QString::fromStdString(getMeteoVarName(myVar));
-                    logInfo("Interpolating " + varName);
+                    logInfo(varName);
 
                     if (myVar == airRelHumidity && interpolationSettings.getUseDewPoint()) {
                         if (interpolationSettings.getUseInterpolatedTForRH())
@@ -1755,19 +1754,21 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
             }
         }
 
-        //interpolation daily var (not aggregated, e.g. daily minimum temperature, daily precipitation, maximum wind intensity)
+        //interpolation daily var
+        logInfo("Interpolating daily variables for " + myDate.toString("dd/MM/yyyy"));
+
         foreach (myVar, variables)
         {
             if (getVarFrequency(myVar) == daily)
             {
                 varName = QString::fromStdString(getMeteoVarName(myVar));
-                logInfo("Interpolating " + varName);
+                logInfo(varName);
 
                 if (myVar == dailyReferenceEvapotranspirationHS) {
                     pragaDailyMaps->computeHSET0Map(&gisSettings, getCrit3DDate(myDate));
                 }
                 else {
-                    if (! interpolationDemMain(myVar, getCrit3DTime(myDate, myHour), getPragaMapFromVar(myVar), false)) return false;
+                    if (! interpolationDemMain(myVar, getCrit3DTime(myDate, 0), getPragaMapFromVar(myVar), false)) return false;
                 }
 
                 // fix daily temperatures consistency
@@ -1776,7 +1777,11 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
                 }
 
                 //save raster
-                if (saveRasters) gis::writeEsriGrid(getProjectPath().toStdString() + PATH_METEOGRID + getMapFileOutName(myVar, myDate, myHour).toStdString(), getPragaMapFromVar(myVar), &errString);
+                if (saveRasters)
+                {
+                    rasterName = getMapFileOutName(myVar, myDate, 0);
+                    gis::writeEsriGrid(getProjectPath().toStdString() + rasterName.toStdString(), getPragaMapFromVar(myVar), &errString);
+                }
 
                 meteoGridDbHandler->meteoGrid()->spatialAggregateMeteoGrid(myVar, daily, getCrit3DDate(myDate), myHour, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
 
