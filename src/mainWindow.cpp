@@ -545,7 +545,7 @@ void MainWindow::interpolateDemGUI()
 void MainWindow::interpolateGridGUI()
 {
     if (myProject.interpolationMeteoGrid(myProject.getCurrentVariable(), myProject.getCurrentFrequency(),
-                                         myProject.getCrit3DCurrentTime(), &(myProject.dataRaster), true))
+                                         myProject.getCrit3DCurrentTime(), true))
     {
         //setCurrentRaster(&(myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid));
         //ui->labelRasterScale->setText(QString::fromStdString(getVariableString(myProject.getCurrentVariable())));
@@ -673,7 +673,7 @@ void MainWindow::on_dateChanged()
     if (date != myProject.getCurrentDate())
     {
         myProject.setCurrentDate(date);
-        myProject.loadMeteoPointsData(date, date, true);
+        myProject.loadMeteoPointsData(date, date, true, true, true);
         myProject.loadMeteoGridData(date, date, true);
 
     }
@@ -799,7 +799,7 @@ void MainWindow::drawMeteoPoints()
     if (! myProject.meteoPointsLoaded || myProject.nrMeteoPoints == 0) return;
     addMeteoPoints();
 
-    myProject.loadMeteoPointsData (myProject.getCurrentDate(), myProject.getCurrentDate(), true);
+    myProject.loadMeteoPointsData (myProject.getCurrentDate(), myProject.getCurrentDate(), true, true, true);
 
     ui->meteoPoints->setEnabled(true);
     ui->meteoPoints->setChecked(true);

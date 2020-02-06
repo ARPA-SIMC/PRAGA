@@ -2,7 +2,7 @@
 
 	<connection>
 		<provider>mysql</provider>
-		<server>agroper2-smr.arpa.emr.net</server>
+		<server>agrosql-smr.metarpa</server>
 		<name>ERG5_v2</name>
 		<user>root</user>
 		<password>Praga</password>
