@@ -142,20 +142,30 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
 
     QDate dateIni, dateFin;
     bool saveRasters = false;
+    QList <QString> varString, aggrVarString;
     QList <meteoVariable> variables, aggrVariables;
+    QString var;
     meteoVariable meteoVar;
 
     for (int i = 1; i < argumentList.size(); i++)
     {
         if (argumentList[i].left(3) == "-v:")
         {
-            meteoVar = getMeteoVar(argumentList[i].right(argumentList[i].length()-3).toStdString());
-            if (meteoVar != noMeteoVar) variables << meteoVar;
+            varString = argumentList[i].right(argumentList[i].length()-3).split(",");
+            foreach (var,varString)
+            {
+                meteoVar = getMeteoVar(var.toStdString());
+                if (meteoVar != noMeteoVar) variables << meteoVar;
+            }
         }
         else if (argumentList[i].left(3) == "-a:")
         {
-            meteoVar = getMeteoVar(argumentList[i].right(argumentList[i].length()-3).toStdString());
-            if (meteoVar != noMeteoVar) aggrVariables << meteoVar;
+            varString = argumentList[i].right(argumentList[i].length()-3).split(",");
+            foreach (var,varString)
+            {
+                meteoVar = getMeteoVar(var.toStdString());
+                if (meteoVar != noMeteoVar) aggrVariables << meteoVar;
+            }
         }
         else if (argumentList.at(i).left(4) == "-d1:")
         {
@@ -199,7 +209,11 @@ bool cmdAggregationGridPeriod(PragaProject* myProject, QStringList argumentList)
             dateIni = QDate::fromString(dateIniStr, "dd/MM/yyyy");
         }
         else if (argumentList.at(i).left(4) == "-d2:")
-            dateFin = QDate::fromString(argumentList[i].right(argumentList[i].length()-4), "dd/MM/yyyy");
+        {
+            QString dateFinStr = argumentList[i].right(argumentList[i].length()-4);
+            dateFin = QDate::fromString(dateFinStr, "dd/MM/yyyy");
+        }
+
     }
 
     if (! myProject->timeAggregateGrid(dateIni, dateFin, variables, true, true))
