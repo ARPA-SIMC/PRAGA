@@ -142,7 +142,7 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
 
     QDate dateIni, dateFin;
     bool saveRasters = false;
-    QList <meteoVariable> variables;
+    QList <meteoVariable> variables, aggrVariables;
     meteoVariable meteoVar;
 
     for (int i = 1; i < argumentList.size(); i++)
@@ -151,6 +151,11 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
         {
             meteoVar = getMeteoVar(argumentList[i].right(argumentList[i].length()-3).toStdString());
             if (meteoVar != noMeteoVar) variables << meteoVar;
+        }
+        else if (argumentList[i].left(3) == "-a:")
+        {
+            meteoVar = getMeteoVar(argumentList[i].right(argumentList[i].length()-3).toStdString());
+            if (meteoVar != noMeteoVar) aggrVariables << meteoVar;
         }
         else if (argumentList.at(i).left(4) == "-d1:")
         {
@@ -163,7 +168,7 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
             saveRasters = true;
     }
 
-    if (! myProject->interpolationMeteoGridPeriod(dateIni, dateFin, variables, saveRasters))
+    if (! myProject->interpolationMeteoGridPeriod(dateIni, dateFin, variables, aggrVariables, saveRasters))
         return false;
 
     return true;
@@ -197,7 +202,7 @@ bool cmdAggregationGridPeriod(PragaProject* myProject, QStringList argumentList)
             dateFin = QDate::fromString(argumentList[i].right(argumentList[i].length()-4), "dd/MM/yyyy");
     }
 
-    if (! myProject->timeAggregateGrid(dateIni, dateFin, variables))
+    if (! myProject->timeAggregateGrid(dateIni, dateFin, variables, true, true))
         return false;
 
     return true;

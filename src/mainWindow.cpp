@@ -2095,9 +2095,9 @@ void MainWindow::on_actionInterpolateSaveGridPeriod_triggered()
     meteoVariable myVar = chooseMeteoVariable(&myProject);
     if (myVar == noMeteoVar) return;
 
-    QList <meteoVariable> myVariables;
+    QList <meteoVariable> myVariables, aggrVariables;
     myVariables.push_back(myVar);
-    myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables, false);
+    myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables, aggrVariables, false);
 }
 
 void MainWindow::on_actionMeteopointNewArkimet_triggered()

@@ -1632,7 +1632,7 @@ bool PragaProject::timeAggregateGridVarHourlyInDaily(meteoVariable dailyVar, Cri
     return true;
 }
 
-bool PragaProject::timeAggregateGrid(QDate dateIni, QDate dateFin, QList <meteoVariable> variables)
+bool PragaProject::timeAggregateGrid(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, bool loadData, bool saveData)
 {
     // check variables
     if (variables.size() == 0)
@@ -1655,18 +1655,29 @@ bool PragaProject::timeAggregateGrid(QDate dateIni, QDate dateFin, QList <meteoV
         return false;
     }
 
-    logInfo("Loading grid data... ");
-    loadMeteoGridData(dateIni, dateFin, false);
+    // now only hourly-->daily
+    if (loadData)
+    {
+        logInfo("Loading grid data... ");
+        loadMeteoGridHourlyData(QDateTime(dateIni, QTime(1,0)), QDateTime(dateFin.addDays(1), QTime(0,0)), false);
+    }
 
     foreach (meteoVariable myVar, variables)
         if (getVarFrequency(myVar) == daily)
             if (! timeAggregateGridVarHourlyInDaily(myVar, getCrit3DDate(dateIni), getCrit3DDate(dateFin))) return false;
 
+    // saving hourly and daily meteo grid data to DB
+    if (saveData)
+    {
+        QString myError;
+        logInfo("Saving meteo grid data");
+        if (! meteoGridDbHandler->saveGridData(&myError, QDateTime(dateIni, QTime(1,0,0)), QDateTime(dateFin.addDays(1), QTime(0,0,0)), variables)) return false;
+    }
 
     return true;
 }
 
-bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, bool saveRasters)
+bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, QList <meteoVariable> aggrVariables, bool saveRasters)
 {
     // check variables
     if (variables.size() == 0)
@@ -1833,6 +1844,9 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
         myDate = myDate.addDays(1);
     }
+
+    if (aggrVariables.count() > 0)
+        timeAggregateGrid( dateIni, dateFin, aggrVariables, false, false);
 
     // saving hourly and daily meteo grid data to DB
     logInfo("Saving meteo grid data");
