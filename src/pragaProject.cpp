@@ -1846,7 +1846,10 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     }
 
     if (aggrVariables.count() > 0)
-        timeAggregateGrid( dateIni, dateFin, aggrVariables, false, false);
+    {
+        logInfo("Time integration");
+        if (! timeAggregateGrid( dateIni, dateFin, aggrVariables, false, false)) return false;
+    }
 
     // saving hourly and daily meteo grid data to DB
     logInfo("Saving meteo grid data");
