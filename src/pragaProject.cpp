@@ -1759,6 +1759,8 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
         {
             for (myHour = 1; myHour <= 24; myHour++)
             {
+                myHour = 14;
+
                 logInfo("Interpolating hourly variables for " + myDate.toString("dd/MM/yyyy") + " " + QString("%1").arg(myHour, 2, 10, QChar('0')) + ":00");
 
                 foreach (myVar, variables)
@@ -1773,6 +1775,10 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
                                 passInterpolatedTemperatureToHumidityPoints(getCrit3DTime(myDate, myHour));
                             if (! interpolationDemMain(airDewTemperature, getCrit3DTime(myDate, myHour), hourlyMeteoMaps->mapHourlyTdew, false)) return false;
                             hourlyMeteoMaps->computeRelativeHumidityMap(hourlyMeteoMaps->mapHourlyRelHum);
+
+                            myGrid = getPragaMapFromVar(myVar);
+                            rasterName = getMapFileOutName(airDewTemperature, myDate, myHour);
+                            if (rasterName != "") gis::writeEsriGrid(getProjectPath().toStdString() + rasterName.toStdString(), myGrid, &errString);
                         }
                         else if (myVar == windVectorDirection || myVar == windVectorIntensity) {
                             if (! interpolationDemMain(windVectorX, getCrit3DTime(myDate, myHour), getPragaMapFromVar(windVectorX), false)) return false;
