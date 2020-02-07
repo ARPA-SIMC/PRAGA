@@ -996,6 +996,8 @@ void MainWindow::drawMeteoGrid()
     if (currentGridVisualization == notShown) currentGridVisualization = showLocation;
     redrawMeteoGrid(currentGridVisualization, false);
 
+    updateDateTime();
+
     updateMaps();
 }
 
