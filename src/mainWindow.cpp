@@ -513,6 +513,22 @@ void MainWindow::interpolateDemGUI()
 
     meteoVariable myVar = myProject.getCurrentVariable();
 
+    /*
+    if (myVar == airRelHumidity && interpolationSettings.getUseDewPoint()) {
+        if (interpolationSettings.getUseInterpolatedTForRH())
+            passInterpolatedTemperatureToHumidityPoints(getCrit3DTime(myDate, myHour));
+        if (! interpolationDemMain(airDewTemperature, getCrit3DTime(myDate, myHour), hourlyMeteoMaps->mapHourlyTdew, false)) return false;
+        hourlyMeteoMaps->computeRelativeHumidityMap(hourlyMeteoMaps->mapHourlyRelHum);
+    }
+    else if (myVar == windVectorDirection || myVar == windVectorIntensity) {
+        if (! interpolationDemMain(windVectorX, getCrit3DTime(myDate, myHour), getPragaMapFromVar(windVectorX), false)) return false;
+        if (! interpolationDemMain(windVectorY, getCrit3DTime(myDate, myHour), getPragaMapFromVar(windVectorY), false)) return false;
+        if (! pragaHourlyMaps->computeWindVector()) return false;
+    }
+    */
+
+
+
     if (myVar == airRelHumidity && myProject.interpolationSettings.getUseDewPoint())
     {
         if (! myProject.interpolationDemMain(airTemperature, myProject.getCrit3DCurrentTime(), myProject.hourlyMeteoMaps->mapHourlyTair, true)) return;
@@ -972,9 +988,6 @@ void MainWindow::drawMeteoGrid()
 
     meteoGridLegend->colorScale = myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.colorScale;
     ui->meteoGridOpacitySlider->setEnabled(true);
-
-    myProject.setCurrentDate(myProject.meteoGridDbHandler->lastDate());
-    updateDateTime();
 
     if (myProject.loadGridDataAtStart)
     {
