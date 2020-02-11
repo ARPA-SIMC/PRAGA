@@ -1744,16 +1744,16 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
         return false;
 
     logInfo("Initializing meteo grid...");
-    meteoGridDbHandler->initializeData(dateIni, dateFin);
+    meteoGridDbHandler->meteoGrid()->initializeData(getCrit3DDate(dateIni), getCrit3DDate(dateFin));
 
     while (myDate <= dateFin)
     {
         // check proxy grid series
         if (currentYear != myDate.year())
         {
+            logInfo("Interpolating proxy grid series...");
             if (checkProxyGridSeries(&interpolationSettings, DEM, proxyGridSeries, myDate))
             {
-                logInfo("Interpolating proxy grid series...");
                 if (! readProxyValues()) return false;
                 currentYear = myDate.year();
             }
@@ -1808,7 +1808,6 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
                         }
 
                         meteoGridDbHandler->meteoGrid()->spatialAggregateMeteoGrid(myVar, hourly, getCrit3DDate(myDate), myHour, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
-
                     }
                 }
             }
