@@ -1743,6 +1743,9 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     if (! loadMeteoPointsData(dateIni.addDays(-1), dateFin, isHourly, isDaily, false))
         return false;
 
+    logInfo("Initializing meteo grid...");
+    meteoGridDbHandler->initializeData(dateIni, dateFin);
+
     while (myDate <= dateFin)
     {
         // check proxy grid series
@@ -1752,6 +1755,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
             {
                 logInfo("Interpolating proxy grid series...");
                 if (! readProxyValues()) return false;
+                currentYear = myDate.year();
             }
         }
 
@@ -1840,7 +1844,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
                         gis::writeEsriGrid(getProjectPath().toStdString() + rasterName.toStdString(), getPragaMapFromVar(myVar), &errString);
                     }
 
-                    meteoGridDbHandler->meteoGrid()->spatialAggregateMeteoGrid(myVar, daily, getCrit3DDate(myDate), myHour, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
+                    meteoGridDbHandler->meteoGrid()->spatialAggregateMeteoGrid(myVar, daily, getCrit3DDate(myDate), 0, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
 
                 }
             }
@@ -1852,7 +1856,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     if (aggrVariables.count() > 0)
     {
         logInfo("Time integration");
-        if (! timeAggregateGrid( dateIni, dateFin, aggrVariables, false, false)) return false;
+        if (! timeAggregateGrid(dateIni, dateFin, aggrVariables, false, false)) return false;
     }
 
     // saving hourly and daily meteo grid data to DB
