@@ -1807,7 +1807,14 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
                             if (rasterName != "") gis::writeEsriGrid(getProjectPath().toStdString() + rasterName.toStdString(), myGrid, &errString);
                         }
 
-                        meteoGridDbHandler->meteoGrid()->spatialAggregateMeteoGrid(myVar, hourly, getCrit3DDate(myDate), myHour, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
+                        if (myVar == windVectorDirection || myVar == windVectorIntensity)
+                        {
+                            meteoGridDbHandler->meteoGrid()->spatialAggregateMeteoGrid(windVectorX, hourly, getCrit3DDate(myDate), myHour, 0, &DEM, getPragaMapFromVar(windVectorX), interpolationSettings.getMeteoGridAggrMethod());
+                            meteoGridDbHandler->meteoGrid()->spatialAggregateMeteoGrid(windVectorY, hourly, getCrit3DDate(myDate), myHour, 0, &DEM, getPragaMapFromVar(windVectorY), interpolationSettings.getMeteoGridAggrMethod());
+                            meteoGridDbHandler->meteoGrid()->computeWindVectorHourly(getCrit3DDate(myDate), myHour);
+                        }
+                        else
+                            meteoGridDbHandler->meteoGrid()->spatialAggregateMeteoGrid(myVar, hourly, getCrit3DDate(myDate), myHour, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
                     }
                 }
             }
