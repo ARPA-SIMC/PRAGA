@@ -1725,7 +1725,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     meteoVariable myVar;
     frequencyType freq;
     bool isDaily = false, isHourly = false;
-    QList <meteoVariable> varToSave;
+    QList<meteoVariable> varToSave;
 
     // find out needed frequency
     foreach (myVar, variables)
@@ -1851,11 +1851,14 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
                         if (! pragaDailyMaps->fixDailyThermalConsistency()) return false;
                     }
 
+                    myGrid = getPragaMapFromVar(myVar);
+                    if (myGrid == nullptr) return false;
+
                     //save raster
                     if (saveRasters)
                     {
                         rasterName = getMapFileOutName(myVar, myDate, 0);
-                        gis::writeEsriGrid(getProjectPath().toStdString() + rasterName.toStdString(), getPragaMapFromVar(myVar), &errString);
+                        gis::writeEsriGrid(getProjectPath().toStdString() + rasterName.toStdString(), myGrid, &errString);
                     }
 
                     meteoGridDbHandler->meteoGrid()->spatialAggregateMeteoGrid(myVar, daily, getCrit3DDate(myDate), 0, 0, &DEM, myGrid, interpolationSettings.getMeteoGridAggrMethod());
