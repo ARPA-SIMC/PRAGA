@@ -60,6 +60,10 @@
 			<varcode>10</varcode>
 			<varpraganame>DAILY_ET0_PM</varpraganame>
 		</varcode>
+		<varcode>
+			<varcode>11</varcode>
+			<varpraganame>DAILY_LEAFW</varpraganame>
+		</varcode>
 	</tabledaily>
 	
 	<tablehourly>
