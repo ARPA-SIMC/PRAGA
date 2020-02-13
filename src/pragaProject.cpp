@@ -1744,6 +1744,10 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
             varToSave.push_back(windVectorIntensity);
     }
 
+    // save also time aggregated variables
+    foreach (myVar, aggrVariables)
+        varToSave.push_back(myVar);
+
     int currentYear = NODATA;
 
     logInfo("Loading meteo points data... ");
