@@ -1725,6 +1725,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     meteoVariable myVar;
     frequencyType freq;
     bool isDaily = false, isHourly = false;
+    QList <meteoVariable> varToSave;
 
     // find out needed frequency
     foreach (myVar, variables)
@@ -1734,6 +1735,13 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
             isHourly = true;
         else if (freq == daily)
             isDaily = true;
+
+        // save two variables for vector wind
+        varToSave.push_back(myVar);
+        if (myVar == windVectorIntensity)
+            varToSave.push_back(windVectorDirection);
+        else if (myVar == windVectorDirection)
+            varToSave.push_back(windVectorIntensity);
     }
 
     int currentYear = NODATA;
@@ -1867,7 +1875,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
     // saving hourly and daily meteo grid data to DB
     logInfo("Saving meteo grid data");
-    meteoGridDbHandler->saveGridData(&myError, QDateTime(dateIni, QTime(1,0,0)), QDateTime(dateFin.addDays(1), QTime(0,0,0)), variables);
+    meteoGridDbHandler->saveGridData(&myError, QDateTime(dateIni, QTime(1,0,0)), QDateTime(dateFin.addDays(1), QTime(0,0,0)), varToSave);
 
     // restore original proxy grids
     logInfo("Restoring proxy grids");
