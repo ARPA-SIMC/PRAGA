@@ -146,6 +146,8 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
     QList <meteoVariable> variables, aggrVariables;
     QString var;
     meteoVariable meteoVar;
+    int saveInterval = NODATA;
+    bool parseSaveInterval = false;
 
     for (int i = 1; i < argumentList.size(); i++)
     {
@@ -168,14 +170,32 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
             }
         }
         else if (argumentList.at(i).left(4) == "-d1:")
-        {
-            QString dateIniStr = argumentList[i].right(argumentList[i].length()-4);
-            dateIni = QDate::fromString(dateIniStr, "dd/MM/yyyy");
-        }
+            dateIni = QDate::fromString(argumentList[i].right(argumentList[i].length()-4), "dd/MM/yyyy");
         else if (argumentList.at(i).left(4) == "-d2:")
             dateFin = QDate::fromString(argumentList[i].right(argumentList[i].length()-4), "dd/MM/yyyy");
         else if (argumentList.at(i).left(2) == "-r")
             saveRasters = true;
+        else if (argumentList.at(i).left(2) == "-s:")
+            saveInterval = argumentList[i].right(argumentList[i].length()-3).toInt(&parseSaveInterval, 10);
+
+    }
+
+    if (! dateIni.isValid())
+    {
+        myProject->logError("Wrong initial date");
+        return false;
+    }
+
+    if (! dateFin.isValid())
+    {
+        myProject->logError("Wrong final date");
+        return false;
+    }
+
+    if (saveInterval == NODATA || ! parseSaveInterval)
+    {
+        myProject->logError("Wrong save interval number");
+        return false;
     }
 
     if (! myProject->interpolationMeteoGridPeriod(dateIni, dateFin, variables, aggrVariables, saveRasters))
