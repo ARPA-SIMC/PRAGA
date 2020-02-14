@@ -1888,7 +1888,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
             logInfo("Saving meteo grid data from " + saveDateIni.toString("dd/MM/yyyy") + " to " + myDate.toString("dd/MM/yyyy"));
             meteoGridDbHandler->saveGridData(&myError, QDateTime(saveDateIni, QTime(1,0,0)), QDateTime(myDate.addDays(1), QTime(0,0,0)), varToSave);
 
-            meteoGridDbHandler->meteoGrid()->initializeData(getCrit3DDate(saveDateIni), getCrit3DDate(myDate));
+            meteoGridDbHandler->meteoGrid()->emptyGridData(getCrit3DDate(saveDateIni), getCrit3DDate(myDate));
 
             intervalDays = 0;
             saveDateIni = myDate.addDays(1);
@@ -1896,8 +1896,6 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
         myDate = myDate.addDays(1);
     }
-
-
 
     // restore original proxy grids
     logInfo("Restoring proxy grids");
