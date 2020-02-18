@@ -99,62 +99,27 @@ double getCropReadilyAvailableWater(CriteriaModel* myCase)
     if (myCase->myCrop.roots.rootDepth <= myCase->myCrop.roots.rootDepthMin) return 0.;
     if (myCase->myCrop.roots.firstRootLayer == NODATA) return 0.;
 
-    double depth, threshold, layerRAW;
-
     double sumRAW = 0.0;
     for (unsigned int i = unsigned(myCase->myCrop.roots.firstRootLayer); i <= unsigned(myCase->myCrop.roots.lastRootLayer); i++)
     {
-        threshold = myCase->layers[i].FC - myCase->myCrop.fRAW * (myCase->layers[i].FC - myCase->layers[i].WP);
+        double thetaWP = soil::thetaFromSignPsi(-soil::cmTokPa(myCase->myCrop.psiLeaf), myCase->layers[i].horizon);
+        // [mm]
+        double cropWP = thetaWP * myCase->layers[i].thickness * myCase->layers[i].soilFraction * 1000.0;
+        // [mm]
+        double threshold = myCase->layers[i].FC - myCase->myCrop.fRAW * (myCase->layers[i].FC - cropWP);
 
-        layerRAW = (myCase->layers[i].waterContent - threshold);
+        double layerRAW = (myCase->layers[i].waterContent - threshold);
 
-        depth = myCase->layers[i].depth + myCase->layers[i].thickness / 2.0;
-
-        if (myCase->myCrop.roots.rootDepth < depth)
-                layerRAW *= (myCase->myCrop.roots.rootDepth - depth) / myCase->layers[i].thickness;
+        double layerMaxDepth = myCase->layers[i].depth + myCase->layers[i].thickness / 2.0;
+        if (myCase->myCrop.roots.rootDepth < layerMaxDepth)
+        {
+                layerRAW *= (myCase->myCrop.roots.rootDepth - layerMaxDepth) / myCase->layers[i].thickness;
+        }
 
         sumRAW += layerRAW;
     }
 
     return sumRAW;
-}
-
-
-/*!
- * \brief getTotalReadilyAvailableWater
- * \return sum of readily available water (mm)
- * \note take into account at minimum the forst meter f soil and the surface water
- */
-double getTotalReadilyAvailableWater(CriteriaModel* myCase)
-{
-    if (! myCase->myCrop.isLiving) return NODATA;
-    if (myCase->myCrop.roots.rootDepth <= myCase->myCrop.roots.rootDepthMin) return NODATA;
-    if (myCase->myCrop.roots.firstRootLayer == NODATA) return NODATA;
-
-    double threshold;
-    int lastLayer = 0;
-
-    while (unsigned(lastLayer) < (myCase->nrLayers-1) && myCase->layers[unsigned(lastLayer)].depth < 1.0)
-            lastLayer++;
-
-    lastLayer = MAXVALUE(lastLayer, myCase->myCrop.roots.lastRootLayer);
-
-    // surface water
-    double RAW = myCase->layers[0].waterContent;
-
-    for (unsigned int i = 1; i <= unsigned(lastLayer); i++)
-    {
-        if (signed(i) < myCase->myCrop.roots.firstRootLayer)
-            threshold = myCase->layers[i].FC;
-        else
-            // rooting zone
-            threshold = myCase->layers[i].FC - myCase->myCrop.fRAW * (myCase->layers[i].FC - myCase->layers[i].WP);
-
-        if(myCase->layers[i].waterContent > threshold)
-            RAW += (myCase->layers[i].waterContent - threshold);
-    }
-
-    return RAW;
 }
 
 
@@ -183,7 +148,7 @@ float cropIrrigationDemand(CriteriaModel* myCase, int doy, float currentPrec, fl
             myCase->myCrop.degreeDays > myCase->myCrop.degreeDaysEndIrrigation) return 0;
     }
 
-    // check forecast
+    // check forecast (today and tomorrow)
     double waterNeeds = myCase->myCrop.irrigationVolume / myCase->myCrop.irrigationShift;
     double todayWater = double(currentPrec) + myCase->layers[0].waterContent;
     double twoDaysWater = todayWater + double(nextPrec);
@@ -326,7 +291,6 @@ double cropTranspiration(CriteriaModel* myCase, bool getWaterStress)
     double TRs=0.0;                                 // [mm] actual transpiration with only water scarsity stress
     double TRe=0.0;                                 // [mm] actual transpiration with only water surplus stress
     double totRootDensityWithoutStress = 0.0;       // [-]
-    double stress = 0.0;                            // [-]
     double redistribution = 0.0;                    // [mm]
 
     if (myCase->output.dailyMaxTranspiration < EPSILON)
@@ -406,36 +370,37 @@ double cropTranspiration(CriteriaModel* myCase, bool getWaterStress)
         }
     }
 
+    // WATER STRESS [-]
+    double waterStress = 0.0;
+    if (myCase->output.dailyMaxTranspiration > 0)
+        waterStress = 1.0 - (TRs / myCase->output.dailyMaxTranspiration);
+
     // Hydraulic redistribution
     // the movement of water from moist to dry soil through plant roots
     // TODO add numerical process
-    if (myCase->output.dailyMaxTranspiration > 0 && totRootDensityWithoutStress > 0)
+    if (waterStress > EPSILON && totRootDensityWithoutStress > EPSILON)
     {
-        stress = 1.0 - (TRs / myCase->output.dailyMaxTranspiration);
+        // redistribution acts on not stressed roots
+        redistribution = MINVALUE(waterStress, totRootDensityWithoutStress) * myCase->output.dailyMaxTranspiration;
 
-        if (stress > EPSILON)
+        for (int i = myCase->myCrop.roots.firstRootLayer; i <= myCase->myCrop.roots.lastRootLayer; i++)
         {
-            redistribution = MINVALUE(stress, totRootDensityWithoutStress * 0.5) * myCase->output.dailyMaxTranspiration;
-            // maximum 1.6 mm (Neumann at al. values span from 0 to 3.2)
-            // redistribution = MINVALUE(redistribution, 1.6);
-
-            for (int i = myCase->myCrop.roots.firstRootLayer; i <= myCase->myCrop.roots.lastRootLayer; i++)
+            if (! isLayerStressed[i])
             {
-                if (! isLayerStressed[i])
-                {
-                    double addTransp = redistribution * (myCase->myCrop.roots.rootDensity[i] / totRootDensityWithoutStress);
-                    layerTranspiration[i] += addTransp;
-                    TRs += addTransp;
-                    TRe += addTransp;
-                }
+                double addTransp = redistribution * (myCase->myCrop.roots.rootDensity[i] / totRootDensityWithoutStress);
+                layerTranspiration[i] += addTransp;
+                TRs += addTransp;
+                TRe += addTransp;
             }
         }
     }
 
     if (getWaterStress)
     {
-        // return water stress
-        return 1.0 - (TRs / myCase->output.dailyMaxTranspiration);
+        if (waterStress < EPSILON)
+            return 0;
+        else
+            return 1.0 - (TRs / myCase->output.dailyMaxTranspiration);
     }
 
     // update water content
@@ -466,8 +431,32 @@ double getCropWaterDeficit(CriteriaModel* myCase)
 
     double waterDeficit = 0.0;
     for (int i = myCase->myCrop.roots.firstRootLayer; i <= myCase->myCrop.roots.lastRootLayer; i++)
+    {
         waterDeficit += myCase->layers[unsigned(i)].FC - myCase->layers[unsigned(i)].waterContent;
+    }
 
     return MAXVALUE(waterDeficit, 0.0);
+}
+
+
+/*!
+ * \brief getSoilWaterDeficit
+ * \param myCase
+ * \return sum of water deficit (mm) in the first meter of soil
+ */
+double getSoilWaterDeficit(CriteriaModel* myCase)
+{
+    // surface water content
+    double waterDeficit = -myCase->layers[0].waterContent;
+
+    for (unsigned int i = 1; i <= myCase->nrLayers; i++)
+    {
+        if (myCase->layers[i].depth > 1)
+            return waterDeficit;
+
+        waterDeficit += myCase->layers[unsigned(i)].FC - myCase->layers[unsigned(i)].waterContent;
+    }
+
+    return waterDeficit;
 }
 

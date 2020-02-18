@@ -55,21 +55,37 @@ Crit3DCropWidget::Crit3DCropWidget()
     QGridLayout *parametersInfoLayout = new QGridLayout();
 
     // check save button pic
-    QString docPath, saveButtonPath;
+    QString docPath, saveButtonPath, updateButtonPath;
     if (searchDocPath(&docPath))
+    {
         saveButtonPath = docPath + "img/saveButton.png";
+        updateButtonPath = docPath + "img/updateButton.png";
+    }
     else
+    {
         saveButtonPath = "../img/saveButton.png";
+        updateButtonPath = "../img/updateButton.png";
+    }
 
-    QPixmap pixmap(saveButtonPath);
+    QPixmap savePixmap(saveButtonPath);
+    QPixmap updatePixmap(updateButtonPath);
     QPushButton *saveButton = new QPushButton();
-    QIcon ButtonIcon(pixmap);
-    saveButton->setIcon(ButtonIcon);
-    saveButton->setIconSize(pixmap.rect().size());
-    saveButton->setFixedSize(pixmap.rect().size());
+    QPushButton *updateButton = new QPushButton();
+    QIcon saveButtonIcon(savePixmap);
+    QIcon updateButtonIcon(updatePixmap);
+    saveButton->setIcon(saveButtonIcon);
+    saveButton->setIconSize(savePixmap.rect().size());
+    saveButton->setFixedSize(savePixmap.rect().size());
 
     saveButtonLayout->setAlignment(Qt::AlignLeft);
     saveButtonLayout->addWidget(saveButton);
+
+    updateButton->setIcon(updateButtonIcon);
+    updateButton->setIconSize(savePixmap.rect().size());
+    updateButton->setFixedSize(savePixmap.rect().size());
+
+    saveButtonLayout->setAlignment(Qt::AlignLeft);
+    saveButtonLayout->addWidget(updateButton);
 
     QLabel *cropName = new QLabel(tr("CROP_NAME: "));
 
@@ -94,9 +110,9 @@ Crit3DCropWidget::Crit3DCropWidget()
     infoMeteoGroup = new QGroupBox(tr(""));
     infoParametersGroup = new QGroupBox(tr(""));
 
-    infoCropGroup->setFixedWidth(this->width()/4);
-    infoMeteoGroup->setFixedWidth(this->width()/4);
-    infoParametersGroup->setFixedWidth(this->width()/4);
+    infoCropGroup->setFixedWidth(this->width()/4.5);
+    infoMeteoGroup->setFixedWidth(this->width()/4.5);
+    infoParametersGroup->setFixedWidth(this->width()/4.5);
 
     infoCropGroup->setTitle("Crop");
     infoMeteoGroup->setTitle("Meteo");
@@ -134,34 +150,34 @@ Crit3DCropWidget::Crit3DCropWidget()
     meteoInfoLayout->addWidget(lon, 3, 0);
     meteoInfoLayout->addWidget(lonValue, 3, 1);
 
-    QLabel *LAImin = new QLabel(tr("LAI min: "));
+    QLabel *LAImin = new QLabel(tr("LAI min [m2 m-2]: "));
     LAIminValue = new QLineEdit();
 
-    QLabel *LAImax = new QLabel(tr("LAI max: "));
+    QLabel *LAImax = new QLabel(tr("LAI max [m2 m-2]: "));
     LAImaxValue = new QLineEdit();
 
-    LAIgrass = new QLabel(tr("LAI grass: "));
+    LAIgrass = new QLabel(tr("LAI grass [m2 m-2]: "));
     LAIgrassValue = new QLineEdit();
 
-    QLabel *thermalThreshold = new QLabel(tr("thermal threshold: "));
+    QLabel *thermalThreshold = new QLabel(tr("thermal threshold [°C]: "));
     thermalThresholdValue = new QLineEdit();
 
-    QLabel *upperThermalThreshold = new QLabel(tr("upper thermal threshold: "));
+    QLabel *upperThermalThreshold = new QLabel(tr("upper thermal threshold [°C]: "));
     upperThermalThresholdValue = new QLineEdit();
 
-    QLabel *degreeDaysEmergence = new QLabel(tr("degree days emergence: "));
+    QLabel *degreeDaysEmergence = new QLabel(tr("degree days emergence [°C]: "));
     degreeDaysEmergenceValue = new QLineEdit();
 
-    QLabel *degreeDaysLAIinc = new QLabel(tr("degree days LAI increase: "));
+    QLabel *degreeDaysLAIinc = new QLabel(tr("degree days LAI increase [°C]: "));
     degreeDaysLAIincValue = new QLineEdit();
 
-    QLabel *degreeDaysLAIdec = new QLabel(tr("degree days LAI decrease: "));
+    QLabel *degreeDaysLAIdec = new QLabel(tr("degree days LAI decrease [°C]: "));
     degreeDaysLAIdecValue = new QLineEdit();
 
-    QLabel *LAIcurveA = new QLabel(tr("LAI curve factor A: "));
+    QLabel *LAIcurveA = new QLabel(tr("LAI curve factor A [-]: "));
     LAIcurveAValue = new QLineEdit();
 
-    QLabel *LAIcurveB = new QLabel(tr("LAI curve factor B: "));
+    QLabel *LAIcurveB = new QLabel(tr("LAI curve factor B [-]: "));
     LAIcurveBValue = new QLineEdit();
 
     parametersInfoLayout->addWidget(LAImin, 0, 0);
@@ -351,7 +367,7 @@ void Crit3DCropWidget::on_actionChooseCrop(QString cropName)
     }
     cropTypeValue->setText(QString::fromStdString(getCropTypeString(myCrop->type)));
 
-    if (myCrop->type == HERBACEOUS_ANNUAL ||  myCrop->type == HERBACEOUS_PERENNIAL || myCrop->type == HORTICULTURAL)
+    if (! myCrop->isPluriannual())
     {
         cropSowing.setVisible(true);
         cropCycleMax.setVisible(true);
