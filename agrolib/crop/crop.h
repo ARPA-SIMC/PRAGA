@@ -76,10 +76,21 @@
 
         void initialize(double latitude, unsigned int nrLayers, double totalSoilDepth, int currentDoy);
         bool needReset(Crit3DDate myDate, double latitude, double waterTableDepth);
-        void resetCrop(int nrLayers);
-        bool updateLAI(double latitude, int nrLayers, int myDoy);
-        bool dailyUpdate(const Crit3DDate &myDate, double latitude, int nrLayers, double totalDepth,
+        void resetCrop(unsigned int nrLayers);
+        bool updateLAI(double latitude, unsigned int nrLayers, int myDoy);
+        bool dailyUpdate(const Crit3DDate &myDate, double latitude, unsigned int nrLayers, double totalDepth,
                         double tmin, double tmax, double waterTableDepth, std::string* myError);
+
+        double getSurfaceCoverFraction();
+        double getMaxEvaporation(double ET0);
+        double getMaxTranspiration(double ET0);
+
+        double getCropWaterDeficit(const std::vector<soil::Crit3DLayer> &layers);
+        double getIrrigationDemand(int doy, double currentPrec, double nextPrec,
+                                   double maxTranpiration, const std::vector<soil::Crit3DLayer>& layers);
+
+        double computeTranspiration(double maxTranspiration, const std::vector<soil::Crit3DLayer>& layers,
+                                    std::vector<double>* layerTranspiration, bool returnWaterStress);
     };
 
 
