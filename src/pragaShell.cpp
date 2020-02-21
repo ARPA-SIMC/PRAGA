@@ -293,6 +293,8 @@ bool pragaBatch(PragaProject* myProject, QString scriptFileName)
             return false;
     }
 
+    myProject->logInfo("Batch finished at: " + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+
     scriptFile.close();
 
     #ifdef _WIN32
