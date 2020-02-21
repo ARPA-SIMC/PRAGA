@@ -2179,15 +2179,10 @@ void MainWindow::on_actionMeteopointNewArkimet_triggered()
 
         FormInfo myInfo;
         myInfo.start("download points properties...", 0);
-            if (myDownload.getPointProperties(datasets))
-            {
-                myProject.loadMeteoPointsDB(dbName);
-                this->addMeteoPoints();
-            }
-            else
-            {
-                QMessageBox::information(nullptr, "Network Error!", "Error in function getPointProperties");
-            }
+        if (myDownload.getPointProperties(datasets))
+            loadMeteoPoints(dbName);
+        else
+            QMessageBox::information(nullptr, "Network Error!", "Error in function getPointProperties");
 
         myInfo.close();
     }
