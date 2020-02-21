@@ -25,8 +25,16 @@
             void on_actionDeleteCrop();
             void on_actionRestoreData();
             void on_actionNewCrop();
+            void on_actionSave();
+            void on_actionUpdate();
+            bool saveCrop();
+            bool saveMeteo();
+            bool updateCrop();
+            bool updateMeteoPoint();
             void updateTabLAI();
             void tabChanged(int index);
+            bool checkIfCropIsChanged();
+            bool checkIfMeteoIsChanged();
         private:
             QSqlDatabase dbCrop;
             QSqlDatabase dbMeteo;
@@ -35,6 +43,8 @@
             Crit3DMeteoPoint *meteoPoint;
             int nrLayers;
             int totalSoilDepth;
+            bool cropChanged;
+            bool meteoChanged;
 
             QGroupBox *infoCropGroup;
             QGroupBox *infoMeteoGroup;
@@ -52,8 +62,8 @@
             QSpinBox* cropCycleMaxValue;
             QDoubleSpinBox* latValue;
             QDoubleSpinBox* lonValue;
-            QLineEdit* LAIminValue;
-            QLineEdit* LAImaxValue;
+            QDoubleSpinBox* LAIminValue;
+            QDoubleSpinBox* LAImaxValue;
             QLabel *LAIgrass;
             QLineEdit* LAIgrassValue;
             QLineEdit* thermalThresholdValue;
@@ -66,15 +76,18 @@
             QLineEdit* rootDepthZeroValue;
             QLineEdit* rootDepthMaxValue;
             QComboBox* rootShapeComboBox;
-            QLineEdit* shapeDeformationValue;
+            QDoubleSpinBox* shapeDeformationValue;
             QLabel *degreeDaysInc;
             QLineEdit* degreeDaysIncValue;
             QTabWidget* tabWidget;
             QAction* saveChanges;
             QAction* restoreData;
+            QPushButton *saveButton;
+            QPushButton *updateButton;
 
             TabLAI* tabLAI;
             TabRootDepth* tabRootDepth;
+
     };
 
 #endif // CROPWIDGET_H

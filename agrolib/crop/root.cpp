@@ -39,17 +39,20 @@
 
 Crit3DRoot::Crit3DRoot()
 {
-    this->rootShape = CYLINDRICAL_DISTRIBUTION;
-    this->growth = LOGISTIC;
-    this->shapeDeformation = NODATA;
-    this->degreeDaysRootGrowth = NODATA;
-    this->rootDepthMin = NODATA;
-    this->rootDepthMax = NODATA;
-    this->firstRootLayer = NODATA;
-    this->lastRootLayer = NODATA;
-    this->rootLength = NODATA;
-    this->rootDepth = NODATA;
-    this->rootDensity = nullptr;
+    // parameters
+    rootShape = CYLINDRICAL_DISTRIBUTION;
+    growth = LOGISTIC;
+    shapeDeformation = NODATA;
+    degreeDaysRootGrowth = NODATA;
+    rootDepthMin = NODATA;
+    rootDepthMax = NODATA;
+
+    // variables
+    firstRootLayer = NODATA;
+    lastRootLayer = NODATA;
+    rootLength = NODATA;
+    rootDepth = NODATA;
+    rootDensity.clear();
 }
 
 
@@ -68,6 +71,22 @@ namespace root
             default:
                 return GAMMA_DISTRIBUTION;
          }
+    }
+
+    rootDistributionType getRootDistributionTypeFromString(std::string rootShape)
+    {
+        if (rootShape == "cylinder")
+        {
+            return CYLINDRICAL_DISTRIBUTION;
+        }
+        if (rootShape == "cardioid")
+        {
+            return CARDIOID_DISTRIBUTION;
+        }
+        if (rootShape == "gamma function")
+        {
+            return GAMMA_DISTRIBUTION;
+        }
     }
 
     std::string getRootDistributionTypeString(rootDistributionType rootType)
@@ -252,17 +271,17 @@ namespace root
         return order;
     }
 
-    int nrAtoms(const std::vector<soil::Crit3DLayer> &layers, int nrLayers, double rootDepthMin, double* minThickness, int* atoms)
+    int nrAtoms(const std::vector<soil::Crit3DLayer> &soilLayers, int nrLayers, double rootDepthMin, double* minThickness, int* atoms)
     {
         int multiplicationFactor = 1;
 
         if (rootDepthMin > 0)
             *minThickness = rootDepthMin;
         else
-            *minThickness = layers[1].thickness;
+            *minThickness = soilLayers[1].thickness;
 
         for(unsigned int i=1; i < unsigned(nrLayers); i++)
-            *minThickness = MINVALUE(*minThickness, layers[i].thickness);
+            *minThickness = MINVALUE(*minThickness, soilLayers[i].thickness);
 
         double tmp = *minThickness * 1.001;
         if (tmp < 1)
@@ -277,7 +296,7 @@ namespace root
         int counter = 0;
         for(unsigned int i=0; i < unsigned(nrLayers); i++)
         {
-            value = int(round(multiplicationFactor * layers[i].thickness));
+            value = int(round(multiplicationFactor * soilLayers[i].thickness));
            atoms[i] = value;
            counter += value;
         }
@@ -383,14 +402,14 @@ namespace root
     }
 
 
-    bool computeRootDensity(Crit3DCrop* myCrop, const std::vector<soil::Crit3DLayer> &layers, int nrLayers, double soilDepth)
+    bool computeRootDensity(Crit3DCrop* myCrop, const std::vector<soil::Crit3DLayer> &soilLayers, int nrLayers, double soilDepth)
     {
         int i, layer;
 
         // Initialize
         for (i = 0; i < nrLayers; i++)
         {
-            myCrop->roots.rootDensity[i] = 0.0;
+            myCrop->roots.rootDensity[unsigned(i)] = 0.0;
         }
 
         if ((! myCrop->isLiving) || (myCrop->roots.rootLength <= 0 )) return true;
@@ -401,7 +420,7 @@ namespace root
             double minimumThickness;
             int *atoms = new int[unsigned(nrLayers)];
             int numberOfRootedLayers, numberOfTopUnrootedLayers, totalLayers;
-            totalLayers = root::nrAtoms(layers, nrLayers, myCrop->roots.rootDepthMin, &minimumThickness, atoms);
+            totalLayers = root::nrAtoms(soilLayers, nrLayers, myCrop->roots.rootDepthMin, &minimumThickness, atoms);
             numberOfTopUnrootedLayers = int(round(myCrop->roots.rootDepthMin / minimumThickness));
             numberOfRootedLayers = int(ceil(MINVALUE(myCrop->roots.rootLength, soilDepth) / minimumThickness));
             double *densityThinLayers =  new double[unsigned(totalLayers+1)];
@@ -426,7 +445,7 @@ namespace root
                 for (j = counter; j < (counter + atoms[layer]); j++)
                 {
                     if (j < totalLayers)
-                        myCrop->roots.rootDensity[layer] += densityThinLayers[j];
+                        myCrop->roots.rootDensity[unsigned(layer)] += densityThinLayers[j];
                 }
                 counter = j;
             }
@@ -447,10 +466,10 @@ namespace root
 
             for (unsigned i=1 ; i < unsigned(nrLayers) ; i++)
             {
-                b = MAXVALUE(layers[i].depth + layers[i].thickness*0.5 - myCrop->roots.rootDepthMin,0); // right extreme
+                b = MAXVALUE(soilLayers[i].depth + soilLayers[i].thickness*0.5 - myCrop->roots.rootDepthMin,0); // right extreme
                 if (b>0)
                 {
-                    a = MAXVALUE(layers[i].depth - layers[i].thickness*0.5 - myCrop->roots.rootDepthMin,0); // left extreme
+                    a = MAXVALUE(soilLayers[i].depth - soilLayers[i].thickness*0.5 - myCrop->roots.rootDepthMin,0); // left extreme
                     myCrop->roots.rootDensity[i] = Incomplete_Gamma_Function(b/theta,kappa) - Incomplete_Gamma_Function(a/theta,kappa);
                     myCrop->roots.rootDensity[i] /= normalizationFactor;
                 }
@@ -460,26 +479,26 @@ namespace root
         double rootDensitySum = 0. ;
         for (unsigned i=0 ; i < unsigned(nrLayers); i++)
         {
-            myCrop->roots.rootDensity[i] *= layers[i].soilFraction;
+            myCrop->roots.rootDensity[i] *= soilLayers[i].soilFraction;
             rootDensitySum += myCrop->roots.rootDensity[i];
         }
 
         if (rootDensitySum > 0.0)
         {
             for (i=0 ; i<nrLayers ; i++)
-                myCrop->roots.rootDensity[i] /= rootDensitySum;
+                myCrop->roots.rootDensity[unsigned(i)] /= rootDensitySum;
 
             myCrop->roots.firstRootLayer = 0;
             layer = 0;
 
-            while (layer < nrLayers && myCrop->roots.rootDensity[layer] == 0.0)
+            while (layer < nrLayers && myCrop->roots.rootDensity[unsigned(layer)] == 0.0)
             {
                 layer++;
                 (myCrop->roots.firstRootLayer)++;
             }
 
             myCrop->roots.lastRootLayer = myCrop->roots.firstRootLayer;
-            while (layer < nrLayers && myCrop->roots.rootDensity[layer] != 0.0)
+            while (layer < nrLayers && myCrop->roots.rootDensity[unsigned(layer)] != 0.0)
             {
                 (myCrop->roots.lastRootLayer) = layer;
                 layer++;
