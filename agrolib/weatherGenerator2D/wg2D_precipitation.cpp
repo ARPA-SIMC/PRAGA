@@ -904,9 +904,14 @@ void weatherGenerator2D::precipitationMultisiteAmountsGeneration()
                randomMatrixNormalDistribution[i][j] = myrandom::normalRandom(&gasDevIset,&gasDevGset);
           }
       }
-      printf("step 9/9 substep %d/4\n",iSeason+1);
-      weatherGenerator2D::spatialIterationAmounts(simulatedPrecipitationAmounts[iSeason].matrixK , simulatedPrecipitationAmounts[iSeason].matrixM,randomMatrixNormalDistribution,lengthSeason[iSeason]*parametersModel.yearOfSimulation,occurrenceSeason,phatAlpha,phatBeta,simulatedPrecipitationAmountsSeasonal);
 
+      weatherGenerator2D::spatialIterationAmounts(simulatedPrecipitationAmounts[iSeason].matrixK , simulatedPrecipitationAmounts[iSeason].matrixM,randomMatrixNormalDistribution,lengthSeason[iSeason]*parametersModel.yearOfSimulation,occurrenceSeason,phatAlpha,phatBeta,simulatedPrecipitationAmountsSeasonal);
+      time_t rawtime;
+      struct tm * timeinfo;
+      time ( &rawtime );
+      timeinfo = localtime ( &rawtime );
+      printf ( "Current local time and date: %s", asctime (timeinfo) );
+      printf("step 9/9 substep %d/4\n",iSeason+1);
       for (int i=0;i<nrStations;i++)
       {
            for (int j=0;j<lengthSeason[iSeason]*parametersModel.yearOfSimulation;j++)

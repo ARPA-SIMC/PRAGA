@@ -685,6 +685,12 @@ void weatherGenerator2D::precipitationMultisiteOccurrenceGeneration()
             free(normalizedRandomMatrix[i]);            
         }
         free(normalizedRandomMatrix);
+        time_t rawtime;
+        struct tm * timeinfo;
+
+        time ( &rawtime );
+        timeinfo = localtime ( &rawtime );
+        printf ( "Current local time and date: %s", asctime (timeinfo) );
         printf("step 3/9 step %d/12\n",iMonth+1);
     }
 
