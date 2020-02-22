@@ -333,8 +333,6 @@ Crit3DCropWidget::Crit3DCropWidget()
 
     myCrop = nullptr;
     meteoPoint = nullptr;
-    nrLayers = 100;     // depth each layer = 2 cm
-    totalSoilDepth = 2; // [m] average soil depth
     cropChanged = false;
     meteoChanged = false;
 
@@ -384,6 +382,7 @@ void Crit3DCropWidget::on_actionOpenCropDB()
 
         }
     }
+
     QString dbCropName = QFileDialog::getOpenFileName(this, tr("Open crop database"), "", tr("SQLite files (*.db)"));
     if (dbCropName == "")
     {
@@ -478,6 +477,11 @@ void Crit3DCropWidget::on_actionOpenMeteoDB()
 
 void Crit3DCropWidget::on_actionChooseCrop(QString cropName)
 {
+
+    if (cropName.isEmpty())
+    {
+        return;
+    }
     if (checkIfCropIsChanged())
     {
         QString idCropChanged = QString::fromStdString(myCrop->idCrop);
@@ -598,6 +602,11 @@ void Crit3DCropWidget::on_actionChooseCrop(QString cropName)
 
 void Crit3DCropWidget::on_actionChooseMeteo(QString idMeteo)
 {
+
+    if (idMeteo.isEmpty())
+    {
+        return;
+    }
     QString error, lat, lon;
 
     if (getLatLonFromIdMeteo(&dbMeteo, idMeteo, &lat, &lon, &error))
@@ -870,12 +879,10 @@ void Crit3DCropWidget::on_actionNewCrop()
 
 void Crit3DCropWidget::updateTabLAI()
 {
-    int currentDoy = 1;
-    if (myCrop == nullptr || meteoPoint == nullptr)
+    if (myCrop != nullptr && meteoPoint != nullptr)
     {
-        return;
+        tabLAI->computeLAI(myCrop, meteoPoint, yearListComboBox.currentText().toInt(), soilLayers);
     }
-    tabLAI->computeLAI(myCrop, meteoPoint, yearListComboBox.currentText().toInt(), nrLayers, totalSoilDepth, currentDoy);
 }
 
 void Crit3DCropWidget::tabChanged(int index)
@@ -947,7 +954,6 @@ bool Crit3DCropWidget::checkIfMeteoIsChanged()
     if (meteoPoint == nullptr)
     {
         meteoChanged = false;
-        return meteoChanged;
     }
     if (meteoPoint->latitude != latValue->value() || meteoPoint->longitude != lonValue->value())
     {
@@ -955,6 +961,6 @@ bool Crit3DCropWidget::checkIfMeteoIsChanged()
         saveChanges->setEnabled(meteoChanged);
         saveButton->setEnabled(meteoChanged);
         updateButton->setEnabled(meteoChanged);
-        return meteoChanged;
     }
+    return meteoChanged;
 }
