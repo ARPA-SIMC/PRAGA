@@ -1795,9 +1795,12 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
                             if (! interpolationDemMain(airDewTemperature, getCrit3DTime(myDate, myHour), hourlyMeteoMaps->mapHourlyTdew, false)) return false;
                             hourlyMeteoMaps->computeRelativeHumidityMap(hourlyMeteoMaps->mapHourlyRelHum);
 
-                            myGrid = getPragaMapFromVar(airDewTemperature);
-                            rasterName = getMapFileOutName(airDewTemperature, myDate, myHour);
-                            if (rasterName != "") gis::writeEsriGrid(getProjectPath().toStdString() + rasterName.toStdString(), myGrid, &errString);
+                            if (saveRasters)
+                            {
+                                myGrid = getPragaMapFromVar(airDewTemperature);
+                                rasterName = getMapFileOutName(airDewTemperature, myDate, myHour);
+                                if (rasterName != "") gis::writeEsriGrid(getProjectPath().toStdString() + rasterName.toStdString(), myGrid, &errString);
+                            }
                         }
                         else if (myVar == windVectorDirection || myVar == windVectorIntensity) {
                             if (! interpolationDemMain(windVectorX, getCrit3DTime(myDate, myHour), getPragaMapFromVar(windVectorX), false)) return false;
