@@ -8,9 +8,11 @@
     #include <QLabel>
     #include <QSqlDatabase>
 
+    #include "criteria1DCase.h"
     #include "tabLAI.h"
     #include "tabRootDepth.h"
     #include "tabRootDensity.h"
+    #include "tabIrrigation.h"
 
     class Crit3DCropWidget : public QWidget
     {
@@ -45,15 +47,11 @@
             QSqlDatabase dbCrop;
             QSqlDatabase dbMeteo;
             QSqlDatabase dbSoil;
-            Crit3DCrop* myCrop;
+            Crit1DCase myCase;
             Crit3DCrop cropFromDB;
-            soil::Crit3DSoil mySoil;
             soil::Crit3DTextureClass textureClassList[13];
             soil::Crit3DFittingOptions fittingOptions;
-            double layerThickness;
             QString tableMeteo;
-            Crit3DMeteoPoint *meteoPoint;
-            std::vector<soil::Crit3DLayer> soilLayers;
             bool cropChanged;
             double meteoLatBackUp;
 
@@ -62,6 +60,8 @@
             QGroupBox *infoSoilGroup;
             QGroupBox *laiParametersGroup;
             QGroupBox *rootParametersGroup;
+            QGroupBox *irrigationParametersGroup;
+            QGroupBox *waterStressParametersGroup;
             QComboBox cropListComboBox;
             QComboBox meteoListComboBox;
             QComboBox soilListComboBox;
@@ -100,6 +100,7 @@
             TabLAI* tabLAI;
             TabRootDepth* tabRootDepth;
             TabRootDensity* tabRootDensity;
+            TabIrrigation* tabIrrigation;
 
             void clearCrop();
             void checkCropUpdate();

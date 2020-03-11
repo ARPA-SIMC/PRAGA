@@ -34,13 +34,14 @@ win32:{
     TARGET = cropWidget
 }
 
-INCLUDEPATH += ../crit3dDate ../mathFunctions ../utilities ../gis ../meteo ../soil ../crop ../criteriaModel
+INCLUDEPATH += ../crit3dDate ../mathFunctions ../utilities ../gis ../meteo ../soil ../crop ../project ../criteriaModel
 
 
 SOURCES += \
     callout.cpp \
     cropWidget.cpp \
     dialogNewCrop.cpp \
+    tabIrrigation.cpp \
     tabLAI.cpp \
     tabRootDensity.cpp \
     tabRootDepth.cpp
@@ -49,6 +50,7 @@ HEADERS += \
     callout.h \
     cropWidget.h \
     dialogNewCrop.h \
+    tabIrrigation.h \
     tabLAI.h \
     tabRootDensity.h \
     tabRootDepth.h
