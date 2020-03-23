@@ -89,7 +89,10 @@ bool cmdOpenPragaProject(PragaProject* myProject, QStringList argumentList)
     QString projectName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT);
 
     if (! myProject->loadPragaProject(projectName))
+    {
+        myProject->logError();
         return false;
+    }
 
     return true;
 }

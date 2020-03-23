@@ -1902,7 +1902,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
     // restore original proxy grids
     logInfo("Restoring proxy grids");
-    if (! updateProxy())
+    if (! loadProxyGrids())
         return false;
 
     return true;

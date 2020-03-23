@@ -1980,6 +1980,8 @@ void MainWindow::on_actionOpen_project_triggered()
     }
     else
     {
+        QMessageBox::information(nullptr, "Could not open project", myProject.errorString);
+
         this->mapView->centerOn(startCenter->lonLat());
         if (myProject.loadPragaProject(myProject.getApplicationPath() + "default.ini")) drawProject();
     }
