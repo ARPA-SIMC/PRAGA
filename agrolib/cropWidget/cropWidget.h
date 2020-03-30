@@ -1,6 +1,10 @@
 #ifndef CROPWIDGET_H
 #define CROPWIDGET_H
 
+#ifndef MAX_YEARS
+    #define MAX_YEARS 5
+#endif
+
     #include <QWidget>
     #include <QComboBox>
     #include <QGroupBox>
@@ -27,7 +31,8 @@
             void on_actionOpenMeteoDB();
             void on_actionOpenSoilDB();
             void on_actionChooseMeteo(QString idMeteo);
-            void on_actionChooseYear(QString year);
+            void on_actionChooseFirstYear(QString year);
+            void on_actionChooseLastYear(QString year);
             void on_actionChooseSoil(QString soilCode);
             void on_actionDeleteCrop();
             void on_actionRestoreData();
@@ -35,6 +40,7 @@
             void on_actionSave();
             void on_actionUpdate();
             bool saveCrop();
+            void updateMeteoPointValues();
             void updateCropParam(QString idCrop);
             bool updateCrop();
             bool updateMeteoPoint();
@@ -46,7 +52,7 @@
             void tabChanged(int index);
             bool checkIfCropIsChanged();
             void irrigationVolumeChanged();
-            void variableWaterContentChanged(bool status);
+            void variableWaterContentChanged();
 
         private:
             QSqlDatabase dbCrop;
@@ -59,6 +65,7 @@
             QString tableMeteo;
             bool cropChanged;
             double meteoLatBackUp;
+            QStringList yearList;
 
             QGroupBox *infoCropGroup;
             QGroupBox *infoMeteoGroup;
@@ -71,7 +78,8 @@
             QComboBox cropListComboBox;
             QComboBox meteoListComboBox;
             QComboBox soilListComboBox;
-            QComboBox yearListComboBox;
+            QComboBox firstYearListComboBox;
+            QComboBox lastYearListComboBox;
             QLineEdit* cropIdValue;
             QLineEdit* cropTypeValue;
             QLineEdit* maxKcValue;

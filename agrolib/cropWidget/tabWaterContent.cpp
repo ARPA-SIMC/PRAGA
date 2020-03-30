@@ -1,6 +1,6 @@
 #include "tabWaterContent.h"
 #include "commonConstants.h"
-
+#include "formInfo.h"
 
 TabWaterContent::TabWaterContent()
 {
@@ -9,12 +9,11 @@ TabWaterContent::TabWaterContent()
     graphic = new QCustomPlot();
 
     // configure axis rect:
-    graphic->setInteractions(QCP::iRangeDrag|QCP::iRangeZoom); // this will also allow rescaling the color scale by dragging/zooming
     graphic->axisRect()->setupFullAxesBox(true);
     graphic->xAxis->setLabel("Date");
 
     QSharedPointer<QCPAxisTickerDateTime> dateTicker(new QCPAxisTickerDateTime);
-    dateTicker->setDateTimeFormat("MMM d");
+    dateTicker->setDateTimeFormat("MMM d \n yyyy");
     dateTicker->setTickCount(13);
     graphic->xAxis->setTicker(dateTicker);
     QDateTime first(QDate(QDate::currentDate().year(), 1, 1), QTime(0, 0, 0));
@@ -23,7 +22,7 @@ TabWaterContent::TabWaterContent()
     double lastDouble = last.toTime_t();
     graphic->xAxis->setRange(firstDouble, lastDouble);
     graphic->xAxis->setVisible(true);
-    graphic->yAxis->setLabel("Water Content");
+    graphic->yAxis->setLabel("Depth [m]");
     graphic->yAxis->setRangeReversed(true);
 
 
@@ -68,8 +67,10 @@ TabWaterContent::TabWaterContent()
     setLayout(mainLayout);
 }
 
-void TabWaterContent::computeWaterContent(Crit1DCase myCase, int currentYear, bool isVolumetricWaterContent)
+void TabWaterContent::computeWaterContent(Crit1DCase myCase, int firstYear, int lastYear, bool isVolumetricWaterContent)
 {
+
+    FormInfo formInfo;
     if (isVolumetricWaterContent)
     {
         title = "volumetric water content [m3 m-3]";
@@ -87,26 +88,40 @@ void TabWaterContent::computeWaterContent(Crit1DCase myCase, int currentYear, bo
     }
 
     int currentDoy = 1;
-    year = currentYear;
-    int prevYear = currentYear - 1;
+    int prevYear = firstYear - 1;
 
     Crit3DDate firstDate = Crit3DDate(1, 1, prevYear);
-    Crit3DDate lastDate = Crit3DDate(31, 12, year);
+    Crit3DDate lastDate = Crit3DDate(31, 12, lastYear);
 
     // update axes and colorMap size
-    nx = getDoyFromDate(lastDate);
-    ny = nrLayers-1;
+    QDateTime first(QDate(firstYear, 1, 1), QTime(0, 0, 0));
+    QDateTime last(QDate(lastYear, 12, 31), QTime(23, 0, 0));
+    double firstDouble = first.toTime_t();
+    double lastDouble = last.toTime_t();
+    graphic->xAxis->setRange(firstDouble, lastDouble);
+    QDateTime myDate = first;
+    unsigned int numberDays = 0;
+
+    while (myDate.date().year() <= last.date().year())
+    {
+        numberDays = numberDays + myDate.date().daysInYear();
+        myDate.setDate(QDate(myDate.date().year()+1, 1, 1));
+    }
+    nx = numberDays;
+    ny = (nrLayers-1);
+
     colorMap->data()->setSize(nx, ny);
     colorMap->data()->setRange(QCPRange(0, nx), QCPRange(totalSoilDepth,0));
-    colorMap->rescaleDataRange(true);
-    graphic->rescaleAxes();
 
-    int doy;
+    int doy = 0;
     myCase.myCrop.initialize(myCase.meteoPoint.latitude, nrLayers, totalSoilDepth, currentDoy);
 
     std::string errorString;
     double waterContent = 0.0;
     double maxWaterContent = 0.0;
+
+    int step = formInfo.start("Compute model...", (lastYear-firstYear+2)*365);
+    int cont = 0;
     for (Crit3DDate myDate = firstDate; myDate <= lastDate; ++myDate)
     {
         if (! myCase.computeDailyModel(myDate, errorString))
@@ -114,57 +129,48 @@ void TabWaterContent::computeWaterContent(Crit1DCase myCase, int currentYear, bo
             QMessageBox::critical(nullptr, "Error!", QString::fromStdString(errorString));
             return;
         }
-        // display only current year
-        if (myDate.year == year)
+        if ( (cont % step) == 0) formInfo.setValue(cont);
+        // display only interval firstYear lastYear
+        if (myDate.year >= firstYear)
         {
-            doy = getDoyFromDate(myDate);
+            doy = doy+1; // if display 1 year this is the day Of year, otherwise count all days in that period
             for (unsigned int i = 1; i < nrLayers; i++)
             {
-                waterContent = myCase.soilLayers[i].waterContent;
-                if (waterContent != NODATA)
+                if (isVolumetricWaterContent)
                 {
-                    if (isVolumetricWaterContent)
-                    {
-                        waterContent = waterContent/(myCase.soilLayers[i].thickness*1000);
-                        if (waterContent > maxWaterContent)
-                        {
-                            maxWaterContent = waterContent;
-                        }
-                    }
-                    else
-                    {
-                        waterContent = waterContent/myCase.soilLayers[i].SAT;
-                    }
-                    /*
-                    qDebug() << " doy " << QString::number(doy);
-                    qDebug() << " myCase.soilLayers[i].depth " << QString::number(myCase.soilLayers[i].depth);
-                    qDebug() << " waterContent " << QString::number(waterContent);
-                    */
-                    colorMap->data()->setCell(doy-1, i-1, waterContent);
+                    waterContent = myCase.soilLayers[i].getVolumetricWaterContent();
+                    maxWaterContent = MAXVALUE(waterContent, maxWaterContent);
                 }
+                else
+                {
+                    waterContent = myCase.soilLayers[i].getDegreeOfSaturation();
+                }
+                colorMap->data()->setCell(doy-1, i-1, waterContent);
             }
         }
+        cont++; // formInfo update
     }
-    double step;
+    formInfo.close();
+
     if(isVolumetricWaterContent)
     {
-        step = maxWaterContent/4;
         colorScale->setDataRange(QCPRange(0, maxWaterContent));
     }
     else
     {
-        maxWaterContent = 1;
-        step = maxWaterContent/4;
-        colorScale->setDataRange(QCPRange(0,1));
+        colorScale->setDataRange(QCPRange(0, 1));
     }
+
     gradient.clearColorStops();
     gradient.setColorStopAt(0, QColor(128, 0, 128));
-    gradient.setColorStopAt(step, QColor(255, 0, 0));
-    gradient.setColorStopAt(step*2, QColor(255, 255, 0));
-    gradient.setColorStopAt(step*3, QColor(64, 196, 64));
-    gradient.setColorStopAt(maxWaterContent, QColor(0, 0, 255));
+    gradient.setColorStopAt(0.25, QColor(255, 0, 0));
+    gradient.setColorStopAt(0.5, QColor(255, 255, 0));
+    gradient.setColorStopAt(0.75, QColor(64, 196, 64));
+    gradient.setColorStopAt(1, QColor(0, 0, 255));
     colorMap->setGradient(gradient);
     colorMap->setColorScale(colorScale);
+
+    graphic->rescaleAxes();
 
     colorScale->axis()->setLabel(title);
     graphic->replot();
