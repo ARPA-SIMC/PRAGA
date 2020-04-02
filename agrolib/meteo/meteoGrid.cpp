@@ -270,59 +270,22 @@ void Crit3DMeteoGrid::fillMeteoPoint(unsigned int row, unsigned int col, const s
             gis::getUtmFromLatLon(_gisSettings.utmZone, geoPoint, &utmPoint);
             _meteoPoints[row][col]->point.utm.x = utmPoint.x;
             _meteoPoints[row][col]->point.utm.y = utmPoint.y;
-
         }
     }
-
-}
-
-bool Crit3DMeteoGrid::fillMeteoPointDailyValue(unsigned row, unsigned col, int numberOfDays, bool initialize, Crit3DDate date, meteoVariable variable, float value)
-{
-    if (initialize)
-    {
-        _meteoPoints[row][col]->initializeObsDataD(numberOfDays, date);
-    }
-    return _meteoPoints[row][col]->setMeteoPointValueD(date, variable, value);
-}
-
-bool Crit3DMeteoGrid::fillMeteoPointHourlyValue(unsigned row, unsigned col, int numberOfDays, bool initialize, Crit3DDate date, int  hour, int minute, meteoVariable variable, float value)
-{
-    if (initialize)
-    {
-        int myHourlyFraction = 1;
-        _meteoPoints[row][col]->initializeObsDataH(myHourlyFraction, numberOfDays, date);
-    }
-    return _meteoPoints[row][col]->setMeteoPointValueH(date, hour, minute, variable, value);
-}
-
-void Crit3DMeteoGrid::fillMeteoPointCurrentDailyValue(unsigned row, unsigned col, Crit3DDate date, meteoVariable variable)
-{
-    if (_meteoPoints[row][col]->active && _meteoPoints[row][col]->nrObsDataDaysD != 0)
-        _meteoPoints[row][col]->currentValue = _meteoPoints[row][col]->getMeteoPointValueD(date, variable);
-    else
-        _meteoPoints[row][col]->currentValue = NODATA;
 }
 
 void Crit3DMeteoGrid::fillCurrentDailyValue(Crit3DDate date, meteoVariable variable)
 {
-    for (int row = 0; row < _gridStructure.header().nrRows; row++)
-        for (int col = 0; col < _gridStructure.header().nrCols; col++)
-            fillMeteoPointCurrentDailyValue(unsigned(row), unsigned(col), date, variable);
-}
-
-void Crit3DMeteoGrid::fillMeteoPointCurrentHourlyValue(unsigned row, unsigned col, Crit3DDate date, int hour, int minute, meteoVariable variable)
-{
-    if (_meteoPoints[row][col]->active && _meteoPoints[row][col]->nrObsDataDaysH != 0)
-        _meteoPoints[row][col]->currentValue = _meteoPoints[row][col]->getMeteoPointValueH(date, hour, minute, variable);
-    else
-        _meteoPoints[row][col]->currentValue = NODATA;
+    for (unsigned row = 0; row < unsigned(_gridStructure.header().nrRows); row++)
+        for (unsigned col = 0; col < unsigned(_gridStructure.header().nrCols); col++)
+            _meteoPoints[row][col]->currentValue = _meteoPoints[row][col]->getMeteoPointValueD(date, variable);
 }
 
 void Crit3DMeteoGrid::fillCurrentHourlyValue(Crit3DDate date, int hour, int minute, meteoVariable variable)
 {
     for (int row = 0; row < _gridStructure.header().nrRows; row++)
         for(int col = 0; col < _gridStructure.header().nrCols; col++)
-            fillMeteoPointCurrentHourlyValue(unsigned(row), unsigned(col), date, hour, minute, variable);
+            _meteoPoints[row][col]->currentValue = _meteoPoints[row][col]->getMeteoPointValueH(date, hour, minute, variable);
 }
 
 void Crit3DMeteoGrid::fillMeteoRaster()
@@ -639,11 +602,55 @@ void Crit3DMeteoGrid::assignCellAggregationPoints(int row, int col, gis::Crit3DR
     }
 }
 
-void Crit3DMeteoGrid::aggregateMeteoGrid(meteoVariable myVar, frequencyType freq, Crit3DDate date, int  hour, int minute,
-                                         gis::Crit3DRasterGrid* myDEM, gis::Crit3DRasterGrid *dataRaster, aggregationMethod elab)
+void Crit3DMeteoGrid::initializeData(Crit3DDate dateIni, Crit3DDate dateFin)
+{
+    int nrDays = dateIni.daysTo(dateFin) + 1;
+
+    for (unsigned row = 0; row < gridStructure().header().nrRows; row++)
+        for (unsigned col = 0; col < gridStructure().header().nrCols; col++)
+            if (_meteoPoints[row][col]->active)
+            {
+                _meteoPoints[row][col]->initializeObsDataH(1, nrDays, dateIni);
+                _meteoPoints[row][col]->initializeObsDataD(nrDays, dateIni);
+            }
+}
+
+void Crit3DMeteoGrid::emptyGridData(Crit3DDate dateIni, Crit3DDate dateFin)
+{
+    for (unsigned row = 0; row < gridStructure().header().nrRows; row++)
+        for (unsigned col = 0; col < gridStructure().header().nrCols; col++)
+        {
+            _meteoPoints[row][col]->emptyObsDataH(dateIni, dateFin);
+            _meteoPoints[row][col]->emptyObsDataD(dateIni, dateFin);
+        }
+}
+
+void Crit3DMeteoGrid::computeWindVectorHourly(const Crit3DDate myDate, const int myHour)
+{
+    float intensity = NODATA, direction = NODATA;
+    float u,v;
+
+    for (unsigned row = 0; row < gridStructure().header().nrRows; row++)
+        for (unsigned col = 0; col < gridStructure().header().nrCols; col++)
+        {
+            u = _meteoPoints[row][col]->getMeteoPointValueH(myDate, myHour, 0, windVectorX);
+            v = _meteoPoints[row][col]->getMeteoPointValueH(myDate, myHour, 0, windVectorY);
+
+            if (! isEqual(u, NODATA) && ! isEqual(v, NODATA))
+            {
+                if (computeWindPolar(u, v, &intensity, &direction))
+                {
+                    _meteoPoints[row][col]->setMeteoPointValueH(myDate, myHour, 0, windVectorIntensity, intensity);
+                    _meteoPoints[row][col]->setMeteoPointValueH(myDate, myHour, 0, windVectorDirection, direction);
+                }
+            }
+        }
+}
+
+void Crit3DMeteoGrid::spatialAggregateMeteoGrid(meteoVariable myVar, frequencyType freq, Crit3DDate date, int  hour, int minute,
+                                         gis::Crit3DRasterGrid* myDEM, gis::Crit3DRasterGrid *myRaster, aggregationMethod elab)
 {
     int numberOfDays = 1;
-    int initialize;
 
     if (!_isAggregationDefined)
     {
@@ -662,8 +669,8 @@ void Crit3DMeteoGrid::aggregateMeteoGrid(meteoVariable myVar, frequencyType freq
                 {
                     double x = _meteoPoints[row][col]->aggregationPoints[i].utm.x;
                     double y = _meteoPoints[row][col]->aggregationPoints[i].utm.y;
-                    float interpolatedValue = gis::getValueFromXY(*dataRaster, x, y);
-                    if (isEqual(interpolatedValue, dataRaster->header->flag) == false)
+                    float interpolatedValue = gis::getValueFromXY(*myRaster, x, y);
+                    if (isEqual(interpolatedValue, myRaster->header->flag) == false)
                     {
                         _meteoPoints[row][col]->aggregationPoints[i].z = double(interpolatedValue);
                         validValues = validValues + 1;
@@ -676,35 +683,24 @@ void Crit3DMeteoGrid::aggregateMeteoGrid(meteoVariable myVar, frequencyType freq
                     if ( (validValues / _meteoPoints[row][col]->aggregationPointsMaxNr) > ( GRID_MIN_COVERAGE / 100 ) )
                     {
 
-                        double myValue = aggregateMeteoGridPoint(*(_meteoPoints[row][col]), elab);
+                        double myValue = spatialAggregateMeteoGridPoint(*(_meteoPoints[row][col]), elab);
 
                         if (freq == hourly)
                         {
                             if (_meteoPoints[row][col]->nrObsDataDaysH == 0)
-                            {
-                                initialize = true;
-                            }
-                            else
-                            {
-                                //_meteoPoints[row][col]->obsDataH[0].date = date;
-                                initialize = false;
-                            }
-                            fillMeteoPointHourlyValue(row, col, numberOfDays, initialize, date, hour, minute, myVar, float(myValue));
-                            fillMeteoPointCurrentHourlyValue(row, col, date, hour, minute, myVar);
+                                _meteoPoints[row][col]->initializeObsDataH(1, numberOfDays, date);
+
+                            _meteoPoints[row][col]->setMeteoPointValueH(date, hour, minute, myVar, float(myValue));
+                            _meteoPoints[row][col]->currentValue = float(myValue);
                         }
                         else if (freq == daily)
                         {
                             if (_meteoPoints[row][col]->nrObsDataDaysD == 0)
-                            {
-                                initialize = true;
-                            }
-                            else
-                            {
-                                _meteoPoints[row][col]->obsDataD[0].date = date;
-                                initialize = false;
-                            }
-                            fillMeteoPointDailyValue(row, col, numberOfDays, initialize, date, myVar, float(myValue));
-                            fillMeteoPointCurrentDailyValue(row, col, date, myVar);
+                                _meteoPoints[row][col]->initializeObsDataD(numberOfDays, date);
+
+                            _meteoPoints[row][col]->setMeteoPointValueD(date, myVar, float(myValue));
+                            _meteoPoints[row][col]->currentValue = float(myValue);
+
                         }
                     }
                 }
@@ -715,7 +711,7 @@ void Crit3DMeteoGrid::aggregateMeteoGrid(meteoVariable myVar, frequencyType freq
 }
 
 
-double Crit3DMeteoGrid::aggregateMeteoGridPoint(Crit3DMeteoPoint myPoint, aggregationMethod elab)
+double Crit3DMeteoGrid::spatialAggregateMeteoGridPoint(Crit3DMeteoPoint myPoint, aggregationMethod elab)
 {
 
     std::vector <double> validValues;

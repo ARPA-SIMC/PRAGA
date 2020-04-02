@@ -15,6 +15,7 @@
     bool cmdOpenPragaProject(PragaProject* myProject, QStringList argumentList);
     bool cmdNetcdfExport(PragaProject* myProject, QStringList argumentList);
     bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentList);
+    bool cmdAggregationGridPeriod(PragaProject* myProject, QStringList argumentList);
     bool cmdExportXMLElabToNetcdf(PragaProject* myProject, QStringList argumentList);
 
 #endif // PRAGASHELL_H

@@ -300,12 +300,7 @@ std::string Crit3DShapeHandler::getStringValue(int shapeNumber, std::string fiel
     int fieldPos = getFieldPos(fieldName);
     if (fieldPos == -1) return "";
 
-    DBFFieldType fieldType = getFieldType(fieldPos);
-    if (fieldType == FTString)
-    {
-        return readStringAttribute(shapeNumber, fieldPos);
-    }
-    else return "";
+    return readStringAttribute(shapeNumber, fieldPos);
 }
 
 
@@ -459,7 +454,6 @@ void Crit3DShapeHandler::packDBF(std::string newFile)
 {
     DBFHandle hDBF;
     hDBF = DBFCreate(newFile.c_str());
-
 
     // copy fields
     for(unsigned int i = 0; i < unsigned(m_fields); i++ )

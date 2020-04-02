@@ -41,7 +41,7 @@
 
         void clearMeteoPoints();
         bool createDefaultProject(QString fileName);
-        bool searchDefaultPath(QString* path);
+        bool searchDefaultPath(QString* defaultPath);
 
     protected:
         frequencyType currentFrequency;
@@ -92,7 +92,6 @@
         Crit3DHourlyMeteoMaps *hourlyMeteoMaps;
 
         gis::Crit3DRasterGrid DEM;
-        gis::Crit3DRasterGrid dataRaster;
 
         Crit3DInterpolationSettings interpolationSettings;
         Crit3DInterpolationSettings qualityInterpolationSettings;
@@ -123,9 +122,9 @@
 
         void setProxyDEM();
         void clearProxyDEM();
-        bool checkProxy(QString name_, QString gridName_, QString table_, QString field_, QString *error);
-        void addProxyToProject(QString name_, QString gridName_, QString table_, QString field_, bool isForQuality_, bool isActive_);
-        bool addProxyGridSeries(QString name_, std::vector <QString> gridNames, std::vector <unsigned> gridYears);
+        bool checkProxy(const Crit3DProxy &myProxy, QString *error);
+        bool addProxyToProject(std::vector <Crit3DProxy> proxyList, std::deque <bool> proxyActive, std::vector <int> proxyOrder);
+        void addProxyGridSeries(QString name_, std::vector <QString> gridNames, std::vector <unsigned> gridYears);
         void setCurrentDate(QDate myDate);
         void setCurrentHour(int myHour);
         void setCurrentVariable(meteoVariable variable);
@@ -155,7 +154,7 @@
 
         bool loadDEM(QString myFileName);
         void closeDEM();
-        bool loadMeteoPointsData(QDate firstDate, QDate lastDate, bool showInfo);
+        bool loadMeteoPointsData(QDate firstDate, QDate lastDate, bool loadHourly, bool loadDaily, bool showInfo);
         bool loadMeteoPointsDB(QString dbName);
         bool loadMeteoGridDB(QString xmlName);
         bool loadAggregationdDB(QString dbName);

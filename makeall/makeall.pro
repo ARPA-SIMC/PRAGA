@@ -4,7 +4,7 @@ SUBDIRS =       ../agrolib/crit3dDate  ../agrolib/mathFunctions  ../agrolib/gis 
                 ../agrolib/meteo  ../agrolib/interpolation  ../agrolib/solarRadiation  \
                 ../agrolib/utilities  ../agrolib/dbMeteoPoints  ../agrolib/dbMeteoGrid  \
                 ../agrolib/climate  ../agrolib/netcdfHandler \
-                ../agrolib/project  ../agrolib/graphics \
+                ../agrolib/project \
                 ../src/PRAGA.pro
 
 CONFIG += ordered

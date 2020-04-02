@@ -545,7 +545,7 @@ void MainWindow::interpolateDemGUI()
 void MainWindow::interpolateGridGUI()
 {
     if (myProject.interpolationMeteoGrid(myProject.getCurrentVariable(), myProject.getCurrentFrequency(),
-                                         myProject.getCrit3DCurrentTime(), &(myProject.dataRaster), true))
+                                         myProject.getCrit3DCurrentTime(), true))
     {
         //setCurrentRaster(&(myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid));
         //ui->labelRasterScale->setText(QString::fromStdString(getVariableString(myProject.getCurrentVariable())));
@@ -673,7 +673,7 @@ void MainWindow::on_dateChanged()
     if (date != myProject.getCurrentDate())
     {
         myProject.setCurrentDate(date);
-        myProject.loadMeteoPointsData(date, date, true);
+        myProject.loadMeteoPointsData(date, date, true, true, true);
         myProject.loadMeteoGridData(date, date, true);
 
     }
@@ -799,7 +799,7 @@ void MainWindow::drawMeteoPoints()
     if (! myProject.meteoPointsLoaded || myProject.nrMeteoPoints == 0) return;
     addMeteoPoints();
 
-    myProject.loadMeteoPointsData (myProject.getCurrentDate(), myProject.getCurrentDate(), true);
+    myProject.loadMeteoPointsData (myProject.getCurrentDate(), myProject.getCurrentDate(), true, true, true);
 
     ui->meteoPoints->setEnabled(true);
     ui->meteoPoints->setChecked(true);
@@ -973,9 +973,6 @@ void MainWindow::drawMeteoGrid()
     meteoGridLegend->colorScale = myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.colorScale;
     ui->meteoGridOpacitySlider->setEnabled(true);
 
-    myProject.setCurrentDate(myProject.meteoGridDbHandler->lastDate());
-    updateDateTime();
-
     if (myProject.loadGridDataAtStart)
     {
         myProject.loadMeteoGridData(myProject.getCurrentDate(), myProject.getCurrentDate(), true);
@@ -998,6 +995,8 @@ void MainWindow::drawMeteoGrid()
 
     if (currentGridVisualization == notShown) currentGridVisualization = showLocation;
     redrawMeteoGrid(currentGridVisualization, false);
+
+    updateDateTime();
 
     updateMaps();
 }
@@ -1981,6 +1980,8 @@ void MainWindow::on_actionOpen_project_triggered()
     }
     else
     {
+        QMessageBox::information(nullptr, "Could not open project", myProject.errorString);
+
         this->mapView->centerOn(startCenter->lonLat());
         if (myProject.loadPragaProject(myProject.getApplicationPath() + "default.ini")) drawProject();
     }
@@ -2095,9 +2096,9 @@ void MainWindow::on_actionInterpolateSaveGridPeriod_triggered()
     meteoVariable myVar = chooseMeteoVariable(&myProject);
     if (myVar == noMeteoVar) return;
 
-    QList <meteoVariable> myVariables;
+    QList <meteoVariable> myVariables, aggrVariables;
     myVariables.push_back(myVar);
-    myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables, false);
+    myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables, aggrVariables, false, 1);
 }
 
 void MainWindow::on_actionMeteopointNewArkimet_triggered()
@@ -2180,15 +2181,10 @@ void MainWindow::on_actionMeteopointNewArkimet_triggered()
 
         FormInfo myInfo;
         myInfo.start("download points properties...", 0);
-            if (myDownload.getPointProperties(datasets))
-            {
-                myProject.loadMeteoPointsDB(dbName);
-                this->addMeteoPoints();
-            }
-            else
-            {
-                QMessageBox::information(nullptr, "Network Error!", "Error in function getPointProperties");
-            }
+        if (myDownload.getPointProperties(datasets))
+            loadMeteoPoints(dbName);
+        else
+            QMessageBox::information(nullptr, "Network Error!", "Error in function getPointProperties");
 
         myInfo.close();
     }

@@ -35,7 +35,6 @@ DEFINES += NETCDF
 
 
 CONFIG(debug, debug|release) {
-    LIBS += -L../agrolib/graphics/debug -lgraphics
     LIBS += -L../agrolib/project/debug -lproject
     LIBS += -L../agrolib/climate/debug -lclimate
     LIBS += -L../agrolib/netcdfHandler/debug -lnetcdfHandler
@@ -59,7 +58,6 @@ CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/mathFunctions/debug -lmathFunctions
 
 } else {
-    LIBS += -L../agrolib/graphics/release -lgraphics
     LIBS += -L../agrolib/project/release -lproject
     LIBS += -L../agrolib/climate/release -lclimate
     LIBS += -L../agrolib/netcdfHandler/release -lnetcdfHandler
@@ -85,6 +83,10 @@ CONFIG(debug, debug|release) {
 
 
 SOURCES += \
+    ../agrolib/graphics/colorLegend.cpp \
+    ../agrolib/graphics/mapGraphicsRasterObject.cpp \
+    ../agrolib/graphics/stationMarker.cpp \
+    ../agrolib/graphics/rubberBand.cpp \
     main.cpp \
     mainWindow.cpp \
     dialogPragaProject.cpp \
@@ -102,6 +104,10 @@ SOURCES += \
 
 
 HEADERS  += \
+    ../agrolib/graphics/colorLegend.h \
+    ../agrolib/graphics/mapGraphicsRasterObject.h \
+    ../agrolib/graphics/stationMarker.h \
+    ../agrolib/graphics/rubberBand.h \
     mainWindow.h \
     dialogPragaProject.h \
     dialogMeteoComputation.h \
