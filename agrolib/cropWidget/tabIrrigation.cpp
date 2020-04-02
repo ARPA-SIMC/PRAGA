@@ -43,7 +43,7 @@ TabIrrigation::TabIrrigation()
     QDate last(QDate::currentDate().year(), 12, 31);
     axisX->setTitleText("Date");
     axisXvirtual->setTitleText("Date");
-    axisXvirtual->setFormat("MMM dd");
+    axisXvirtual->setFormat("MMM dd <br> yyyy");
     axisXvirtual->setMin(QDateTime(first, QTime(0,0,0)));
     axisXvirtual->setMax(QDateTime(last, QTime(0,0,0)));
     axisXvirtual->setTickCount(13);
@@ -92,6 +92,13 @@ TabIrrigation::TabIrrigation()
     connect(seriesMaxTransp, &QLineSeries::hovered, this, &TabIrrigation::tooltipMT);
     connect(seriesRealTransp, &QLineSeries::hovered, this, &TabIrrigation::tooltipRT);
     connect(seriesPrecIrr, &QHorizontalBarSeries::hovered, this, &TabIrrigation::tooltipPrecIrr);
+    foreach(QLegendMarker* marker, chart->legend()->markers())
+    {
+        if (marker->type() == QLegendMarker::LegendMarkerTypeXY)
+        {
+            QObject::connect(marker, &QLegendMarker::clicked, this, &TabIrrigation::handleMarkerClicked);
+        }
+    }
 
     plotLayout->addWidget(chartView);
     mainLayout->addLayout(plotLayout);
@@ -99,7 +106,7 @@ TabIrrigation::TabIrrigation()
 }
 
 
-void TabIrrigation::computeIrrigation(Crit1DCase myCase, int currentYear)
+void TabIrrigation::computeIrrigation(Crit1DCase myCase, int firstYear, int lastYear)
 {
     FormInfo formInfo;
 
@@ -107,15 +114,12 @@ void TabIrrigation::computeIrrigation(Crit1DCase myCase, int currentYear)
     double totalSoilDepth = 0;
     if (nrLayers > 0) totalSoilDepth = myCase.soilLayers[nrLayers-1].depth + myCase.soilLayers[nrLayers-1].thickness / 2;
 
-    year = currentYear;
-    int prevYear = currentYear - 1;
-
+    this->firstYear = firstYear;
+    int prevYear = firstYear - 1;
     std::string error;
 
     Crit3DDate firstDate = Crit3DDate(1, 1, prevYear);
-    Crit3DDate lastDate = Crit3DDate(31, 12, year);
-
-    int doy;
+    Crit3DDate lastDate = Crit3DDate(31, 12, lastYear);
 
     axisX->clear();
     seriesLAI->clear();
@@ -142,8 +146,9 @@ void TabIrrigation::computeIrrigation(Crit1DCase myCase, int currentYear)
     myCase.myCrop.initialize(myCase.meteoPoint.latitude, nrLayers, totalSoilDepth, currentDoy);
 
     std::string errorString;
-    int step = formInfo.start("Compute model...", 730);
+    int step = formInfo.start("Compute model...", (lastYear-firstYear+2)*365);
     int cont = 0;
+    int doy = 0;
     for (Crit3DDate myDate = firstDate; myDate <= lastDate; ++myDate)
     {
         if ( (cont % step) == 0) formInfo.setValue(cont);
@@ -153,10 +158,10 @@ void TabIrrigation::computeIrrigation(Crit1DCase myCase, int currentYear)
             QMessageBox::critical(nullptr, "Error!", QString::fromStdString(error));
             return;
         }
-        // display only current year
-        if (myDate.year == year)
+        // display only interval firstYear lastYear
+        if (myDate.year >= firstYear)
         {
-            doy = getDoyFromDate(myDate);
+            doy = doy+1; // if display 1 year this is the day Of year, otherwise count all days in that period
             categories.append(QString::number(doy));
             seriesLAI->append(doy, myCase.myCrop.LAI);
             seriesMaxTransp->append(doy, myCase.output.dailyMaxTranspiration);
@@ -176,14 +181,19 @@ void TabIrrigation::computeIrrigation(Crit1DCase myCase, int currentYear)
     axisX->setGridLineVisible(false);
 
     // update virtual x axis
-    QDate first(year, 1, 1);
-    QDate last(year, 12, 31);
+    QDate first(firstYear, 1, 1);
+    QDate last(lastYear, 12, 31);
     axisXvirtual->setMin(QDateTime(first, QTime(0,0,0)));
     axisXvirtual->setMax(QDateTime(last, QTime(0,0,0)));
 
     foreach(QLegendMarker* marker, chart->legend()->markers())
     {
-        QObject::connect(marker, &QLegendMarker::clicked, this, &TabIrrigation::handleMarkerClicked);
+        if (marker->type() == QLegendMarker::LegendMarkerTypeBar)
+        {
+            marker->setVisible(true);
+            marker->series()->setVisible(true);
+            QObject::connect(marker, &QLegendMarker::clicked, this, &TabIrrigation::handleMarkerClicked);
+        }
     }
 }
 
@@ -191,9 +201,9 @@ void TabIrrigation::tooltipLAI(QPointF point, bool state)
 {
     if (state)
     {
-        QDate xDate(year, 1, 1);
-        int doy = point.x();
-        xDate = xDate.addDays(doy-1);
+        QDate xDate(firstYear, 1, 1);
+        int doy = point.x(); //start from 0
+        xDate = xDate.addDays(doy);
         m_tooltip->setText(QString("%1 \nLAI %2 ").arg(xDate.toString("MMM dd")).arg(point.y(), 0, 'f', 1));
         m_tooltip->setAnchor(point);
         m_tooltip->setZValue(11);
@@ -210,9 +220,9 @@ void TabIrrigation::tooltipMT(QPointF point, bool state)
 {
     if (state)
     {
-        QDate xDate(year, 1, 1);
+        QDate xDate(firstYear, 1, 1);
         int doy = point.x();
-        xDate = xDate.addDays(doy-1);
+        xDate = xDate.addDays(doy);
         m_tooltip->setText(QString("%1 \nTransp max %2 ").arg(xDate.toString("MMM dd")).arg(point.y(), 0, 'f', 1));
         m_tooltip->setAnchor(point);
         m_tooltip->setZValue(11);
@@ -230,9 +240,9 @@ void TabIrrigation::tooltipRT(QPointF point, bool state)
 {
     if (state)
     {
-        QDate xDate(year, 1, 1);
+        QDate xDate(firstYear, 1, 1);
         int doy = point.x();
-        xDate = xDate.addDays(doy-1);
+        xDate = xDate.addDays(doy);
         m_tooltip->setText(QString("%1 \nTransp real %2 ").arg(xDate.toString("MMM dd")).arg(point.y(), 0, 'f', 1));
         m_tooltip->setAnchor(point);
         m_tooltip->setZValue(11);
@@ -250,17 +260,6 @@ void TabIrrigation::tooltipPrecIrr(bool state, int index, QBarSet *barset)
 
     if (state && barset!=nullptr && index < barset->count())
     {
-        QString valueStr;
-        if (barset->label() == "Precipitation")
-        {
-            valueStr = "Precipitation\n" + QString::number(barset->at(index));
-        }
-        else if (barset->label() == "Irrigation")
-        {
-            valueStr = "Irrigation\n" + QString::number(barset->at(index));
-        }
-
-        m_tooltip->setText(valueStr);
 
         QPoint point = QCursor::pos();
         QPoint mapPoint = chartView->mapFromGlobal(point);
@@ -268,6 +267,20 @@ void TabIrrigation::tooltipPrecIrr(bool state, int index, QBarSet *barset)
         int ratio = axisYdx->max()/axisY->max();
         pointF.setY(pointF.y()/ratio);
 
+        QDate xDate(firstYear, 1, 1);
+        xDate = xDate.addDays(index);
+
+        QString valueStr;
+        if (barset->label() == "Precipitation")
+        {
+            valueStr = QString("%1 \nPrecipitationl %2 ").arg(xDate.toString("MMM dd")).arg(barset->at(index), 0, 'f', 1);
+        }
+        else if (barset->label() == "Irrigation")
+        {
+            valueStr = QString("%1 \nIrrigation %2 ").arg(xDate.toString("MMM dd")).arg(barset->at(index), 0, 'f', 1);
+        }
+
+        m_tooltip->setText(valueStr);
         m_tooltip->setAnchor(pointF);
         m_tooltip->setZValue(11);
         m_tooltip->updateGeometry();
