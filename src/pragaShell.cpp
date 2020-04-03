@@ -89,7 +89,10 @@ bool cmdOpenPragaProject(PragaProject* myProject, QStringList argumentList)
     QString projectName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT);
 
     if (! myProject->loadPragaProject(projectName))
+    {
+        myProject->logError();
         return false;
+    }
 
     return true;
 }
@@ -142,28 +145,63 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
 
     QDate dateIni, dateFin;
     bool saveRasters = false;
-    QList <meteoVariable> variables;
+    QList <QString> varString, aggrVarString;
+    QList <meteoVariable> variables, aggrVariables;
+    QString var;
     meteoVariable meteoVar;
+    int saveInterval = NODATA;
+    bool parseSaveInterval = false;
 
     for (int i = 1; i < argumentList.size(); i++)
     {
         if (argumentList[i].left(3) == "-v:")
         {
-            meteoVar = getMeteoVar(argumentList[i].right(argumentList[i].length()-3).toStdString());
-            if (meteoVar != noMeteoVar) variables << meteoVar;
+            varString = argumentList[i].right(argumentList[i].length()-3).split(",");
+            foreach (var,varString)
+            {
+                meteoVar = getMeteoVar(var.toStdString());
+                if (meteoVar != noMeteoVar) variables << meteoVar;
+            }
+        }
+        else if (argumentList[i].left(3) == "-a:")
+        {
+            varString = argumentList[i].right(argumentList[i].length()-3).split(",");
+            foreach (var,varString)
+            {
+                meteoVar = getMeteoVar(var.toStdString());
+                if (meteoVar != noMeteoVar) aggrVariables << meteoVar;
+            }
         }
         else if (argumentList.at(i).left(4) == "-d1:")
-        {
-            QString dateIniStr = argumentList[i].right(argumentList[i].length()-4);
-            dateIni = QDate::fromString(dateIniStr, "dd/MM/yyyy");
-        }
+            dateIni = QDate::fromString(argumentList[i].right(argumentList[i].length()-4), "dd/MM/yyyy");
         else if (argumentList.at(i).left(4) == "-d2:")
             dateFin = QDate::fromString(argumentList[i].right(argumentList[i].length()-4), "dd/MM/yyyy");
         else if (argumentList.at(i).left(2) == "-r")
             saveRasters = true;
+        else if (argumentList.at(i).left(3) == "-s:")
+            saveInterval = argumentList[i].right(argumentList[i].length()-3).toInt(&parseSaveInterval, 10);
+
     }
 
-    if (! myProject->interpolationMeteoGridPeriod(dateIni, dateFin, variables, saveRasters))
+    if (! dateIni.isValid())
+    {
+        myProject->logError("Wrong initial date");
+        return false;
+    }
+
+    if (! dateFin.isValid())
+    {
+        myProject->logError("Wrong final date");
+        return false;
+    }
+
+    if (saveInterval == NODATA || ! parseSaveInterval)
+    {
+        myProject->logError("Wrong save interval number");
+        return false;
+    }
+
+    if (! myProject->interpolationMeteoGridPeriod(dateIni, dateFin, variables, aggrVariables, saveRasters, saveInterval))
         return false;
 
     return true;
@@ -194,10 +232,14 @@ bool cmdAggregationGridPeriod(PragaProject* myProject, QStringList argumentList)
             dateIni = QDate::fromString(dateIniStr, "dd/MM/yyyy");
         }
         else if (argumentList.at(i).left(4) == "-d2:")
-            dateFin = QDate::fromString(argumentList[i].right(argumentList[i].length()-4), "dd/MM/yyyy");
+        {
+            QString dateFinStr = argumentList[i].right(argumentList[i].length()-4);
+            dateFin = QDate::fromString(dateFinStr, "dd/MM/yyyy");
+        }
+
     }
 
-    if (! myProject->timeAggregateGrid(dateIni, dateFin, variables))
+    if (! myProject->timeAggregateGrid(dateIni, dateFin, variables, true, true))
         return false;
 
     return true;
@@ -253,6 +295,8 @@ bool pragaBatch(PragaProject* myProject, QString scriptFileName)
         if (! executeCommand(argumentList, myProject))
             return false;
     }
+
+    myProject->logInfo("Batch finished at: " + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
 
     scriptFile.close();
 
