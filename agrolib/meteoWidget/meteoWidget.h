@@ -16,7 +16,7 @@
 
         public:
             Crit3DMeteoWidget();
-            void draw(QVector<Crit3DMeteoPoint> meteoPoint);
+            void draw(QVector<Crit3DMeteoPoint> mpVector, frequencyType freq);
 
         private:
             QChartView *chartView;
@@ -30,6 +30,7 @@
             QVector<QLineSeries*> lineSeries;
             QBarSeries* barSeries;
             QVector<QBarSet*> setVector;
+            QStringList categories;
 
     };
 
