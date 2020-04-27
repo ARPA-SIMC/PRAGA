@@ -570,87 +570,16 @@ void MainWindow::updateVariable()
         {
             this->ui->labelFrequency->setText("Daily");
 
-            //check
-            if (myVar == airTemperature)
-                myProject.setCurrentVariable(dailyAirTemperatureAvg);
-
-            else if (myVar == precipitation)
-                myProject.setCurrentVariable(dailyPrecipitation);
-
-            else if (myVar == globalIrradiance)
-                myProject.setCurrentVariable(dailyGlobalRadiation);
-
-            else if (myVar == airRelHumidity)
-                myProject.setCurrentVariable(dailyAirRelHumidityAvg);
-
-            else if (myVar == airDewTemperature)
-                myProject.setCurrentVariable(dailyAirDewTemperatureAvg);
-
-            else if (myVar == thom)
-                myProject.setCurrentVariable(dailyThomAvg);
-
-            else if (myVar == windScalarIntensity)
-                myProject.setCurrentVariable(dailyWindScalarIntensityAvg);
-
-            else if (myVar== windVectorIntensity || myVar == windVectorX || myVar == windVectorY)
-                myProject.setCurrentVariable(dailyWindVectorIntensityAvg);
-
-            else if (myVar == windVectorDirection)
-                myProject.setCurrentVariable(dailyWindVectorDirectionPrevailing);
-
-            else if (myVar == leafWetness)
-                myProject.setCurrentVariable(dailyLeafWetness);
-
-            else if (myVar == referenceEvapotranspiration)
-                myProject.setCurrentVariable(dailyReferenceEvapotranspirationHS);
+            meteoVariable newVar = updateMeteoVariable(myVar, daily);
+            myProject.setCurrentVariable(newVar);
         }
 
         else if (myProject.getCurrentFrequency() == hourly)
         {
             this->ui->labelFrequency->setText("Hourly");
 
-            //check
-            if (myVar == dailyAirTemperatureAvg || myVar == dailyAirTemperatureMax || myVar == dailyAirTemperatureMin || myVar == dailyAirTemperatureRange)
-                myProject.setCurrentVariable(airTemperature);
-
-            else if (myVar == dailyAirRelHumidityAvg || myVar == dailyAirRelHumidityMax || myVar == dailyAirRelHumidityMin)
-                myProject.setCurrentVariable(airRelHumidity);
-
-            else if (myVar == dailyAirDewTemperatureAvg || myVar == dailyAirDewTemperatureMax || myVar == dailyAirDewTemperatureMin)
-                myProject.setCurrentVariable(airDewTemperature);
-
-            else if (myVar == dailyPrecipitation)
-                myProject.setCurrentVariable(precipitation);
-
-            else if (myVar == dailyGlobalRadiation)
-                myProject.setCurrentVariable(globalIrradiance);
-
-            else if (myVar == dailyDirectRadiation)
-                myProject.setCurrentVariable(directIrradiance);
-
-            else if (myVar == dailyDiffuseRadiation)
-                myProject.setCurrentVariable(diffuseIrradiance);
-
-            else if (myVar == dailyReflectedRadiation)
-                myProject.setCurrentVariable(reflectedIrradiance);
-
-            else if (myVar == dailyThomAvg || myVar == dailyThomMax || myVar == dailyThomHoursAbove || myVar == dailyThomDaytime || myVar == dailyThomNighttime)
-                myProject.setCurrentVariable(thom);
-
-            else if (myVar == dailyWindScalarIntensityAvg || myVar == dailyWindScalarIntensityMax)
-                myProject.setCurrentVariable(windScalarIntensity);
-
-            else if (myVar == dailyWindVectorIntensityAvg || myVar == dailyWindVectorIntensityMax)
-                myProject.setCurrentVariable(windVectorIntensity);
-
-            else if (myVar == dailyWindVectorDirectionPrevailing)
-                myProject.setCurrentVariable(windVectorDirection);
-
-            else if (myVar == dailyLeafWetness)
-                myProject.setCurrentVariable(leafWetness);
-
-            else if (myVar == dailyReferenceEvapotranspirationHS || myVar == dailyReferenceEvapotranspirationPM)
-                myProject.setCurrentVariable(referenceEvapotranspiration);
+            meteoVariable newVar = updateMeteoVariable(myVar, hourly);
+            myProject.setCurrentVariable(newVar);
         }
     }
 
