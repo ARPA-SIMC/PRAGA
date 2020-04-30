@@ -1066,12 +1066,20 @@ void MainWindow::addMeteoPoints()
         point->setFlag(MapGraphicsObject::ObjectIsMovable, false);
         point->setLatitude(myProject.meteoPoints[i].latitude);
         point->setLongitude(myProject.meteoPoints[i].longitude);
+        point->setId(myProject.meteoPoints[i].id);
 
         this->pointList.append(point);
         this->mapView->scene()->addObject(this->pointList[i]);
 
         point->setToolTip(&(myProject.meteoPoints[i]));
+        connect(point, SIGNAL(stationClicked()), this, SLOT(showMeteoWidget()));
     }
+}
+
+void MainWindow::showMeteoWidget()
+{
+    StationMarker* point = qobject_cast<StationMarker*>(sender());
+    qDebug() << "point.id  " << QString::fromStdString(point->id());
 }
 
 void MainWindow::on_rasterScaleButton_clicked()

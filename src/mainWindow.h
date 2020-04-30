@@ -121,6 +121,7 @@
             void on_actionNetCDF_ShowMetadata_triggered();
             void on_actionMeteogridExportNetcdf_triggered();
         #endif
+        void showMeteoWidget();
 
 
         protected:
