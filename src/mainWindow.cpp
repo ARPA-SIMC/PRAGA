@@ -571,7 +571,10 @@ void MainWindow::updateVariable()
             this->ui->labelFrequency->setText("Daily");
 
             meteoVariable newVar = updateMeteoVariable(myVar, daily);
-            myProject.setCurrentVariable(newVar);
+            if (newVar != noMeteoVar)
+            {
+                myProject.setCurrentVariable(newVar);
+            }
         }
 
         else if (myProject.getCurrentFrequency() == hourly)
@@ -579,7 +582,10 @@ void MainWindow::updateVariable()
             this->ui->labelFrequency->setText("Hourly");
 
             meteoVariable newVar = updateMeteoVariable(myVar, hourly);
-            myProject.setCurrentVariable(newVar);
+            if (newVar != noMeteoVar)
+            {
+                myProject.setCurrentVariable(newVar);
+            }
         }
     }
 
