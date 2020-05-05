@@ -162,6 +162,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 {
+
     updateMaps();
 
     if (myRubberBand != nullptr && myRubberBand->isVisible())
@@ -222,6 +223,45 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
         }
 
         myRubberBand->hide();
+    }
+
+    if (myProject.meteoGridLoaded && myProject.meteoGridDbHandler != nullptr)
+    {
+        QPoint mapPos = getMapPos(event->pos());
+        Position geoPoint = this->mapView->mapToScene(mapPos);
+
+        gis::Crit3DGeoPoint geoCrit3DPoint(geoPoint.latitude(), geoPoint.longitude());
+        gis::Crit3DUtmPoint utmPoint;
+        gis::getUtmFromLatLon(myProject.gisSettings.utmZone, geoCrit3DPoint, &utmPoint);
+
+        int myRow=NODATA;
+        int myCol=NODATA;
+
+        if (myProject.meteoGridDbHandler->gridStructure().isUTM() == false)
+        {
+            if (geoCrit3DPoint.isInsideGrid(meteoGridObj->getLatLonHeader()))
+            {
+                gis::getMeteoGridRowColFromXY (meteoGridObj->getLatLonHeader(), geoPoint.longitude(), geoPoint.latitude(), &myRow, &myCol);
+                if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->active)
+                {
+                    // TO DO
+                    qDebug() << "FOUND!" << QString::fromStdString(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->id);
+                }
+            }
+        }
+        else
+        {
+            bool isOut = isOutOfGridXY(utmPoint.x, utmPoint.y, myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header);
+            if (!isOut)
+            {
+                gis::getRowColFromXY(myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid, utmPoint.x, utmPoint.y, &myRow, &myCol);
+                if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->active)
+                {
+                    // TO DO
+                    qDebug() << "FOUND!" << QString::fromStdString(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->id);
+                }
+            }
+        }
     }
 }
 
