@@ -244,8 +244,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
                 gis::getMeteoGridRowColFromXY (meteoGridObj->getLatLonHeader(), geoPoint.longitude(), geoPoint.latitude(), &myRow, &myCol);
                 if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->active)
                 {
-                    // TO DO
-                    qDebug() << "FOUND!" << QString::fromStdString(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->id);
+                    myProject.showMeteoWidgetGrid(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->id);
                 }
             }
         }
@@ -257,8 +256,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
                 gis::getRowColFromXY(myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid, utmPoint.x, utmPoint.y, &myRow, &myCol);
                 if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->active)
                 {
-                    // TO DO
-                    qDebug() << "FOUND!" << QString::fromStdString(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->id);
+                    myProject.showMeteoWidgetGrid(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->id);
                 }
             }
         }
