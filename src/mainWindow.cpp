@@ -1085,7 +1085,7 @@ void MainWindow::addMeteoPoints()
 void MainWindow::callMeteoWidget()
 {
     StationMarker* point = qobject_cast<StationMarker*>(sender());
-    myProject.showMeteoWidgt(point->id());
+    myProject.showMeteoWidgetPoint(point->id());
 }
 
 void MainWindow::on_rasterScaleButton_clicked()
