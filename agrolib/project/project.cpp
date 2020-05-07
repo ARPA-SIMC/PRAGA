@@ -1478,7 +1478,7 @@ bool Project::loadTopographicDistanceMaps(bool showInfo)
     }
 
     FormInfo myInfo;
-    int infoStep;
+    int infoStep = 0;
     if (showInfo)
     {
         QString infoStr = "Loading topographic distance maps...";
@@ -1492,8 +1492,10 @@ bool Project::loadTopographicDistanceMaps(bool showInfo)
     for (int i=0; i < nrMeteoPoints; i++)
     {
         if (showInfo)
+        {
             if ((i % infoStep) == 0)
                 myInfo.setValue(i);
+        }
 
         if (meteoPoints[i].active)
         {
@@ -2128,14 +2130,22 @@ void Project::importHourlyMeteoData(const QString& csvFileName, bool importAllFi
 
 void Project::showMeteoWidgetPoint(std::string idMeteoPoint, bool isAppend)
 {
-
-    FormInfo formInfo;
-
-    QDate firstDaily = meteoPointsDbHandler->getFirstDate(daily).date();
-    QDate lastDaily = meteoPointsDbHandler->getLastDate(daily).date();
+    // check dates
+    QDate firstDaily = meteoPointsDbHandler->getFirstDate(daily, idMeteoPoint).date();
+    QDate lastDaily = meteoPointsDbHandler->getLastDate(daily, idMeteoPoint).date();
+    bool hasDailyData = !(firstDaily.isNull() || lastDaily.isNull());
 
     QDateTime firstHourly = meteoPointsDbHandler->getFirstDate(hourly);
     QDateTime lastHourly = meteoPointsDbHandler->getLastDate(hourly);
+    bool hasHourlyData = !(firstHourly.isNull() || lastHourly.isNull());
+
+    if (!hasDailyData && !hasHourlyData)
+    {
+        logInfoGUI("No data.");
+        return;
+    }
+
+    FormInfo formInfo;
 
     if (meteoWidgetPointVector.isEmpty())
     {
