@@ -1116,14 +1116,23 @@ void MainWindow::addMeteoPoints()
         this->mapView->scene()->addObject(this->pointList[i]);
 
         point->setToolTip(&(myProject.meteoPoints[i]));
-        connect(point, SIGNAL(stationClicked()), this, SLOT(callMeteoWidget()));
+        connect(point, SIGNAL(newStationClicked()), this, SLOT(callNewMeteoWidget()));
+        connect(point, SIGNAL(appendStationClicked()), this, SLOT(callAppendMeteoWidget()));
     }
 }
 
-void MainWindow::callMeteoWidget()
+void MainWindow::callNewMeteoWidget()
 {
     StationMarker* point = qobject_cast<StationMarker*>(sender());
-    myProject.showMeteoWidgetPoint(point->id());
+    bool isAppend = false;
+    myProject.showMeteoWidgetPoint(point->id(), isAppend);
+}
+
+void MainWindow::callAppendMeteoWidget()
+{
+    StationMarker* point = qobject_cast<StationMarker*>(sender());
+    bool isAppend = true;
+    myProject.showMeteoWidgetPoint(point->id(), isAppend);
 }
 
 void MainWindow::on_rasterScaleButton_clicked()
