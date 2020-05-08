@@ -259,8 +259,8 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
                             {
                                 isAppend = true;
                             }
+                            myProject.showMeteoWidgetGrid(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->id, isAppend);
                         }
-                        myProject.showMeteoWidgetGrid(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->id, isAppend);
                     }
                 }
             }
@@ -285,8 +285,8 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
                             {
                                 isAppend = true;
                             }
+                            myProject.showMeteoWidgetGrid(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->id, isAppend);
                         }
-                        myProject.showMeteoWidgetGrid(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->id, isAppend);
                     }
                 }
             }
