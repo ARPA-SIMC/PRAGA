@@ -248,6 +248,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
                     {
                         bool isAppend = false;
                         QMenu menu;
+                        menu.addSection("Grid " + QString::fromStdString(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->name) + " ID "+QString::fromStdString(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->id));
                         QAction *firstItem = menu.addAction("Open new meteo widget");
                         QAction *secondItem = menu.addAction("Append to meteo widget");
 
@@ -274,6 +275,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
                     {
                         bool isAppend = false;
                         QMenu menu;
+                        menu.addSection("Grid " + QString::fromStdString(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->name) + " ID "+QString::fromStdString(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->id));
                         QAction *firstItem = menu.addAction("Open new meteo widget");
                         QAction *secondItem = menu.addAction("Append to meteo widget");
 
@@ -1142,6 +1144,7 @@ void MainWindow::addMeteoPoints()
         point->setLatitude(myProject.meteoPoints[i].latitude);
         point->setLongitude(myProject.meteoPoints[i].longitude);
         point->setId(myProject.meteoPoints[i].id);
+        point->setName(myProject.meteoPoints[i].name);
 
         this->pointList.append(point);
         this->mapView->scene()->addObject(this->pointList[i]);
