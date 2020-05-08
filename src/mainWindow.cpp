@@ -225,38 +225,69 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
         myRubberBand->hide();
     }
 
-    if (myProject.meteoGridLoaded && myProject.meteoGridDbHandler != nullptr)
+    if (event->button() == Qt::RightButton)
     {
-        QPoint mapPos = getMapPos(event->pos());
-        Position geoPoint = this->mapView->mapToScene(mapPos);
-
-        gis::Crit3DGeoPoint geoCrit3DPoint(geoPoint.latitude(), geoPoint.longitude());
-        gis::Crit3DUtmPoint utmPoint;
-        gis::getUtmFromLatLon(myProject.gisSettings.utmZone, geoCrit3DPoint, &utmPoint);
-
-        int myRow=NODATA;
-        int myCol=NODATA;
-
-        if (myProject.meteoGridDbHandler->gridStructure().isUTM() == false)
+        if (myProject.meteoGridLoaded && myProject.meteoGridDbHandler != nullptr)
         {
-            if (geoCrit3DPoint.isInsideGrid(meteoGridObj->getLatLonHeader()))
+            QPoint mapPos = getMapPos(event->pos());
+            Position geoPoint = this->mapView->mapToScene(mapPos);
+
+            gis::Crit3DGeoPoint geoCrit3DPoint(geoPoint.latitude(), geoPoint.longitude());
+            gis::Crit3DUtmPoint utmPoint;
+            gis::getUtmFromLatLon(myProject.gisSettings.utmZone, geoCrit3DPoint, &utmPoint);
+
+            int myRow=NODATA;
+            int myCol=NODATA;
+
+            if (myProject.meteoGridDbHandler->gridStructure().isUTM() == false)
             {
-                gis::getMeteoGridRowColFromXY (meteoGridObj->getLatLonHeader(), geoPoint.longitude(), geoPoint.latitude(), &myRow, &myCol);
-                if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->active)
+                if (geoCrit3DPoint.isInsideGrid(meteoGridObj->getLatLonHeader()))
                 {
-                    myProject.showMeteoWidgetGrid(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->id);
+                    gis::getMeteoGridRowColFromXY (meteoGridObj->getLatLonHeader(), geoPoint.longitude(), geoPoint.latitude(), &myRow, &myCol);
+                    if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->active)
+                    {
+                        bool isAppend = false;
+                        QMenu menu;
+                        QAction *firstItem = menu.addAction("Open new meteo widget");
+                        QAction *secondItem = menu.addAction("Append to meteo widget");
+
+                        QAction *selection =  menu.exec(QCursor::pos());
+
+                        if (selection != nullptr)
+                        {
+                            if (selection == secondItem)
+                            {
+                                isAppend = true;
+                            }
+                        }
+                        myProject.showMeteoWidgetGrid(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->id, isAppend);
+                    }
                 }
             }
-        }
-        else
-        {
-            bool isOut = isOutOfGridXY(utmPoint.x, utmPoint.y, myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header);
-            if (!isOut)
+            else
             {
-                gis::getRowColFromXY(myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid, utmPoint.x, utmPoint.y, &myRow, &myCol);
-                if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->active)
+                bool isOut = isOutOfGridXY(utmPoint.x, utmPoint.y, myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header);
+                if (!isOut)
                 {
-                    myProject.showMeteoWidgetGrid(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->id);
+                    gis::getRowColFromXY(myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid, utmPoint.x, utmPoint.y, &myRow, &myCol);
+                    if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->active)
+                    {
+                        bool isAppend = false;
+                        QMenu menu;
+                        QAction *firstItem = menu.addAction("Open new meteo widget");
+                        QAction *secondItem = menu.addAction("Append to meteo widget");
+
+                        QAction *selection =  menu.exec(QCursor::pos());
+
+                        if (selection != nullptr)
+                        {
+                            if (selection == secondItem)
+                            {
+                                isAppend = true;
+                            }
+                        }
+                        myProject.showMeteoWidgetGrid(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[myRow][myCol]->id, isAppend);
+                    }
                 }
             }
         }
