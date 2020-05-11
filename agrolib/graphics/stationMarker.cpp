@@ -64,28 +64,42 @@ void StationMarker::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     if (event->button() == Qt::RightButton)
     {
         QMenu menu;
-        menu.addSection("Point " + QString::fromStdString(this->_name) + " ID "+QString::fromStdString(this->id()));
-        QAction *firstItem = menu.addAction("Open new meteo widget");
-        QAction *secondItem = menu.addAction("Append to meteo widget");
+        QString title = "Point: " + QString::fromStdString(this->_name) + " ID: " + QString::fromStdString(this->id());
+        menu.addAction(title);
+        menu.addSeparator();
+
+        QAction *openMeteoWidget = menu.addAction("Open new meteo widget");
+        QAction *appendMeteoWidget = menu.addAction("Append to last meteo widget");
+
+        #ifdef CRITERIA3D
+            menu.addSeparator();
+            QAction *openCropWidget = menu.addAction("Open crop widget");
+        #endif
 
         QAction *selection =  menu.exec(QCursor::pos());
 
         if (selection != nullptr)
         {
-            if (selection == firstItem)
+            if (selection == openMeteoWidget)
             {
                 emit newStationClicked(_id);
             }
-            else if (selection == secondItem)
+            else if (selection == appendMeteoWidget)
             {
                 emit appendStationClicked(_id);
             }
+            #ifdef CRITERIA3D
+            else if (selection == openCropWidget)
+            {
+                emit openCropClicked(_id);
+            }
+            #endif
         }
     }
 }
 
 void StationMarker::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-
+    Q_UNUSED(event);
 }
 
