@@ -713,9 +713,63 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         myProject.netCDF.readProperties(fileName.toStdString());
 
         if (myProject.netCDF.isLatLon)
+        {
             meteoGridObj->initializeLatLon(&(myProject.netCDF.dataGrid), myProject.gisSettings, myProject.netCDF.latLonHeader, true);
+            for (int row = 0; row < myProject.netCDF.latLonHeader.nrRows; row++)
+            {
+                for (int col = 0; col < myProject.netCDF.latLonHeader.nrCols; col++)
+                {
+                    /*
+                    if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
+                    {
+                        double dx = myProject.netCDF.latLonHeader.dx;
+                        double dy = myProject.netCDF.latLonHeader.dy;
+                        QPolygonF polygon;
+                        polygon << QPointF(dx, dy)   << QPointF(-dx, dy) << QPointF(-dx, -dy) << QPointF(dx, -dy);
+                        GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)));
+                        cell->setLatitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude);
+                        cell->setLongitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude);
+                        cell->setId(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id);
+                        cell->setName(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name);
+
+                        this->mapView->scene()->addObject(cell);
+                        cell->setToolTip(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]);
+                    }
+                    */
+                }
+            }
+        }
         else
+        {
             meteoGridObj->initializeUTM(&(myProject.netCDF.dataGrid), myProject.gisSettings, true);
+            gis::Crit3DGridHeader latLonHeader;
+            gis::getGeoExtentsFromUTMHeader(myProject.gisSettings, myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header, &latLonHeader);
+            /*
+            for (int row = 0; row < myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header->nrRows; row++)
+            {
+                for (int col = 0; col < myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header->nrCols; col++)
+                {
+                    if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
+                    {
+                        double dx = latLonHeader.dx;
+                        double dy = latLonHeader.dy;
+                        QPolygonF polygon;
+                        polygon << QPointF(dx, dy)   << QPointF(-dx, dy) << QPointF(-dx, -dy) << QPointF(dx, -dy);
+                        GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)));
+                        //qDebug() << "myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude: " << myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude;
+                        cell->setLatitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude);
+                        //qDebug() << "latitude[row][col] set: " << row << " - " << col;
+                        cell->setLongitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude);
+                        cell->setId(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id);
+                        cell->setName(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name);
+
+                        this->mapView->scene()->addObject(cell);
+                        cell->setToolTip(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]);
+                    }
+                }
+            }
+            */
+        }
 
         myProject.netCDF.dataGrid.setConstantValue(0);
 
@@ -986,12 +1040,39 @@ void MainWindow::drawMeteoGrid()
             {
                 if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
                 {
+                    double dx = myProject.meteoGridDbHandler->gridStructure().header().dx;
+                    double dy = myProject.meteoGridDbHandler->gridStructure().header().dy;
                     QPolygonF polygon;
-                    polygon << QPointF(0.01, 0.01)   << QPointF(-0.01, 0.01) << QPointF(-0.01, -0.01) << QPointF(0.01, -0.01);
+                    polygon << QPointF(dx, dy)   << QPointF(-dx, dy) << QPointF(-dx, -dy) << QPointF(dx, -dy);
+                    GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)));
+                    cell->setLatitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude);
+                    cell->setLongitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude);
+                    cell->setId(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id);
+                    cell->setName(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name);
+
+                    this->mapView->scene()->addObject(cell);
+                    cell->setToolTip(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]);
+                }
+            }
+        }
+    }
+    else
+    {
+        gis::Crit3DGridHeader latLonHeader;
+        gis::getGeoExtentsFromUTMHeader(myProject.gisSettings, myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header, &latLonHeader);
+        for (int row = 0; row < myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header->nrRows; row++)
+        {
+            for (int col = 0; col < myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header->nrCols; col++)
+            {
+                if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
+                {
+                    double dx = latLonHeader.dx;
+                    double dy = latLonHeader.dy;
+                    QPolygonF polygon;
+                    polygon << QPointF(dx, dy)   << QPointF(-dx, dy) << QPointF(-dx, -dy) << QPointF(dx, -dy);
                     GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)));
                     //qDebug() << "myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude: " << myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude;
                     cell->setLatitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude);
-
                     //qDebug() << "latitude[row][col] set: " << row << " - " << col;
                     cell->setLongitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude);
                     cell->setId(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id);
