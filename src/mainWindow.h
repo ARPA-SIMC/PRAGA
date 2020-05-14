@@ -14,6 +14,7 @@
     #include "tileSources/OSMTileSource.h"
     #include "mapGraphicsRasterObject.h"
     #include "stationMarker.h"
+    #include "gridCellMarker.h"
     #include "colorLegend.h"
     #include "dbArkimet.h"
     #include "pragaProject.h"
@@ -121,8 +122,8 @@
             void on_actionNetCDF_ShowMetadata_triggered();
             void on_actionMeteogridExportNetcdf_triggered();
         #endif
-        void callNewMeteoWidget(std::string id);
-        void callAppendMeteoWidget(std::string id);
+        void callNewMeteoWidget(std::string id, bool isGrid);
+        void callAppendMeteoWidget(std::string id, bool isGrid);
 
 
         protected:
@@ -156,6 +157,7 @@
         ColorLegend *meteoPointsLegend;
         ColorLegend *meteoGridLegend;
         QList<StationMarker*> pointList;
+        QList<GridCellMarker*> gridCellList;
         RubberBand *myRubberBand;
         visualizationType currentPointsVisualization;
         visualizationType currentGridVisualization;
@@ -175,7 +177,8 @@
         void clearDEM();
         void updateVariable();
         void updateDateTime();
-        void resetMeteoPoints();
+        void resetMeteoPointsMarker();
+        void resetMeteoGridMarker();
         void addMeteoPoints();
         void drawMeteoPoints();
         void redrawMeteoPoints(visualizationType showType, bool updateColorScale);
