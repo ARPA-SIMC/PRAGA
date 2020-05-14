@@ -1003,8 +1003,8 @@ void MainWindow::drawMeteoGrid()
             {
                 if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
                 {
-                    double dx = myProject.meteoGridDbHandler->gridStructure().header().dx;
-                    double dy = myProject.meteoGridDbHandler->gridStructure().header().dy;
+                    double dx = (myProject.meteoGridDbHandler->gridStructure().header().dx)/2;
+                    double dy = (myProject.meteoGridDbHandler->gridStructure().header().dy)/2;
                     QPolygonF polygon;
                     polygon << QPointF(dx, dy)   << QPointF(-dx, dy) << QPointF(-dx, -dy) << QPointF(dx, -dy);
                     GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)));
@@ -1032,8 +1032,8 @@ void MainWindow::drawMeteoGrid()
             {
                 if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
                 {
-                    double dx = latLonHeader.dx;
-                    double dy = latLonHeader.dy;
+                    double dx = (latLonHeader.dx)/2;
+                    double dy = (latLonHeader.dy)/2;
                     QPolygonF polygon;
                     polygon << QPointF(dx, dy)   << QPointF(-dx, dy) << QPointF(-dx, -dy) << QPointF(dx, -dy);
                     GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)));
