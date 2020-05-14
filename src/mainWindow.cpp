@@ -34,6 +34,7 @@
 #include "spatialControl.h"
 #include "dialogPragaProject.h"
 #include "utilities.h"
+#include "gridCellMarker.h"
 
 
 extern PragaProject myProject;
@@ -975,6 +976,34 @@ void MainWindow::drawMeteoGrid()
     {
         meteoGridObj->initializeUTM(&(myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid), myProject.gisSettings, true);
     }
+
+    //// test
+    if (myProject.meteoGridDbHandler->gridStructure().isUTM() == false)
+    {
+        for (int row = 0; row < myProject.meteoGridDbHandler->gridStructure().header().nrRows; row++)
+        {
+            for (int col = 0; col < myProject.meteoGridDbHandler->gridStructure().header().nrCols; col++)
+            {
+                if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
+                {
+                    QPolygonF polygon;
+                    polygon << QPointF(0.01, 0.01)   << QPointF(-0.01, 0.01) << QPointF(-0.01, -0.01) << QPointF(0.01, -0.01);
+                    GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)));
+                    //qDebug() << "myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude: " << myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude;
+                    cell->setLatitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude);
+
+                    //qDebug() << "latitude[row][col] set: " << row << " - " << col;
+                    cell->setLongitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude);
+                    cell->setId(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id);
+                    cell->setName(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name);
+
+                    this->mapView->scene()->addObject(cell);
+                    cell->setToolTip(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]);
+                }
+            }
+        }
+    }
+    ////////
 
     meteoGridLegend->colorScale = myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.colorScale;
     ui->meteoGridOpacitySlider->setEnabled(true);
