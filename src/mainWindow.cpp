@@ -924,6 +924,11 @@ void MainWindow::drawMeteoGrid()
     }
 
     //// test
+    /// remove meteoPoints and add them after GridCellMarker
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        this->mapView->scene()->removeObject(pointList[i]);
+    }
     if (myProject.meteoGridDbHandler->gridStructure().isUTM() == false)
     {
         for (int row = 0; row < myProject.meteoGridDbHandler->gridStructure().header().nrRows; row++)
@@ -979,6 +984,10 @@ void MainWindow::drawMeteoGrid()
                 }
             }
         }
+    }
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        this->mapView->scene()->addObject(pointList[i]);
     }
     ////////
 
@@ -1172,6 +1181,7 @@ void MainWindow::callNewMeteoWidget(std::string id, bool isGrid)
     {
         myProject.showMeteoWidgetPoint(id, isAppend);
     }
+    return;
 }
 
 void MainWindow::callAppendMeteoWidget(std::string id, bool isGrid)
@@ -1185,6 +1195,7 @@ void MainWindow::callAppendMeteoWidget(std::string id, bool isGrid)
     {
         myProject.showMeteoWidgetPoint(id, isAppend);
     }
+    return;
 }
 
 void MainWindow::on_rasterScaleButton_clicked()
