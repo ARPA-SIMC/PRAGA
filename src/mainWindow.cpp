@@ -797,7 +797,8 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                     myProject.meteoPoints[i].currentValue = NODATA;
                     pointList[i]->setFillColor(QColor(Qt::white));
                     pointList[i]->setRadius(5);
-                    pointList[i]->setToolTip(&(myProject.meteoPoints[i]));
+                    pointList[i]->setCurrentValue(NODATA);
+                    pointList[i]->setToolTip();
                     pointList[i]->setVisible(true);
             }
 
@@ -846,7 +847,9 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                         pointList[i]->setOpacity(0.5);
                     }
 
-                    pointList[i]->setToolTip(&(myProject.meteoPoints[i]));
+                    pointList[i]->setCurrentValue(myProject.meteoPoints[i].currentValue);
+                    pointList[i]->setQuality(myProject.meteoPoints[i].quality);
+                    pointList[i]->setToolTip();
                     pointList[i]->setVisible(true);
                 }
             }
@@ -937,16 +940,19 @@ void MainWindow::drawMeteoGrid()
             {
                 if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
                 {
-                    double dx = (myProject.meteoGridDbHandler->gridStructure().header().dx)/2;
-                    double dy = (myProject.meteoGridDbHandler->gridStructure().header().dy)/2;
+                    double dx = (myProject.meteoGridDbHandler->gridStructure().header().dx)/2.0;
+                    double dy = (myProject.meteoGridDbHandler->gridStructure().header().dy)/2.0;
                     QPolygonF polygon;
                     polygon << QPointF(dx, dy)   << QPointF(-dx, dy) << QPointF(-dx, -dy) << QPointF(dx, -dy);
-                    GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)));
+                    GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)), this->mapView);
                     cell->setLatitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude);
                     cell->setLongitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude);
                     cell->setId(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id);
                     cell->setName(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name);
-
+                    if (pointList.size() > 0)
+                    {
+                        cell->setPointList(pointList);
+                    }
                     this->gridCellList.append(cell);
                     this->mapView->scene()->addObject(cell);
                     cell->setToolTip(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]);
@@ -966,16 +972,19 @@ void MainWindow::drawMeteoGrid()
             {
                 if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
                 {
-                    double dx = (latLonHeader.dx)/2;
-                    double dy = (latLonHeader.dy)/2;
+                    double dx = (latLonHeader.dx)/2.0;
+                    double dy = (latLonHeader.dy)/2.0;
                     QPolygonF polygon;
                     polygon << QPointF(dx, dy)   << QPointF(-dx, dy) << QPointF(-dx, -dy) << QPointF(dx, -dy);
-                    GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)));
+                    GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)), this->mapView);
                     cell->setLatitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude);
                     cell->setLongitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude);
                     cell->setId(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id);
                     cell->setName(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name);
-
+                    if (pointList.size() > 0)
+                    {
+                        cell->setPointList(pointList);
+                    }
                     this->gridCellList.append(cell);
                     this->mapView->scene()->addObject(cell);
                     cell->setToolTip(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]);
@@ -986,7 +995,7 @@ void MainWindow::drawMeteoGrid()
         }
     }
     for (int i = 0; i < myProject.nrMeteoPoints; i++)
-    {
+    {     
         this->mapView->scene()->addObject(pointList[i]);
     }
     ////////
@@ -1160,11 +1169,16 @@ void MainWindow::addMeteoPoints()
         point->setLongitude(myProject.meteoPoints[i].longitude);
         point->setId(myProject.meteoPoints[i].id);
         point->setName(myProject.meteoPoints[i].name);
+        point->setDataset(myProject.meteoPoints[i].dataset);
+        point->setAltitude(myProject.meteoPoints[i].point.z);
+        point->setMunicipality(myProject.meteoPoints[i].municipality);
+        point->setCurrentValue(myProject.meteoPoints[i].currentValue);
+        point->setQuality(myProject.meteoPoints[i].quality);
 
         this->pointList.append(point);
         this->mapView->scene()->addObject(this->pointList[i]);
 
-        point->setToolTip(&(myProject.meteoPoints[i]));
+        point->setToolTip();
         connect(point, SIGNAL(newStationClicked(std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, bool)));
         connect(point, SIGNAL(appendStationClicked(std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, bool)));
     }
@@ -1181,6 +1195,7 @@ void MainWindow::callNewMeteoWidget(std::string id, bool isGrid)
     {
         myProject.showMeteoWidgetPoint(id, isAppend);
     }
+    qDebug() << "callNewMeteoWidget end";
     return;
 }
 
@@ -1603,7 +1618,9 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
                 pointList[i]->setRadius(5);
                 myColor = myProject.meteoPointsColorScale->getColor(myProject.meteoPoints[i].currentValue);
                 pointList[i]->setFillColor(QColor(myColor->red, myColor->green, myColor->blue));
-                pointList[i]->setToolTip(&(myProject.meteoPoints[i]));
+                pointList[i]->setCurrentValue(myProject.meteoPoints[i].currentValue);
+                pointList[i]->setQuality(myProject.meteoPoints[i].quality);
+                pointList[i]->setToolTip();
                 pointList[i]->setVisible(true);
             }
         }
