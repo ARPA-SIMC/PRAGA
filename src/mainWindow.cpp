@@ -938,8 +938,15 @@ void MainWindow::drawMeteoGrid()
                 {
                     double dx = (myProject.meteoGridDbHandler->gridStructure().header().dx)/2.0;
                     double dy = (myProject.meteoGridDbHandler->gridStructure().header().dy)/2.0;
+                    // dx = dy;  // imponendo questa condizione il gridCellMarker coincide con la griglia disegnata sotto, perchè?
                     QPolygonF polygon;
                     polygon << QPointF(dx, dy)   << QPointF(-dx, dy) << QPointF(-dx, -dy) << QPointF(dx, -dy);
+                    /*
+                    polygon << QPointF(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude + dx, myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude + dy)
+                            << QPointF(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude - dx, myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude + dy)
+                            << QPointF(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude - dx, myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude - dy)
+                            << QPointF(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude + dx, -myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude - dy);
+                            */
                     GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)), this->mapView);
                     cell->setLatitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude);
                     cell->setLongitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude);
