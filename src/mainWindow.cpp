@@ -930,30 +930,29 @@ void MainWindow::drawMeteoGrid()
     resetMeteoPointsMarker();
     if (myProject.meteoGridDbHandler->gridStructure().isUTM() == false)
     {
-        for (int row = 0; row < myProject.meteoGridDbHandler->gridStructure().header().nrRows; row++)
+        for (unsigned int row = 0; row < myProject.meteoGridDbHandler->gridStructure().header().nrRows; row++)
         {
-            for (int col = 0; col < myProject.meteoGridDbHandler->gridStructure().header().nrCols; col++)
+            for (unsigned int col = 0; col < myProject.meteoGridDbHandler->gridStructure().header().nrCols; col++)
             {
                 if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
                 {
+                    double lat = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude;
+                    double lon = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude;
                     double dx = (myProject.meteoGridDbHandler->gridStructure().header().dx)/2.0;
                     double dy = (myProject.meteoGridDbHandler->gridStructure().header().dy)/2.0;
-                    // dx = dy;  // imponendo questa condizione il gridCellMarker coincide con la griglia disegnata sotto, perchè?
+
                     QPolygonF polygon;
-                    polygon << QPointF(dx, dy)   << QPointF(-dx, dy) << QPointF(-dx, -dy) << QPointF(dx, -dy);
-                    /*
-                    polygon << QPointF(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude + dx, myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude + dy)
-                            << QPointF(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude - dx, myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude + dy)
-                            << QPointF(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude - dx, myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude - dy)
-                            << QPointF(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude + dx, -myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude - dy);
-                            */
+                    polygon << QPointF(lon-dx, lat-dy) << QPointF(lon-dx, lat+dy) << QPointF(lon+dx, lat+dy) << QPointF(lon+dx, lat-dy);
                     GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)), this->mapView);
-                    cell->setLatitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude);
-                    cell->setLongitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude);
+
+                    cell->setLatitude(lat);
+                    cell->setLongitude(lon);
                     cell->setId(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id);
                     cell->setName(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name);
+
                     this->gridCellList.append(cell);
                     this->mapView->scene()->addObject(cell);
+
                     cell->setToolTip(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]);
                     connect(cell, SIGNAL(newCellClicked(std::string, std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, std::string, bool)));
                     connect(cell, SIGNAL(appendCellClicked(std::string, std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, std::string, bool)));
@@ -965,23 +964,28 @@ void MainWindow::drawMeteoGrid()
     {
         gis::Crit3DGridHeader latLonHeader;
         gis::getGeoExtentsFromUTMHeader(myProject.gisSettings, myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header, &latLonHeader);
-        for (int row = 0; row < myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header->nrRows; row++)
+        for (unsigned int row = 0; row < myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header->nrRows; row++)
         {
-            for (int col = 0; col < myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header->nrCols; col++)
+            for (unsigned int col = 0; col < myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header->nrCols; col++)
             {
                 if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
                 {
+                    double lat = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude;
+                    double lon = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude;
                     double dx = (latLonHeader.dx)/2.0;
                     double dy = (latLonHeader.dy)/2.0;
+
                     QPolygonF polygon;
-                    polygon << QPointF(dx, dy)   << QPointF(-dx, dy) << QPointF(-dx, -dy) << QPointF(dx, -dy);
+                    polygon << QPointF(lon+dx, lat+dy)   << QPointF(lon-dx, lat+dy) << QPointF(lon-dx, lat-dy) << QPointF(lon+dx, lat-dy);
                     GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)), this->mapView);
-                    cell->setLatitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude);
-                    cell->setLongitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude);
+                    cell->setLatitude(lat);
+                    cell->setLongitude(lon);
                     cell->setId(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id);
                     cell->setName(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name);
+
                     this->gridCellList.append(cell);
                     this->mapView->scene()->addObject(cell);
+
                     cell->setToolTip(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]);
                     connect(cell, SIGNAL(newCellClicked(std::string, std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, std::string, bool)));
                     connect(cell, SIGNAL(appendCellClicked(std::string, std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, std::string, bool)));
