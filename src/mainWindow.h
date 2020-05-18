@@ -122,8 +122,8 @@
             void on_actionNetCDF_ShowMetadata_triggered();
             void on_actionMeteogridExportNetcdf_triggered();
         #endif
-        void callNewMeteoWidget(std::string id, bool isGrid);
-        void callAppendMeteoWidget(std::string id, bool isGrid);
+        void callNewMeteoWidget(std::string id, std::string name, bool isGrid);
+        void callAppendMeteoWidget(std::string id, std::string name, bool isGrid);
 
 
         protected:

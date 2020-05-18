@@ -926,12 +926,8 @@ void MainWindow::drawMeteoGrid()
         meteoGridObj->initializeUTM(&(myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid), myProject.gisSettings, true);
     }
 
-    //// test
-    /// remove meteoPoints and add them after GridCellMarker
-    for (int i = 0; i < myProject.nrMeteoPoints; i++)
-    {
-        this->mapView->scene()->removeObject(pointList[i]);
-    }
+    // remove meteoPoints and add them after GridCellMarker
+    resetMeteoPointsMarker();
     if (myProject.meteoGridDbHandler->gridStructure().isUTM() == false)
     {
         for (int row = 0; row < myProject.meteoGridDbHandler->gridStructure().header().nrRows; row++)
@@ -949,15 +945,11 @@ void MainWindow::drawMeteoGrid()
                     cell->setLongitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude);
                     cell->setId(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id);
                     cell->setName(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name);
-                    if (pointList.size() > 0)
-                    {
-                        cell->setPointList(pointList);
-                    }
                     this->gridCellList.append(cell);
                     this->mapView->scene()->addObject(cell);
                     cell->setToolTip(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]);
-                    connect(cell, SIGNAL(newCellClicked(std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, bool)));
-                    connect(cell, SIGNAL(appendCellClicked(std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, bool)));
+                    connect(cell, SIGNAL(newCellClicked(std::string, std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, std::string, bool)));
+                    connect(cell, SIGNAL(appendCellClicked(std::string, std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, std::string, bool)));
                 }
             }
         }
@@ -981,24 +973,16 @@ void MainWindow::drawMeteoGrid()
                     cell->setLongitude(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude);
                     cell->setId(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id);
                     cell->setName(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name);
-                    if (pointList.size() > 0)
-                    {
-                        cell->setPointList(pointList);
-                    }
                     this->gridCellList.append(cell);
                     this->mapView->scene()->addObject(cell);
                     cell->setToolTip(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]);
-                    connect(cell, SIGNAL(newCellClicked(std::string)), this, SLOT(callNewMeteoWidget(std::string)));
-                    connect(cell, SIGNAL(appendCellClicked(std::string)), this, SLOT(callAppendMeteoWidget(std::string)));
+                    connect(cell, SIGNAL(newCellClicked(std::string, std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, std::string, bool)));
+                    connect(cell, SIGNAL(appendCellClicked(std::string, std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, std::string, bool)));
                 }
             }
         }
     }
-    for (int i = 0; i < myProject.nrMeteoPoints; i++)
-    {     
-        this->mapView->scene()->addObject(pointList[i]);
-    }
-    ////////
+    addMeteoPoints();
 
     meteoGridLegend->colorScale = myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.colorScale;
     ui->meteoGridOpacitySlider->setEnabled(true);
@@ -1179,12 +1163,12 @@ void MainWindow::addMeteoPoints()
         this->mapView->scene()->addObject(this->pointList[i]);
 
         point->setToolTip();
-        connect(point, SIGNAL(newStationClicked(std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, bool)));
-        connect(point, SIGNAL(appendStationClicked(std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, bool)));
+        connect(point, SIGNAL(newStationClicked(std::string, std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, std::string, bool)));
+        connect(point, SIGNAL(appendStationClicked(std::string, std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, std::string, bool)));
     }
 }
 
-void MainWindow::callNewMeteoWidget(std::string id, bool isGrid)
+void MainWindow::callNewMeteoWidget(std::string id, std::string name, bool isGrid)
 {
     bool isAppend = false;
     if (isGrid)
@@ -1193,13 +1177,13 @@ void MainWindow::callNewMeteoWidget(std::string id, bool isGrid)
     }
     else
     {
-        myProject.showMeteoWidgetPoint(id, isAppend);
+        myProject.showMeteoWidgetPoint(id, name, isAppend);
     }
     qDebug() << "callNewMeteoWidget end";
     return;
 }
 
-void MainWindow::callAppendMeteoWidget(std::string id, bool isGrid)
+void MainWindow::callAppendMeteoWidget(std::string id, std::string name, bool isGrid)
 {
     bool isAppend = true;
     if (isGrid)
@@ -1208,7 +1192,7 @@ void MainWindow::callAppendMeteoWidget(std::string id, bool isGrid)
     }
     else
     {
-        myProject.showMeteoWidgetPoint(id, isAppend);
+        myProject.showMeteoWidgetPoint(id, name, isAppend);
     }
     return;
 }
@@ -2023,8 +2007,8 @@ void MainWindow::drawProject()
     if (myProject.DEM.isLoaded)
         renderDEM();
 
-    drawMeteoPoints();
     drawMeteoGrid();
+    drawMeteoPoints();
 
     redrawTitle();
 }
