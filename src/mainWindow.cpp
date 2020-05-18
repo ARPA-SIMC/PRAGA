@@ -499,15 +499,15 @@ void MainWindow::resetMeteoPointsMarker()
     datasetCheckbox.clear();
 }
 
+
 void MainWindow::resetMeteoGridMarker()
 {
     for (int i = gridCellList.size()-1; i >= 0; i--)
     {
         mapView->scene()->removeObject(gridCellList[i]);
-        delete gridCellList[i];
+        //delete gridCellList[i];
     }
     gridCellList.clear();
-
 }
 
 
@@ -911,7 +911,6 @@ bool MainWindow::loadMeteoPoints(QString dbName)
 
 void MainWindow::drawMeteoGrid()
 {
-
     resetMeteoGridMarker();
     if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr) return;
 
@@ -958,7 +957,7 @@ void MainWindow::drawMeteoGrid()
             }
         }
     }
-    else
+    /*else
     {
         gis::Crit3DGridHeader latLonHeader;
         gis::getGeoExtentsFromUTMHeader(myProject.gisSettings, myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header, &latLonHeader);
@@ -988,7 +987,8 @@ void MainWindow::drawMeteoGrid()
                 }
             }
         }
-    }
+    }*/
+
     addMeteoPoints();
 
     meteoGridLegend->colorScale = myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.colorScale;
@@ -2289,12 +2289,18 @@ void MainWindow::on_actionMeteopointClose_triggered()
 void MainWindow::on_actionMeteogridOpen_triggered()
 {
     QString xmlName = QFileDialog::getOpenFileName(this, tr("Open XML DB meteo grid"), "", tr("xml files (*.xml)"));
-    if (xmlName != "") loadMeteoGrid(xmlName);
+    if (xmlName != "")
+    {
+        closeMeteoGrid();
+        loadMeteoGrid(xmlName);
+    }
 }
 
-void MainWindow::on_actionMeteogridClose_triggered()
+
+void MainWindow::closeMeteoGrid()
 {
     resetMeteoGridMarker();
+
     if (myProject.meteoGridDbHandler != nullptr)
     {
         myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.isLoaded = false;
@@ -2316,5 +2322,10 @@ void MainWindow::on_actionMeteogridClose_triggered()
             this->ui->meteoPoints->setChecked(true);
         }
     }
+}
 
+
+void MainWindow::on_actionMeteogridClose_triggered()
+{
+    this->closeMeteoGrid();
 }

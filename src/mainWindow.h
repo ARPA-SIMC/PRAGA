@@ -189,6 +189,8 @@
 
         void checkSaveProject();
 
+        void closeMeteoGrid();
+
         bool loadMeteoPoints(QString dbName);
         bool loadMeteoGrid(QString xmlName);
         bool openRaster(QString fileName, gis::Crit3DRasterGrid *myRaster);
