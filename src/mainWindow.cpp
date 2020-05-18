@@ -945,8 +945,6 @@ void MainWindow::drawMeteoGrid()
                     polygon << QPointF(lon-dx, lat-dy) << QPointF(lon-dx, lat+dy) << QPointF(lon+dx, lat+dy) << QPointF(lon+dx, lat-dy);
                     GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)), this->mapView);
 
-                    cell->setLatitude(lat);
-                    cell->setLongitude(lon);
                     cell->setId(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id);
                     cell->setName(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name);
 
@@ -978,8 +976,6 @@ void MainWindow::drawMeteoGrid()
                     QPolygonF polygon;
                     polygon << QPointF(lon+dx, lat+dy)   << QPointF(lon-dx, lat+dy) << QPointF(lon-dx, lat-dy) << QPointF(lon+dx, lat-dy);
                     GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)), this->mapView);
-                    cell->setLatitude(lat);
-                    cell->setLongitude(lon);
                     cell->setId(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id);
                     cell->setName(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name);
 
