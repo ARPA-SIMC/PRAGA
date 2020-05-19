@@ -492,7 +492,6 @@ void MainWindow::resetMeteoPointsMarker()
     for (int i = pointList.size()-1; i >= 0; i--)
     {
         mapView->scene()->removeObject(pointList[i]);
-        delete pointList[i];
     }
     pointList.clear();
 
@@ -505,7 +504,6 @@ void MainWindow::resetMeteoGridMarker()
     for (int i = gridCellList.size()-1; i >= 0; i--)
     {
         mapView->scene()->removeObject(gridCellList[i]);
-        //delete gridCellList[i];
     }
     gridCellList.clear();
 }
@@ -2322,6 +2320,7 @@ void MainWindow::closeMeteoGrid()
             this->ui->meteoPoints->setChecked(true);
         }
     }
+
 }
 
 
