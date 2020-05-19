@@ -46,8 +46,11 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
+    this->ui->setupUi(this);
+    /*
+    this->centralWidget()->setAttribute(Qt::WA_TransparentForMouseEvents);
     this->setMouseTracking(true);
-    ui->setupUi(this);
+    */
 
     this->myRubberBand = nullptr;
 
@@ -95,8 +98,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->dateEdit->installEventFilter(keyboardFilter);
     //connect(this->ui->dateEdit, SIGNAL(editingFinished()), this, SLOT(on_dateChanged()));
 
-    ui->meteoPoints->setEnabled(false);
-    ui->grid->setEnabled(false);
+    this->ui->meteoPoints->setEnabled(false);
+    this->ui->grid->setEnabled(false);
 
     // show menu
     showPointsGroup = new QActionGroup(this);
@@ -278,6 +281,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             return;
         }
 
+        // GRID - context menu
         if (meteoGridObj->isLoaded)
         {
             Position geoPos = mapView->mapToScene(mapPos);
@@ -299,7 +303,6 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
             std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
 
-            // context menu
             QMenu menu;
             QAction *openMeteoWidget = menu.addAction("Open new meteo widget");
             QAction *appendMeteoWidget = menu.addAction("Append to last meteo widget");
@@ -1169,6 +1172,7 @@ bool MainWindow::loadMeteoGrid(QString xmlName)
     if (myProject.loadMeteoGridDB(xmlName))
     {
         drawMeteoGrid();
+        this->update();
         return true;
     }
     else
