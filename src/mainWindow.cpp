@@ -1184,7 +1184,6 @@ void MainWindow::callNewMeteoWidget(std::string id, std::string name, bool isGri
     {
         myProject.showMeteoWidgetPoint(id, name, isAppend);
     }
-    qDebug() << "callNewMeteoWidget end";
     return;
 }
 
