@@ -188,7 +188,7 @@
         void redrawTitle();
 
         void checkSaveProject();
-
+        void closeMeteoPoints();
         void closeMeteoGrid();
 
         bool loadMeteoPoints(QString dbName);
