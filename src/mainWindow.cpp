@@ -227,6 +227,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 }
 
 
+// zoom
 void MainWindow::mouseDoubleClickEvent(QMouseEvent * event)
 {
     QPoint mapPos = getMapPos(event->pos());
@@ -274,17 +275,49 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             myRubberBand->setGeometry(QRect(widgetPos, QSize()));
             myRubberBand->isActive = true;
             myRubberBand->show();
+            return;
         }
 
-        #ifdef NETCDF
-        if (myProject.netCDF.isLoaded())
+        if (meteoGridObj->isLoaded)
         {
             Position geoPos = mapView->mapToScene(mapPos);
             gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
 
-            netCDF_exportDataSeries(geoPoint);
+            #ifdef NETCDF
+            if (myProject.netCDF.isLoaded())
+            {
+                netCDF_exportDataSeries(geoPoint);
+                return;
+            }
+            #endif
+
+            // cehck row, col
+            int row, col;
+            if (! meteoGridObj->getRowCol(geoPoint, &row, &col))
+                return;
+
+            std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
+            std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
+
+            // context menu
+            QMenu menu;
+            QAction *openMeteoWidget = menu.addAction("Open new meteo widget");
+            QAction *appendMeteoWidget = menu.addAction("Append to last meteo widget");
+
+            QAction *selection =  menu.exec(QCursor::pos());
+
+            if (selection != nullptr)
+            {
+                if (selection == openMeteoWidget)
+                {
+                    callNewMeteoWidget(id, name, true);
+                }
+                else if (selection == appendMeteoWidget)
+                {
+                    callAppendMeteoWidget(id, name, true);
+                }
+            }
         }
-        #endif
     }
 }
 
@@ -949,8 +982,8 @@ void MainWindow::drawMeteoGrid()
                     this->mapView->scene()->addObject(cell);
 
                     cell->setToolTip(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]);
-                    connect(cell, SIGNAL(newCellClicked(std::string, std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, std::string, bool)));
-                    connect(cell, SIGNAL(appendCellClicked(std::string, std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, std::string, bool)));
+                    //connect(cell, SIGNAL(newCellClicked(std::string, std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, std::string, bool)));
+                    //connect(cell, SIGNAL(appendCellClicked(std::string, std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, std::string, bool)));
                 }
             }
         }
