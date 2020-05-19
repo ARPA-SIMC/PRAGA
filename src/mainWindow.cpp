@@ -1217,7 +1217,6 @@ void MainWindow::callNewMeteoWidget(std::string id, std::string name, bool isGri
     {
         myProject.showMeteoWidgetPoint(id, name, isAppend);
     }
-    qDebug() << "callNewMeteoWidget end";
     return;
 }
 
@@ -2292,28 +2291,40 @@ void MainWindow::on_actionMeteopointNewArkimet_triggered()
 void MainWindow::on_actionMeteopointOpen_triggered()
 {
     QString dbName = QFileDialog::getOpenFileName(this, tr("Open DB meteo points"), "", tr("DB files (*.db)"));
-    if (dbName != "") loadMeteoPoints(dbName);
+    if (dbName != "")
+    {
+        closeMeteoPoints();
+        loadMeteoPoints(dbName);
+    }
 }
 
 void MainWindow::on_actionMeteopointClose_triggered()
 {
-    resetMeteoPointsMarker();
-    meteoPointsLegend->setVisible(false);
+    this->closeMeteoPoints();
+}
 
-    myProject.closeMeteoPointsDB();
-
-    myProject.setIsElabMeteoPointsValue(false);
-    ui->groupBoxElab->hide();
-
-    this->ui->meteoPoints->setChecked(false);
-    this->ui->meteoPoints->setEnabled(false);
-
-    showPointsGroup->setEnabled(false);
-    this->ui->menuShowPointsAnomaly->setEnabled(false);
-
-    if (myProject.meteoGridDbHandler != nullptr)
+void MainWindow::closeMeteoPoints()
+{
+    if (myProject.meteoPointsDbHandler != nullptr)
     {
-        this->ui->grid->setChecked(true);
+        resetMeteoPointsMarker();
+        meteoPointsLegend->setVisible(false);
+
+        myProject.closeMeteoPointsDB();
+
+        myProject.setIsElabMeteoPointsValue(false);
+        ui->groupBoxElab->hide();
+
+        this->ui->meteoPoints->setChecked(false);
+        this->ui->meteoPoints->setEnabled(false);
+
+        showPointsGroup->setEnabled(false);
+        this->ui->menuShowPointsAnomaly->setEnabled(false);
+
+        if (myProject.meteoGridDbHandler != nullptr)
+        {
+            this->ui->grid->setChecked(true);
+        }
     }
 }
 
@@ -2330,27 +2341,30 @@ void MainWindow::on_actionMeteogridOpen_triggered()
 
 void MainWindow::closeMeteoGrid()
 {
-    resetMeteoGridMarker();
-
     if (myProject.meteoGridDbHandler != nullptr)
     {
-        myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.isLoaded = false;
-        meteoGridObj->clear();
-        meteoGridObj->redrawRequested();
-        meteoGridLegend->setVisible(false);
-        myProject.closeMeteoGridDB();
-        ui->groupBoxElab->hide();
-        ui->meteoGridOpacitySlider->setEnabled(false);
+        resetMeteoGridMarker();
 
-        this->ui->grid->setChecked(false);
-        this->ui->grid->setEnabled(false);
-
-        showGridGroup->setEnabled(false);
-        this->ui->menuShowGridAnomaly->setEnabled(false);
-
-        if (myProject.meteoPointsDbHandler != nullptr)
+        if (myProject.meteoGridDbHandler != nullptr)
         {
-            this->ui->meteoPoints->setChecked(true);
+            myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.isLoaded = false;
+            meteoGridObj->clear();
+            meteoGridObj->redrawRequested();
+            meteoGridLegend->setVisible(false);
+            myProject.closeMeteoGridDB();
+            ui->groupBoxElab->hide();
+            ui->meteoGridOpacitySlider->setEnabled(false);
+
+            this->ui->grid->setChecked(false);
+            this->ui->grid->setEnabled(false);
+
+            showGridGroup->setEnabled(false);
+            this->ui->menuShowGridAnomaly->setEnabled(false);
+
+            if (myProject.meteoPointsDbHandler != nullptr)
+            {
+                this->ui->meteoPoints->setChecked(true);
+            }
         }
     }
 
