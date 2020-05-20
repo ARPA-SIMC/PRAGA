@@ -285,9 +285,9 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         // GRID - context menu
         if (meteoGridObj->isLoaded)
         {
-
             Position geoPos = mapView->mapToScene(mapPos);
             gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
+
             #ifdef NETCDF
             if (myProject.netCDF.isLoaded())
             {
@@ -295,7 +295,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                 return;
             }
             #endif
-            // cehck row, col
+
             int row, col;
             if (! meteoGridObj->getRowCol(geoPoint, &row, &col))
                 return;
@@ -305,10 +305,10 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
             if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
             {
-                bool isAppend = false;
                 QMenu menu;
                 QAction *title = menu.addAction(QString::fromStdString(name));
                 title->setDisabled(true);
+
                 QAction *openMeteoWidget = menu.addAction("Open new meteo widget");
                 QAction *appendMeteoWidget = menu.addAction("Append to last meteo widget");
 
@@ -316,11 +316,16 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
                 if (selection != nullptr)
                 {
+                    if (selection == openMeteoWidget)
+                    {
+                        myProject.showMeteoWidgetGrid(id, false);
+                    }
                     if (selection == appendMeteoWidget)
                     {
-                        isAppend = true;
+                        myProject.showMeteoWidgetGrid(id, true);
                     }
-                    myProject.showMeteoWidgetGrid(id, isAppend);
+                    // TODO: other actions
+
                 }
             }
         }
