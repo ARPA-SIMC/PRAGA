@@ -154,9 +154,8 @@ void MainWindow::updateMaps()
 
 
 // SLOT
-void MainWindow::mouseMove(const QPoint& eventPos)
+void MainWindow::mouseMove(const QPoint& mapPos)
 {
-    QPoint mapPos = eventPos;
     if (! isInsideMap(mapPos)) return;
 
     // rubber band
