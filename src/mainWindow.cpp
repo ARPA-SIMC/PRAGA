@@ -47,10 +47,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     this->ui->setupUi(this);
-    /*
+/*
     this->centralWidget()->setAttribute(Qt::WA_TransparentForMouseEvents);
     this->setMouseTracking(true);
-    */
+*/
 
     this->myRubberBand = nullptr;
 
@@ -165,7 +165,6 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 {
-
     updateMaps();
 
     if (myRubberBand != nullptr && myRubberBand->isVisible())
@@ -250,6 +249,7 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent * event)
 
 void MainWindow::mouseMoveEvent(QMouseEvent * event)
 {
+
     QPoint mapPos = getMapPos(event->pos());
     if (! isInsideMap(mapPos)) return;
 
@@ -266,6 +266,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent * event)
 
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
+
     QPoint mapPos = getMapPos(event->pos());
     if (! isInsideMap(mapPos)) return;
 
@@ -993,6 +994,7 @@ void MainWindow::drawMeteoGrid()
         meteoGridObj->initializeUTM(&(myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid), myProject.gisSettings, true);
     }
 
+    /*
     // remove meteoPoints and add them after GridCellMarker
     resetMeteoPointsMarker();
     if (myProject.meteoGridDbHandler->gridStructure().isUTM() == false)
@@ -1025,7 +1027,7 @@ void MainWindow::drawMeteoGrid()
             }
         }
     }
-    /*else
+    else
     {
         gis::Crit3DGridHeader latLonHeader;
         gis::getGeoExtentsFromUTMHeader(myProject.gisSettings, myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header, &latLonHeader);
@@ -1055,9 +1057,9 @@ void MainWindow::drawMeteoGrid()
                 }
             }
         }
-    }*/
-
+    }
     addMeteoPoints();
+    */
 
     meteoGridLegend->colorScale = myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.colorScale;
     ui->meteoGridOpacitySlider->setEnabled(true);
