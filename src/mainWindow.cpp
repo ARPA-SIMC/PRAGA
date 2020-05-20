@@ -309,6 +309,8 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             {
                 bool isAppend = false;
                 QMenu menu;
+                QAction *title = menu.addAction(QString::fromStdString(name));
+                title->setDisabled(true);
                 QAction *openMeteoWidget = menu.addAction("Open new meteo widget");
                 QAction *appendMeteoWidget = menu.addAction("Append to last meteo widget");
 
