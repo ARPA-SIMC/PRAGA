@@ -164,15 +164,16 @@ void MainWindow::mouseMove(const QPoint& eventPos)
     QPoint mapPos = getMapPos(eventPos);
     if (! isInsideMap(mapPos)) return;
 
-    Position geoPos = this->mapView->mapToScene(mapPos);
-    QString status = QString::number(geoPos.latitude()) + " " + QString::number(geoPos.longitude());
-
     // rubber band
     if (myRubberBand != nullptr && myRubberBand->isActive)
     {
         QPoint widgetPos = mapPos + QPoint(MAPBORDER, MAPBORDER);
         myRubberBand->setGeometry(QRect(myRubberBand->getOrigin(), widgetPos).normalized());
+        return;
     }
+
+    Position geoPos = this->mapView->mapToScene(mapPos);
+    QString status = QString::number(geoPos.latitude()) + " " + QString::number(geoPos.longitude());
 
     // meteo grid
     if (meteoGridObj->isLoaded)
