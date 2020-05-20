@@ -47,10 +47,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     this->ui->setupUi(this);
-/*
-    this->centralWidget()->setAttribute(Qt::WA_TransparentForMouseEvents);
-    this->setMouseTracking(true);
-*/
 
     this->myRubberBand = nullptr;
 
