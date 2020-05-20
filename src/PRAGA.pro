@@ -5,7 +5,7 @@
 #
 #-----------------------------------------------------
 
-QT       += core gui widgets network sql xml
+QT       += core gui widgets charts network sql xml
 
 TARGET = PRAGA
 TEMPLATE = app
@@ -13,7 +13,7 @@ TEMPLATE = app
 INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/crit3dDate ../agrolib/mathFunctions ../agrolib/meteo ../agrolib/gis  \
                 ../agrolib/interpolation ../agrolib/solarRadiation ../agrolib/utilities  \
-                ../agrolib/dbMeteoPoints ../agrolib/dbMeteoGrid ../agrolib/climate \
+                ../agrolib/dbMeteoPoints ../agrolib/dbMeteoGrid ../agrolib/meteoWidget ../agrolib/climate \
                 ../agrolib/netcdfHandler  ../agrolib/graphics ../agrolib/project
 
 CONFIG += debug_and_release
@@ -47,6 +47,7 @@ CONFIG(debug, debug|release) {
     macx:{
         LIBS += -L/usr/local/lib/ -lnetcdf
     }
+    LIBS += -L../agrolib/meteoWidget/debug -lmeteoWidget
     LIBS += -L../agrolib/dbMeteoGrid/debug -ldbMeteoGrid
     LIBS += -L../agrolib/dbMeteoPoints/debug -ldbMeteoPoints
     LIBS += -L../agrolib/utilities/debug -lutilities
@@ -70,6 +71,7 @@ CONFIG(debug, debug|release) {
     macx:{
         LIBS += -L/usr/local/lib/ -lnetcdf
     }
+    LIBS += -L../agrolib/meteoWidget/release -lmeteoWidget
     LIBS += -L../agrolib/dbMeteoGrid/release -ldbMeteoGrid
     LIBS += -L../agrolib/dbMeteoPoints/release -ldbMeteoPoints
     LIBS += -L../agrolib/utilities/release -lutilities
@@ -84,6 +86,7 @@ CONFIG(debug, debug|release) {
 
 SOURCES += \
     ../agrolib/graphics/colorLegend.cpp \
+    ../agrolib/graphics/gridCellMarker.cpp \
     ../agrolib/graphics/mapGraphicsRasterObject.cpp \
     ../agrolib/graphics/stationMarker.cpp \
     ../agrolib/graphics/rubberBand.cpp \
@@ -105,6 +108,7 @@ SOURCES += \
 
 HEADERS  += \
     ../agrolib/graphics/colorLegend.h \
+    ../agrolib/graphics/gridCellMarker.h \
     ../agrolib/graphics/mapGraphicsRasterObject.h \
     ../agrolib/graphics/stationMarker.h \
     ../agrolib/graphics/rubberBand.h \

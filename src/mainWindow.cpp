@@ -46,8 +46,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    this->setMouseTracking(true);
-    ui->setupUi(this);
+    this->ui->setupUi(this);
 
     this->myRubberBand = nullptr;
 
@@ -87,6 +86,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->mapView->scene()->addObject(this->rasterObj);
     this->mapView->scene()->addObject(this->meteoGridObj);
     connect(this->mapView, SIGNAL(zoomLevelChanged(quint8)), this, SLOT(updateMaps()));
+    connect(this->mapView, SIGNAL(mouseMoveSignal(const QPoint&)), this, SLOT(mouseMove(const QPoint&)));
 
     this->updateVariable();
     this->updateDateTime();
@@ -95,8 +95,8 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->dateEdit->installEventFilter(keyboardFilter);
     //connect(this->ui->dateEdit, SIGNAL(editingFinished()), this, SLOT(on_dateChanged()));
 
-    ui->meteoPoints->setEnabled(false);
-    ui->grid->setEnabled(false);
+    this->ui->meteoPoints->setEnabled(false);
+    this->ui->grid->setEnabled(false);
 
     // show menu
     showPointsGroup = new QActionGroup(this);
@@ -150,6 +150,43 @@ void MainWindow::updateMaps()
 {
     rasterObj->updateCenter();
     meteoGridObj->updateCenter();
+}
+
+
+// SLOT
+void MainWindow::mouseMove(const QPoint& mapPos)
+{
+    if (! isInsideMap(mapPos)) return;
+
+    // rubber band
+    if (myRubberBand != nullptr && myRubberBand->isActive)
+    {
+        QPoint widgetPos = mapPos + QPoint(MAPBORDER, MAPBORDER);
+        myRubberBand->setGeometry(QRect(myRubberBand->getOrigin(), widgetPos).normalized());
+        return;
+    }
+
+    Position geoPos = this->mapView->mapToScene(mapPos);
+    QString status = QString::number(geoPos.latitude()) + " " + QString::number(geoPos.longitude());
+
+    // meteo grid
+    if (meteoGridObj->isLoaded)
+    {
+        int row, col;
+        gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
+
+        if (! meteoGridObj->getRowCol(geoPoint, &row, &col))
+            return;
+
+        if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
+        {
+            std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
+            std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
+            status += " Grid: " + QString::fromStdString(id + " " + name);
+        }
+     }
+
+    this->ui->statusBar->showMessage(status);
 }
 
 
@@ -226,6 +263,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 }
 
 
+// zoom
 void MainWindow::mouseDoubleClickEvent(QMouseEvent * event)
 {
     QPoint mapPos = getMapPos(event->pos());
@@ -243,24 +281,9 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent * event)
 }
 
 
-void MainWindow::mouseMoveEvent(QMouseEvent * event)
-{
-    QPoint mapPos = getMapPos(event->pos());
-    if (! isInsideMap(mapPos)) return;
-
-    Position geoPoint = this->mapView->mapToScene(mapPos);
-    this->ui->statusBar->showMessage(QString::number(geoPoint.latitude()) + " " + QString::number(geoPoint.longitude()));
-
-    if (myRubberBand != nullptr && myRubberBand->isActive)
-    {
-        QPoint widgetPos = mapPos + QPoint(MAPBORDER, MAPBORDER);
-        myRubberBand->setGeometry(QRect(myRubberBand->getOrigin(), widgetPos).normalized());
-    }
-}
-
-
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
+
     QPoint mapPos = getMapPos(event->pos());
     if (! isInsideMap(mapPos)) return;
 
@@ -273,17 +296,53 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             myRubberBand->setGeometry(QRect(widgetPos, QSize()));
             myRubberBand->isActive = true;
             myRubberBand->show();
+            return;
         }
 
-        #ifdef NETCDF
-        if (myProject.netCDF.isLoaded())
+        // GRID - context menu
+        if (meteoGridObj->isLoaded)
         {
             Position geoPos = mapView->mapToScene(mapPos);
             gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
 
-            netCDF_exportDataSeries(geoPoint);
+            #ifdef NETCDF
+            if (myProject.netCDF.isLoaded())
+            {
+                netCDF_exportDataSeries(geoPoint);
+                return;
+            }
+            #endif
+
+            int row, col;
+            if (! meteoGridObj->getRowCol(geoPoint, &row, &col))
+                return;
+
+            std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
+            std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
+
+            if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
+            {
+                QMenu menu;
+                QAction *openMeteoWidget = menu.addAction("Open new meteo widget");
+                QAction *appendMeteoWidget = menu.addAction("Append to last meteo widget");
+
+                QAction *selection =  menu.exec(QCursor::pos());
+
+                if (selection != nullptr)
+                {
+                    if (selection == openMeteoWidget)
+                    {
+                        myProject.showMeteoWidgetGrid(id, false);
+                    }
+                    if (selection == appendMeteoWidget)
+                    {
+                        myProject.showMeteoWidgetGrid(id, true);
+                    }
+                    // TODO: other actions
+
+                }
+            }
         }
-        #endif
     }
 }
 
@@ -486,16 +545,25 @@ bool MainWindow::isInsideMap(const QPoint& pos)
 }
 
 
-void MainWindow::resetMeteoPoints()
+void MainWindow::resetMeteoPointsMarker()
 {
     for (int i = pointList.size()-1; i >= 0; i--)
     {
         mapView->scene()->removeObject(pointList[i]);
-        delete pointList[i];
     }
     pointList.clear();
 
     datasetCheckbox.clear();
+}
+
+
+void MainWindow::resetMeteoGridMarker()
+{
+    for (int i = gridCellList.size()-1; i >= 0; i--)
+    {
+        mapView->scene()->removeObject(gridCellList[i]);
+    }
+    gridCellList.clear();
 }
 
 
@@ -570,87 +638,22 @@ void MainWindow::updateVariable()
         {
             this->ui->labelFrequency->setText("Daily");
 
-            //check
-            if (myVar == airTemperature)
-                myProject.setCurrentVariable(dailyAirTemperatureAvg);
-
-            else if (myVar == precipitation)
-                myProject.setCurrentVariable(dailyPrecipitation);
-
-            else if (myVar == globalIrradiance)
-                myProject.setCurrentVariable(dailyGlobalRadiation);
-
-            else if (myVar == airRelHumidity)
-                myProject.setCurrentVariable(dailyAirRelHumidityAvg);
-
-            else if (myVar == airDewTemperature)
-                myProject.setCurrentVariable(dailyAirDewTemperatureAvg);
-
-            else if (myVar == thom)
-                myProject.setCurrentVariable(dailyThomAvg);
-
-            else if (myVar == windScalarIntensity)
-                myProject.setCurrentVariable(dailyWindScalarIntensityAvg);
-
-            else if (myVar== windVectorIntensity || myVar == windVectorX || myVar == windVectorY)
-                myProject.setCurrentVariable(dailyWindVectorIntensityAvg);
-
-            else if (myVar == windVectorDirection)
-                myProject.setCurrentVariable(dailyWindVectorDirectionPrevailing);
-
-            else if (myVar == leafWetness)
-                myProject.setCurrentVariable(dailyLeafWetness);
-
-            else if (myVar == referenceEvapotranspiration)
-                myProject.setCurrentVariable(dailyReferenceEvapotranspirationHS);
+            meteoVariable newVar = updateMeteoVariable(myVar, daily);
+            if (newVar != noMeteoVar)
+            {
+                myProject.setCurrentVariable(newVar);
+            }
         }
 
         else if (myProject.getCurrentFrequency() == hourly)
         {
             this->ui->labelFrequency->setText("Hourly");
 
-            //check
-            if (myVar == dailyAirTemperatureAvg || myVar == dailyAirTemperatureMax || myVar == dailyAirTemperatureMin || myVar == dailyAirTemperatureRange)
-                myProject.setCurrentVariable(airTemperature);
-
-            else if (myVar == dailyAirRelHumidityAvg || myVar == dailyAirRelHumidityMax || myVar == dailyAirRelHumidityMin)
-                myProject.setCurrentVariable(airRelHumidity);
-
-            else if (myVar == dailyAirDewTemperatureAvg || myVar == dailyAirDewTemperatureMax || myVar == dailyAirDewTemperatureMin)
-                myProject.setCurrentVariable(airDewTemperature);
-
-            else if (myVar == dailyPrecipitation)
-                myProject.setCurrentVariable(precipitation);
-
-            else if (myVar == dailyGlobalRadiation)
-                myProject.setCurrentVariable(globalIrradiance);
-
-            else if (myVar == dailyDirectRadiation)
-                myProject.setCurrentVariable(directIrradiance);
-
-            else if (myVar == dailyDiffuseRadiation)
-                myProject.setCurrentVariable(diffuseIrradiance);
-
-            else if (myVar == dailyReflectedRadiation)
-                myProject.setCurrentVariable(reflectedIrradiance);
-
-            else if (myVar == dailyThomAvg || myVar == dailyThomMax || myVar == dailyThomHoursAbove || myVar == dailyThomDaytime || myVar == dailyThomNighttime)
-                myProject.setCurrentVariable(thom);
-
-            else if (myVar == dailyWindScalarIntensityAvg || myVar == dailyWindScalarIntensityMax)
-                myProject.setCurrentVariable(windScalarIntensity);
-
-            else if (myVar == dailyWindVectorIntensityAvg || myVar == dailyWindVectorIntensityMax)
-                myProject.setCurrentVariable(windVectorIntensity);
-
-            else if (myVar == dailyWindVectorDirectionPrevailing)
-                myProject.setCurrentVariable(windVectorDirection);
-
-            else if (myVar == dailyLeafWetness)
-                myProject.setCurrentVariable(leafWetness);
-
-            else if (myVar == dailyReferenceEvapotranspirationHS || myVar == dailyReferenceEvapotranspirationPM)
-                myProject.setCurrentVariable(referenceEvapotranspiration);
+            meteoVariable newVar = updateMeteoVariable(myVar, hourly);
+            if (newVar != noMeteoVar)
+            {
+                myProject.setCurrentVariable(newVar);
+            }
         }
     }
 
@@ -706,9 +709,13 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         myProject.netCDF.readProperties(fileName.toStdString());
 
         if (myProject.netCDF.isLatLon)
+        {
             meteoGridObj->initializeLatLon(&(myProject.netCDF.dataGrid), myProject.gisSettings, myProject.netCDF.latLonHeader, true);
+        }
         else
+        {
             meteoGridObj->initializeUTM(&(myProject.netCDF.dataGrid), myProject.gisSettings, true);
+        }
 
         myProject.netCDF.dataGrid.setConstantValue(0);
 
@@ -795,7 +802,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
 void MainWindow::drawMeteoPoints()
 {
-    resetMeteoPoints();
+    resetMeteoPointsMarker();
     if (! myProject.meteoPointsLoaded || myProject.nrMeteoPoints == 0) return;
     addMeteoPoints();
 
@@ -846,7 +853,8 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                     myProject.meteoPoints[i].currentValue = NODATA;
                     pointList[i]->setFillColor(QColor(Qt::white));
                     pointList[i]->setRadius(5);
-                    pointList[i]->setToolTip(&(myProject.meteoPoints[i]));
+                    pointList[i]->setCurrentValue(NODATA);
+                    pointList[i]->setToolTip();
                     pointList[i]->setVisible(true);
             }
 
@@ -895,7 +903,9 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                         pointList[i]->setOpacity(0.5);
                     }
 
-                    pointList[i]->setToolTip(&(myProject.meteoPoints[i]));
+                    pointList[i]->setCurrentValue(myProject.meteoPoints[i].currentValue);
+                    pointList[i]->setQuality(myProject.meteoPoints[i].quality);
+                    pointList[i]->setToolTip();
                     pointList[i]->setVisible(true);
                 }
             }
@@ -957,6 +967,7 @@ bool MainWindow::loadMeteoPoints(QString dbName)
 
 void MainWindow::drawMeteoGrid()
 {
+    resetMeteoGridMarker();
     if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr) return;
 
     myProject.meteoGridDbHandler->meteoGrid()->createRasterGrid();
@@ -969,6 +980,73 @@ void MainWindow::drawMeteoGrid()
     {
         meteoGridObj->initializeUTM(&(myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid), myProject.gisSettings, true);
     }
+
+    /*
+    // remove meteoPoints and add them after GridCellMarker
+    resetMeteoPointsMarker();
+    if (myProject.meteoGridDbHandler->gridStructure().isUTM() == false)
+    {
+        for (unsigned int row = 0; row < myProject.meteoGridDbHandler->gridStructure().header().nrRows; row++)
+        {
+            for (unsigned int col = 0; col < myProject.meteoGridDbHandler->gridStructure().header().nrCols; col++)
+            {
+                if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
+                {
+                    double lat = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude;
+                    double lon = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude;
+                    double dx = (myProject.meteoGridDbHandler->gridStructure().header().dx)/2.0;
+                    double dy = (myProject.meteoGridDbHandler->gridStructure().header().dy)/2.0;
+
+                    QPolygonF polygon;
+                    polygon << QPointF(lon-dx, lat-dy) << QPointF(lon-dx, lat+dy) << QPointF(lon+dx, lat+dy) << QPointF(lon+dx, lat-dy);
+                    GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)), this->mapView);
+
+                    cell->setId(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id);
+                    cell->setName(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name);
+
+                    this->gridCellList.append(cell);
+                    this->mapView->scene()->addObject(cell);
+
+                    cell->setToolTip(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]);
+                    //connect(cell, SIGNAL(newCellClicked(std::string, std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, std::string, bool)));
+                    //connect(cell, SIGNAL(appendCellClicked(std::string, std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, std::string, bool)));
+                }
+            }
+        }
+    }
+    else
+    {
+        gis::Crit3DGridHeader latLonHeader;
+        gis::getGeoExtentsFromUTMHeader(myProject.gisSettings, myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header, &latLonHeader);
+        for (unsigned int row = 0; row < myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header->nrRows; row++)
+        {
+            for (unsigned int col = 0; col < myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.header->nrCols; col++)
+            {
+                if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
+                {
+                    double lat = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->latitude;
+                    double lon = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->longitude;
+                    double dx = (latLonHeader.dx)/2.0;
+                    double dy = (latLonHeader.dy)/2.0;
+
+                    QPolygonF polygon;
+                    polygon << QPointF(lon+dx, lat+dy)   << QPointF(lon-dx, lat+dy) << QPointF(lon-dx, lat-dy) << QPointF(lon+dx, lat-dy);
+                    GridCellMarker* cell = new GridCellMarker(polygon, QColor((Qt::transparent)), this->mapView);
+                    cell->setId(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id);
+                    cell->setName(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name);
+
+                    this->gridCellList.append(cell);
+                    this->mapView->scene()->addObject(cell);
+
+                    cell->setToolTip(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]);
+                    connect(cell, SIGNAL(newCellClicked(std::string, std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, std::string, bool)));
+                    connect(cell, SIGNAL(appendCellClicked(std::string, std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, std::string, bool)));
+                }
+            }
+        }
+    }
+    addMeteoPoints();
+    */
 
     meteoGridLegend->colorScale = myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.colorScale;
     ui->meteoGridOpacitySlider->setEnabled(true);
@@ -1117,6 +1195,7 @@ bool MainWindow::loadMeteoGrid(QString xmlName)
     if (myProject.loadMeteoGridDB(xmlName))
     {
         drawMeteoGrid();
+        this->update();
         return true;
     }
     else
@@ -1137,12 +1216,49 @@ void MainWindow::addMeteoPoints()
         point->setFlag(MapGraphicsObject::ObjectIsMovable, false);
         point->setLatitude(myProject.meteoPoints[i].latitude);
         point->setLongitude(myProject.meteoPoints[i].longitude);
+        point->setId(myProject.meteoPoints[i].id);
+        point->setName(myProject.meteoPoints[i].name);
+        point->setDataset(myProject.meteoPoints[i].dataset);
+        point->setAltitude(myProject.meteoPoints[i].point.z);
+        point->setMunicipality(myProject.meteoPoints[i].municipality);
+        point->setCurrentValue(myProject.meteoPoints[i].currentValue);
+        point->setQuality(myProject.meteoPoints[i].quality);
 
         this->pointList.append(point);
         this->mapView->scene()->addObject(this->pointList[i]);
 
-        point->setToolTip(&(myProject.meteoPoints[i]));
+        point->setToolTip();
+        connect(point, SIGNAL(newStationClicked(std::string, std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, std::string, bool)));
+        connect(point, SIGNAL(appendStationClicked(std::string, std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, std::string, bool)));
     }
+}
+
+void MainWindow::callNewMeteoWidget(std::string id, std::string name, bool isGrid)
+{
+    bool isAppend = false;
+    if (isGrid)
+    {
+        myProject.showMeteoWidgetGrid(id, isAppend);
+    }
+    else
+    {
+        myProject.showMeteoWidgetPoint(id, name, isAppend);
+    }
+    return;
+}
+
+void MainWindow::callAppendMeteoWidget(std::string id, std::string name, bool isGrid)
+{
+    bool isAppend = true;
+    if (isGrid)
+    {
+        myProject.showMeteoWidgetGrid(id, isAppend);
+    }
+    else
+    {
+        myProject.showMeteoWidgetPoint(id, name, isAppend);
+    }
+    return;
 }
 
 void MainWindow::on_rasterScaleButton_clicked()
@@ -1550,7 +1666,9 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
                 pointList[i]->setRadius(5);
                 myColor = myProject.meteoPointsColorScale->getColor(myProject.meteoPoints[i].currentValue);
                 pointList[i]->setFillColor(QColor(myColor->red, myColor->green, myColor->blue));
-                pointList[i]->setToolTip(&(myProject.meteoPoints[i]));
+                pointList[i]->setCurrentValue(myProject.meteoPoints[i].currentValue);
+                pointList[i]->setQuality(myProject.meteoPoints[i].quality);
+                pointList[i]->setToolTip();
                 pointList[i]->setVisible(true);
             }
         }
@@ -1953,8 +2071,8 @@ void MainWindow::drawProject()
     if (myProject.DEM.isLoaded)
         renderDEM();
 
-    drawMeteoPoints();
     drawMeteoGrid();
+    drawMeteoPoints();
 
     redrawTitle();
 }
@@ -2103,7 +2221,7 @@ void MainWindow::on_actionInterpolateSaveGridPeriod_triggered()
 
 void MainWindow::on_actionMeteopointNewArkimet_triggered()
 {
-    resetMeteoPoints();
+    resetMeteoPointsMarker();
 
     QString templateFileName = myProject.getDefaultPath() + PATH_TEMPLATE + "template_meteo_arkimet.db";
 
@@ -2200,60 +2318,87 @@ void MainWindow::on_actionMeteopointNewArkimet_triggered()
 void MainWindow::on_actionMeteopointOpen_triggered()
 {
     QString dbName = QFileDialog::getOpenFileName(this, tr("Open DB meteo points"), "", tr("DB files (*.db)"));
-    if (dbName != "") loadMeteoPoints(dbName);
+    if (dbName != "")
+    {
+        closeMeteoPoints();
+        loadMeteoPoints(dbName);
+    }
 }
 
 void MainWindow::on_actionMeteopointClose_triggered()
 {
-    resetMeteoPoints();
-    meteoPointsLegend->setVisible(false);
+    this->closeMeteoPoints();
+}
 
-    myProject.closeMeteoPointsDB();
-
-    myProject.setIsElabMeteoPointsValue(false);
-    ui->groupBoxElab->hide();
-
-    this->ui->meteoPoints->setChecked(false);
-    this->ui->meteoPoints->setEnabled(false);
-
-    showPointsGroup->setEnabled(false);
-    this->ui->menuShowPointsAnomaly->setEnabled(false);
-
-    if (myProject.meteoGridDbHandler != nullptr)
+void MainWindow::closeMeteoPoints()
+{
+    if (myProject.meteoPointsDbHandler != nullptr)
     {
-        this->ui->grid->setChecked(true);
+        resetMeteoPointsMarker();
+        meteoPointsLegend->setVisible(false);
+
+        myProject.closeMeteoPointsDB();
+
+        myProject.setIsElabMeteoPointsValue(false);
+        ui->groupBoxElab->hide();
+
+        this->ui->meteoPoints->setChecked(false);
+        this->ui->meteoPoints->setEnabled(false);
+
+        showPointsGroup->setEnabled(false);
+        this->ui->menuShowPointsAnomaly->setEnabled(false);
+
+        if (myProject.meteoGridDbHandler != nullptr)
+        {
+            this->ui->grid->setChecked(true);
+        }
     }
 }
 
 void MainWindow::on_actionMeteogridOpen_triggered()
 {
     QString xmlName = QFileDialog::getOpenFileName(this, tr("Open XML DB meteo grid"), "", tr("xml files (*.xml)"));
-    if (xmlName != "") loadMeteoGrid(xmlName);
+    if (xmlName != "")
+    {
+        closeMeteoGrid();
+        loadMeteoGrid(xmlName);
+    }
 }
 
-void MainWindow::on_actionMeteogridClose_triggered()
-{
 
+void MainWindow::closeMeteoGrid()
+{
     if (myProject.meteoGridDbHandler != nullptr)
     {
-        myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.isLoaded = false;
-        meteoGridObj->clear();
-        meteoGridObj->redrawRequested();
-        meteoGridLegend->setVisible(false);
-        myProject.closeMeteoGridDB();
-        ui->groupBoxElab->hide();
-        ui->meteoGridOpacitySlider->setEnabled(false);
+        resetMeteoGridMarker();
 
-        this->ui->grid->setChecked(false);
-        this->ui->grid->setEnabled(false);
-
-        showGridGroup->setEnabled(false);
-        this->ui->menuShowGridAnomaly->setEnabled(false);
-
-        if (myProject.meteoPointsDbHandler != nullptr)
+        if (myProject.meteoGridDbHandler != nullptr)
         {
-            this->ui->meteoPoints->setChecked(true);
+            myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.isLoaded = false;
+            meteoGridObj->clear();
+            meteoGridObj->redrawRequested();
+            meteoGridLegend->setVisible(false);
+            myProject.closeMeteoGridDB();
+            ui->groupBoxElab->hide();
+            ui->meteoGridOpacitySlider->setEnabled(false);
+
+            this->ui->grid->setChecked(false);
+            this->ui->grid->setEnabled(false);
+
+            showGridGroup->setEnabled(false);
+            this->ui->menuShowGridAnomaly->setEnabled(false);
+
+            if (myProject.meteoPointsDbHandler != nullptr)
+            {
+                this->ui->meteoPoints->setChecked(true);
+            }
         }
     }
 
+}
+
+
+void MainWindow::on_actionMeteogridClose_triggered()
+{
+    this->closeMeteoGrid();
 }

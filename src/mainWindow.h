@@ -14,6 +14,7 @@
     #include "tileSources/OSMTileSource.h"
     #include "mapGraphicsRasterObject.h"
     #include "stationMarker.h"
+    #include "gridCellMarker.h"
     #include "colorLegend.h"
     #include "dbArkimet.h"
     #include "pragaProject.h"
@@ -114,6 +115,7 @@
         bool on_actionAggregate_from_grid_triggered();
 
         void updateMaps();
+        void mouseMove(const QPoint& eventPos);
 
         #ifdef NETCDF
             void on_actionNetCDF_Open_triggered();
@@ -121,6 +123,8 @@
             void on_actionNetCDF_ShowMetadata_triggered();
             void on_actionMeteogridExportNetcdf_triggered();
         #endif
+        void callNewMeteoWidget(std::string id, std::string name, bool isGrid);
+        void callAppendMeteoWidget(std::string id, std::string name, bool isGrid);
 
 
         protected:
@@ -135,8 +139,6 @@
          * \param event
          */
         void mouseDoubleClickEvent(QMouseEvent * event);
-
-        void mouseMoveEvent(QMouseEvent * event);
 
         void mousePressEvent(QMouseEvent *event);
 
@@ -154,6 +156,7 @@
         ColorLegend *meteoPointsLegend;
         ColorLegend *meteoGridLegend;
         QList<StationMarker*> pointList;
+        QList<GridCellMarker*> gridCellList;
         RubberBand *myRubberBand;
         visualizationType currentPointsVisualization;
         visualizationType currentGridVisualization;
@@ -173,7 +176,8 @@
         void clearDEM();
         void updateVariable();
         void updateDateTime();
-        void resetMeteoPoints();
+        void resetMeteoPointsMarker();
+        void resetMeteoGridMarker();
         void addMeteoPoints();
         void drawMeteoPoints();
         void redrawMeteoPoints(visualizationType showType, bool updateColorScale);
@@ -183,6 +187,8 @@
         void redrawTitle();
 
         void checkSaveProject();
+        void closeMeteoPoints();
+        void closeMeteoGrid();
 
         bool loadMeteoPoints(QString dbName);
         bool loadMeteoGrid(QString xmlName);

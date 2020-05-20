@@ -1,0 +1,53 @@
+﻿<xml version="1.0" encoding="ISO-8859-1">
+
+	<connection>
+		<provider>mysql</provider>
+		<server>agrosql-smr.metarpa</server>
+		<name>grid_test_utm</name>
+		<user>root</user>
+		<password>Praga</password>
+	</connection>
+	
+	<gridstructure isregular="true" isutm="true" istin="false" isfixedfields="false">
+		<xll>300000</xll>
+		<yll>4600000</yll>
+		<nrows>130</nrows>
+		<ncols>120</ncols>
+		<xwidth>5000</xwidth>
+		<ywidth>5000</ywidth>
+	</gridstructure>
+	
+	<cellsproperties>
+		<table>CellsProperties</table>
+		<field>
+			<name>Name</name>
+			<praganame>CellsPropertiesFieldName</praganame>
+		</field>
+		<field>
+			<name>Code</name>
+			<praganame>CellsPropertiesFieldCode</praganame>
+		</field>
+		<field>
+			<name>Active</name>
+			<praganame>CellsPropertiesFieldActive</praganame>
+		</field>
+		<field>
+			<name>Row</name>
+			<praganame>CellsPropertiesFieldRow</praganame>
+		</field>
+		<field>
+			<name>Col</name>
+			<praganame>CellsPropertiesFieldCol</praganame>
+		</field>
+	</cellsproperties>
+	
+	<tabledaily>
+		<fieldtime>PragaTime</fieldtime>
+		<postfix>_d</postfix>
+		<varcode>
+			<varcode>1</varcode>
+			<varpraganame>DAILY_TMIN</varpraganame>
+		</varcode>
+	</tabledaily>
+	
+</xml>
