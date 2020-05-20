@@ -156,7 +156,7 @@ void MainWindow::updateMaps()
 // SLOT
 void MainWindow::mouseMove(const QPoint& eventPos)
 {
-    QPoint mapPos = getMapPos(eventPos);
+    QPoint mapPos = eventPos;
     if (! isInsideMap(mapPos)) return;
 
     // rubber band
@@ -183,7 +183,7 @@ void MainWindow::mouseMove(const QPoint& eventPos)
         {
             std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
             std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
-            status += " Grid cell: " + QString::fromStdString(id + " " + name);
+            status += " Grid: " + QString::fromStdString(id + " " + name);
         }
      }
 
@@ -324,9 +324,6 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
             {
                 QMenu menu;
-                QAction *title = menu.addAction(QString::fromStdString(name));
-                title->setDisabled(true);
-
                 QAction *openMeteoWidget = menu.addAction("Open new meteo widget");
                 QAction *appendMeteoWidget = menu.addAction("Append to last meteo widget");
 
