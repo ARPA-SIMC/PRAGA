@@ -303,8 +303,6 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
             std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
 
-            qDebug() << "row " << row;
-            qDebug() << "col " << col;
             if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
             {
                 bool isAppend = false;
