@@ -160,7 +160,6 @@ void MainWindow::updateMaps()
 // SLOT
 void MainWindow::mouseMove(const QPoint& eventPos)
 {
-
     QPoint mapPos = getMapPos(eventPos);
     if (! isInsideMap(mapPos)) return;
 
