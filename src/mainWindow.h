@@ -115,6 +115,7 @@
         bool on_actionAggregate_from_grid_triggered();
 
         void updateMaps();
+        void mouseMove(const QPoint& eventPos);
 
         #ifdef NETCDF
             void on_actionNetCDF_Open_triggered();
@@ -138,8 +139,6 @@
          * \param event
          */
         void mouseDoubleClickEvent(QMouseEvent * event);
-
-        void mouseMoveEvent(QMouseEvent * event);
 
         void mousePressEvent(QMouseEvent *event);
 

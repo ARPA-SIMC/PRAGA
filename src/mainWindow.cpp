@@ -90,6 +90,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->mapView->scene()->addObject(this->rasterObj);
     this->mapView->scene()->addObject(this->meteoGridObj);
     connect(this->mapView, SIGNAL(zoomLevelChanged(quint8)), this, SLOT(updateMaps()));
+    connect(this->mapView, SIGNAL(mouseMoveSignal(const QPoint&)), this, SLOT(mouseMove(const QPoint&)));
 
     this->updateVariable();
     this->updateDateTime();
@@ -153,6 +154,44 @@ void MainWindow::updateMaps()
 {
     rasterObj->updateCenter();
     meteoGridObj->updateCenter();
+}
+
+
+// SLOT
+void MainWindow::mouseMove(const QPoint& eventPos)
+{
+
+    QPoint mapPos = getMapPos(eventPos);
+    if (! isInsideMap(mapPos)) return;
+
+    Position geoPos = this->mapView->mapToScene(mapPos);
+    QString status = QString::number(geoPos.latitude()) + " " + QString::number(geoPos.longitude());
+
+    // rubber band
+    if (myRubberBand != nullptr && myRubberBand->isActive)
+    {
+        QPoint widgetPos = mapPos + QPoint(MAPBORDER, MAPBORDER);
+        myRubberBand->setGeometry(QRect(myRubberBand->getOrigin(), widgetPos).normalized());
+    }
+
+    // meteo grid
+    if (meteoGridObj->isLoaded)
+    {
+        int row, col;
+        gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
+
+        if (! meteoGridObj->getRowCol(geoPoint, &row, &col))
+            return;
+
+        if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
+        {
+            std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
+            std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
+            status += " Grid cell: " + QString::fromStdString(id + " " + name);
+        }
+     }
+
+    this->ui->statusBar->showMessage(status);
 }
 
 
@@ -244,23 +283,6 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent * event)
         this->mapView->zoomOut();
 
     this->mapView->centerOn(newCenter.lonLat());
-}
-
-
-void MainWindow::mouseMoveEvent(QMouseEvent * event)
-{
-
-    QPoint mapPos = getMapPos(event->pos());
-    if (! isInsideMap(mapPos)) return;
-
-    Position geoPoint = this->mapView->mapToScene(mapPos);
-    this->ui->statusBar->showMessage(QString::number(geoPoint.latitude()) + " " + QString::number(geoPoint.longitude()));
-
-    if (myRubberBand != nullptr && myRubberBand->isActive)
-    {
-        QPoint widgetPos = mapPos + QPoint(MAPBORDER, MAPBORDER);
-        myRubberBand->setGeometry(QRect(myRubberBand->getOrigin(), widgetPos).normalized());
-    }
 }
 
 
