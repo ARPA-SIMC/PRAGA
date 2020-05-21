@@ -1994,8 +1994,8 @@ void MainWindow::drawProject()
     if (myProject.DEM.isLoaded)
         renderDEM();
 
-    drawMeteoGrid();
     drawMeteoPoints();
+    drawMeteoGrid();
 
     redrawTitle();
 }
