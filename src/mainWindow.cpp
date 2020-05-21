@@ -818,7 +818,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
     currentPointsVisualization = showType;
     ui->groupBoxElab->hide();
 
-    if (! myProject.meteoPointsLoaded || myProject.nrMeteoPoints == 0) return;
+    if (pointList.size() == 0) return;
 
     // hide all meteo points
     for (int i = 0; i < myProject.nrMeteoPoints; i++)
