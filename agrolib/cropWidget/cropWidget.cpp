@@ -502,9 +502,6 @@ Crit3DCropWidget::Crit3DCropWidget()
 
 void Crit3DCropWidget::on_actionOpenProject()
 {
-    this->firstYearListComboBox.blockSignals(true);
-    this->lastYearListComboBox.blockSignals(true);
-
     checkCropUpdate();
     QString projFileName = QFileDialog::getOpenFileName(this, tr("Open Criteria-1D project"), "", tr("Settings files (*.ini)"));
 
@@ -534,13 +531,24 @@ void Crit3DCropWidget::on_actionOpenProject()
     if (dbUnitsName.left(1) == ".")
         dbUnitsName = QDir::cleanPath(path + dbUnitsName);
 
+    this->cropListComboBox.blockSignals(true);
+    this->soilListComboBox.blockSignals(true);
+
     openCropDB(newDbCropName);
     openSoilDB(dbSoilName);
+
+    this->cropListComboBox.blockSignals(false);
+    this->soilListComboBox.blockSignals(false);
+
+    this->firstYearListComboBox.blockSignals(true);
+    this->lastYearListComboBox.blockSignals(true);
+
     openMeteoDB(dbMeteoName);
-    openUnitsDB(dbUnitsName);
 
     this->firstYearListComboBox.blockSignals(false);
     this->lastYearListComboBox.blockSignals(false);
+
+    openUnitsDB(dbUnitsName);
 }
 
 
@@ -636,8 +644,11 @@ void Crit3DCropWidget::openUnitsDB(QString dbUnitsName)
         i++;
     } while(query.next());
 
-    // show unit list
+    // unit list
+    this->caseListComboBox.blockSignals(true);
     this->caseListComboBox.clear();
+    this->caseListComboBox.blockSignals(false);
+
     for (int i = 0; i < caseStringList.size(); i++)
     {
         this->caseListComboBox.addItem(caseStringList[i]);
@@ -777,11 +788,43 @@ void Crit3DCropWidget::openSoilDB(QString dbSoilName)
 }
 
 
-void Crit3DCropWidget::on_actionChooseCase(QString idCase)
+void Crit3DCropWidget::on_actionChooseCase()
 {
+    this->firstYearListComboBox.blockSignals(true);
+    this->lastYearListComboBox.blockSignals(true);
+
     int index = caseListComboBox.currentIndex();
+    QString errorStr;
+
+    // METEO
     QString idMeteo = unitList[index].idMeteo;
     meteoListComboBox.setCurrentText(idMeteo);
+
+    // SOIL
+    QString idSoil = getIdSoilString(&dbSoil, unitList[index].idSoilNumber, &errorStr);
+    if (idSoil != "")
+    {
+        soilListComboBox.setCurrentText(idSoil);
+    }
+    else
+    {
+        QString soilNumber = QString::number(unitList[index].idSoilNumber);
+        QMessageBox::critical(nullptr, "Error!", "Missing soil nr: " + soilNumber + "\n" + errorStr);
+    }
+
+    // CROP
+    QString idCrop = getCropFromClass(&dbCrop, "crop_class", "id_class", unitList[index].idCropClass, &errorStr);
+    if (idCrop != "")
+    {
+        cropListComboBox.setCurrentText(idCrop);
+    }
+    else
+    {
+        QMessageBox::critical(nullptr, "Error!", "Missing crop class: " + unitList[index].idCropClass + "\n" + errorStr);
+    }
+
+    this->firstYearListComboBox.blockSignals(false);
+    this->lastYearListComboBox.blockSignals(false);
 }
 
 
@@ -1170,9 +1213,9 @@ void Crit3DCropWidget::on_actionSave()
 bool Crit3DCropWidget::saveCrop()
 {
     QString error;
-    QString idCrop = cropListComboBox.currentText();
-    if (!updateCropLAIparam(&dbCrop, idCrop, &(myCase.myCrop), &error) || !updateCropRootparam(&dbCrop, idCrop, &(myCase.myCrop), &error)
-            || !updateCropIrrigationparam(&dbCrop, idCrop, &(myCase.myCrop), &error) )
+    if ( !updateCropLAIparam(&dbCrop, &(myCase.myCrop), &error)
+            || !updateCropRootparam(&dbCrop, &(myCase.myCrop), &error)
+            || !updateCropIrrigationparam(&dbCrop, &(myCase.myCrop), &error) )
     {
         QMessageBox::critical(nullptr, "Update param failed!", error);
         return false;
@@ -1485,10 +1528,9 @@ bool Crit3DCropWidget::checkIfCropIsChanged()
             cropChanged = true;
             return cropChanged;
         }
-
     }
-    if ( cropFromDB.kcMax != maxKcValue->text().toDouble()
-            || cropFromDB.LAImin != LAIminValue->value() || cropFromDB.LAImax != LAImaxValue->value())
+    // LAI
+    if (cropFromDB.LAImin != LAIminValue->value() || cropFromDB.LAImax != LAImaxValue->value())
     {
         cropChanged = true;
         return cropChanged;
@@ -1499,15 +1541,23 @@ bool Crit3DCropWidget::checkIfCropIsChanged()
         cropChanged = true;
         return cropChanged;
     }
-    if (cropFromDB.thermalThreshold != thermalThresholdValue->text().toDouble() || cropFromDB.upperThermalThreshold != upperThermalThresholdValue->text().toDouble()
-            || cropFromDB.degreeDaysEmergence != degreeDaysEmergenceValue->text().toDouble() || cropFromDB.degreeDaysIncrease != degreeDaysLAIincValue->text().toDouble()
-            || cropFromDB.degreeDaysDecrease != degreeDaysLAIdecValue->text().toDouble() || cropFromDB.LAIcurve_a != LAIcurveAValue->text().toDouble() || cropFromDB.LAIcurve_b != LAIcurveBValue->text().toDouble())
+    // degree days
+    if (cropFromDB.thermalThreshold != thermalThresholdValue->text().toDouble()
+            || cropFromDB.upperThermalThreshold != upperThermalThresholdValue->text().toDouble()
+            || cropFromDB.degreeDaysEmergence != degreeDaysEmergenceValue->text().toDouble()
+            || cropFromDB.degreeDaysIncrease != degreeDaysLAIincValue->text().toDouble()
+            || cropFromDB.degreeDaysDecrease != degreeDaysLAIdecValue->text().toDouble()
+            || cropFromDB.LAIcurve_a != LAIcurveAValue->text().toDouble()
+            || cropFromDB.LAIcurve_b != LAIcurveBValue->text().toDouble())
     {
         cropChanged = true;
         return cropChanged;
     }
-    if(cropFromDB.roots.rootDepthMin != rootDepthZeroValue->text().toDouble() || cropFromDB.roots.rootDepthMax != rootDepthMaxValue->text().toDouble()
-            || cropFromDB.roots.shapeDeformation != shapeDeformationValue->value() || cropFromDB.roots.rootShape != root::getRootDistributionTypeFromString(rootShapeComboBox->currentText().toStdString()))
+    // roots
+    if(cropFromDB.roots.rootDepthMin != rootDepthZeroValue->text().toDouble()
+            || cropFromDB.roots.rootDepthMax != rootDepthMaxValue->text().toDouble()
+            || cropFromDB.roots.shapeDeformation != shapeDeformationValue->value()
+            || cropFromDB.roots.rootShape != root::getRootDistributionTypeFromString(rootShapeComboBox->currentText().toStdString()))
     {
         cropChanged = true;
         return cropChanged;
@@ -1517,10 +1567,19 @@ bool Crit3DCropWidget::checkIfCropIsChanged()
         cropChanged = true;
         return cropChanged;
     }
-    else
+    // water needs
+    if( cropFromDB.kcMax != maxKcValue->text().toDouble()
+       || cropFromDB.stressTolerance != stressToleranceValue->text().toDouble()
+       || cropFromDB.psiLeaf != psiLeafValue->text().toDouble()
+       || cropFromDB.fRAW != rawFractionValue->text().toDouble() )
     {
-        cropChanged = false;
+        cropChanged = true;
+        return cropChanged;
     }
+
+    // TODO check irrigation parameters
+
+    cropChanged = false;
     return cropChanged;
 }
 
