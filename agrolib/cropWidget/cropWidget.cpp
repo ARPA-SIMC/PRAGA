@@ -47,7 +47,12 @@
 Crit3DCropWidget::Crit3DCropWidget()
 {
     this->setWindowTitle(QStringLiteral("CRITERIA 1D - Crop Editor"));
-    this->resize(1500, 800);
+    this->resize(1250, 700);
+
+    // font
+    QFont myFont = this->font();
+    myFont.setPointSize(9);
+    this->setFont(myFont);
 
     // layout
     QVBoxLayout *mainLayout = new QVBoxLayout();
@@ -1059,7 +1064,7 @@ void Crit3DCropWidget::on_actionChooseLastYear(QString year)
 {
     if (year.toInt() - this->firstYearListComboBox.currentText().toInt() > MAX_YEARS)
     {
-        QString msg = "Period too long: maximum 5 years";
+        QString msg = "Period too long: maximum " + QString::number(MAX_YEARS) + " years";
         QMessageBox::information(nullptr, "Error", msg);
         int max = this->firstYearListComboBox.currentText().toInt() + MAX_YEARS;
         this->lastYearListComboBox.setCurrentText(QString::number(max));
