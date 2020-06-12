@@ -17,6 +17,12 @@ INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/netcdfHandler  ../agrolib/graphics ../agrolib/project
 
 CONFIG += debug_and_release
+
+#FILESTOCOPY = PRAGA
+#INSTRULE.path = /usr/local/bin
+#INSTRULE.files = $$FILESTOCOPY
+#INSTALLS += INSTRULE
+
 QMAKE_CXXFLAGS += -std=c++11
 
 DEFINES += NETCDF
