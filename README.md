@@ -1,5 +1,5 @@
 # PRAGA
-Program for Agrometeorological Analysis
+PRogram for AGrometeorological Analysis
 
 ![](https://github.com/ARPA-SIMC/PRAGA/blob/master/DOC/img/PRAGA_screenshot.png)
 
