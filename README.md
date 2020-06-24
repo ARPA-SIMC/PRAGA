@@ -3,7 +3,8 @@ PRogram for AGrometeorological Analysis
 
 ![](https://github.com/ARPA-SIMC/PRAGA/blob/master/DOC/img/PRAGA_screenshot.png)
 
-PRAGA is a geographical application for agrometeorological and climate analysis.  
+PRAGA is a geographical application for climatological, meteorological and agrometeorological analysis. It manages point and gridded dataset, and it enables gridding of point data by using interpolation procedures contained in [agrolib interpolation library](https://github.com/ARPA-SIMC/agrolib/tree/master/interpolation).
+
 See [PRAGA wiki](https://github.com/ftomei/PRAGA/wiki/PRAGA-wiki) for more informations.
 
 # License
