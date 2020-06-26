@@ -1,4 +1,4 @@
-# python3 prova.py BIC BIC3.nc  python3 prova.py VARIABILE NOMENETCDF
+# python3 prova.py BIC BIC3.nc outputDir  python3 prova.py VARIABILE NOMENETCDF outputDir
 
 import sys
 # importing Magics module
@@ -6,7 +6,7 @@ from Magics.macro import *
 from netCDF4 import Dataset
 from osgeo import gdal
 
-if (len(sys.argv)-1 < 2 or len(sys.argv)-1 > 2): 
+if (len(sys.argv)-1 < 3 or len(sys.argv)-1 > 3): 
     print("Invalid number of arguments - Usage:  script variable netcdfFileName")
     sys.exit(0)
     
@@ -19,6 +19,7 @@ step = (maxValue - minValue) / 32.
 #datasetName = 'BIC3.nc' 
 variableName =  sys.argv[1] 
 datasetName = sys.argv[2] 
+outputDir = sys.argv[3] 
 
 nc_fid = Dataset(datasetName, 'r') 
 lats = nc_fid.variables['latitude'][:]
@@ -28,14 +29,13 @@ minLat = min(lats)
 maxLon = max(lons)
 minLon = min(lons)
 
-
-print(maxLat)
-print(minLat)
-print(maxLon)
-print(minLon)
+#print(maxLat)
+#print(minLat)
+#print(maxLon)
+#print(minLon)
 
 ratio = (maxLon - minLon) / (maxLat - minLat)
-print(ratio)
+#print(ratio)
 
 width = 1024
 length = round (width/ratio)
@@ -45,7 +45,10 @@ length_cm = length/40
 print(width)
 print(length)
 
-output_name= datasetName[:-3] + '_magics'
+file_name = datasetName[:-3] + '_magics'
+output_name = outputDir + (os.path.basename(file_name))
+#output_name = os.fsdecode(os.path.dirname(file_name)) + '/output/' + (os.path.basename(file_name))
+
 # output
 output = output(output_formats= ['png'],
     output_name= output_name,
@@ -128,6 +131,6 @@ ds = gdal.Translate(output_translate_name, ds, format = 'GTiff', outputSRS = 'EP
 ds = None
 ds = gdal.Open(output_translate_name)
 output_warp_name = output_name + '_warp.geotiff'
-ds = gdal.Warp(output_warp_name, ds, format = 'GTiff', cutlineDSName = 'outputwith4236.shp')
+ds = gdal.Warp(output_warp_name, ds, format = 'GTiff', cutlineDSName = 'shapefile/outputwith4236.shp')
 ds = None
 

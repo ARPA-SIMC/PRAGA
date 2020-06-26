@@ -17,6 +17,12 @@ INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/netcdfHandler  ../agrolib/graphics ../agrolib/project
 
 CONFIG += debug_and_release
+
+#FILESTOCOPY = PRAGA
+#INSTRULE.path = /usr/local/bin
+#INSTRULE.files = $$FILESTOCOPY
+#INSTALLS += INSTRULE
+
 QMAKE_CXXFLAGS += -std=c++11
 
 DEFINES += NETCDF
@@ -86,7 +92,6 @@ CONFIG(debug, debug|release) {
 
 SOURCES += \
     ../agrolib/graphics/colorLegend.cpp \
-    ../agrolib/graphics/gridCellMarker.cpp \
     ../agrolib/graphics/mapGraphicsRasterObject.cpp \
     ../agrolib/graphics/stationMarker.cpp \
     ../agrolib/graphics/rubberBand.cpp \
@@ -108,7 +113,6 @@ SOURCES += \
 
 HEADERS  += \
     ../agrolib/graphics/colorLegend.h \
-    ../agrolib/graphics/gridCellMarker.h \
     ../agrolib/graphics/mapGraphicsRasterObject.h \
     ../agrolib/graphics/stationMarker.h \
     ../agrolib/graphics/rubberBand.h \

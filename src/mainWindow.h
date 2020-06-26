@@ -14,7 +14,6 @@
     #include "tileSources/OSMTileSource.h"
     #include "mapGraphicsRasterObject.h"
     #include "stationMarker.h"
-    #include "gridCellMarker.h"
     #include "colorLegend.h"
     #include "dbArkimet.h"
     #include "pragaProject.h"
@@ -156,7 +155,6 @@
         ColorLegend *meteoPointsLegend;
         ColorLegend *meteoGridLegend;
         QList<StationMarker*> pointList;
-        QList<GridCellMarker*> gridCellList;
         RubberBand *myRubberBand;
         visualizationType currentPointsVisualization;
         visualizationType currentGridVisualization;
@@ -177,7 +175,6 @@
         void updateVariable();
         void updateDateTime();
         void resetMeteoPointsMarker();
-        void resetMeteoGridMarker();
         void addMeteoPoints();
         void drawMeteoPoints();
         void redrawMeteoPoints(visualizationType showType, bool updateColorScale);
