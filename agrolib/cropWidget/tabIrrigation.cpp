@@ -24,8 +24,8 @@ TabIrrigation::TabIrrigation()
 
     seriesPrecIrr = new QBarSeries();
 
-    setPrec = new QBarSet("Precipitation");
-    setIrrigation = new QBarSet("Irrigation");
+    setPrec = new QBarSet("Precipitation [mm]");
+    setIrrigation = new QBarSet("Irrigation [mm]");
     setPrec->setColor(QColor(Qt::blue));
     setPrec->setBorderColor(QColor(Qt::blue));
     setIrrigation->setColor(QColor(Qt::cyan));
@@ -48,8 +48,7 @@ TabIrrigation::TabIrrigation()
     axisXvirtual->setMax(QDateTime(last, QTime(0,0,0)));
     axisXvirtual->setTickCount(13);
 
-    QFont font = axisY->titleFont();
-    font.setPointSize(9);
+    QFont font = axisX->titleFont();
     font.setBold(true);
     axisY->setTitleText("LAI [m2 m-2] - Crop transpiration [mm]");
     axisY->setTitleFont(font);
@@ -57,6 +56,7 @@ TabIrrigation::TabIrrigation()
     axisY->setTickCount(9);
 
     axisYdx->setTitleText("Prec - Irrigation [mm]");
+    axisYdx->setTitleFont(font);
     axisYdx->setRange(0,40);
     axisYdx->setTickCount(9);
 
@@ -82,6 +82,10 @@ TabIrrigation::TabIrrigation()
 
     chart->legend()->setVisible(true);
     chart->legend()->setAlignment(Qt::AlignBottom);
+    QFont legendFont = chart->legend()->font();
+    legendFont.setPointSize(8);
+    legendFont.setBold(true);
+    chart->legend()->setFont(legendFont);
     chartView->setRenderHint(QPainter::Antialiasing);
     axisX->hide();
 
@@ -106,7 +110,7 @@ TabIrrigation::TabIrrigation()
 }
 
 
-void TabIrrigation::computeIrrigation(Crit1DCase myCase, int firstYear, int lastYear)
+void TabIrrigation::computeIrrigation(Crit1DCase myCase, int firstYear, int lastYear, QDate lastDBMeteoDate)
 {
     FormInfo formInfo;
 
@@ -119,7 +123,15 @@ void TabIrrigation::computeIrrigation(Crit1DCase myCase, int firstYear, int last
     std::string error;
 
     Crit3DDate firstDate = Crit3DDate(1, 1, prevYear);
-    Crit3DDate lastDate = Crit3DDate(31, 12, lastYear);
+    Crit3DDate lastDate;
+    if (lastYear != lastDBMeteoDate.year())
+    {
+        lastDate = Crit3DDate(31, 12, lastYear);
+    }
+    else
+    {
+        lastDate = Crit3DDate(lastDBMeteoDate.day(), lastDBMeteoDate.month(), lastYear);
+    }
 
     axisX->clear();
     seriesLAI->clear();
@@ -130,14 +142,14 @@ void TabIrrigation::computeIrrigation(Crit1DCase myCase, int firstYear, int last
     if (setPrec!= nullptr)
     {
         seriesPrecIrr->remove(setPrec);
-        setPrec = new QBarSet("Precipitation");
+        setPrec = new QBarSet("Precipitation [mm]");
         setPrec->setColor(QColor(Qt::blue));
         setPrec->setBorderColor(QColor(Qt::blue));
     }
     if (setIrrigation!= nullptr)
     {
         seriesPrecIrr->remove(setIrrigation);
-        setIrrigation = new QBarSet("Irrigation");
+        setIrrigation = new QBarSet("Irrigation [mm]");
         setIrrigation->setColor(QColor(Qt::cyan));
         setIrrigation->setBorderColor(QColor(Qt::cyan));
     }
@@ -182,7 +194,7 @@ void TabIrrigation::computeIrrigation(Crit1DCase myCase, int firstYear, int last
 
     // update virtual x axis
     QDate first(firstYear, 1, 1);
-    QDate last(lastYear, 12, 31);
+    QDate last(lastDate.year, lastDate.month, lastDate.day);
     axisXvirtual->setMin(QDateTime(first, QTime(0,0,0)));
     axisXvirtual->setMax(QDateTime(last, QTime(0,0,0)));
 
@@ -271,13 +283,13 @@ void TabIrrigation::tooltipPrecIrr(bool state, int index, QBarSet *barset)
         xDate = xDate.addDays(index);
 
         QString valueStr;
-        if (barset->label() == "Precipitation")
+        if (barset->label() == "Precipitation [mm]")
         {
-            valueStr = QString("%1 \nPrecipitationl %2 ").arg(xDate.toString("yyyy-MM-dd")).arg(barset->at(index), 0, 'f', 1);
+            valueStr = QString("%1 \nPrecipitation [mm] %2 ").arg(xDate.toString("yyyy-MM-dd")).arg(barset->at(index), 0, 'f', 1);
         }
-        else if (barset->label() == "Irrigation")
+        else if (barset->label() == "Irrigation [mm]")
         {
-            valueStr = QString("%1 \nIrrigation %2 ").arg(xDate.toString("yyyy-MM-dd")).arg(barset->at(index), 0, 'f', 1);
+            valueStr = QString("%1 \nIrrigation [mm] %2 ").arg(xDate.toString("yyyy-MM-dd")).arg(barset->at(index), 0, 'f', 1);
         }
 
         m_tooltip->setText(valueStr);

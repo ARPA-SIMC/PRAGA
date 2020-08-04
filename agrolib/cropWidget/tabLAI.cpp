@@ -47,9 +47,7 @@ TabLAI::TabLAI()
     seriesMaxEvap->attachAxis(axisX);
     seriesMaxTransp->attachAxis(axisX);
 
-    QFont font = axisY->titleFont();
-    font.setPointSize(9);
-    font.setBold(true);
+    QFont font = axisX->titleFont();
 
     axisY->setTitleText("Leaf Area Index [m2 m-2]");
     axisY->setTitleFont(font);
@@ -75,6 +73,10 @@ TabLAI::TabLAI()
     seriesMaxTransp->attachAxis(axisYdx);
 
     chart->legend()->setVisible(true);
+    QFont legendFont = chart->legend()->font();
+    legendFont.setPointSize(8);
+    legendFont.setBold(true);
+    chart->legend()->setFont(legendFont);
     chart->legend()->setAlignment(Qt::AlignBottom);
     chart->setAcceptHoverEvents(true);
 
@@ -96,7 +98,7 @@ TabLAI::TabLAI()
     setLayout(mainLayout);
 }
 
-void TabLAI::computeLAI(Crit3DCrop* myCrop, Crit3DMeteoPoint *meteoPoint, int firstYear, int lastYear, const std::vector<soil::Crit3DLayer> &soilLayers)
+void TabLAI::computeLAI(Crit3DCrop* myCrop, Crit3DMeteoPoint *meteoPoint, int firstYear, int lastYear, QDate lastDBMeteoDate, const std::vector<soil::Crit3DLayer> &soilLayers)
 {
     unsigned int nrLayers = unsigned(soilLayers.size());
     double totalSoilDepth = 0;
@@ -108,7 +110,15 @@ void TabLAI::computeLAI(Crit3DCrop* myCrop, Crit3DMeteoPoint *meteoPoint, int fi
     std::string error;
 
     Crit3DDate firstDate = Crit3DDate(1, 1, prevYear);
-    Crit3DDate lastDate = Crit3DDate(31, 12, lastYear);
+    Crit3DDate lastDate;
+    if (lastYear != lastDBMeteoDate.year())
+    {
+        lastDate = Crit3DDate(31, 12, lastYear);
+    }
+    else
+    {
+        lastDate = Crit3DDate(lastDBMeteoDate.day(), lastDBMeteoDate.month(), lastYear);
+    }
     double tmin;
     double tmax;
     QDateTime x;
@@ -141,7 +151,7 @@ void TabLAI::computeLAI(Crit3DCrop* myCrop, Crit3DMeteoPoint *meteoPoint, int fi
 
         // display only interval firstYear lastYear
         if (myDate.year >= firstYear)
-        {
+        {         
             x.setDate(QDate(myDate.year, myDate.month, myDate.day));
             doy = getDoyFromDate(myDate);
             // ET0
@@ -155,7 +165,7 @@ void TabLAI::computeLAI(Crit3DCrop* myCrop, Crit3DMeteoPoint *meteoPoint, int fi
 
     // update x axis
     QDate first(firstYear, 1, 1);
-    QDate last(lastYear, 12, 31);
+    QDate last(lastDate.year, lastDate.month, lastDate.day);
     axisX->setMin(QDateTime(first, QTime(0,0,0)));
     axisX->setMax(QDateTime(last, QTime(0,0,0)));
 
@@ -168,6 +178,11 @@ void TabLAI::computeLAI(Crit3DCrop* myCrop, Crit3DMeteoPoint *meteoPoint, int fi
     seriesPotentialEvap->attachAxis(axisYdx);
     seriesMaxEvap->attachAxis(axisYdx);
     seriesMaxTransp->attachAxis(axisYdx);
+
+    foreach(QLegendMarker* marker, chart->legend()->markers())
+    {
+        QObject::connect(marker, &QLegendMarker::clicked, this, &TabLAI::handleMarkerClicked);
+    }
 
 }
 

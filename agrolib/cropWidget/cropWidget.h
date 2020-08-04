@@ -15,13 +15,13 @@
     #include <QLabel>
     #include <QSqlDatabase>
 
-    #include "criteria1DCase.h"
+    #include "criteria1DSimulation.h"
     #include "tabLAI.h"
     #include "tabRootDepth.h"
     #include "tabRootDensity.h"
     #include "tabIrrigation.h"
     #include "tabWaterContent.h"
-    #include "criteria1DUnit.h"
+
 
     class Crit3DCropWidget : public QWidget
     {
@@ -74,6 +74,7 @@
             QStringList yearList;
             bool onlyOneYear;
             bool isXmlMeteoGrid;
+            QDate lastDBMeteoDate;
             Crit3DMeteoGridDbHandler xmlMeteoGrid;
 
             std::vector<Crit1DUnit> unitList;
