@@ -25,7 +25,8 @@
 #include "cropWidget.h"
 #include "dialogNewCrop.h"
 #include "cropDbTools.h"
-#include "criteria1DdbMeteo.h"
+#include "cropDbQuery.h"
+#include "criteria1DMeteo.h"
 #include "soilDbTools.h"
 #include "utilities.h"
 #include "commonConstants.h"
@@ -51,7 +52,7 @@ Crit3DCropWidget::Crit3DCropWidget()
 
     // font
     QFont myFont = this->font();
-    myFont.setPointSize(9);
+    myFont.setPointSize(8);
     this->setFont(myFont);
 
     // layout
@@ -604,65 +605,22 @@ void Crit3DCropWidget::checkCropUpdate()
 
 
 void Crit3DCropWidget::openUnitsDB(QString dbUnitsName)
-{
-    unitList.clear();
-
-    if (dbUnitsName == "")
-    {
-        QMessageBox::critical(nullptr, "Error", "Missing DB Units");
-        return;
-    }
-
+{  
     QString error;
-    if (! openDbUnits(dbUnitsName, &dbUnits, &error))
+    if (! loadUnitList(dbUnitsName, unitList, error))
     {
-        QMessageBox::critical(nullptr, "Error in DB Units", error);
+        QMessageBox::critical(nullptr, "Error in DB Units:", error);
         return;
     }
-
-    // read case list
-    QStringList caseStringList;
-    QString queryString = "SELECT DISTINCT ID_CASE, ID_CROP, ID_SOIL, ID_METEO FROM units";
-    queryString += " ORDER BY ID_CASE";
-
-    QSqlQuery query = dbUnits.exec(queryString);
-    query.last();
-    if (! query.isValid())
-    {
-        error = query.lastError().nativeErrorCode();
-        if (error != "")
-            QMessageBox::critical(nullptr, "Error in DB Units", error);
-        else
-            QMessageBox::critical(nullptr, "Error in DB Units", "Missing units");
-        return;
-    }
-
-    int nr = query.at() + 1;     // SQLITE doesn't support SIZE
-    unitList.resize(nr);
-
-    int i = 0;
-    query.first();
-    do
-    {
-        unitList[i].idCase = query.value("ID_CASE").toString();
-        caseStringList.append(unitList[i].idCase);
-
-        unitList[i].idCropClass = query.value("ID_CROP").toString();
-        unitList[i].idMeteo = query.value("ID_METEO").toString();
-        unitList[i].idForecast = query.value("ID_METEO").toString();
-        unitList[i].idSoilNumber = query.value("ID_SOIL").toInt();
-
-        i++;
-    } while(query.next());
 
     // unit list
     this->caseListComboBox.blockSignals(true);
     this->caseListComboBox.clear();
     this->caseListComboBox.blockSignals(false);
 
-    for (int i = 0; i < caseStringList.size(); i++)
+    for (unsigned int i = 0; i < unitList.size(); i++)
     {
-        this->caseListComboBox.addItem(caseStringList[i]);
+        this->caseListComboBox.addItem(unitList[i].idCase);
     }
 }
 
@@ -679,7 +637,7 @@ void Crit3DCropWidget::openCropDB(QString newDbCropName)
     clearCrop();
 
     QString error;
-    if (! openDbCrop(newDbCropName, &dbCrop, &error))
+    if (! openDbCrop(&dbCrop, newDbCropName, &error))
     {
         QMessageBox::critical(nullptr, "Error DB crop", error);
         return;
@@ -904,7 +862,7 @@ void Crit3DCropWidget::on_actionChooseCrop(QString idCrop)
 void Crit3DCropWidget::updateCropParam(QString idCrop)
 {
     QString error;
-    if (!loadCropParameters(idCrop, &(myCase.myCrop), &dbCrop, &error))
+    if (!loadCropParameters(&dbCrop, idCrop, &(myCase.myCrop), &error))
     {
         if (error.contains("Empty"))
         {
@@ -1055,7 +1013,8 @@ void Crit3DCropWidget::on_actionChooseMeteo(QString idMeteo)
             QString fieldTmax = xmlMeteoGrid.getDailyVarField(dailyAirTemperatureMax);
             QString fieldPrec = xmlMeteoGrid.getDailyVarField(dailyPrecipitation);
 
-            for (int i = 0; i<yearList.size(); i++)
+            // last year can be incomplete
+            for (int i = 0; i<yearList.size()-1; i++)
             {
 
                     if ( !checkYearMeteoGridFixedFields(dbMeteo, tableMeteo, xmlMeteoGrid.tableDaily().fieldTime, fieldTmin, fieldTmax, fieldPrec, yearList[i], &error))
@@ -1067,7 +1026,9 @@ void Crit3DCropWidget::on_actionChooseMeteo(QString idMeteo)
                     {
                         pos = pos + 1;
                     }
-             }
+            }
+            // store last Date
+            getLastDateGrid(dbMeteo, tableMeteo, xmlMeteoGrid.tableDaily().fieldTime, yearList[yearList.size()-1], &lastDBMeteoDate, &error);
         }
         else
         {
@@ -1081,7 +1042,8 @@ void Crit3DCropWidget::on_actionChooseMeteo(QString idMeteo)
                 return;
             }
 
-            for (int i = 0; i<yearList.size(); i++)
+            // last year can be incomplete
+            for (int i = 0; i<yearList.size()-1; i++)
             {
 
                     if ( !checkYearMeteoGrid(dbMeteo, tableMeteo, xmlMeteoGrid.tableDaily().fieldTime, varCodeTmin, varCodeTmax, varCodePrec, yearList[i], &error))
@@ -1094,6 +1056,8 @@ void Crit3DCropWidget::on_actionChooseMeteo(QString idMeteo)
                         pos = pos + 1;
                     }
              }
+            // store last Date
+            getLastDateGrid(dbMeteo, tableMeteo, xmlMeteoGrid.tableDaily().fieldTime, yearList[yearList.size()-1], &lastDBMeteoDate, &error);
         }
     }
     else
@@ -1114,7 +1078,9 @@ void Crit3DCropWidget::on_actionChooseMeteo(QString idMeteo)
         }
 
         int pos = 0;
-        for (int i = 0; i<yearList.size(); i++)
+
+        // last year can be incomplete
+        for (int i = 0; i<yearList.size()-1; i++)
         {
             if ( !checkYear(&dbMeteo, tableMeteo, yearList[i], &error))
             {
@@ -1126,6 +1092,8 @@ void Crit3DCropWidget::on_actionChooseMeteo(QString idMeteo)
                 pos = pos + 1;
             }
         }
+        // store last Date
+        getLastDate(&dbMeteo, tableMeteo, yearList[yearList.size()-1], &lastDBMeteoDate, &error);
     }
     if (yearList.size() == 1)
     {
@@ -1618,7 +1586,7 @@ void Crit3DCropWidget::updateTabLAI()
 {
     if (!myCase.myCrop.idCrop.empty() && !myCase.meteoPoint.id.empty())
     {
-        tabLAI->computeLAI(&(myCase.myCrop), &(myCase.meteoPoint), firstYearListComboBox.currentText().toInt(), lastYearListComboBox.currentText().toInt(), myCase.soilLayers);
+        tabLAI->computeLAI(&(myCase.myCrop), &(myCase.meteoPoint), firstYearListComboBox.currentText().toInt(), lastYearListComboBox.currentText().toInt(), lastDBMeteoDate, myCase.soilLayers);
     }
 }
 
@@ -1626,7 +1594,7 @@ void Crit3DCropWidget::updateTabRootDepth()
 {
     if (!myCase.myCrop.idCrop.empty() && !myCase.meteoPoint.id.empty() && !myCase.mySoil.code.empty())
     {
-        tabRootDepth->computeRootDepth(&(myCase.myCrop), &(myCase.meteoPoint), firstYearListComboBox.currentText().toInt(), lastYearListComboBox.currentText().toInt(), myCase.soilLayers);
+        tabRootDepth->computeRootDepth(&(myCase.myCrop), &(myCase.meteoPoint), firstYearListComboBox.currentText().toInt(), lastYearListComboBox.currentText().toInt(), lastDBMeteoDate, myCase.soilLayers);
     }
 }
 
@@ -1634,7 +1602,7 @@ void Crit3DCropWidget::updateTabRootDensity()
 {
     if (!myCase.myCrop.idCrop.empty() && !myCase.meteoPoint.id.empty() && !myCase.mySoil.code.empty())
     {
-        tabRootDensity->computeRootDensity(&(myCase.myCrop), &(myCase.meteoPoint), firstYearListComboBox.currentText().toInt(), lastYearListComboBox.currentText().toInt(), myCase.soilLayers);
+        tabRootDensity->computeRootDensity(&(myCase.myCrop), &(myCase.meteoPoint), firstYearListComboBox.currentText().toInt(), lastYearListComboBox.currentText().toInt(), lastDBMeteoDate, myCase.soilLayers);
     }
 }
 
@@ -1642,7 +1610,7 @@ void Crit3DCropWidget::updateTabIrrigation()
 {
     if (!myCase.myCrop.idCrop.empty() && !myCase.meteoPoint.id.empty() && !myCase.mySoil.code.empty())
     {
-        tabIrrigation->computeIrrigation(myCase, firstYearListComboBox.currentText().toInt(), lastYearListComboBox.currentText().toInt());
+        tabIrrigation->computeIrrigation(myCase, firstYearListComboBox.currentText().toInt(), lastYearListComboBox.currentText().toInt(), lastDBMeteoDate);
     }
 }
 
@@ -1650,7 +1618,7 @@ void Crit3DCropWidget::updateTabWaterContent()
 {
     if (!myCase.myCrop.idCrop.empty() && !myCase.meteoPoint.id.empty() && !myCase.mySoil.code.empty())
     {
-        tabWaterContent->computeWaterContent(myCase, firstYearListComboBox.currentText().toInt(), lastYearListComboBox.currentText().toInt(), volWaterContent->isChecked());
+        tabWaterContent->computeWaterContent(myCase, firstYearListComboBox.currentText().toInt(), lastYearListComboBox.currentText().toInt(), lastDBMeteoDate, volWaterContent->isChecked());
     }
 }
 

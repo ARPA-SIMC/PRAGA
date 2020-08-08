@@ -14,10 +14,10 @@ TabRootDepth::TabRootDepth()
     chart->setTitle("Root Depth");
     chartView->setChart(chart);
     seriesRootDepth = new QLineSeries();
-    seriesRootDepth->setName("rooth depth");
+    seriesRootDepth->setName("rooth depth [m]");
     seriesRootDepth->setColor(QColor(Qt::red));
     seriesRootDepthMin = new QLineSeries();
-    seriesRootDepthMin->setName("root depht zero");
+    seriesRootDepthMin->setName("root depht zero [m]");
     seriesRootDepthMin->setColor(QColor(Qt::green));
     axisX = new QDateTimeAxis();
     axisY = new QValueAxis();
@@ -45,6 +45,10 @@ TabRootDepth::TabRootDepth()
 
     chart->legend()->setVisible(true);
     chart->legend()->setAlignment(Qt::AlignBottom);
+    QFont legendFont = chart->legend()->font();
+    legendFont.setPointSize(8);
+    legendFont.setBold(true);
+    chart->legend()->setFont(legendFont);
 
     chart->setAcceptHoverEvents(true);
     m_tooltip = new Callout(chart);
@@ -58,7 +62,7 @@ TabRootDepth::TabRootDepth()
     setLayout(mainLayout);
 }
 
-void TabRootDepth::computeRootDepth(Crit3DCrop* myCrop, Crit3DMeteoPoint *meteoPoint, int firstYear, int lastYear, const std::vector<soil::Crit3DLayer> &soilLayers)
+void TabRootDepth::computeRootDepth(Crit3DCrop* myCrop, Crit3DMeteoPoint *meteoPoint, int firstYear, int lastYear, QDate lastDBMeteoDate, const std::vector<soil::Crit3DLayer> &soilLayers)
 {
     unsigned int nrLayers = unsigned(soilLayers.size());
     double totalSoilDepth = 0;
@@ -69,7 +73,15 @@ void TabRootDepth::computeRootDepth(Crit3DCrop* myCrop, Crit3DMeteoPoint *meteoP
     std::string error;
 
     Crit3DDate firstDate = Crit3DDate(1, 1, prevYear);
-    Crit3DDate lastDate = Crit3DDate(31, 12, lastYear);
+    Crit3DDate lastDate;
+    if (lastYear != lastDBMeteoDate.year())
+    {
+        lastDate = Crit3DDate(31, 12, lastYear);
+    }
+    else
+    {
+        lastDate = Crit3DDate(lastDBMeteoDate.day(), lastDBMeteoDate.month(), lastYear);
+    }
     double tmin;
     double tmax;
     QDateTime x;
@@ -111,7 +123,7 @@ void TabRootDepth::computeRootDepth(Crit3DCrop* myCrop, Crit3DMeteoPoint *meteoP
 
     // update x axis
     QDate first(firstYear, 1, 1);
-    QDate last(lastYear, 12, 31);
+    QDate last(lastDate.year, lastDate.month, lastDate.day);
     axisX->setMin(QDateTime(first, QTime(0,0,0)));
     axisX->setMax(QDateTime(last, QTime(0,0,0)));
 

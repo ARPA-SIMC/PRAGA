@@ -1,9 +1,9 @@
-#include "irrigationForecast.h"
+#include "criteria1DSimulation.h"
 #include "commonConstants.h"
 #include "basicMath.h"
 #include "soilDbTools.h"
 #include "cropDbTools.h"
-#include "criteria1DdbMeteo.h"
+#include "criteria1DMeteo.h"
 #include "water1D.h"
 #include "utilities.h"
 
@@ -12,7 +12,7 @@
 #include <QVariant>
 #include <QSqlQuery>
 
-Crit1DIrrigationForecast::Crit1DIrrigationForecast()
+Crit1DSimulation::Crit1DSimulation()
 {
     isXmlGrid = false;
     isSeasonalForecast = false;
@@ -22,15 +22,15 @@ Crit1DIrrigationForecast::Crit1DIrrigationForecast()
     isShortTermForecast = false;
     daysOfForecast = NODATA;
     useAllMeteoData = true;
-    firstDate = QDate(1800,1,1);
-    lastDate = QDate(1800,1,1);
+    firstSimulationDate = QDate(1800,1,1);
+    lastSimulationDate = QDate(1800,1,1);
 
     outputString = "";
 }
 
 
 // update values of annual irrigation
-void Crit1DIrrigationForecast::updateSeasonalForecast(Crit3DDate myDate, int* index)
+void Crit1DSimulation::updateSeasonalForecast(Crit3DDate myDate, int* index)
 {
     bool isInsideSeason = false;
 
@@ -72,7 +72,7 @@ void Crit1DIrrigationForecast::updateSeasonalForecast(Crit3DDate myDate, int* in
 }
 
 
-bool Crit1DIrrigationForecast::runModel(const Crit1DUnit& myUnit, QString &myError)
+bool Crit1DSimulation::runModel(const Crit1DUnit& myUnit, QString &myError)
 {
     myCase.idCase = myUnit.idCase;
 
@@ -97,7 +97,7 @@ bool Crit1DIrrigationForecast::runModel(const Crit1DUnit& myUnit, QString &myErr
         return false;
     }
 
-    if (! loadCropParameters(myUnit.idCrop, &(myCase.myCrop), &(dbCrop), &myError))
+    if (! loadCropParameters(&dbCrop, myUnit.idCrop, &(myCase.myCrop), &myError))
         return false;
 
     if (! isSeasonalForecast)
@@ -150,7 +150,7 @@ bool Crit1DIrrigationForecast::runModel(const Crit1DUnit& myUnit, QString &myErr
 }
 
 
-bool Crit1DIrrigationForecast::setSoil(QString soilCode, QString &myError)
+bool Crit1DSimulation::setSoil(QString soilCode, QString &myError)
 {
     if (! loadSoil(&dbSoil, soilCode, &(myCase.mySoil), soilTexture, &fittingOptions, &myError))
         return false;
@@ -166,12 +166,12 @@ bool Crit1DIrrigationForecast::setSoil(QString soilCode, QString &myError)
 }
 
 
-bool Crit1DIrrigationForecast::setMeteoXmlGrid(QString idMeteo, QString idForecast, QString *myError)
+bool Crit1DSimulation::setMeteoXmlGrid(QString idMeteo, QString idForecast, QString *myError)
 {
 
     unsigned row;
     unsigned col;
-    unsigned nrDays = unsigned(firstDate.daysTo(lastDate)) + 1;
+    unsigned nrDays = unsigned(firstSimulationDate.daysTo(lastSimulationDate)) + 1;
 
     if (!this->observedMeteoGrid->meteoGrid()->findMeteoPointFromId(&row, &col, idMeteo.toStdString()) )
     {
@@ -181,7 +181,7 @@ bool Crit1DIrrigationForecast::setMeteoXmlGrid(QString idMeteo, QString idForeca
 
     if (!this->observedMeteoGrid->gridStructure().isFixedFields())
     {
-        if (!this->observedMeteoGrid->loadGridDailyData(myError, idMeteo, firstDate, lastDate))
+        if (!this->observedMeteoGrid->loadGridDailyData(myError, idMeteo, firstSimulationDate, lastSimulationDate))
         {
             *myError = "Missing observed data";
             return false;
@@ -189,7 +189,7 @@ bool Crit1DIrrigationForecast::setMeteoXmlGrid(QString idMeteo, QString idForeca
     }
     else
     {
-        if (!this->observedMeteoGrid->loadGridDailyDataFixedFields(myError, idMeteo, firstDate, lastDate))
+        if (!this->observedMeteoGrid->loadGridDailyDataFixedFields(myError, idMeteo, firstSimulationDate, lastSimulationDate))
         {
             if (*myError == "Missing MeteoPoint id")
             {
@@ -207,7 +207,7 @@ bool Crit1DIrrigationForecast::setMeteoXmlGrid(QString idMeteo, QString idForeca
     {
         if (!this->forecastMeteoGrid->gridStructure().isFixedFields())
         {
-            if (!this->forecastMeteoGrid->loadGridDailyData(myError, idForecast, lastDate.addDays(1), lastDate.addDays(daysOfForecast)))
+            if (!this->forecastMeteoGrid->loadGridDailyData(myError, idForecast, lastSimulationDate.addDays(1), lastSimulationDate.addDays(daysOfForecast)))
             {
                 if (*myError == "Missing MeteoPoint id")
                 {
@@ -222,7 +222,7 @@ bool Crit1DIrrigationForecast::setMeteoXmlGrid(QString idMeteo, QString idForeca
         }
         else
         {
-            if (!this->forecastMeteoGrid->loadGridDailyDataFixedFields(myError, idForecast, lastDate.addDays(1), lastDate.addDays(daysOfForecast)))
+            if (!this->forecastMeteoGrid->loadGridDailyDataFixedFields(myError, idForecast, lastSimulationDate.addDays(1), lastSimulationDate.addDays(daysOfForecast)))
             {
                 if (*myError == "Missing MeteoPoint id")
                 {
@@ -240,12 +240,13 @@ bool Crit1DIrrigationForecast::setMeteoXmlGrid(QString idMeteo, QString idForeca
 
     myCase.meteoPoint.latitude = this->observedMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->latitude;
     myCase.meteoPoint.longitude = this->observedMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->longitude;
-    myCase.meteoPoint.initializeObsDataD(nrDays, getCrit3DDate(firstDate));
+    myCase.meteoPoint.initializeObsDataD(nrDays, getCrit3DDate(firstSimulationDate));
 
     float tmin, tmax, tavg, prec;
-    for (int i = 0; i< firstDate.daysTo(lastDate)+1; i++)
+    int lastIndex = firstSimulationDate.daysTo(lastSimulationDate)+1;
+    for (int i = 0; i < lastIndex; i++)
     {
-        Crit3DDate myDate = getCrit3DDate(firstDate.addDays(i));
+        Crit3DDate myDate = getCrit3DDate(firstSimulationDate.addDays(i));
         tmin = this->observedMeteoGrid->meteoGrid()->meteoPointPointer(row, col)->getMeteoPointValueD(myDate, dailyAirTemperatureMin);
         myCase.meteoPoint.setMeteoPointValueD(myDate, dailyAirTemperatureMin, tmin);
 
@@ -264,8 +265,8 @@ bool Crit1DIrrigationForecast::setMeteoXmlGrid(QString idMeteo, QString idForeca
     }
     if (isShortTermForecast)
     {
-        QDate start = lastDate.addDays(1);
-        QDate end = lastDate.addDays(daysOfForecast);
+        QDate start = lastSimulationDate.addDays(1);
+        QDate end = lastSimulationDate.addDays(daysOfForecast);
         for (int i = 0; i< start.daysTo(end)+1; i++)
         {
             Crit3DDate myDate = getCrit3DDate(start.addDays(i));
@@ -290,7 +291,7 @@ bool Crit1DIrrigationForecast::setMeteoXmlGrid(QString idMeteo, QString idForeca
 }
 
 
-bool Crit1DIrrigationForecast::setMeteoSqlite(QString idMeteo, QString idForecast, QString *myError)
+bool Crit1DSimulation::setMeteoSqlite(QString idMeteo, QString idForecast, QString *myError)
 {
     QString queryString = "SELECT * FROM meteo_locations WHERE id_meteo='" + idMeteo + "'";
     QSqlQuery query = dbMeteo.exec(queryString);
@@ -459,7 +460,7 @@ bool Crit1DIrrigationForecast::setMeteoSqlite(QString idMeteo, QString idForecas
 
 
 // alloc memory for annual values of irrigation
-void Crit1DIrrigationForecast::initializeSeasonalForecast(const Crit3DDate& firstDate, const Crit3DDate& lastDate)
+void Crit1DSimulation::initializeSeasonalForecast(const Crit3DDate& firstDate, const Crit3DDate& lastDate)
 {
     if (isSeasonalForecast)
     {
@@ -476,7 +477,7 @@ void Crit1DIrrigationForecast::initializeSeasonalForecast(const Crit3DDate& firs
 }
 
 
-bool Crit1DIrrigationForecast::createOutputTable(QString &myError)
+bool Crit1DSimulation::createOutputTable(QString &myError)
 {
     QString queryString = "DROP TABLE '" + myCase.idCase + "'";
     QSqlQuery myQuery = this->dbOutput.exec(queryString);
@@ -497,7 +498,7 @@ bool Crit1DIrrigationForecast::createOutputTable(QString &myError)
 }
 
 
-void Crit1DIrrigationForecast::prepareOutput(Crit3DDate myDate, bool isFirst)
+void Crit1DSimulation::prepareOutput(Crit3DDate myDate, bool isFirst)
 {
     if (isFirst)
     {
@@ -531,7 +532,7 @@ void Crit1DIrrigationForecast::prepareOutput(Crit3DDate myDate, bool isFirst)
 }
 
 
-bool Crit1DIrrigationForecast::saveOutput(QString &myError)
+bool Crit1DSimulation::saveOutput(QString &myError)
 {
     QSqlQuery myQuery = dbOutput.exec(outputString);
     outputString.clear();
