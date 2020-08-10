@@ -12,9 +12,6 @@
 #include <sstream>
 #include <iostream>
 
-#include "tileSources/OSMTileSource.h"
-#include "tileSources/CompositeTileSource.h"
-
 #include "formPeriod.h"
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
@@ -65,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->meteoPointsLegend->colorScale = myProject.meteoPointsColorScale;
 
     // Set tiles source
-    this->setMapSource(OSMTileSource::OSMTiles);
+    this->setTileSource(WebTileSource::OPEN_STREET_MAP);
 
     // Set start size and position
     this->startCenter = new Position (myProject.gisSettings.startLocation.longitude,
@@ -1816,48 +1813,91 @@ void MainWindow::on_actionShowGridClimate_triggered()
     redrawMeteoGrid(showClimate, false);
 }
 
-void MainWindow::on_actionMapTerrain_triggered()
-{
-    this->setMapSource(OSMTileSource::Terrain);
-}
 
 void MainWindow::on_actionMapOpenStreetMap_triggered()
 {
-    this->setMapSource(OSMTileSource::OSMTiles);
+    this->setTileSource(WebTileSource::OPEN_STREET_MAP);
 }
 
-void MainWindow::on_actionMapESRISatellite_triggered()
+void MainWindow::on_actionMapGoogle_map_triggered()
 {
-    this->setMapSource(OSMTileSource::ESRIWorldImagery);
+    this->setTileSource(WebTileSource::GOOGLE_MAP);
 }
 
-void MainWindow::setMapSource(OSMTileSource::OSMTileType mySource)
+void MainWindow::on_actionMapGoogle_satellite_triggered()
 {
-    // set menu
+    this->setTileSource(WebTileSource::GOOGLE_Satellite);
+}
+
+void MainWindow::on_actionMapGoogle_terrain_triggered()
+{
+    this->setTileSource(WebTileSource::GOOGLE_Terrain);
+}
+
+void MainWindow::on_actionMapGoogle_hybrid_satellite_triggered()
+{
+    this->setTileSource(WebTileSource::GOOGLE_Hybrid_Satellite);
+}
+
+void MainWindow::on_actionMapESRI_Satellite_triggered()
+{
+    this->setTileSource(WebTileSource::ESRI_WorldImagery);
+}
+
+void MainWindow::on_actionMapStamen_terrain_triggered()
+{
+    this->setTileSource(WebTileSource::STAMEN_Terrain);
+}
+
+
+void MainWindow::setTileSource(WebTileSource::WebTileType tileType)
+{
+    // deselect all menu
     ui->actionMapOpenStreetMap->setChecked(false);
-    ui->actionMapTerrain->setChecked(false);
-    ui->actionMapESRISatellite->setChecked(false);
+    ui->actionMapStamen_terrain->setChecked(false);
+    ui->actionMapESRI_Satellite->setChecked(false);
+    ui->actionMapGoogle_map->setChecked(false);
+    ui->actionMapGoogle_satellite->setChecked(false);
+    ui->actionMapGoogle_hybrid_satellite->setChecked(false);
+    ui->actionMapGoogle_terrain->setChecked(false);
 
-    if (mySource == OSMTileSource::OSMTiles)
+    // select menu
+    switch(tileType)
     {
+    case WebTileSource::OPEN_STREET_MAP:
         ui->actionMapOpenStreetMap->setChecked(true);
-    }
-    else if (mySource == OSMTileSource::Terrain)
-    {
-        ui->actionMapTerrain->setChecked(true);
-    }
-    else if (mySource == OSMTileSource::ESRIWorldImagery)
-    {
-        ui->actionMapESRISatellite->setChecked(true);
+        break;
+
+    case WebTileSource::STAMEN_Terrain:
+        ui->actionMapStamen_terrain->setChecked(true);
+        break;
+
+    case WebTileSource::ESRI_WorldImagery:
+        ui->actionMapESRI_Satellite->setChecked(true);
+        break;
+
+    case WebTileSource::GOOGLE_MAP:
+        ui->actionMapGoogle_map->setChecked(true);
+        break;
+
+    case WebTileSource::GOOGLE_Satellite:
+        ui->actionMapGoogle_satellite->setChecked(true);
+        break;
+
+    case WebTileSource::GOOGLE_Hybrid_Satellite:
+        ui->actionMapGoogle_hybrid_satellite->setChecked(true);
+        break;
+
+    case WebTileSource::GOOGLE_Terrain:
+        ui->actionMapGoogle_terrain->setChecked(false);
+        break;
     }
 
     // set tiles source
-    QSharedPointer<OSMTileSource> myTiles(new OSMTileSource(mySource), &QObject::deleteLater);
-    QSharedPointer<CompositeTileSource> composite(new CompositeTileSource(), &QObject::deleteLater);
-    composite->addSourceBottom(myTiles);
-
-    this->mapView->setTileSource(composite);
+    QSharedPointer<WebTileSource> myTiles(new WebTileSource(tileType), &QObject::deleteLater);
+    this->mapView->setTileSource(myTiles);
 }
+
 
 bool MainWindow::openRaster(QString fileName, gis::Crit3DRasterGrid *myRaster)
 {
@@ -2324,3 +2364,5 @@ void MainWindow::on_actionMeteogridClose_triggered()
 {
     this->closeMeteoGrid();
 }
+
+

@@ -2396,7 +2396,7 @@
      <x>0</x>
      <y>0</y>
      <width>1392</width>
-     <height>22</height>
+     <height>26</height>
     </rect>
    </property>
    <property name="palette">
@@ -2909,8 +2909,12 @@
       <string>&amp;Map</string>
      </property>
      <addaction name="actionMapOpenStreetMap"/>
-     <addaction name="actionMapTerrain"/>
-     <addaction name="actionMapESRISatellite"/>
+     <addaction name="actionMapGoogle_map"/>
+     <addaction name="actionMapGoogle_satellite"/>
+     <addaction name="actionMapGoogle_hybrid_satellite"/>
+     <addaction name="actionMapGoogle_terrain"/>
+     <addaction name="actionMapStamen_terrain"/>
+     <addaction name="actionMapESRI_Satellite"/>
     </widget>
     <addaction name="menuMap"/>
     <addaction name="actionParameters"/>
@@ -3036,18 +3040,18 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;OpenStreetMap</string>
+    <string>OpenStreetMap</string>
    </property>
   </action>
-  <action name="actionMapESRISatellite">
+  <action name="actionMapESRI_Satellite">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>&amp;ESRI - World Imagery</string>
+    <string>ESRI world Imagery</string>
    </property>
   </action>
-  <action name="actionMapTerrain">
+  <action name="actionMapStamen_terrain">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -3055,7 +3059,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>&amp;Stamen - Terrain</string>
+    <string>Stamen terrain</string>
    </property>
   </action>
   <action name="actionNewMeteoPointsArkimet">
@@ -3387,6 +3391,26 @@
   <action name="actionMeteopointNewArkimet">
    <property name="text">
     <string>From Arkimet...</string>
+   </property>
+  </action>
+  <action name="actionMapGoogle_map">
+   <property name="text">
+    <string>Google map</string>
+   </property>
+  </action>
+  <action name="actionMapGoogle_satellite">
+   <property name="text">
+    <string>Google satellite</string>
+   </property>
+  </action>
+  <action name="actionMapGoogle_terrain">
+   <property name="text">
+    <string>Google terrain</string>
+   </property>
+  </action>
+  <action name="actionMapGoogle_hybrid_satellite">
+   <property name="text">
+    <string>Google hybrid satellite</string>
    </property>
   </action>
  </widget>
