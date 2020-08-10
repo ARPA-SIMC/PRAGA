@@ -11,7 +11,7 @@
     #include "rubberBand.h"
     #include "MapGraphicsView.h"
     #include "MapGraphicsScene.h"
-    #include "tileSources/OSMTileSource.h"
+    #include "tileSources/WebTileSource.h"
     #include "mapGraphicsRasterObject.h"
     #include "stationMarker.h"
     #include "colorLegend.h"
@@ -74,10 +74,6 @@
         void on_rasterOpacitySlider_sliderMoved(int position);
         void on_meteoGridOpacitySlider_sliderMoved(int position);
 
-        void on_actionMapTerrain_triggered();
-        void on_actionMapOpenStreetMap_triggered();
-        void on_actionMapESRISatellite_triggered();
-
         void on_actionRectangle_Selection_triggered();
         void on_dateChanged();
         void on_rasterScaleButton_clicked();
@@ -125,8 +121,16 @@
         void callNewMeteoWidget(std::string id, std::string name, bool isGrid);
         void callAppendMeteoWidget(std::string id, std::string name, bool isGrid);
 
+        void on_actionMapOpenStreetMap_triggered();
+        void on_actionMapGoogle_map_triggered();
+        void on_actionMapGoogle_satellite_triggered();
+        void on_actionMapGoogle_terrain_triggered();
+        void on_actionMapGoogle_hybrid_satellite_triggered();
+        void on_actionMapESRI_Satellite_triggered();
+        void on_actionMapStamen_terrain_triggered();
 
-        protected:
+
+    protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
          * \param event
@@ -164,7 +168,7 @@
         QList<QCheckBox*> datasetCheckbox;
         QCheckBox* all;
 
-        void setMapSource(OSMTileSource::OSMTileType mySource);
+        void setTileSource(WebTileSource::WebTileType tileType);
         QString selectArkimetDataset(QDialog* datasetDialog);
 
         QPoint getMapPos(const QPoint& pos);
