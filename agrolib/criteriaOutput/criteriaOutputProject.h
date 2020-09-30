@@ -5,9 +5,9 @@
 #include <fstream>
 #include <QSqlDatabase>
 #include "logger.h"
-#include "criteria1DUnit.h"
 #include "criteriaOutputVariable.h"
 #include "criteriaAggregationVariable.h"
+#include "computationUnitsDb.h"
 #include "shapeHandler.h"
 
 #define REQUIREDMAPLISTCSVINFO 2
@@ -99,6 +99,7 @@ public:
     int createMaps();
 
     bool initializeCsvOutputFile();
+    bool getAllDbVariable(QString &projectError);
 
 };
 
