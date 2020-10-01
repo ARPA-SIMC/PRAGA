@@ -2366,3 +2366,42 @@ void MainWindow::on_actionMeteogridClose_triggered()
 }
 
 
+
+void MainWindow::on_actionMeteoPointsDataCount_triggered()
+{
+    // check meteo point
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        myProject.logError("No meteo points DB open");
+        return;
+    }
+
+    // check meteo grid
+    if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr)
+    {
+        myProject.logError("No meteo grid DB open");
+        return;
+    }
+
+    QDateTime myFirstTime = myProject.findDbPointFirstTime();
+    QDateTime myLastTime = myProject.findDbPointLastTime();
+    if (myFirstTime.isNull())
+    {
+        myFirstTime.setDate(myProject.getCurrentDate());
+        myFirstTime.setTime(QTime(myProject.getCurrentHour(),0));
+    }
+    if (myLastTime.isNull())
+    {
+        myLastTime.setDate(myProject.getCurrentDate());
+        myLastTime.setTime(QTime(myProject.getCurrentHour(),0));
+    }
+
+    formPeriod myForm(&myFirstTime, &myLastTime);
+    myForm.show();
+    if (myForm.exec() == QDialog::Rejected) return;
+
+    meteoVariable myVar = chooseMeteoVariable(&myProject);
+    if (myVar == noMeteoVar) return;
+
+    //myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables, aggrVariables, false, 1);
+}

@@ -130,6 +130,8 @@
         void on_actionMapStamen_terrain_triggered();
 
 
+        void on_actionMeteoPointsDataCount_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

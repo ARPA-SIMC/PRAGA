@@ -970,6 +970,7 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>10</pointsize>
               <weight>50</weight>
               <bold>false</bold>
@@ -1032,7 +1033,10 @@
              </property>
              <property name="font">
               <font>
+               <family>Arial</family>
                <pointsize>9</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -1050,7 +1054,10 @@
              </property>
              <property name="font">
               <font>
+               <family>Arial</family>
                <pointsize>9</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -1132,7 +1139,10 @@
              </property>
              <property name="font">
               <font>
+               <family>Arial</family>
                <pointsize>9</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="dateTime">
@@ -1200,7 +1210,10 @@
              </property>
              <property name="font">
               <font>
+               <family>Arial</family>
                <pointsize>9</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -1218,7 +1231,10 @@
              </property>
              <property name="font">
               <font>
+               <family>Arial</family>
                <pointsize>9</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -1274,7 +1290,10 @@
              </property>
              <property name="font">
               <font>
+               <family>Arial</family>
                <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="toolTip">
@@ -1314,7 +1333,10 @@
              </property>
              <property name="font">
               <font>
+               <family>Arial</family>
                <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="toolTip">
@@ -1409,7 +1431,10 @@
              </property>
              <property name="font">
               <font>
+               <family>Arial</family>
                <pointsize>9</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -1876,6 +1901,7 @@
             </property>
             <property name="font">
              <font>
+              <family>Arial</family>
               <pointsize>10</pointsize>
               <weight>50</weight>
               <bold>false</bold>
@@ -1941,7 +1967,10 @@
              </property>
              <property name="font">
               <font>
+               <family>Arial</family>
                <pointsize>8</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="toolTip">
@@ -1959,7 +1988,10 @@
              </property>
              <property name="font">
               <font>
+               <family>Arial</family>
                <pointsize>9</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -2014,7 +2046,10 @@
              </property>
              <property name="font">
               <font>
+               <family>Arial</family>
                <pointsize>9</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -2032,7 +2067,10 @@
              </property>
              <property name="font">
               <font>
+               <family>Arial</family>
                <pointsize>9</pointsize>
+               <weight>50</weight>
+               <bold>false</bold>
               </font>
              </property>
              <property name="text">
@@ -2379,6 +2417,9 @@
         <property name="font">
          <font>
           <family>Arial</family>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
          </font>
         </property>
         <property name="mouseTracking">
@@ -2396,7 +2437,7 @@
      <x>0</x>
      <y>0</y>
      <width>1392</width>
-     <height>26</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="palette">
@@ -2898,6 +2939,7 @@
     </property>
     <addaction name="actionVariableQualitySpatial"/>
     <addaction name="actionRectangle_Selection"/>
+    <addaction name="actionMeteoPointsDataCount"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuGIS_settings">
@@ -3411,6 +3453,11 @@
   <action name="actionMapGoogle_hybrid_satellite">
    <property name="text">
     <string>Google hybrid satellite</string>
+   </property>
+  </action>
+  <action name="actionMeteoPointsDataCount">
+   <property name="text">
+    <string>Data count</string>
    </property>
   </action>
  </widget>
