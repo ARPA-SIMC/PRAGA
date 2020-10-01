@@ -9,6 +9,7 @@
 #include "shapeUtilities.h"
 #include "shapeToRaster.h"
 #include "zonalStatistic.h"
+#include "computationUnitsDb.h"
 
 #ifdef GDAL
     #include "gdalShapeFunctions.h"
@@ -362,14 +363,14 @@ int CriteriaOutputProject::precomputeDtx()
         return myResult;
     }
 
-    // load computation unit list
+    // read unit list
     logger.writeInfo("DB computation units: " + dbUnitsName);
-    if (! loadUnitList(dbUnitsName, unitList, projectError))
+    if (! readUnitList(dbUnitsName, unitList, projectError))
     {
         return ERROR_READ_UNITS;
     }
-
     logger.writeInfo("Query result: " + QString::number(unitList.size()) + " distinct computation units.");
+
     logger.writeInfo("Compute dtx...");
 
     QString idCase;
@@ -400,9 +401,9 @@ int CriteriaOutputProject::createCsvFile()
         return myResult;
     }
 
-    // load computation unit list
+    // read unit list
     logger.writeInfo("DB computation units: " + dbUnitsName);
-    if (! loadUnitList(dbUnitsName, unitList, projectError))
+    if (! readUnitList(dbUnitsName, unitList, projectError))
     {
         return ERROR_READ_UNITS;
     }
@@ -487,7 +488,7 @@ int CriteriaOutputProject::createMaps()
 
     // check cellsize
     bool ok;
-    int cellSize = mapCellSize.toInt(&ok, 10);
+    mapCellSize.toInt(&ok, 10);
     if (!ok)
     {
         projectError = "Invalid map cellsize: " + mapCellSize;
@@ -584,7 +585,7 @@ int CriteriaOutputProject::createMaps()
 
     int rasterOK = 0;
 
-    for (int i=0; i<inputField.size(); i++)
+    for (int i=0; i < inputField.size(); i++)
     {
         QString mapName = outputShapeFilePath + "/" + outputName[i]+ "." + mapFormat;
         std::string inputFieldStd = inputField[i].toStdString();
@@ -603,7 +604,7 @@ int CriteriaOutputProject::createMaps()
     else
     {
         int nRasterError = inputField.size() - rasterOK;
-        projectError = QString::number(nRasterError) + " invalid raster " ;
+        projectError = QString::number(nRasterError) + " invalid raster - " + projectError;
         return false;
     }
 
@@ -791,4 +792,64 @@ bool CriteriaOutputProject::initializeCsvOutputFile()
     outputFile.close();
 
     return true;
+}
+
+bool CriteriaOutputProject::getAllDbVariable(QString &projectError)
+{
+    // open DB Data
+    dbData = QSqlDatabase::addDatabase("QSQLITE", "data");
+    dbData.setDatabaseName(dbDataName);
+    if (! dbData.open())
+    {
+        projectError = "Open DB data failed: " + dbData.lastError().text();
+        return false;
+    }
+    QSqlQuery qry(dbData);
+    QString statement = QString("SELECT name FROM sqlite_master WHERE type ='table' AND name NOT LIKE 'sqlite_%' ESCAPE '^'");
+    QString tableName;
+    QStringList varList;
+    if( !qry.exec(statement) )
+    {
+        projectError = qry.lastError().text();
+        return false;
+    }
+    qry.first();
+    if (!qry.isValid())
+    {
+        projectError = qry.lastError().text();
+        return false ;
+    }
+    getValue(qry.value("name"), &tableName);
+    statement = QString("PRAGMA table_info(`%1`)").arg(tableName);
+    QString name;
+    if( !qry.exec(statement) )
+    {
+        projectError = qry.lastError().text();
+        return false;
+    }
+    qry.first();
+    if (!qry.isValid())
+    {
+        projectError = qry.lastError().text();
+        return false;
+    }
+    do
+    {
+        getValue(qry.value("name"), &name);
+        if (name != "DATE")
+        {
+            varList<<name;
+        }
+    }
+    while(qry.next());
+
+    if (varList.isEmpty())
+    {
+        return false;
+    }
+    else
+    {
+        outputVariable.varName = varList;
+        return true;
+    }
 }
