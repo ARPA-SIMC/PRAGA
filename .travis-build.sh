@@ -22,9 +22,10 @@ then
   apt-get update
   apt-get -y remove postgres* mysql-server* #not update postgres* mysql-server*
   apt-get -y dist-upgrade
+  apt-get -y install software-properties-common
   add-apt-repository -y ppa:ubuntu-toolchain-r/test
   add-apt-repository -y ppa:beineri/opt-qt-5.12.6-xenial
-  apt-get -qy update
+  apt-get -y update
   apt-get install -qq g++-8 gcc-8
   update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
   update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 90
