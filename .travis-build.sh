@@ -34,7 +34,7 @@ then
   update-alternatives --install /usr/bin/qmake qmake /opt/qt512/bin/qmake 90
   export QT_DIR=/opt/qt512
   export PATH=$QT_DIR/bin/:$PATH
-  sudo apt-get install libnetcdf-dev libnetcdf11
+  apt-get install libnetcdf-dev libnetcdf11
   gcc --version
   g++ --version
   qmake -v
