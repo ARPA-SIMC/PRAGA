@@ -24,7 +24,7 @@ then
   apt-get -y dist-upgrade
   apt-get -y install software-properties-common
   add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  add-apt-repository -y ppa:beineri/opt-qt-5.12.6-bionic
+  add-apt-repository -y ppa:beineri/opt-qt-5.12.6-xenial
   apt-get -y update
   apt-get install -qq g++-8 gcc-8
   update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
