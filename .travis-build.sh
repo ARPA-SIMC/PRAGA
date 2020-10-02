@@ -16,7 +16,8 @@ then
     dnf install -q -y git
     dnf install -q -y rpmdevtools
     dnf copr enable -y simc/stable
-    # TODO install packages and compile code
+    echo "TODO: install packages and compile code"
+    exit 1
 elif [[ $image =~ ^ubuntu: ]]
 then
   apt-get update
