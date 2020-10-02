@@ -39,8 +39,8 @@ then
   gcc --version
   g++ --version
   qmake -v
-  bash deploy/build.sh
   apt get install -y wget
+  bash deploy/build.sh
   wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
   bash upload.sh *.AppImage*
 fi
