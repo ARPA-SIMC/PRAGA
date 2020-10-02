@@ -22,15 +22,15 @@ then
   apt-get update
   apt-get -y remove postgres* mysql-server* #not update postgres* mysql-server*
   apt-get -y dist-upgrade
-  sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  sudo add-apt-repository -y ppa:beineri/opt-qt-5.12.6-xenial
-  sudo apt-get -qy update
-  sudo apt-get install -qq g++-8 gcc-8
-  sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
-  sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 90
-  sudo apt-get install -qq qt512-meta-minimal
-  sudo apt-get install -qq libx11-xcb-dev libglu1-mesa-dev
-  sudo update-alternatives --install /usr/bin/qmake qmake /opt/qt512/bin/qmake 90
+  add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  add-apt-repository -y ppa:beineri/opt-qt-5.12.6-xenial
+  apt-get -qy update
+  apt-get install -qq g++-8 gcc-8
+  update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
+  update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 90
+  apt-get install -qq qt512-meta-minimal
+  apt-get install -qq libx11-xcb-dev libglu1-mesa-dev
+  update-alternatives --install /usr/bin/qmake qmake /opt/qt512/bin/qmake 90
   export QT_DIR=/opt/qt512
   export PATH=$QT_DIR/bin/:$PATH
   sudo apt-get install libnetcdf-dev libnetcdf11
