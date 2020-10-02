@@ -26,15 +26,15 @@ then
   add-apt-repository -y ppa:ubuntu-toolchain-r/test
   add-apt-repository -y ppa:beineri/opt-qt-5.12.6-xenial
   apt-get -y update
-  apt-get install -qq g++-8 gcc-8
+  apt-get install -y g++-8 gcc-8
   update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
   update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 90
-  apt-get install -qq qt512-meta-minimal
-  apt-get install -qq libx11-xcb-dev libglu1-mesa-dev
+  apt-get install -y qt512-meta-minimal
+  apt-get install -y libx11-xcb-dev libglu1-mesa-dev
   update-alternatives --install /usr/bin/qmake qmake /opt/qt512/bin/qmake 90
   export QT_DIR=/opt/qt512
   export PATH=$QT_DIR/bin/:$PATH
-  apt-get install libnetcdf-dev libnetcdf11
+  apt-get install -y libnetcdf-dev libnetcdf11
   gcc --version
   g++ --version
   qmake -v
