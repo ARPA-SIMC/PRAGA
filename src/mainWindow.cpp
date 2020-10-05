@@ -2376,13 +2376,6 @@ void MainWindow::on_actionMeteoPointsDataCount_triggered()
         return;
     }
 
-    // check meteo grid
-    if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr)
-    {
-        myProject.logError("No meteo grid DB open");
-        return;
-    }
-
     QDateTime myFirstTime = myProject.findDbPointFirstTime();
     QDateTime myLastTime = myProject.findDbPointLastTime();
     if (myFirstTime.isNull())
@@ -2402,6 +2395,40 @@ void MainWindow::on_actionMeteoPointsDataCount_triggered()
 
     meteoVariable myVar = chooseMeteoVariable(&myProject);
     if (myVar == noMeteoVar) return;
+    frequencyType myFreq = getVarFrequency(myVar);
 
-    //myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables, aggrVariables, false, 1);
+    QString myFilename  = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("text files (*.txt)"));
+    if (myFilename == "") return;
+
+    std::vector<int> myCounter;
+
+    if (myProject.dataCount(myFirstTime.date(), myLastTime.date(), myVar, myCounter))
+    {
+        QFile myFile(myFilename);
+        if (myFile.open(QIODevice::ReadWrite))
+        {
+            QTextStream outStream(&myFile);
+
+            QDate myDate = myFirstTime.date();
+            short myHour;
+            long i=0;
+
+            while (myDate <= myLastTime.date())
+            {
+                if (myFreq == daily)
+                {
+                    outStream << myDate.toString("yyyy-MM-dd") << "," << QString::number(myCounter[i++]) + "\n";
+                }
+                else if (myFreq == hourly)
+                {
+                    for (myHour = 1; myHour <= 24; myHour++)
+                        outStream << myDate.toString("yyyy-MM-dd") + " " + QStringLiteral("%1").arg(myHour, 2, 10, QLatin1Char('0')) + ":00" << "," << QString::number(myCounter[i++]) + "\n";
+                }
+
+                myDate = myDate.addDays(1);
+            }
+
+            myFile.close();
+        }
+    }
 }
