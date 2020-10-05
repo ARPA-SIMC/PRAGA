@@ -39,20 +39,17 @@
 
     private slots:
 
-        void on_actionOpen_DEM_triggered();
-
-        void on_actionMeteopointNewArkimet_triggered();
-        void on_actionMeteopointOpen_triggered();
-        void on_actionMeteopointClose_triggered();
-        void on_actionMeteopointDownload_triggered();
-
-        void on_actionMeteogridOpen_triggered();
-        void on_actionMeteogridClose_triggered();
-
-        void on_actionOpen_project_triggered();
-        void on_actionClose_project_triggered();
-        void on_actionSave_project_as_triggered();
-        void on_actionSave_project_triggered();
+        void on_actionFileMeteogridOpen_triggered();
+        void on_actionFileMeteogridClose_triggered();
+        void on_actionFileOpenDEM_triggered();
+        void on_actionFileOpenProject_triggered();
+        void on_actionFileCloseProject_triggered();
+        void on_actionFileSaveProjectAs_triggered();
+        void on_actionFileSaveProject_triggered();
+        void on_actionFileMeteopointNewArkimet_triggered();
+        void on_actionFileMeteopointOpen_triggered();
+        void on_actionFileMeteopointClose_triggered();
+        void on_actionFileMeteopointDownload_triggered();
 
         void on_actionShowPointsHide_triggered();
         void on_actionShowPointsLocation_triggered();
@@ -62,8 +59,6 @@
         void on_actionShowGridCurrent_triggered();
         void on_actionShowPointsElab_triggered();
         void on_actionShowGridElab_triggered();
-        void on_meteoPoints_clicked();
-        void on_grid_clicked();
         void on_actionShowPointsAnomalyAbs_triggered();
         void on_actionShowGridAnomalyAbs_triggered();
         void on_actionShowPointsAnomalyPerc_triggered();
@@ -71,10 +66,12 @@
         void on_actionShowPointsClimate_triggered();
         void on_actionShowGridClimate_triggered();
 
+        void on_actionMeteopointRectangleSelection_triggered();
+        void on_actionMeteopointDataCount_triggered();
+
         void on_rasterOpacitySlider_sliderMoved(int position);
         void on_meteoGridOpacitySlider_sliderMoved(int position);
 
-        void on_actionRectangle_Selection_triggered();
         void on_dateChanged();
         void on_rasterScaleButton_clicked();
         void on_variableButton_clicked();
@@ -88,26 +85,34 @@
         void on_timeEdit_valueChanged(int myHour);
         void on_dateEdit_dateChanged(const QDate &date);
 
-        void on_actionInterpolation_to_DEM_triggered();
-        void on_actionInterpolationCurrentTime_triggered();
+        void on_actionInterpolationDem_triggered();
+        void on_actionInterpolationMeteogridCurrentTime_triggered();
         void on_actionInterpolationSettings_triggered();
-        void on_actionWriteTAD_triggered();
-        void on_actionLoadTAD_triggered();
-        void on_actionSaveGridCurrentData_triggered();
-        void on_actionInterpolateSaveGridPeriod_triggered();
+        void on_actionInterpolationMeteogridSaveCurrentData_triggered();
+        void on_actionInterpolateMeteogridPeriod_triggered();
+        void on_actionTopographicDistanceMapsSave_triggered();
+        void on_actionTopographicDistanceMapsLoad_triggered();
 
-        void on_actionCompute_elaboration_triggered();
-        void on_actionCompute_anomaly_triggered();
-        void on_actionCompute_climate_triggered();
+        void on_actionElaboration_triggered();
+        void on_actionAnomaly_triggered();
+        void on_actionClimate_triggered();
+        void on_actionClimateFields_triggered();
 
-        void on_actionParameters_triggered();
         void on_actionRadiationSettings_triggered();
 
-        void on_actionClimate_fields_triggered();
+        void on_actionSettingsParameters_triggered();
 
-        void on_actionOpen_aggregation_DB_triggered();
-        void on_actionNew_aggregation_DB_triggered();
-        bool on_actionAggregate_from_grid_triggered();
+        void on_actionSettingsMapOpenStreetMap_triggered();
+        void on_actionSettingsMapGoogleMap_triggered();
+        void on_actionSettingsMapGoogleSatellite_triggered();
+        void on_actionSettingsMapGoogleTerrain_triggered();
+        void on_actionSettingsMapGoogleHybrid_triggered();
+        void on_actionSettingsMapEsriSatellite_triggered();
+        void on_actionSettingsMapStamenTerrain_triggered();
+
+        void on_actionAnalysisOpenAggregationDB_triggered();
+        void on_actionAnalysisNewAggregationDB_triggered();
+        bool on_actionAnalysisAggregateFromGrid_triggered();
 
         void updateMaps();
         void mouseMove(const QPoint& eventPos);
@@ -116,21 +121,13 @@
             void on_actionNetCDF_Open_triggered();
             void on_actionNetCDF_Close_triggered();
             void on_actionNetCDF_ShowMetadata_triggered();
-            void on_actionMeteogridExportNetcdf_triggered();
+            void on_actionFileMeteogridExportNetcdf_triggered();
         #endif
         void callNewMeteoWidget(std::string id, std::string name, bool isGrid);
         void callAppendMeteoWidget(std::string id, std::string name, bool isGrid);
 
-        void on_actionMapOpenStreetMap_triggered();
-        void on_actionMapGoogle_map_triggered();
-        void on_actionMapGoogle_satellite_triggered();
-        void on_actionMapGoogle_terrain_triggered();
-        void on_actionMapGoogle_hybrid_satellite_triggered();
-        void on_actionMapESRI_Satellite_triggered();
-        void on_actionMapStamen_terrain_triggered();
-
-
-        void on_actionMeteoPointsDataCount_triggered();
+        void on_meteoPoints_clicked();
+        void on_grid_clicked();
 
     protected:
         /*!
