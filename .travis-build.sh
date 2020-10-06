@@ -35,6 +35,7 @@ then
     update-alternatives --install /usr/bin/qmake qmake /opt/qt512/bin/qmake 90
     export QT_DIR=/opt/qt512
     export PATH=$QT_DIR/bin/:$PATH
+    apt-get -y update
     apt-get install -y libnetcdf-dev libnetcdf11 libqt5charts5-dev libqt5charts5
     gcc --version
     g++ --version
