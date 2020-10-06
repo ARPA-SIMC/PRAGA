@@ -24,6 +24,7 @@ then
     apt-get -y remove postgres* mysql-server* #not update postgres* mysql-server*
     apt-get -y dist-upgrade
     apt-get -y install software-properties-common
+    add-apt-repository -y universe
     add-apt-repository -y ppa:ubuntu-toolchain-r/test
     add-apt-repository -y ppa:beineri/opt-qt-5.12.6-xenial
     apt-get -y update
