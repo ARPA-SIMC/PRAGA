@@ -21,4 +21,4 @@ chmod +x linuxqtdeploy
 
 # build appimage
 cp src/PRAGA deploy/appimage/usr/bin/PRAGA
-LD_LIBRARY_PATH=`pwd`/mapGraphics/release ./linuxqtdeploy deploy/appimage/usr/share/applications/PRAGA.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+LD_LIBRARY_PATH=`pwd`/mapGraphics/release ./linuxqtdeploy --appimage-extract-and-run deploy/appimage/usr/share/applications/PRAGA.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
