@@ -85,6 +85,7 @@
                                            std::vector<float> &outputValues, bool showInfo);
         bool getIsElabMeteoPointsValue() const;
         void setIsElabMeteoPointsValue(bool value);
+        bool dataCount(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, std::vector<int> &myCounter);
 
         bool executePragaCommand(QStringList argumentList, bool* isCommandFound);
 

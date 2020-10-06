@@ -1932,6 +1932,57 @@ bool PragaProject::interpolationMeteoGrid(meteoVariable myVar, frequencyType myF
     return true;
 }
 
+bool PragaProject::dataCount(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, std::vector <int> &myCounter)
+{
+    frequencyType myFreq = getVarFrequency(myVar);
+
+    logInfo("Loading meteo points data... ");
+    if (! loadMeteoPointsData(myFirstDate, myLastDate, myFreq == hourly, myFreq == daily, true))
+        return false;
+
+    QDate myDate = myFirstDate;
+    short myHour;
+    int counter;
+    int i;
+
+    FormInfo myInfo;
+    if (modality == MODE_GUI)
+        myInfo.start("Counting " + QString::fromStdString(getVariableString(myVar)) + " values...", myFirstDate.daysTo(myLastDate));
+
+    myCounter.clear();
+
+    while (myDate <= myLastDate)
+    {
+        if (modality == MODE_GUI)
+            myInfo.setValue(myFirstDate.daysTo(myDate));
+
+        if (myFreq == daily)
+        {
+            counter = 0;
+            for (i = 0; i < nrMeteoPoints; i++)
+                if (! isEqual(meteoPoints[i].getMeteoPointValueD(getCrit3DDate(myDate), myVar), NODATA)) counter++;
+
+            myCounter.push_back(counter);
+        }
+        else if (myFreq == hourly)
+        {
+            for (myHour = 1; myHour <= 24; myHour++)
+            {
+                counter = 0;
+                for (i = 0; i < nrMeteoPoints; i++)
+                    if (! isEqual(meteoPoints[i].getMeteoPointValueH(getCrit3DDate(myDate), myHour, 0, myVar), NODATA)) counter++;
+
+                myCounter.push_back(counter);
+            }
+        }
+
+        myDate = myDate.addDays(1);
+    }
+
+    if (modality == MODE_GUI) myInfo.close();
+
+    return true;
+}
 
 #ifdef NETCDF
     bool PragaProject::exportMeteoGridToNetCDF(QString fileName)

@@ -356,7 +356,7 @@ void MainWindow::on_meteoGridOpacitySlider_sliderMoved(int position)
 }
 
 
-void MainWindow::on_actionRectangle_Selection_triggered()
+void MainWindow::on_actionMeteopointRectangleSelection_triggered()
 {
     if (myRubberBand != nullptr)
     {
@@ -364,7 +364,7 @@ void MainWindow::on_actionRectangle_Selection_triggered()
         myRubberBand = nullptr;
     }
 
-    if (ui->actionRectangle_Selection->isChecked())
+    if (ui->actionMeteopointRectangleSelection->isChecked())
     {
         myRubberBand = new RubberBand(QRubberBand::Rectangle, this->mapView);
      }
@@ -399,7 +399,7 @@ void MainWindow::renderDEM()
 }
 
 
-void MainWindow::on_actionOpen_DEM_triggered()
+void MainWindow::on_actionFileOpenDEM_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open raster Grid"), "", tr("ESRI grid files (*.flt)"));
 
@@ -484,7 +484,7 @@ void MainWindow::disableAllButton(bool toggled)
     }
 }
 
-void MainWindow::on_actionMeteopointDownload_triggered()
+void MainWindow::on_actionFileMeteopointDownload_triggered()
 {
     if(myProject.nrMeteoPoints == 0)
     {
@@ -556,7 +556,7 @@ void MainWindow::resetMeteoPointsMarker()
 
 void MainWindow::on_actionVariableQualitySpatial_triggered()
 {
-    myProject.checkSpatialQuality = ui->actionVariableQualitySpatial->isChecked();
+    myProject.checkSpatialQuality = ui->actionMeteopointQualitySpatial->isChecked();
     updateVariable();
     redrawMeteoPoints(currentPointsVisualization, true);
 }
@@ -772,7 +772,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         }
     }
 
-    void MainWindow::on_actionMeteogridExportNetcdf_triggered()
+    void MainWindow::on_actionFileMeteogridExportNetcdf_triggered()
     {
         if (! myProject.checkMeteoGridForExport()) return;
 
@@ -1261,12 +1261,12 @@ void MainWindow::on_dateEdit_dateChanged(const QDate &date)
     this->on_dateChanged();
 }
 
-void MainWindow::on_actionInterpolation_to_DEM_triggered()
+void MainWindow::on_actionInterpolationDem_triggered()
 {
     interpolateDemGUI();
 }
 
-void MainWindow::on_actionCompute_elaboration_triggered()
+void MainWindow::on_actionElaboration_triggered()
 {
 
     if (!ui->meteoPoints->isChecked() && !ui->grid->isChecked())
@@ -1304,7 +1304,7 @@ void MainWindow::on_actionCompute_elaboration_triggered()
             }
         }
         if (compDialog.result() == QDialog::Accepted)
-            on_actionCompute_elaboration_triggered();
+            on_actionElaboration_triggered();
     }
     else
     {
@@ -1314,7 +1314,7 @@ void MainWindow::on_actionCompute_elaboration_triggered()
 
 }
 
-void MainWindow::on_actionCompute_anomaly_triggered()
+void MainWindow::on_actionAnomaly_triggered()
 {
 
     if (!ui->meteoPoints->isChecked() && !ui->grid->isChecked())
@@ -1359,7 +1359,7 @@ void MainWindow::on_actionCompute_anomaly_triggered()
             }
         }
         if (compDialog.result() == QDialog::Accepted)
-            on_actionCompute_anomaly_triggered();
+            on_actionAnomaly_triggered();
     }
     else
     {
@@ -1368,7 +1368,7 @@ void MainWindow::on_actionCompute_anomaly_triggered()
     return;
 }
 
-void MainWindow::on_actionCompute_climate_triggered()
+void MainWindow::on_actionClimate_triggered()
 {
     if (!ui->meteoPoints->isChecked() && !ui->grid->isChecked())
     {
@@ -1395,7 +1395,7 @@ void MainWindow::on_actionCompute_climate_triggered()
         }
 
         if (compDialog.result() == QDialog::Accepted)
-            on_actionCompute_climate_triggered();
+            on_actionClimate_triggered();
 
     }
     else
@@ -1406,7 +1406,7 @@ void MainWindow::on_actionCompute_climate_triggered()
     return;
 }
 
-void MainWindow::on_actionClimate_fields_triggered()
+void MainWindow::on_actionClimateFields_triggered()
 {
     if (!ui->meteoPoints->isChecked() && !ui->grid->isChecked())
     {
@@ -1700,7 +1700,7 @@ void MainWindow::on_actionRadiationSettings_triggered()
     myDialogRadiation->close();
 }
 
-void MainWindow::on_actionParameters_triggered()
+void MainWindow::on_actionSettingsParameters_triggered()
 {
     DialogPragaSettings* mySettingsDialog = new DialogPragaSettings(&myProject);
     mySettingsDialog->exec();
@@ -1716,7 +1716,7 @@ void MainWindow::on_actionParameters_triggered()
 }
 
 
-void MainWindow::on_actionWriteTAD_triggered()
+void MainWindow::on_actionTopographicDistanceMapsSave_triggered()
 {
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, "Create topographic distance maps", "Only for stations with data?",
@@ -1727,7 +1727,7 @@ void MainWindow::on_actionWriteTAD_triggered()
     myProject.writeTopographicDistanceMaps(onlyWithData);
 }
 
-void MainWindow::on_actionLoadTAD_triggered()
+void MainWindow::on_actionTopographicDistanceMapsLoad_triggered()
 {
     myProject.loadTopographicDistanceMaps(true);
 }
@@ -1814,37 +1814,37 @@ void MainWindow::on_actionShowGridClimate_triggered()
 }
 
 
-void MainWindow::on_actionMapOpenStreetMap_triggered()
+void MainWindow::on_actionSettingsMapOpenStreetMap_triggered()
 {
     this->setTileSource(WebTileSource::OPEN_STREET_MAP);
 }
 
-void MainWindow::on_actionMapGoogle_map_triggered()
+void MainWindow::on_actionSettingsMapGoogleMap_triggered()
 {
     this->setTileSource(WebTileSource::GOOGLE_MAP);
 }
 
-void MainWindow::on_actionMapGoogle_satellite_triggered()
+void MainWindow::on_actionSettingsMapGoogleSatellite_triggered()
 {
     this->setTileSource(WebTileSource::GOOGLE_Satellite);
 }
 
-void MainWindow::on_actionMapGoogle_terrain_triggered()
+void MainWindow::on_actionSettingsMapGoogleTerrain_triggered()
 {
     this->setTileSource(WebTileSource::GOOGLE_Terrain);
 }
 
-void MainWindow::on_actionMapGoogle_hybrid_satellite_triggered()
+void MainWindow::on_actionSettingsMapGoogleHybrid_triggered()
 {
     this->setTileSource(WebTileSource::GOOGLE_Hybrid_Satellite);
 }
 
-void MainWindow::on_actionMapESRI_Satellite_triggered()
+void MainWindow::on_actionSettingsMapEsriSatellite_triggered()
 {
     this->setTileSource(WebTileSource::ESRI_WorldImagery);
 }
 
-void MainWindow::on_actionMapStamen_terrain_triggered()
+void MainWindow::on_actionSettingsMapStamenTerrain_triggered()
 {
     this->setTileSource(WebTileSource::STAMEN_Terrain);
 }
@@ -1853,43 +1853,43 @@ void MainWindow::on_actionMapStamen_terrain_triggered()
 void MainWindow::setTileSource(WebTileSource::WebTileType tileType)
 {
     // deselect all menu
-    ui->actionMapOpenStreetMap->setChecked(false);
-    ui->actionMapStamen_terrain->setChecked(false);
-    ui->actionMapESRI_Satellite->setChecked(false);
-    ui->actionMapGoogle_map->setChecked(false);
-    ui->actionMapGoogle_satellite->setChecked(false);
-    ui->actionMapGoogle_hybrid_satellite->setChecked(false);
-    ui->actionMapGoogle_terrain->setChecked(false);
+    ui->actionSettingsMapOpenStreetMap->setChecked(false);
+    ui->actionSettingsMapStamenTerrain->setChecked(false);
+    ui->actionSettingsMapEsriSatellite->setChecked(false);
+    ui->actionSettingsMapGoogleMap->setChecked(false);
+    ui->actionSettingsMapGoogleSatellite->setChecked(false);
+    ui->actionSettingsMapGoogleHybrid->setChecked(false);
+    ui->actionSettingsMapGoogleTerrain->setChecked(false);
 
     // select menu
     switch(tileType)
     {
     case WebTileSource::OPEN_STREET_MAP:
-        ui->actionMapOpenStreetMap->setChecked(true);
+        ui->actionSettingsMapOpenStreetMap->setChecked(true);
         break;
 
     case WebTileSource::STAMEN_Terrain:
-        ui->actionMapStamen_terrain->setChecked(true);
+        ui->actionSettingsMapStamenTerrain->setChecked(true);
         break;
 
     case WebTileSource::ESRI_WorldImagery:
-        ui->actionMapESRI_Satellite->setChecked(true);
+        ui->actionSettingsMapEsriSatellite->setChecked(true);
         break;
 
     case WebTileSource::GOOGLE_MAP:
-        ui->actionMapGoogle_map->setChecked(true);
+        ui->actionSettingsMapGoogleMap->setChecked(true);
         break;
 
     case WebTileSource::GOOGLE_Satellite:
-        ui->actionMapGoogle_satellite->setChecked(true);
+        ui->actionSettingsMapGoogleSatellite->setChecked(true);
         break;
 
     case WebTileSource::GOOGLE_Hybrid_Satellite:
-        ui->actionMapGoogle_hybrid_satellite->setChecked(true);
+        ui->actionSettingsMapGoogleHybrid->setChecked(true);
         break;
 
     case WebTileSource::GOOGLE_Terrain:
-        ui->actionMapGoogle_terrain->setChecked(false);
+        ui->actionSettingsMapGoogleTerrain->setChecked(false);
         break;
     }
 
@@ -1920,7 +1920,7 @@ bool MainWindow::openShape(QString fileName)
 }
 
 
-bool MainWindow::on_actionAggregate_from_grid_triggered()
+bool MainWindow::on_actionAnalysisAggregateFromGrid_triggered()
 {
     if (!ui->grid->isChecked())
     {
@@ -1979,7 +1979,7 @@ bool MainWindow::on_actionAggregate_from_grid_triggered()
 }
 
 
-void MainWindow::on_actionOpen_aggregation_DB_triggered()
+void MainWindow::on_actionAnalysisOpenAggregationDB_triggered()
 {
     QString dbName = QFileDialog::getOpenFileName(this, tr("Open DB meteo points"), "", tr("DB files (*.db)"));
     if (dbName != "")
@@ -1989,7 +1989,7 @@ void MainWindow::on_actionOpen_aggregation_DB_triggered()
 
 }
 
-void MainWindow::on_actionNew_aggregation_DB_triggered()
+void MainWindow::on_actionAnalysisNewAggregationDB_triggered()
 {
     QString templateFileName = myProject.getDefaultPath() + PATH_TEMPLATE + "template_meteo_aggregation.db";
 
@@ -2040,15 +2040,15 @@ void MainWindow::drawProject()
     redrawTitle();
 }
 
-void MainWindow::on_actionOpen_project_triggered()
+void MainWindow::on_actionFileOpenProject_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open project file"), myProject.getDefaultPath() + PATH_PROJECT, tr("ini files (*.ini)"));
     if (fileName == "") return;
 
     if (myProject.isProjectLoaded)
     {
-        on_actionMeteogridClose_triggered();
-        on_actionMeteopointClose_triggered();
+        on_actionFileMeteogridClose_triggered();
+        on_actionFileMeteopointClose_triggered();
         clearDEM();
 
         this->ui->labelFrequency->setText("None");
@@ -2070,12 +2070,12 @@ void MainWindow::on_actionOpen_project_triggered()
     checkSaveProject();
 }
 
-void MainWindow::on_actionClose_project_triggered()
+void MainWindow::on_actionFileCloseProject_triggered()
 {
     if (! myProject.isProjectLoaded) return;
 
-    on_actionMeteogridClose_triggered();
-    on_actionMeteopointClose_triggered();
+    on_actionFileMeteogridClose_triggered();
+    on_actionFileMeteopointClose_triggered();
     this->ui->labelFrequency->setText("None");
     this->ui->labelVariable->setText(("None"));
 
@@ -2089,7 +2089,7 @@ void MainWindow::on_actionClose_project_triggered()
     checkSaveProject();
 }
 
-void MainWindow::on_actionSave_project_as_triggered()
+void MainWindow::on_actionFileSaveProjectAs_triggered()
 {
     DialogPragaProject* myProjectDialog = new DialogPragaProject(&myProject);
     myProjectDialog->exec();
@@ -2099,7 +2099,7 @@ void MainWindow::on_actionSave_project_as_triggered()
     checkSaveProject();
 }
 
-void MainWindow::on_actionSave_project_triggered()
+void MainWindow::on_actionFileSaveProject_triggered()
 {
     myProject.saveProject();
 }
@@ -2108,9 +2108,9 @@ void MainWindow::checkSaveProject()
 {
     QString myName = myProject.projectSettings->fileName();
     if (getFileName(myName) == "default.ini" && getFilePath(myName) == myProject.getApplicationPath())
-        ui->actionSave_project->setEnabled(false);
+        ui->actionFileSaveProject->setEnabled(false);
     else
-        ui->actionSave_project->setEnabled(true);
+        ui->actionFileSaveProject->setEnabled(true);
 }
 
 bool KeyboardFilter::eventFilter(QObject* obj, QEvent* event)
@@ -2122,7 +2122,7 @@ bool KeyboardFilter::eventFilter(QObject* obj, QEvent* event)
     }
 }
 
-void MainWindow::on_actionInterpolationCurrentTime_triggered()
+void MainWindow::on_actionInterpolationMeteogridCurrentTime_triggered()
 {
     FormInfo myInfo;
     myInfo.start("Interpolation Grid...", 0);
@@ -2132,7 +2132,7 @@ void MainWindow::on_actionInterpolationCurrentTime_triggered()
     myInfo.close();
 }
 
-void MainWindow::on_actionSaveGridCurrentData_triggered()
+void MainWindow::on_actionInterpolationMeteogridSaveCurrentData_triggered()
 {
     if (myProject.meteoGridDbHandler != nullptr)
     {
@@ -2141,7 +2141,7 @@ void MainWindow::on_actionSaveGridCurrentData_triggered()
     }
 }
 
-void MainWindow::on_actionInterpolateSaveGridPeriod_triggered()
+void MainWindow::on_actionInterpolateMeteogridPeriod_triggered()
 {
     // check meteo point
     if (myProject.meteoPointsDbHandler == nullptr)
@@ -2182,7 +2182,7 @@ void MainWindow::on_actionInterpolateSaveGridPeriod_triggered()
     myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables, aggrVariables, false, 1);
 }
 
-void MainWindow::on_actionMeteopointNewArkimet_triggered()
+void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
 {
     resetMeteoPointsMarker();
 
@@ -2278,7 +2278,7 @@ void MainWindow::on_actionMeteopointNewArkimet_triggered()
     delete all;
 }
 
-void MainWindow::on_actionMeteopointOpen_triggered()
+void MainWindow::on_actionFileMeteopointOpen_triggered()
 {
     QString dbName = QFileDialog::getOpenFileName(this, tr("Open DB meteo points"), "", tr("DB files (*.db)"));
     if (dbName != "")
@@ -2288,7 +2288,7 @@ void MainWindow::on_actionMeteopointOpen_triggered()
     }
 }
 
-void MainWindow::on_actionMeteopointClose_triggered()
+void MainWindow::on_actionFileMeteopointClose_triggered()
 {
     this->closeMeteoPoints();
 }
@@ -2318,7 +2318,7 @@ void MainWindow::closeMeteoPoints()
     }
 }
 
-void MainWindow::on_actionMeteogridOpen_triggered()
+void MainWindow::on_actionFileMeteogridOpen_triggered()
 {
     QString xmlName = QFileDialog::getOpenFileName(this, tr("Open XML DB meteo grid"), "", tr("xml files (*.xml)"));
     if (xmlName != "")
@@ -2360,26 +2360,19 @@ void MainWindow::closeMeteoGrid()
 }
 
 
-void MainWindow::on_actionMeteogridClose_triggered()
+void MainWindow::on_actionFileMeteogridClose_triggered()
 {
     this->closeMeteoGrid();
 }
 
 
 
-void MainWindow::on_actionMeteoPointsDataCount_triggered()
+void MainWindow::on_actionMeteopointDataCount_triggered()
 {
     // check meteo point
     if (myProject.meteoPointsDbHandler == nullptr)
     {
         myProject.logError("No meteo points DB open");
-        return;
-    }
-
-    // check meteo grid
-    if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr)
-    {
-        myProject.logError("No meteo grid DB open");
         return;
     }
 
@@ -2402,6 +2395,40 @@ void MainWindow::on_actionMeteoPointsDataCount_triggered()
 
     meteoVariable myVar = chooseMeteoVariable(&myProject);
     if (myVar == noMeteoVar) return;
+    frequencyType myFreq = getVarFrequency(myVar);
 
-    //myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables, aggrVariables, false, 1);
+    QString myFilename  = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("text files (*.txt)"));
+    if (myFilename == "") return;
+
+    std::vector<int> myCounter;
+
+    if (myProject.dataCount(myFirstTime.date(), myLastTime.date(), myVar, myCounter))
+    {
+        QFile myFile(myFilename);
+        if (myFile.open(QIODevice::ReadWrite))
+        {
+            QTextStream outStream(&myFile);
+
+            QDate myDate = myFirstTime.date();
+            short myHour;
+            long i=0;
+
+            while (myDate <= myLastTime.date())
+            {
+                if (myFreq == daily)
+                {
+                    outStream << myDate.toString("yyyy-MM-dd") << "," << QString::number(myCounter[i++]) + "\n";
+                }
+                else if (myFreq == hourly)
+                {
+                    for (myHour = 1; myHour <= 24; myHour++)
+                        outStream << myDate.toString("yyyy-MM-dd") + " " + QStringLiteral("%1").arg(myHour, 2, 10, QLatin1Char('0')) + ":00" << "," << QString::number(myCounter[i++]) + "\n";
+                }
+
+                myDate = myDate.addDays(1);
+            }
+
+            myFile.close();
+        }
+    }
 }
