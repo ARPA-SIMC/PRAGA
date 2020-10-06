@@ -26,7 +26,7 @@ then
     apt-get -y install software-properties-common
     add-apt-repository -y universe
     add-apt-repository -y ppa:ubuntu-toolchain-r/test
-    add-apt-repository -y ppa:beineri/opt-qt-5.12.6-xenial
+    add-apt-repository ppa:beineri/opt-qt-5.12.0-bionic 
     apt-get -y update
     apt-get install -y g++-8 gcc-8
     update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
@@ -36,7 +36,7 @@ then
     update-alternatives --install /usr/bin/qmake qmake /opt/qt512/bin/qmake 90
     export QT_DIR=/opt/qt512
     export PATH=$QT_DIR/bin/:$PATH
-    apt-get install -y libnetcdf-dev libnetcdf11 libqt5charts5-dev libqt5charts5
+    apt-get install -y libnetcdff-dev libnetcdf13 libqt5charts5-dev libqt5charts5 
     gcc --version
     g++ --version
     qmake -v
