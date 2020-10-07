@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e 
+
 # build mapGraphics
 cd mapGraphics
 qmake MapGraphics.pro -spec linux-g++-64 CONFIG+=debug CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler
