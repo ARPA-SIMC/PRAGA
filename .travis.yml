@@ -25,4 +25,4 @@ deploy:
   on:
     tags: true
     repo: ARPA-SIMC/PRAGA
-    condition: ($DOCKER_IMAGE = ubuntu:xenial) AND ($TRAVIS_TAG =~ v[0-9]+\.[0-9]+\.[0-9]+)
+    condition: ($DOCKER_IMAGE = ubuntu:xenial) && ($TRAVIS_TAG =~ v[0-9]+\.[0-9]+\.[0-9]+)
