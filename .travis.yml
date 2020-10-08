@@ -19,6 +19,7 @@ deploy:
 - provider: release
   skip_cleanup: true
   api_key: "GITHUB OAUTH TOKEN"
-  file: *AppImage*
+  file_glob: true
+  file: "*AppImage*"
   on:
     condition: $DOCKER_IMAGE = ubuntu:xenial
