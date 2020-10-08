@@ -2376,6 +2376,10 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
         return;
     }
 
+    meteoVariable myVar = chooseMeteoVariable(&myProject);
+    if (myVar == noMeteoVar) return;
+    frequencyType myFreq = getVarFrequency(myVar);
+
     QDateTime myFirstTime = myProject.findDbPointFirstTime();
     QDateTime myLastTime = myProject.findDbPointLastTime();
     if (myFirstTime.isNull())
@@ -2392,10 +2396,6 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
     formPeriod myForm(&myFirstTime, &myLastTime);
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
-
-    meteoVariable myVar = chooseMeteoVariable(&myProject);
-    if (myVar == noMeteoVar) return;
-    frequencyType myFreq = getVarFrequency(myVar);
 
     QString myFilename  = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("text files (*.txt)"));
     if (myFilename == "") return;
