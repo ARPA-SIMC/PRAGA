@@ -15,9 +15,14 @@ then
     dnf install -q -y 'dnf-command(builddep)'
     dnf install -q -y git
     dnf install -q -y rpmdevtools
+    dnf install -q -y which
+    dnf install -q -y qt5-qtbase qt5-devel qt5-qtcharts qt5-qtcharts-devel
+    dnf install -q -y netcdf netcdf-devel
     dnf copr enable -y simc/stable
-    echo "TODO: install packages and compile code"
-    exit 1
+    export QT_DIR=/opt/qt512
+    export QMAKE=`which qmake-qt5`
+    #echo "centos image $image"
+    bash deploy/build.sh $image
 elif [[ $image =~ ^ubuntu: ]]
 then
     apt-get update
@@ -41,7 +46,7 @@ then
     qmake -v
     apt-get install -y wget
     export APPIMAGE_EXTRACT_AND_RUN=1
-    bash deploy/build.sh
+    bash deploy/build.sh $image
 else
     echo "Unknown image $image"
     exit 1
