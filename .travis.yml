@@ -23,6 +23,6 @@ deploy:
   file_glob: true
   file: '*AppImage*'
   on:
+    tags: true
     repo: ARPA-SIMC/PRAGA
-    branch: travis-docker
-    condition: $DOCKER_IMAGE = ubuntu:xenial
+    condition: ($DOCKER_IMAGE = ubuntu:xenial) AND ($TRAVIS_TAG =~ v[0-9]+\.[0-9]+\.[0-9]+)
