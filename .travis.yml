@@ -22,4 +22,5 @@ deploy:
   file_glob: true
   file: "*AppImage*"
   on:
+    branch: travis-docker
     condition: $DOCKER_IMAGE = ubuntu:xenial
