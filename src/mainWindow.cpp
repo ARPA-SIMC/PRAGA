@@ -62,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->meteoPointsLegend->colorScale = myProject.meteoPointsColorScale;
 
     // Set tiles source
-    this->setTileSource(WebTileSource::OPEN_STREET_MAP);
+    this->setTileSource(WebTileSource::GOOGLE_MAP);
 
     // Set start size and position
     this->startCenter = new Position (myProject.gisSettings.startLocation.longitude,
@@ -2376,6 +2376,10 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
         return;
     }
 
+    meteoVariable myVar = chooseMeteoVariable(&myProject);
+    if (myVar == noMeteoVar) return;
+    frequencyType myFreq = getVarFrequency(myVar);
+
     QDateTime myFirstTime = myProject.findDbPointFirstTime();
     QDateTime myLastTime = myProject.findDbPointLastTime();
     if (myFirstTime.isNull())
@@ -2392,10 +2396,6 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
     formPeriod myForm(&myFirstTime, &myLastTime);
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
-
-    meteoVariable myVar = chooseMeteoVariable(&myProject);
-    if (myVar == noMeteoVar) return;
-    frequencyType myFreq = getVarFrequency(myVar);
 
     QString myFilename  = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("text files (*.txt)"));
     if (myFilename == "") return;

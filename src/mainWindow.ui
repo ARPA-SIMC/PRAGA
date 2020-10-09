@@ -2437,7 +2437,7 @@
      <x>0</x>
      <y>0</y>
      <width>1392</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="palette">
@@ -3436,21 +3436,33 @@
    </property>
   </action>
   <action name="actionSettingsMapGoogleMap">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Google map</string>
    </property>
   </action>
   <action name="actionSettingsMapGoogleSatellite">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Google satellite</string>
    </property>
   </action>
   <action name="actionSettingsMapGoogleTerrain">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Google terrain</string>
    </property>
   </action>
   <action name="actionSettingsMapGoogleHybrid">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Google hybrid satellite</string>
    </property>

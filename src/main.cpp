@@ -59,6 +59,7 @@ int main(int argc, char *argv[])
 
     QApplication myApp(argc, argv);
 
+    //setProxy("proxy-sc.arpa.emr.net", 8080);
     QNetworkProxyFactory::setUseSystemConfiguration(true);
 
     if (! myProject.start(myApp.applicationDirPath()))
