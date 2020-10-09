@@ -1,24 +1,54 @@
 #!/bin/bash
 
-# build mapGraphics
-cd mapGraphics
-qmake MapGraphics.pro -spec linux-g++-64 CONFIG+=debug CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler
-make
+set -e 
 
-cd -
+image=$1
 
-# build PRAGA
-cd makeall
-qmake makeall.pro -spec linux-g++-64 CONFIG+=debug CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=/usr
-make -f Makefile qmake_all 
-make 
+if [[ $image =~ ^centos:8 ]]
+then
+    echo "qmake $QMAKE"
+    # build mapGraphics
+    cd mapGraphics
+    $QMAKE MapGraphics.pro -spec linux-g++-64 CONFIG+=debug CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler
+    make clean
+    make
 
-cd -
+    cd -
 
-# download linuxdeployqt
-wget -c -nv -O linuxqtdeploy "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
-chmod +x linuxqtdeploy
+    # build PRAGA
+    cd makeall
+    $QMAKE makeall.pro -spec linux-g++-64 CONFIG+=debug CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler
+    make clean
+    make -f Makefile qmake_all 
+    make 
+    
+elif [[ $image =~ ^ubuntu: ]]
+then
+    # build mapGraphics
+    cd mapGraphics
+    $QMAKE MapGraphics.pro -spec linux-g++-64 CONFIG+=debug CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler
+    make clean
+    make
 
-# build appimage
-cp src/PRAGA deploy/appimage/usr/bin/PRAGA
-LD_LIBRARY_PATH=`pwd`/mapGraphics/release ./linuxqtdeploy deploy/appimage/usr/share/applications/PRAGA.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+    cd -
+
+    # build PRAGA
+    cd makeall
+    $QMAKE makeall.pro -spec linux-g++-64 CONFIG+=debug CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=$QT_DIR
+    make clean
+    make -f Makefile qmake_all 
+    make 
+
+    cd -
+
+    # download linuxdeployqt
+    wget -c -nv -O linuxqtdeploy "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+    chmod +x linuxqtdeploy
+
+    # build appimage
+    cp src/PRAGA deploy/appimage/usr/bin/PRAGA
+    LD_LIBRARY_PATH=`pwd`/mapGraphics/release ./linuxqtdeploy --appimage-extract-and-run deploy/appimage/usr/share/applications/PRAGA.desktop -qmake=$QMAKE -qmlimport=$QT_DIR/qml -appimage -always-overwrite
+else
+    echo "Unknown image $image"
+    exit 1
+fi
