@@ -19,8 +19,11 @@ then
     dnf install -q -y qt5-qtbase qt5-devel qt5-qtcharts qt5-qtcharts-devel
     dnf install -q -y netcdf netcdf-devel
     dnf copr enable -y simc/stable
-    export QMAKE=`which qmake-qt5`
-    bash deploy/build.sh $image
+    dnf builddep -y fedora/SPECS/PRAGA.spec
+    pkgname=PRAGA-HEAD
+    mkdir -p ~/rpmbuild/{BUILD,BUILDROOT,RPMS,SOURCES,SPECS,SRPMS}
+    git archive --prefix=$pkgname/ --format=tar HEAD | gzip -c > ~/rpmbuild/SOURCES/$pkgname.tar.gz
+    rpmbuild -ba --define "srcarchivename $pkgname" fedora/SPECS/PRAGA.spec
 elif [[ $image =~ ^ubuntu: ]]
 then
     apt-get update
