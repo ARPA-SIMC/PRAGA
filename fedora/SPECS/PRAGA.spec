@@ -75,11 +75,11 @@ mkdir -p %{buildroot}/%{_bindir}/
 cp -a src/PRAGA %{buildroot}/%{_bindir}/
 
 %files -n %{name}-bin
-%{__bindir}/PRAGA
+%{_bindir}/PRAGA
 
 
 %files -n lib%{name}
-%{__libdir}/mapGraphics/release/libMapGraphics.so.*
+%{_libdir}/mapGraphics/release/libMapGraphics.so.*
 
 
 %changelog
