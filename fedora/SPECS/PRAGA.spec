@@ -70,9 +70,9 @@ popd
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p %{buildroot}/%{_libdir}/
-cp mapGraphics/release/libMapGraphics.so* %{buildroot}/%{_libdir}/
+cp -a mapGraphics/release/libMapGraphics.so* %{buildroot}/%{_libdir}/
 mkdir -p %{buildroot}/%{_bindir}/
-cp src/PRAGA %{buildroot}/%{_bindir}/
+cp -a src/PRAGA %{buildroot}/%{_bindir}/
 
 %files -n %{name}-bin
 %{__bindir}/PRAGA

@@ -16,8 +16,6 @@ then
     dnf install -q -y git
     dnf install -q -y rpmdevtools
     dnf install -q -y which
-    dnf install -q -y qt5-qtbase qt5-devel qt5-qtcharts qt5-qtcharts-devel
-    dnf install -q -y netcdf netcdf-devel
     dnf copr enable -y simc/stable
     dnf builddep -y fedora/SPECS/PRAGA.spec
     pkgname=PRAGA-HEAD
