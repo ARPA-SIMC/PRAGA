@@ -9,7 +9,7 @@ then
     echo "qmake $QMAKE"
     # build mapGraphics
     cd mapGraphics
-    $QMAKE MapGraphics.pro -spec linux-g++-64 CONFIG+=debug CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler
+    $QMAKE MapGraphics.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler
     make clean
     make
 
@@ -17,7 +17,7 @@ then
 
     # build PRAGA
     cd makeall
-    $QMAKE makeall.pro -spec linux-g++-64 CONFIG+=debug CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler
+    $QMAKE makeall.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler
     make clean
     make -f Makefile qmake_all 
     make 
@@ -26,7 +26,7 @@ elif [[ $image =~ ^ubuntu: ]]
 then
     # build mapGraphics
     cd mapGraphics
-    $QMAKE MapGraphics.pro -spec linux-g++-64 CONFIG+=debug CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler
+    $QMAKE MapGraphics.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler
     make clean
     make
 
@@ -34,7 +34,7 @@ then
 
     # build PRAGA
     cd makeall
-    $QMAKE makeall.pro -spec linux-g++-64 CONFIG+=debug CONFIG+=qml_debug CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=$QT_DIR
+    $QMAKE makeall.pro -spec linux-g++-64 CONFIG+=release CONFIG+=c++11 CONFIG+=qtquickcompiler PREFIX=$QT_DIR
     make clean
     make -f Makefile qmake_all 
     make 
