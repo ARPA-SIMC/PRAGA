@@ -18,29 +18,13 @@ INCLUDEPATH +=  ../mapGraphics \
 
 CONFIG += debug_and_release
 
-#FILESTOCOPY = PRAGA
-#INSTRULE.path = /usr/local/bin
-#INSTRULE.files = $$FILESTOCOPY
-#INSTALLS += INSTRULE
-
 QMAKE_CXXFLAGS += -std=c++11
 
 DEFINES += NETCDF
 
 
-    win32:{
-        CONFIG(debug, debug|release) {
-            LIBS += -L../mapGraphics/debug -lMapGraphics
-        } else {
-            LIBS += -L../mapGraphics/release -lMapGraphics
-        }
-    }
-    unix:{
-        LIBS += -L../mapGraphics/release -lMapGraphics
-    }
-
-
 CONFIG(debug, debug|release) {
+    LIBS += -L../mapGraphics/debug -lMapGraphics
     LIBS += -L../agrolib/project/debug -lproject
     LIBS += -L../agrolib/climate/debug -lclimate
     LIBS += -L../agrolib/netcdfHandler/debug -lnetcdfHandler
@@ -65,6 +49,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/mathFunctions/debug -lmathFunctions
 
 } else {
+    LIBS += -L../mapGraphics/release -lMapGraphics
     LIBS += -L../agrolib/project/release -lproject
     LIBS += -L../agrolib/climate/release -lclimate
     LIBS += -L../agrolib/netcdfHandler/release -lnetcdfHandler
