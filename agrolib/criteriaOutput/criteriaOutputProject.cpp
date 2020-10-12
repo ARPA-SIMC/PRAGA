@@ -164,7 +164,7 @@ int CriteriaOutputProject::initializeProjectCsv()
 }
 
 
-int CriteriaOutputProject::initializeProject(QString settingsFileName, QDate dateComputation)
+int CriteriaOutputProject::initializeProject(QString settingsFileName, QDate dateComputation, bool isLog)
 {
     closeProject();
     initialize();
@@ -198,7 +198,10 @@ int CriteriaOutputProject::initializeProject(QString settingsFileName, QDate dat
         return ERROR_SETTINGS_MISSINGDATA;
     }
 
-    logger.setLog(path,projectName);
+    if (isLog)
+    {
+        logger.setLog(path,projectName);
+    }
 
     isProjectLoaded = true;
     return CRIT3D_OK;
@@ -484,6 +487,7 @@ int CriteriaOutputProject::createShapeFile()
 }
 
 
+#ifdef GDAL
 int CriteriaOutputProject::createMaps()
 {
     // check map list
@@ -526,8 +530,6 @@ int CriteriaOutputProject::createMaps()
     }
 
     logger.writeInfo("MAPS");
-
-    #ifdef GDAL
 
     // parser csv file mapListFileName
     QStringList inputField;
@@ -602,8 +604,6 @@ int CriteriaOutputProject::createMaps()
         }
     }
 
-    #endif
-
     if (rasterOK == inputField.size())
     {
         return CRIT3D_OK;
@@ -614,8 +614,8 @@ int CriteriaOutputProject::createMaps()
         projectError = QString::number(nRasterError) + " invalid raster - " + projectError;
         return false;
     }
-
 }
+#endif
 
 
 int CriteriaOutputProject::createAggregationFile()
