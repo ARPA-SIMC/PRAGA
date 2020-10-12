@@ -45,14 +45,11 @@ popd
 
 %install
 rm -rf $RPM_BUILD_ROOT
-mkdir -p %{buildroot}/%{_libdir}/
-cp -a mapGraphics/release/libMapGraphics.so.* %{buildroot}/%{_libdir}/
 mkdir -p %{buildroot}/%{_bindir}/
 cp -a src/PRAGA %{buildroot}/%{_bindir}/
 
 %files
 %{_bindir}/PRAGA
-%{_libdir}/libMapGraphics.so.*
 
 
 %changelog
