@@ -20,7 +20,7 @@ Gabriele Antolini	 <gantolini@arpae.it>
 
 Laura Costantini  <laura.costantini0@gmail.com>
 
-Antonio Volta		<antonio.volta@agromet.it>
+Antonio Volta		<avolta@arpae.it>
 
 ## Contributions
 Marco Bittelli   <marco.bittelli@unibo.it>
