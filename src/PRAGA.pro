@@ -24,14 +24,15 @@ DEFINES += NETCDF
 
 
 CONFIG(debug, debug|release) {
-    LIBS += -L../mapGraphics/debug -lMapGraphics
     LIBS += -L../agrolib/project/debug -lproject
     LIBS += -L../agrolib/climate/debug -lclimate
     LIBS += -L../agrolib/netcdfHandler/debug -lnetcdfHandler
     win32:{
+        LIBS += -L../mapGraphics/debug -lMapGraphics
         LIBS += -L$$(NC4_INSTALL_DIR)/lib -lnetcdf
     }
     unix:{
+        LIBS += -L../mapGraphics/release -lMapGraphics
         LIBS += -lnetcdf
     }
     macx:{
