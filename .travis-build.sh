@@ -15,7 +15,6 @@ then
     dnf install -q -y 'dnf-command(builddep)'
     dnf install -q -y git
     dnf install -q -y rpmdevtools
-    dnf install -q -y which
     dnf copr enable -y simc/stable
     dnf builddep -y fedora/SPECS/PRAGA.spec
     pkgname=PRAGA-HEAD
