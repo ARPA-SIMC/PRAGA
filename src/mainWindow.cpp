@@ -62,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->meteoPointsLegend->colorScale = myProject.meteoPointsColorScale;
 
     // Set tiles source
-    this->setTileSource(WebTileSource::GOOGLE_MAP);
+    this->setTileSource(WebTileSource::OPEN_STREET_MAP);
 
     // Set start size and position
     this->startCenter = new Position (myProject.gisSettings.startLocation.longitude,
