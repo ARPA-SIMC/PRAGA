@@ -3,7 +3,7 @@
 
 Name:           PRAGA
 Version:        1.0.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        PRogram for AGrometeorological Analysis
 
 URL:            https://github.com/ARPA-SIMC/PRAGA
@@ -16,6 +16,8 @@ BuildRequires:  qt5-qtcharts
 BuildRequires:  qt5-qtcharts-devel
 BuildRequires:  netcdf
 BuildRequires:  netcdf-devel
+
+Requires:       qt5-qtbase-mysql
 
 %description
 PRAGA is a geographical application for climatological, meteorological and
@@ -53,5 +55,8 @@ cp -a src/PRAGA %{buildroot}/%{_bindir}/
 
 
 %changelog
-* Fri Oct  9 2020 Emanuele Di Giacomo <edigiacomo@arpae.it>
+* Wed Oct 21 2020 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.0.0-2
+- MySQL driver
+
+* Fri Oct  9 2020 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.0.0-1
 - Release 1.0.0
