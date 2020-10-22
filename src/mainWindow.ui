@@ -2437,7 +2437,7 @@
      <x>0</x>
      <y>0</y>
      <width>1392</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="palette">
@@ -2913,7 +2913,7 @@
       <property name="title">
        <string>New</string>
       </property>
-      <addaction name="actionFileMeteopointArkimet"/>
+      <addaction name="actionFileMeteopointNewArkimet"/>
      </widget>
      <addaction name="menuFileMeteopointNew"/>
      <addaction name="actionFileMeteopointOpen"/>
@@ -3104,16 +3104,6 @@
     <string>Stamen terrain</string>
    </property>
   </action>
-  <action name="actionNewMeteoPointsArkimet">
-   <property name="text">
-    <string>from Arkimet...</string>
-   </property>
-  </action>
-  <action name="actionMeteoPointsCSV">
-   <property name="text">
-    <string>from CSV...</string>
-   </property>
-  </action>
   <action name="actionMeteopointRectangleSelection">
    <property name="checkable">
     <bool>true</bool>
@@ -3162,26 +3152,6 @@
   <action name="actionTopographicDistanceMapsLoad">
    <property name="text">
     <string>Load</string>
-   </property>
-  </action>
-  <action name="actionAnomaly_meteo_points">
-   <property name="text">
-    <string>meteo points</string>
-   </property>
-  </action>
-  <action name="actionAnomaly_meteo_grid">
-   <property name="text">
-    <string>meteo grid</string>
-   </property>
-  </action>
-  <action name="actionClimate_meteo_points">
-   <property name="text">
-    <string>meteo points</string>
-   </property>
-  </action>
-  <action name="actionClimate_meteo_grid">
-   <property name="text">
-    <string>meteo grid</string>
    </property>
   </action>
   <action name="actionClimateFields">
@@ -3430,7 +3400,7 @@
     <string>Download data</string>
    </property>
   </action>
-  <action name="actionFileMeteopointArkimet">
+  <action name="actionFileMeteopointNewArkimet">
    <property name="text">
     <string>From Arkimet...</string>
    </property>
