@@ -80,7 +80,7 @@
         void enableAllDataset(bool toggled);
         void disableAllButton(bool toggled);
 
-        void on_actionVariableQualitySpatial_triggered();
+        void on_actionMeteopointQualitySpatial_triggered();
         void on_rasterRestoreButton_clicked();
         void on_timeEdit_valueChanged(int myHour);
         void on_dateEdit_dateChanged(const QDate &date);

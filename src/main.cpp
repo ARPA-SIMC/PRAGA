@@ -59,15 +59,37 @@ int main(int argc, char *argv[])
 
     QApplication myApp(argc, argv);
 
+    // proxy
     //setProxy("proxy-sc.arpa.emr.net", 8080);
     QNetworkProxyFactory::setUseSystemConfiguration(true);
 
-    if (! myProject.start(myApp.applicationDirPath()))
+    // read environment
+    QProcessEnvironment myEnvironment = QProcessEnvironment::systemEnvironment();
+    QString pragaHome = myEnvironment.value("PRAGA_HOME");
+
+    // check praga home
+    if (pragaHome == "")
+    {
+        QString warning = "Set PRAGA_HOME in the environment variables:"
+                          "\nPRAGA_HOME = path of praga directory";
+        QMessageBox::information(nullptr, "Missing environment", warning);
+        return -1;
+    }
+    if (!QDir(pragaHome).exists())
+    {
+        QString warning = "Set correct PRAGA_HOME in the environment variables:"
+                          "\nPRAGA_HOME = path of praga directory";
+        QMessageBox::information(nullptr, "Wrong environment: " + pragaHome, warning);
+        return -1;
+    }
+
+    if (! myProject.start(pragaHome))
         return -1;
 
     if (! myProject.loadPragaProject(myProject.getApplicationPath() + "default.ini"))
         return -1;
 
+    // start modality
     if (myProject.modality == MODE_GUI)
     {
         QApplication::setOverrideCursor(Qt::ArrowCursor);

@@ -554,7 +554,7 @@ void MainWindow::resetMeteoPointsMarker()
 }
 
 
-void MainWindow::on_actionVariableQualitySpatial_triggered()
+void MainWindow::on_actionMeteopointQualitySpatial_triggered()
 {
     myProject.checkSpatialQuality = ui->actionMeteopointQualitySpatial->isChecked();
     updateVariable();
