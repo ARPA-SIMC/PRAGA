@@ -13,9 +13,13 @@
     bool pragaBatch(PragaProject* myProject, QString batchFileName);
 
     bool cmdOpenPragaProject(PragaProject* myProject, QStringList argumentList);
-    bool cmdNetcdfExport(PragaProject* myProject, QStringList argumentList);
+    bool cmdDownload(PragaProject* myProject, QStringList argumentList);
     bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentList);
     bool cmdAggregationGridPeriod(PragaProject* myProject, QStringList argumentList);
-    bool cmdExportXMLElabToNetcdf(PragaProject* myProject, QStringList argumentList);
+
+    #ifdef NETCDF
+        bool cmdNetcdfExport(PragaProject* myProject, QStringList argumentList);
+        bool cmdExportXMLElabToNetcdf(PragaProject* myProject, QStringList argumentList);
+    #endif
 
 #endif // PRAGASHELL_H

@@ -97,43 +97,83 @@ bool cmdOpenPragaProject(PragaProject* myProject, QStringList argumentList)
     return true;
 }
 
-bool cmdNetcdfExport(PragaProject* myProject, QStringList argumentList)
+bool cmdDownload(PragaProject* myProject, QStringList argumentList)
 {
     if (argumentList.size() < 2)
     {
-        myProject->logError("Missing netcdf name");
+        myProject->logError("Missing parameters for download");
         return false;
     }
 
-    QString netcdfName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT);
-    if (! myProject->checkMeteoGridForExport())
+    QDate dateIni, dateFin;
+    QStringList varString, dailyVarString, hourlyVarString;
+    QString var;
+    meteoVariable meteoVar;
+    bool prec0024 = true;
+    frequencyType myFreq;
+
+    for (int i = 1; i < argumentList.size(); i++)
     {
+        if (argumentList[i].left(3) == "-v:")
+        {
+            varString = argumentList[i].right(argumentList[i].length()-3).split(",");
+            foreach (var,varString)
+            {
+                meteoVar = getMeteoVar(var.toStdString());
+                if (meteoVar != noMeteoVar)
+                {
+                    myProject->logError("Unknown variable: " + var);
+                    return false;
+                }
+                else
+                {
+                    myFreq = getVarFrequency(meteoVar);
+                    if (myFreq == noFrequency)
+                    {
+                        myProject->logError("Unknown frequency for variable : " + var);
+                        return false;
+                    }
+                    else if (myFreq == daily)
+                        dailyVarString.append(var);
+                    else if (myFreq == hourly)
+                        hourlyVarString.append(var);
+                }
+            }
+        }
+        else if (argumentList.at(i).left(4) == "-d1:")
+            dateIni = QDate::fromString(argumentList[i].right(argumentList[i].length()-4), "dd/MM/yyyy");
+        else if (argumentList.at(i).left(4) == "-d2:")
+            dateFin = QDate::fromString(argumentList[i].right(argumentList[i].length()-4), "dd/MM/yyyy");
+        else if (argumentList.at(i).left(10) == "-yesterday")
+        {
+            dateIni = QDate::currentDate().addDays(-1);
+            dateFin = dateIni;
+        }
+        else if (argumentList.at(i).left(3) == "-p9")
+            prec0024 = false;
+    }
+
+    if (! dateIni.isValid())
+    {
+        myProject->logError("Wrong initial date");
         return false;
     }
 
-    if (! myProject->exportMeteoGridToNetCDF(netcdfName))
+    if (! dateFin.isValid())
     {
+        myProject->logError("Wrong final date");
         return false;
     }
+
+    if (! myProject->downloadDailyDataArkimet(dailyVarString, prec0024, dateIni, dateFin, false))
+        return false;
+
+    if (! myProject->downloadHourlyDataArkimet(hourlyVarString, dateIni, dateFin, false))
+        return false;
+
     return true;
 }
 
-bool cmdExportXMLElabToNetcdf(PragaProject* myProject, QStringList argumentList)
-{
-    if (argumentList.size() < 2)
-    {
-        myProject->logError("Missing xml name");
-        return false;
-    }
-
-    QString xmlName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT);
-    if (!myProject->exportXMLElabGridToNetcdf(xmlName))
-    {
-        return false;
-    }
-
-    return true;
-}
 
 bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentList)
 {
@@ -329,3 +369,45 @@ bool pragaShell(PragaProject* myProject)
 
     return true;
 }
+
+#ifdef NETCDF
+
+    bool cmdNetcdfExport(PragaProject* myProject, QStringList argumentList)
+    {
+        if (argumentList.size() < 2)
+        {
+            myProject->logError("Missing netcdf name");
+            return false;
+        }
+
+        QString netcdfName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT);
+        if (! myProject->checkMeteoGridForExport())
+        {
+            return false;
+        }
+
+        if (! myProject->exportMeteoGridToNetCDF(netcdfName))
+        {
+            return false;
+        }
+        return true;
+    }
+
+    bool cmdExportXMLElabToNetcdf(PragaProject* myProject, QStringList argumentList)
+    {
+        if (argumentList.size() < 2)
+        {
+            myProject->logError("Missing xml name");
+            return false;
+        }
+
+        QString xmlName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT);
+        if (!myProject->exportXMLElabGridToNetcdf(xmlName))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+#endif
