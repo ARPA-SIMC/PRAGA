@@ -49,6 +49,11 @@ bool PragaProject::executePragaCommand(QStringList argumentList, bool* isCommand
         *isCommandFound = true;
         return cmdOpenPragaProject(this, argumentList);
     }
+    else if (command == "DOWNLOAD")
+    {
+        *isCommandFound = true;
+        return cmdDownload(this, argumentList);
+    }
     else if (command == "GRIDDING" || command == "INTERPOLATIONGRIDPERIOD")
     {
         *isCommandFound = true;
@@ -120,7 +125,7 @@ bool cmdDownload(PragaProject* myProject, QStringList argumentList)
             foreach (var,varString)
             {
                 meteoVar = getMeteoVar(var.toStdString());
-                if (meteoVar != noMeteoVar)
+                if (meteoVar == noMeteoVar)
                 {
                     myProject->logError("Unknown variable: " + var);
                     return false;
@@ -165,11 +170,13 @@ bool cmdDownload(PragaProject* myProject, QStringList argumentList)
         return false;
     }
 
-    if (! myProject->downloadDailyDataArkimet(dailyVarString, prec0024, dateIni, dateFin, false))
-        return false;
+    if (dailyVarString.size() > 0)
+        if (! myProject->downloadDailyDataArkimet(dailyVarString, prec0024, dateIni, dateFin, false))
+            return false;
 
-    if (! myProject->downloadHourlyDataArkimet(hourlyVarString, dateIni, dateFin, false))
-        return false;
+    if (hourlyVarString.size() > 0)
+        if (! myProject->downloadHourlyDataArkimet(hourlyVarString, dateIni, dateFin, false))
+            return false;
 
     return true;
 }
