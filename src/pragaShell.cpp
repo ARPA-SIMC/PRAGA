@@ -223,10 +223,15 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
             dateIni = QDate::fromString(argumentList[i].right(argumentList[i].length()-4), "dd/MM/yyyy");
         else if (argumentList.at(i).left(4) == "-d2:")
             dateFin = QDate::fromString(argumentList[i].right(argumentList[i].length()-4), "dd/MM/yyyy");
+        else if (argumentList.at(i).left(10) == "-yesterday")
+        {
+            dateIni = QDate::currentDate().addDays(-1);
+            dateFin = dateIni;
+        }
         else if (argumentList.at(i).left(2) == "-r")
             saveRasters = true;
         else if (argumentList.at(i).left(3) == "-s:")
-            saveInterval = argumentList[i].right(argumentList[i].length()-3).toInt(&parseSaveInterval, 10);
+            saveInterval = argumentList[i].right(argumentList[i].length()-3).toInt(&parseSaveInterval, 1);
 
     }
 
