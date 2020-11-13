@@ -196,8 +196,8 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
     QList <meteoVariable> variables, aggrVariables;
     QString var;
     meteoVariable meteoVar;
-    int saveInterval = NODATA;
-    bool parseSaveInterval = false;
+    int saveInterval = 1;
+    bool parseSaveInterval = true;
 
     for (int i = 1; i < argumentList.size(); i++)
     {
