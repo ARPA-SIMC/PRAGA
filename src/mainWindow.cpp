@@ -2141,7 +2141,7 @@ void MainWindow::on_actionInterpolationMeteogridSaveCurrentData_triggered()
     }
 }
 
-void MainWindow::on_actionInterpolateMeteogridPeriod_triggered()
+void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
 {
     // check meteo point
     if (myProject.meteoPointsDbHandler == nullptr)

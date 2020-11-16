@@ -89,7 +89,7 @@
         void on_actionInterpolationMeteogridCurrentTime_triggered();
         void on_actionInterpolationSettings_triggered();
         void on_actionInterpolationMeteogridSaveCurrentData_triggered();
-        void on_actionInterpolateMeteogridPeriod_triggered();
+        void on_actionInterpolationMeteogridPeriod_triggered();
         void on_actionTopographicDistanceMapsSave_triggered();
         void on_actionTopographicDistanceMapsLoad_triggered();
 
