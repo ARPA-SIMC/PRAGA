@@ -2372,7 +2372,7 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
     // check meteo point
     if (myProject.meteoPointsDbHandler == nullptr)
     {
-        myProject.logError("No meteo points DB open");
+        QMessageBox::critical(nullptr, "Data count", "No meteo points DB open");
         return;
     }
 
@@ -2405,6 +2405,9 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
     if (reply == QMessageBox::Yes)
     {
         QStringList datasets = myProject.meteoPointsDbHandler->getDatasetsActive();
+        bool ok;
+        dataset = QInputDialog::getItem(this, tr("Data count"), tr("Choose dataset"), datasets, 0, false, &ok);
+        if (! ok && dataset.isEmpty()) return;
     }
 
     QString myFilename  = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("text files (*.txt)"));
