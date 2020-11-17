@@ -1658,7 +1658,7 @@ bool PragaProject::timeAggregateGrid(QDate dateIni, QDate dateFin, QList <meteoV
     // now only hourly-->daily
     if (loadData)
     {
-        logInfo("Loading grid data... ");
+        logInfoGUI("Loading grid data... ");
         loadMeteoGridHourlyData(QDateTime(dateIni, QTime(1,0)), QDateTime(dateFin.addDays(1), QTime(0,0)), false);
     }
 
@@ -1670,7 +1670,7 @@ bool PragaProject::timeAggregateGrid(QDate dateIni, QDate dateFin, QList <meteoV
     if (saveData)
     {
         QString myError;
-        logInfo("Saving meteo grid data");
+        logInfoGUI("Saving meteo grid data");
         if (! meteoGridDbHandler->saveGridData(&myError, QDateTime(dateIni, QTime(1,0,0)), QDateTime(dateFin.addDays(1), QTime(0,0,0)), variables)) return false;
     }
 
@@ -1709,7 +1709,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
     if (interpolationSettings.getUseTAD())
     {
-        logInfo("Loading topographic distance maps...");
+        logInfoGUI("Loading topographic distance maps...");
         if (! loadTopographicDistanceMaps(false))
             return false;
     }
@@ -1753,12 +1753,12 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     int currentYear = NODATA;
     saveDateIni = dateIni;
 
-    logInfo("Loading meteo points data... ");
+    logInfoGUI("Loading meteo points data... ");
     //load also one day in advance (for transmissivity)
     if (! loadMeteoPointsData(dateIni.addDays(-1), dateFin, isHourly, isDaily, false))
         return false;
 
-    logInfo("Initializing meteo grid...");
+    logInfoGUI("Initializing meteo grid...");
     meteoGridDbHandler->meteoGrid()->initializeData(getCrit3DDate(dateIni), getCrit3DDate(dateFin));
 
     while (myDate <= dateFin)
@@ -1768,7 +1768,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
         // check proxy grid series
         if (currentYear != myDate.year())
         {
-            logInfo("Interpolating proxy grid series...");
+            logInfoGUI("Interpolating proxy grid series...");
             if (checkProxyGridSeries(&interpolationSettings, DEM, proxyGridSeries, myDate))
             {
                 if (! readProxyValues()) return false;
@@ -1780,7 +1780,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
         {
             for (myHour = 1; myHour <= 24; myHour++)
             {
-                logInfo("Interpolating hourly variables for " + myDate.toString("dd/MM/yyyy") + " " + QString("%1").arg(myHour, 2, 10, QChar('0')) + ":00");
+                logInfoGUI("Interpolating hourly variables for " + myDate.toString("dd/MM/yyyy") + " " + QString("%1").arg(myHour, 2, 10, QChar('0')) + ":00");
 
                 foreach (myVar, variables)
                 {
@@ -1842,7 +1842,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
         if (isDaily)
         {
-            logInfo("Interpolating daily variables for " + myDate.toString("dd/MM/yyyy"));
+            logInfoGUI("Interpolating daily variables for " + myDate.toString("dd/MM/yyyy"));
 
             foreach (myVar, variables)
             {
@@ -1883,12 +1883,12 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
         {
             if (aggrVariables.count() > 0)
             {
-                logInfo("Time integration from " + saveDateIni.toString("dd/MM/yyyy") + " to " + myDate.toString("dd/MM/yyyy"));
+                logInfoGUI("Time integration from " + saveDateIni.toString("dd/MM/yyyy") + " to " + myDate.toString("dd/MM/yyyy"));
                 if (! timeAggregateGrid(saveDateIni, myDate, aggrVariables, false, false)) return false;
             }
 
             // saving hourly and daily meteo grid data to DB
-            logInfo("Saving meteo grid data from " + saveDateIni.toString("dd/MM/yyyy") + " to " + myDate.toString("dd/MM/yyyy"));
+            logInfoGUI("Saving meteo grid data from " + saveDateIni.toString("dd/MM/yyyy") + " to " + myDate.toString("dd/MM/yyyy"));
             meteoGridDbHandler->saveGridData(&myError, QDateTime(saveDateIni, QTime(1,0,0)), QDateTime(myDate.addDays(1), QTime(0,0,0)), varToSave);
 
             meteoGridDbHandler->meteoGrid()->emptyGridData(getCrit3DDate(saveDateIni), getCrit3DDate(myDate));
@@ -1901,7 +1901,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     }
 
     // restore original proxy grids
-    logInfo("Restoring proxy grids");
+    logInfoGUI("Restoring proxy grids");
     if (! loadProxyGrids())
         return false;
 
@@ -1936,7 +1936,7 @@ bool PragaProject::dataCount(QDate myFirstDate, QDate myLastDate, meteoVariable 
 {
     frequencyType myFreq = getVarFrequency(myVar);
 
-    logInfo("Loading meteo points data... ");
+    logInfoGUI("Loading meteo points data... ");
     if (! loadMeteoPointsData(myFirstDate, myLastDate, myFreq == hourly, myFreq == daily, true))
         return false;
 
