@@ -2397,12 +2397,22 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
 
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Data count", "Choose dataset?",
+            QMessageBox::Yes|QMessageBox::No);
+
+    QString dataset = "";
+    if (reply == QMessageBox::Yes)
+    {
+        QStringList datasets = myProject.meteoPointsDbHandler->getDatasetsActive();
+    }
+
     QString myFilename  = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("text files (*.txt)"));
     if (myFilename == "") return;
 
     std::vector<int> myCounter;
 
-    if (myProject.dataCount(myFirstTime.date(), myLastTime.date(), myVar, myCounter))
+    if (myProject.dataCount(myFirstTime.date(), myLastTime.date(), myVar, dataset, myCounter))
     {
         QFile myFile(myFilename);
         if (myFile.open(QIODevice::ReadWrite))
