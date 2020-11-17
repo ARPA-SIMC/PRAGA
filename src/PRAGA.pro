@@ -14,7 +14,7 @@ INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/crit3dDate ../agrolib/mathFunctions ../agrolib/meteo ../agrolib/gis  \
                 ../agrolib/interpolation ../agrolib/solarRadiation ../agrolib/utilities  \
                 ../agrolib/dbMeteoPoints ../agrolib/dbMeteoGrid ../agrolib/meteoWidget ../agrolib/climate \
-                ../agrolib/netcdfHandler  ../agrolib/graphics ../agrolib/project
+                ../agrolib/netcdfHandler  ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/project
 
 CONFIG += debug_and_release
 
@@ -25,6 +25,7 @@ DEFINES += NETCDF
 
 CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/project/debug -lproject
+    LIBS += -L../agrolib/commonDialogs/debug -lcommonDialogs
     LIBS += -L../agrolib/climate/debug -lclimate
     LIBS += -L../agrolib/netcdfHandler/debug -lnetcdfHandler
     win32:{
@@ -52,6 +53,7 @@ CONFIG(debug, debug|release) {
 } else {
     LIBS += -L../mapGraphics/release -lMapGraphics
     LIBS += -L../agrolib/project/release -lproject
+    LIBS += -L../agrolib/commonDialogs/release -lcommonDialogs
     LIBS += -L../agrolib/climate/release -lclimate
     LIBS += -L../agrolib/netcdfHandler/release -lnetcdfHandler
     win32:{
