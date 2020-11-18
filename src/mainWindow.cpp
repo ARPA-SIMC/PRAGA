@@ -2442,6 +2442,7 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
             }
 
             myFile.close();
+            myCounter.clear();
         }
     }
 }

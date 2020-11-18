@@ -1936,9 +1936,16 @@ bool PragaProject::dataCount(QDate myFirstDate, QDate myLastDate, meteoVariable 
 {
     frequencyType myFreq = getVarFrequency(myVar);
 
-    logInfoGUI("Loading meteo points data... ");
-    if (! loadMeteoPointsData(myFirstDate, myLastDate, myFreq == hourly, myFreq == daily, true))
-        return false;
+    if (dataset == "")
+    {
+        if (! loadMeteoPointsData(myFirstDate, myLastDate, myFreq == hourly, myFreq == daily, true))
+            return false;
+    }
+    else
+    {
+        if (! loadMeteoPointsData(myFirstDate, myLastDate, myFreq == hourly, myFreq == daily, dataset, true))
+            return false;
+    }
 
     QDate myDate = myFirstDate;
     short myHour;
@@ -1981,7 +1988,11 @@ bool PragaProject::dataCount(QDate myFirstDate, QDate myLastDate, meteoVariable 
         myDate = myDate.addDays(1);
     }
 
+    this->cleanMeteoPointsData();
+
     if (modality == MODE_GUI) myInfo.close();
+
+
 
     return true;
 }
