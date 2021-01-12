@@ -1,6 +1,8 @@
 #include "pragaShell.h"
 #include "shell.h"
-#include "mainWindow.h"
+#include "utilities.h"
+#include <QFile>
+#include <QTextStream>
 
 
 QStringList getPragaCommandList()
@@ -91,7 +93,14 @@ bool cmdOpenPragaProject(PragaProject* myProject, QStringList argumentList)
         return false;
     }
 
-    QString projectName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT);
+    QString projectFolder = "";
+    if (getFilePath(argumentList.at(1)) == "")
+    {
+        QString filename = argumentList.at(1);
+        projectFolder = filename.left(filename.length()-4) + "/";
+    }
+
+    QString projectName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT+projectFolder);
 
     if (! myProject->loadPragaProject(projectName))
     {

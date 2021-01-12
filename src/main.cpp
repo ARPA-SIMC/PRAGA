@@ -1,12 +1,13 @@
-#include "mainWindow.h"
 #include "pragaProject.h"
 #include "pragaShell.h"
 #include "shell.h"
+#include "mainGUI.h"
 
 #include <cstdio>
-#include <QApplication>
+#include <iostream>
 #include <QtNetwork/QNetworkProxy>
-#include <QMessageBox>
+#include <QProcessEnvironment>
+#include <QDir>
 
 
 PragaProject myProject;
@@ -24,7 +25,7 @@ bool setProxy(QString hostName, unsigned short port)
        QNetworkProxy::setApplicationProxy(myProxy);
     }
     catch (...) {
-        QMessageBox::information(nullptr, "Error in proxy configuration!", "");
+        std::cout << "Error in proxy configuration:" << hostName.toStdString();
         return false;
     }
 
@@ -32,18 +33,21 @@ bool setProxy(QString hostName, unsigned short port)
 }
 
 
+/*
 QCoreApplication* createApplication(int &argc, char *argv[])
 {
     for (int i = 1; i < argc; ++i)
         if (!qstrcmp(argv[i], "-no-gui"))
             return new QCoreApplication(argc, argv);
     return new QApplication(argc, argv);
-}
+}*/
 
 
 int main(int argc, char *argv[])
 {
     // set modality (default: GUI)
+    myProject.modality = MODE_GUI;
+
     if (argc > 1)
     {
         QString arg1 = QString::fromStdString(argv[1]);
@@ -57,9 +61,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    QApplication myApp(argc, argv);
-
-    // proxy
     //setProxy("proxy-sc.arpa.emr.net", 8080);
     QNetworkProxyFactory::setUseSystemConfiguration(true);
 
@@ -67,19 +68,23 @@ int main(int argc, char *argv[])
     QProcessEnvironment myEnvironment = QProcessEnvironment::systemEnvironment();
     QString pragaHome = myEnvironment.value("PRAGA_HOME");
 
-    // check praga home
+    // check $PRAGA_HOME
     if (pragaHome == "")
     {
         QString warning = "Set PRAGA_HOME in the environment variables:"
-                          "\nPRAGA_HOME = path of praga directory";
-        QMessageBox::information(nullptr, "Missing environment", warning);
+                          "\n$PRAGA_HOME = path of praga directory\n";
+
+        std::cout << warning.toStdString();
         return -1;
     }
+
     if (!QDir(pragaHome).exists())
     {
-        QString warning = "Set correct PRAGA_HOME in the environment variables:"
-                          "\nPRAGA_HOME = path of praga directory";
-        QMessageBox::information(nullptr, "Wrong environment: " + pragaHome, warning);
+        QString warning = "Wrong environment!\n"
+                          "Set correct $PRAGA_HOME variable:\n"
+                          "$PRAGA_HOME = path of praga directory\n";
+
+        std::cout << warning.toStdString();
         return -1;
     }
 
@@ -92,10 +97,7 @@ int main(int argc, char *argv[])
     // start modality
     if (myProject.modality == MODE_GUI)
     {
-        QApplication::setOverrideCursor(Qt::ArrowCursor);
-        MainWindow w;
-        w.show();
-        return myApp.exec();
+        return mainGUI(argc, argv, pragaHome);
     }
     else if (myProject.modality == MODE_CONSOLE)
     {

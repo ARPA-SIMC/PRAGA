@@ -84,6 +84,7 @@ SOURCES += \
     ../agrolib/graphics/stationMarker.cpp \
     ../agrolib/graphics/rubberBand.cpp \
     main.cpp \
+    mainGUI.cpp \
     mainWindow.cpp \
     dialogPragaProject.cpp \
     dialogMeteoComputation.cpp \
@@ -104,6 +105,7 @@ HEADERS  += \
     ../agrolib/graphics/mapGraphicsRasterObject.h \
     ../agrolib/graphics/stationMarker.h \
     ../agrolib/graphics/rubberBand.h \
+    mainGUI.h \
     mainWindow.h \
     dialogPragaProject.h \
     dialogMeteoComputation.h \
