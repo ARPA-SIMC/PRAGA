@@ -10,8 +10,6 @@ then
     sed -i '/^tsflags=/d' /etc/dnf/dnf.conf
     dnf install -q -y epel-release
     dnf install -q -y 'dnf-command(config-manager)'
-    #dnf install dnf-plugins-core
-    #dnf config-manager --set-enabled PowerTools
     dnf config-manager --set-enabled powertools
     dnf groupinstall -q -y "Development Tools"
     dnf install -q -y 'dnf-command(builddep)'
