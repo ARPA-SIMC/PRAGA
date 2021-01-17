@@ -9,10 +9,8 @@ then
     builddep="dnf builddep"
     sed -i '/^tsflags=/d' /etc/dnf/dnf.conf
     dnf install -q -y epel-release
-    #cat /etc/yum.repos.d/CentOS-PowerTools.repo
-    #exit 0
     dnf install -q -y 'dnf-command(config-manager)'
-    dnf install dnf-plugins-core
+    #dnf install dnf-plugins-core
     #dnf config-manager --set-enabled PowerTools
     dnf config-manager --set-enabled powertools
     dnf groupinstall -q -y "Development Tools"
