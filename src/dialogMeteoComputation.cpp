@@ -832,17 +832,24 @@ void DialogMeteoComputation::displayPeriod(const QString value)
 void DialogMeteoComputation::listElaboration(const QString value)
 {
 
+    elaborationList.blockSignals(true);
     meteoVariable key = getKeyMeteoVarMeteoMap(MapDailyMeteoVarToString, value.toStdString());
     std::string keyString = getKeyStringMeteoMap(MapDailyMeteoVar, key);
     QString group = QString::fromStdString(keyString)+"_VarToElab1";
     settings->beginGroup(group);
     int size = settings->beginReadArray(QString::fromStdString(keyString));
+    QString prevElab = elaborationList.currentText();
+    bool existsPrevElab = false;
     elaborationList.clear();
 
     for (int i = 0; i < size; ++i)
     {
         settings->setArrayIndex(i);
         QString elab = settings->value("elab").toString();
+        if (prevElab == elab)
+        {
+            existsPrevElab = true;
+        }
         elaborationList.addItem( elab );
 
     }
@@ -852,7 +859,12 @@ void DialogMeteoComputation::listElaboration(const QString value)
     readParam.setChecked(false);
     climateDbElabList.setVisible(false);
     adjustSize();
-    listSecondElab(elaborationList.currentText());
+
+    elaborationList.blockSignals(false);
+    if (existsPrevElab)
+    {
+        elaborationList.setCurrentText(prevElab);
+    }
 
     if(isAnomaly)
     {
@@ -863,6 +875,9 @@ void DialogMeteoComputation::listElaboration(const QString value)
 
 void DialogMeteoComputation::listSecondElab(const QString value)
 {
+
+    QString prevSecondElab = secondElabList.currentText();
+    bool existsPrevSecondElab = false;
 
     if ( MapElabWithParam.find(value.toStdString()) == MapElabWithParam.end())
     {
@@ -905,10 +920,19 @@ void DialogMeteoComputation::listSecondElab(const QString value)
     }
     secondElabList.clear();
     secondElabList.addItem("None");
-    for (int i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i)
+    {
         settings->setArrayIndex(i);
         QString elab2 = settings->value("elab2").toString();
+        if (prevSecondElab == elab2)
+        {
+            existsPrevSecondElab = true;
+        }
         secondElabList.addItem( elab2 );
+    }
+    if (existsPrevSecondElab)
+    {
+        secondElabList.setCurrentText(prevSecondElab);
     }
     settings->endArray();
     settings->endGroup();

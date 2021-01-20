@@ -11,6 +11,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <iomanip>      // std::setprecision
 
 #include "formPeriod.h"
 #include "mainWindow.h"
@@ -179,7 +180,19 @@ void MainWindow::mouseMove(const QPoint& mapPos)
         {
             std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
             std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
-            status += " Grid: " + QString::fromStdString(id + " " + name);
+            float value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue;
+            std::string valueStr;
+            if (value == NODATA)
+            {
+                valueStr = "NODATA";
+            }
+            else
+            {
+                std::stringstream stream;
+                stream << std::fixed << std::setprecision(2) << value;
+                valueStr = stream.str();
+            }
+            status += " Grid: " + QString::fromStdString(id + " " + name + " Value: " + valueStr);
         }
      }
 
