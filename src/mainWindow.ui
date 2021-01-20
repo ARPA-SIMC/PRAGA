@@ -1145,6 +1145,9 @@
                <bold>false</bold>
               </font>
              </property>
+             <property name="inputMethodHints">
+              <set>Qt::ImhDigitsOnly|Qt::ImhPreferNumbers</set>
+             </property>
              <property name="dateTime">
               <datetime>
                <hour>0</hour>
