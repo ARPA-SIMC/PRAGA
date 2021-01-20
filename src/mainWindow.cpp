@@ -2459,3 +2459,14 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
         }
     }
 }
+
+
+void MainWindow::on_dayBeforeButton_clicked()
+{
+    this->ui->dateEdit->setDate(this->ui->dateEdit->date().addDays(-1));
+}
+
+void MainWindow::on_dayAfterButton_clicked()
+{
+    this->ui->dateEdit->setDate(this->ui->dateEdit->date().addDays(1));
+}

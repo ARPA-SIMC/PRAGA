@@ -129,6 +129,10 @@
         void on_meteoPoints_clicked();
         void on_grid_clicked();
 
+        void on_dayBeforeButton_clicked();
+
+        void on_dayAfterButton_clicked();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
