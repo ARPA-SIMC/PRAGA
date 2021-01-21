@@ -168,7 +168,7 @@ void MainWindow::mouseMove(const QPoint& mapPos)
     QString status = QString::number(geoPos.latitude()) + " " + QString::number(geoPos.longitude());
 
     // meteo grid
-    if (meteoGridObj->isLoaded)
+    if (meteoGridObj->isLoaded && !meteoGridObj->isNetCDF())
     {
         int row, col;
         gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
@@ -716,6 +716,8 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         {
             meteoGridObj->initializeUTM(&(myProject.netCDF.dataGrid), myProject.gisSettings, true);
         }
+
+        meteoGridObj->setNetCDF(true);
 
         myProject.netCDF.dataGrid.setConstantValue(0);
 
