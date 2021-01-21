@@ -708,7 +708,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
         myProject.netCDF.readProperties(fileName.toStdString());
 
-        if (myProject.netCDF.isLatLon)
+        if (myProject.netCDF.isLatLon || myProject.netCDF.isRotatedLatLon)
         {
             meteoGridObj->initializeLatLon(&(myProject.netCDF.dataGrid), myProject.gisSettings, myProject.netCDF.latLonHeader, true);
         }
