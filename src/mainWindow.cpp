@@ -583,12 +583,12 @@ void MainWindow::interpolateDemGUI()
 
     if (myVar == airRelHumidity && myProject.interpolationSettings.getUseDewPoint())
     {
-        if (! myProject.interpolationDemMain(airTemperature, myProject.getCrit3DCurrentTime(), myProject.hourlyMeteoMaps->mapHourlyTair, true)) return;
+        if (! myProject.interpolationDemMain(airTemperature, myProject.getCrit3DCurrentTime(), myProject.hourlyMeteoMaps->mapHourlyTair)) return;
 
         if (myProject.interpolationSettings.getUseInterpolatedTForRH())
             myProject.passInterpolatedTemperatureToHumidityPoints(myProject.getCrit3DCurrentTime());
 
-        if (myProject.interpolationDemMain(airDewTemperature, myProject.getCrit3DCurrentTime(), myProject.hourlyMeteoMaps->mapHourlyTdew, true))
+        if (myProject.interpolationDemMain(airDewTemperature, myProject.getCrit3DCurrentTime(), myProject.hourlyMeteoMaps->mapHourlyTdew))
         {
             if (! myProject.dataRaster.initializeGrid(myProject.DEM)) return;
 
@@ -598,7 +598,7 @@ void MainWindow::interpolateDemGUI()
 
     }
     else {
-        isComputed = myProject.interpolationDemMain(myVar, myProject.getCrit3DCurrentTime(), &(myProject.dataRaster), true);
+        isComputed = myProject.interpolationDemMain(myVar, myProject.getCrit3DCurrentTime(), &(myProject.dataRaster));
     }
 
     if (isComputed) {
@@ -2273,14 +2273,13 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
         myDownload.getDbArkimet()->setDatasetsActive(datasetSelected);
         QStringList datasets = datasetSelected.remove("'").split(",");
 
-        FormInfo myInfo;
-        myInfo.start("download points properties...", 0);
+        myProject.logInfoGUI("download points properties...");
         if (myDownload.getPointProperties(datasets))
             loadMeteoPoints(dbName);
         else
-            QMessageBox::information(nullptr, "Network Error!", "Error in function getPointProperties");
+            myProject.logError("Error in function getPointProperties");
 
-        myInfo.close();
+        myProject.closeLogInfo();
     }
     else
     {
