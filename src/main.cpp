@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     if (argc > 1)
     {
         QString arg1 = QString::fromStdString(argv[1]);
-        if (arg1.toUpper() == "CONSOLE")
+        if (arg1.toUpper() == "CONSOLE" || arg1.toUpper() == "SHELL")
         {
             myProject.modality = MODE_CONSOLE;
         }
