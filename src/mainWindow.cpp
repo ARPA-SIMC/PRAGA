@@ -1739,7 +1739,7 @@ void MainWindow::on_actionTopographicDistanceMapsSave_triggered()
 
     bool onlyWithData = (reply == QMessageBox::Yes);
 
-    myProject.writeTopographicDistanceMaps(onlyWithData);
+    myProject.writeTopographicDistanceMaps(onlyWithData, true);
 }
 
 void MainWindow::on_actionTopographicDistanceMapsLoad_triggered()
@@ -2139,12 +2139,12 @@ bool KeyboardFilter::eventFilter(QObject* obj, QEvent* event)
 
 void MainWindow::on_actionInterpolationMeteogridCurrentTime_triggered()
 {
-    FormInfo myInfo;
-    myInfo.start("Interpolation Grid...", 0);
+
+    myProject.logInfoGUI("Interpolation Grid...");
 
     interpolateGridGUI();
 
-    myInfo.close();
+    myProject.closeLogInfo();
 }
 
 void MainWindow::on_actionInterpolationMeteogridSaveCurrentData_triggered()

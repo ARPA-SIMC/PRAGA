@@ -411,7 +411,6 @@ bool PragaProject::loadPragaSettings()
 bool PragaProject::saveGrid(meteoVariable myVar, frequencyType myFrequency, const Crit3DTime& myTime, bool showInfo)
 {
     std::string id;
-    FormInfo myInfo;
     int infoStep = 1;
 
     if (myFrequency == daily)
@@ -419,7 +418,7 @@ bool PragaProject::saveGrid(meteoVariable myVar, frequencyType myFrequency, cons
         if (showInfo)
         {
             QString infoStr = "Save meteo grid daily data";
-            infoStep = myInfo.start(infoStr, this->meteoGridDbHandler->gridStructure().header().nrRows);
+            infoStep = setProgressBar(infoStr, this->meteoGridDbHandler->gridStructure().header().nrRows);
         }
 
         for (int row = 0; row < this->meteoGridDbHandler->gridStructure().header().nrRows; row++)
@@ -427,7 +426,7 @@ bool PragaProject::saveGrid(meteoVariable myVar, frequencyType myFrequency, cons
             if (showInfo)
             {
                 if ((row % infoStep) == 0)
-                    myInfo.setValue(row);
+                    updateProgressBar(row);
             }
             for (int col = 0; col < this->meteoGridDbHandler->gridStructure().header().nrCols; col++)
             {
@@ -450,13 +449,13 @@ bool PragaProject::saveGrid(meteoVariable myVar, frequencyType myFrequency, cons
         if (showInfo)
         {
             QString infoStr = "Save meteo grid hourly data";
-            infoStep = myInfo.start(infoStr, this->meteoGridDbHandler->gridStructure().header().nrRows);
+            infoStep = setProgressBar(infoStr, this->meteoGridDbHandler->gridStructure().header().nrRows);
         }
 
         for (int row = 0; row < this->meteoGridDbHandler->gridStructure().header().nrRows; row++)
         {
             if (showInfo && (row % infoStep) == 0)
-                myInfo.setValue(row);
+                updateProgressBar(row);
             for (int col = 0; col < this->meteoGridDbHandler->gridStructure().header().nrCols; col++)
             {
                 if (this->meteoGridDbHandler->meteoGrid()->getMeteoPointActiveId(row, col, &id))
@@ -474,7 +473,7 @@ bool PragaProject::saveGrid(meteoVariable myVar, frequencyType myFrequency, cons
         }
     }
 
-    if (showInfo) myInfo.close();
+    if (showInfo) closeProgressBar();
 
     return true;
 }
@@ -590,7 +589,6 @@ bool PragaProject::showClimateFields(bool isMeteoGrid, QStringList* climateDbEla
 void PragaProject::saveClimateResult(bool isMeteoGrid, QString climaSelected, int climateIndex, bool showInfo)
 {
 
-    FormInfo myInfo;
     int infoStep = 0;
     QString infoStr;
 
@@ -627,7 +625,7 @@ void PragaProject::saveClimateResult(bool isMeteoGrid, QString climaSelected, in
         if (showInfo)
         {
             infoStr = "Read Climate - Meteo Grid";
-            infoStep = myInfo.start(infoStr, this->meteoGridDbHandler->gridStructure().header().nrRows);
+            infoStep = setProgressBar(infoStr, this->meteoGridDbHandler->gridStructure().header().nrRows);
         }
         std::string id;
         db = this->meteoGridDbHandler->db();
@@ -635,7 +633,7 @@ void PragaProject::saveClimateResult(bool isMeteoGrid, QString climaSelected, in
         {
             if (showInfo && (row % infoStep) == 0 )
             {
-                 myInfo.setValue(row);
+                 updateProgressBar(row);
             }
             for (int col = 0; col < meteoGridDbHandler->gridStructure().header().nrCols; col++)
             {
@@ -663,7 +661,7 @@ void PragaProject::saveClimateResult(bool isMeteoGrid, QString climaSelected, in
         if (showInfo)
         {
             infoStr = "Read Climate - Meteo Points";
-            infoStep = myInfo.start(infoStr, nrMeteoPoints);
+            infoStep = setProgressBar(infoStr, nrMeteoPoints);
         }
         db = this->meteoPointsDbHandler->getDb();
         for (int i = 0; i < nrMeteoPoints; i++)
@@ -672,7 +670,7 @@ void PragaProject::saveClimateResult(bool isMeteoGrid, QString climaSelected, in
             {
                 if (showInfo && (i % infoStep) == 0)
                 {
-                    myInfo.setValue(i);
+                    updateProgressBar(i);
                 }
                 QString id = QString::fromStdString(meteoPoints[i].id);
                 results = readElab(db, table.toLower(), &errorString, id, climaSelected);
@@ -691,7 +689,7 @@ void PragaProject::saveClimateResult(bool isMeteoGrid, QString climaSelected, in
         setIsElabMeteoPointsValue(true);
 
     }
-    if (showInfo) myInfo.close();
+    if (showInfo) closeProgressBar();
 }
 
 bool PragaProject::deleteClima(bool isMeteoGrid, QString climaSelected)
@@ -785,7 +783,6 @@ bool PragaProject::elaborationPointsCycle(bool isAnomaly, bool showInfo)
     bool isMeteoGrid = 0; // meteoPoint
     int validCell = 0;
 
-    FormInfo myInfo;
     int infoStep;
     QString infoStr;
 
@@ -799,7 +796,7 @@ bool PragaProject::elaborationPointsCycle(bool isAnomaly, bool showInfo)
         if (showInfo)
         {
             infoStr = "Anomaly - Meteo Points";
-            infoStep = myInfo.start(infoStr, nrMeteoPoints);
+            infoStep = setProgressBar(infoStr, nrMeteoPoints);
         }
     }
     else
@@ -808,7 +805,7 @@ bool PragaProject::elaborationPointsCycle(bool isAnomaly, bool showInfo)
         if (showInfo)
         {
             infoStr = "Elaboration - Meteo Points";
-            infoStep = myInfo.start(infoStr, nrMeteoPoints);
+            infoStep = setProgressBar(infoStr, nrMeteoPoints);
         }
     }
 
@@ -852,7 +849,7 @@ bool PragaProject::elaborationPointsCycle(bool isAnomaly, bool showInfo)
             meteoPointTemp->nrObsDataDaysD = 0;
 
             if (showInfo && (i % infoStep) == 0)
-                        myInfo.setValue(i);
+                        updateProgressBar(i);
 
 
             if (isAnomaly && climaUsed->getIsClimateAnomalyFromDb())
@@ -879,7 +876,7 @@ bool PragaProject::elaborationPointsCycle(bool isAnomaly, bool showInfo)
         }
 
     } // end for
-    if (showInfo) myInfo.close();
+    if (showInfo) closeProgressBar();
 
     if (validCell == 0)
     {
@@ -909,7 +906,6 @@ bool PragaProject::elaborationPointsCycleGrid(bool isAnomaly, bool showInfo)
 
     std::string id;
 
-    FormInfo myInfo;
     int infoStep;
     QString infoStr;
 
@@ -923,7 +919,7 @@ bool PragaProject::elaborationPointsCycleGrid(bool isAnomaly, bool showInfo)
         if (showInfo)
         {
             infoStr = "Anomaly - Meteo Grid";
-            infoStep = myInfo.start(infoStr, this->meteoGridDbHandler->gridStructure().header().nrRows);
+            infoStep = setProgressBar(infoStr, this->meteoGridDbHandler->gridStructure().header().nrRows);
         }
     }
     else
@@ -932,7 +928,7 @@ bool PragaProject::elaborationPointsCycleGrid(bool isAnomaly, bool showInfo)
         if (showInfo)
         {
             infoStr = "Elaboration - Meteo Grid";
-            infoStep = myInfo.start(infoStr, this->meteoGridDbHandler->gridStructure().header().nrRows);
+            infoStep = setProgressBar(infoStr, this->meteoGridDbHandler->gridStructure().header().nrRows);
         }
     }
 
@@ -954,7 +950,7 @@ bool PragaProject::elaborationPointsCycleGrid(bool isAnomaly, bool showInfo)
      for (int row = 0; row < meteoGridDbHandler->gridStructure().header().nrRows; row++)
      {
          if (showInfo && (row % infoStep) == 0)
-             myInfo.setValue(row);
+             updateProgressBar(row);
 
          for (int col = 0; col < meteoGridDbHandler->gridStructure().header().nrCols; col++)
          {
@@ -999,7 +995,7 @@ bool PragaProject::elaborationPointsCycleGrid(bool isAnomaly, bool showInfo)
         }
     }
 
-    if (showInfo) myInfo.close();
+    if (showInfo) closeProgressBar();
 
     if (validCell == 0)
     {
@@ -1023,7 +1019,6 @@ bool PragaProject::elaborationPointsCycleGrid(bool isAnomaly, bool showInfo)
 bool PragaProject::climatePointsCycle(bool showInfo)
 {
     bool isMeteoGrid = false;
-    FormInfo myInfo;
     int infoStep;
     QString infoStr;
 
@@ -1038,7 +1033,7 @@ bool PragaProject::climatePointsCycle(bool showInfo)
     if (showInfo)
     {
         infoStr = "Climate  - Meteo Points";
-        infoStep = myInfo.start(infoStr, nrMeteoPoints);
+        infoStep = setProgressBar(infoStr, nrMeteoPoints);
     }
 
     // parser all the list
@@ -1053,7 +1048,7 @@ bool PragaProject::climatePointsCycle(bool showInfo)
 
             if (showInfo && (i % infoStep) == 0)
             {
-                myInfo.setValue(i);
+                updateProgressBar(i);
             }
 
             meteoPointTemp->id = meteoPoints[i].id;
@@ -1122,7 +1117,7 @@ bool PragaProject::climatePointsCycle(bool showInfo)
 
         }
     }
-    if (showInfo) myInfo.close();
+    if (showInfo) closeProgressBar();
 
     if (validCell == 0)
     {
@@ -1145,7 +1140,6 @@ bool PragaProject::climatePointsCycleGrid(bool showInfo)
 {
 
     bool isMeteoGrid = true;
-    FormInfo myInfo;
     int infoStep;
     QString infoStr;
 
@@ -1161,7 +1155,7 @@ bool PragaProject::climatePointsCycleGrid(bool showInfo)
     if (showInfo)
     {
         infoStr = "Climate  - Meteo Grid";
-        infoStep = myInfo.start(infoStr, this->meteoGridDbHandler->gridStructure().header().nrRows);
+        infoStep = setProgressBar(infoStr, this->meteoGridDbHandler->gridStructure().header().nrRows);
     }
 
     // parser all the list
@@ -1172,7 +1166,7 @@ bool PragaProject::climatePointsCycleGrid(bool showInfo)
     for (int row = 0; row < meteoGridDbHandler->gridStructure().header().nrRows; row++)
     {
         if (showInfo && (row % infoStep) == 0)
-            myInfo.setValue(row);
+            updateProgressBar(row);
 
         for (int col = 0; col < meteoGridDbHandler->gridStructure().header().nrCols; col++)
         {
@@ -1251,7 +1245,7 @@ bool PragaProject::climatePointsCycleGrid(bool showInfo)
        }
    }
 
-   if (showInfo) myInfo.close();
+   if (showInfo) closeProgressBar();
 
    if (validCell == 0)
    {
@@ -1449,16 +1443,19 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
     gis::updateMinMaxRasterGrid(zoneGrid);
     std::vector <std::vector<float> > zoneVector((unsigned int)(zoneGrid->maximum+1), std::vector<float>());
 
-    FormInfo myInfo;
     QString infoStr;
-    int infoStep = myInfo.start(infoStr, this->meteoGridDbHandler->gridStructure().header().nrRows);
+    int infoStep = 0;
+    if (showInfo)
+    {
+        infoStep = setProgressBar(infoStr, this->meteoGridDbHandler->gridStructure().header().nrRows);
+    }
 
     Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
 
      for (int row = 0; row < meteoGridDbHandler->gridStructure().header().nrRows; row++)
      {
          if (showInfo && (row % infoStep) == 0)
-             myInfo.setValue(row);
+             updateProgressBar(row);
 
          for (int col = 0; col < meteoGridDbHandler->gridStructure().header().nrCols; col++)
          {
@@ -1489,6 +1486,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
             }
         }
     }
+    if (showInfo) closeProgressBar();
 
      int nrDays = int(startDate.daysTo(endDate) + 1);
      std::vector< std::vector<float> > dailyElabAggregation(nrDays, std::vector<float>(int(zoneGrid->maximum+1), NODATA));
@@ -1946,16 +1944,15 @@ bool PragaProject::dataCount(QDate myFirstDate, QDate myLastDate, meteoVariable 
     int counter;
     int i;
 
-    FormInfo myInfo;
     if (modality == MODE_GUI)
-        myInfo.start("Counting " + QString::fromStdString(getVariableString(myVar)) + " values...", myFirstDate.daysTo(myLastDate));
+        setProgressBar("Counting " + QString::fromStdString(getVariableString(myVar)) + " values...", myFirstDate.daysTo(myLastDate));
 
     myCounter.clear();
 
     while (myDate <= myLastDate)
     {
         if (modality == MODE_GUI)
-            myInfo.setValue(myFirstDate.daysTo(myDate));
+            updateProgressBar(myFirstDate.daysTo(myDate));
 
         if (myFreq == daily)
         {
@@ -1984,7 +1981,7 @@ bool PragaProject::dataCount(QDate myFirstDate, QDate myLastDate, meteoVariable 
 
     this->cleanMeteoPointsData();
 
-    if (modality == MODE_GUI) myInfo.close();
+    if (modality == MODE_GUI) closeProgressBar();
 
 
 
