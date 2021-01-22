@@ -377,7 +377,6 @@ bool pragaShell(PragaProject* myProject)
     #ifdef _WIN32
         openNewConsole();
     #endif
-
     while (! myProject->requestedExit)
     {
         QString commandLine = getCommandLine("PRAGA");

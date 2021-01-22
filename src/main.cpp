@@ -3,6 +3,7 @@
 #include "shell.h"
 #include "mainGUI.h"
 
+#include <QCoreApplication>
 #include <cstdio>
 #include <iostream>
 #include <QtNetwork/QNetworkProxy>
@@ -101,11 +102,13 @@ int main(int argc, char *argv[])
     }
     else if (myProject.modality == MODE_CONSOLE)
     {
+        QCoreApplication myApp(argc, argv);
         if (! pragaShell(&myProject))
             return -1;
     }
     else if (myProject.modality == MODE_BATCH)
     {
+        QCoreApplication myApp(argc, argv);
         if (! pragaBatch(&myProject, argv[1]))
             return -1;
     }
