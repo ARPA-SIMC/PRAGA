@@ -1312,22 +1312,23 @@ bool PragaProject::downloadDailyDataArkimet(QStringList variables, bool prec0024
         }
     }
 
-    int nrDays = startDate.daysTo(endDate) + 1;
-    int currentPoints = 0.;
-
+    int nrDays = int(startDate.daysTo(endDate) + 1);
 
     for( int i=0; i < datasetList.size(); i++ )
     {
         QDate date1 = startDate;
         QDate date2 = std::min(date1.addDays(MAXDAYS-1), endDate);
 
+        if (showInfo)
+        {
+            setProgressBar("Download data from: " + startDate.toString("yyyy-MM-dd") + " to: " + endDate.toString("yyyy-MM-dd") + " dataset:" + datasetList[i], nrDays);
+        }
+
         while (date1 <= endDate)
         {
             if (showInfo)
             {
-                setProgressBar("Download data from: " + date1.toString("yyyy-MM-dd") + " to: " + date2.toString("yyyy-MM-dd") + " dataset:" + datasetList[i], nrPoints*nrDays);
-                currentPoints += idList[i].size() * (date1.daysTo(date2) + 1);
-                updateProgressBar(currentPoints);
+                updateProgressBar(int(startDate.daysTo(date2)+1));
             }
 
             myDownload->downloadDailyData(date1, date2, datasetList[i], idList[i], arkIdVar, prec0024);
@@ -1335,9 +1336,11 @@ bool PragaProject::downloadDailyDataArkimet(QStringList variables, bool prec0024
             date1 = date2.addDays(1);
             date2 = std::min(date1.addDays(MAXDAYS-1), endDate);
         }
+
+        if (showInfo) closeProgressBar();
     }
 
-    if (showInfo) closeProgressBar();
+
     delete myDownload;
     return true;
 }
@@ -1346,7 +1349,6 @@ bool PragaProject::downloadDailyDataArkimet(QStringList variables, bool prec0024
 bool PragaProject::downloadHourlyDataArkimet(QStringList variables, QDate startDate, QDate endDate, bool showInfo)
 {
     const int MAXDAYS = 7;
-
 
     QList<int> arkIdVar;
     Download* myDownload = new Download(meteoPointsDbHandler->getDbName());
@@ -1392,21 +1394,22 @@ bool PragaProject::downloadHourlyDataArkimet(QStringList variables, QDate startD
         }
     }
 
-    int nrDays = startDate.daysTo(endDate) + 1;
+    int nrDays = int(startDate.daysTo(endDate) + 1);
 
-    int currentPoints = 0.;
     for( int i=0; i < datasetList.size(); i++ )
     {
         QDate date1 = startDate;
         QDate date2 = std::min(date1.addDays(MAXDAYS-1), endDate);
 
+        if (showInfo)
+        {
+            setProgressBar("Download data from: " + startDate.toString("yyyy-MM-dd") + " to:" + endDate.toString("yyyy-MM-dd") + " dataset:" + datasetList[i], nrDays);
+        }
         while (date1 <= endDate)
         {
             if (showInfo)
             {
-                setProgressBar("Download data from: " + date1.toString("yyyy-MM-dd") + " to:" + date2.toString("yyyy-MM-dd") + " dataset:" + datasetList[i], nrPoints*nrDays);
-                currentPoints += idList[i].size() * (date1.daysTo(date2) + 1);
-                updateProgressBar(currentPoints);
+                updateProgressBar(int(startDate.daysTo(date2)+1));
             }
 
             myDownload->downloadHourlyData(date1, date2, datasetList[i], idList[i], arkIdVar);
@@ -1414,9 +1417,13 @@ bool PragaProject::downloadHourlyDataArkimet(QStringList variables, QDate startD
             date1 = date2.addDays(1);
             date2 = std::min(date1.addDays(MAXDAYS-1), endDate);
         }
+        if (showInfo)
+        {
+            closeProgressBar();
+        }
     }
 
-    if (showInfo) closeProgressBar();
+
     delete myDownload;
     return true;
 }

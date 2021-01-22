@@ -12,6 +12,7 @@ QStringList getPragaCommandList()
     // praga commands
     cmdList.append("List         | ListCommands");
     cmdList.append("Proj         | OpenProject");
+    cmdList.append("Download     | Download");
     cmdList.append("Netcdf       | ExportNetcdf");
     cmdList.append("XMLToNetcdf  | ExportXMLElaborationsToNetcdf");
 
@@ -93,14 +94,21 @@ bool cmdOpenPragaProject(PragaProject* myProject, QStringList argumentList)
         return false;
     }
 
+    // set fileName and projectFolder
+    QString filename = argumentList.at(1);
     QString projectFolder = "";
-    if (getFilePath(argumentList.at(1)) == "")
+    if (getFilePath(filename) == "")
     {
-        QString filename = argumentList.at(1);
-        projectFolder = filename.left(filename.length()-4) + "/";
+        if (filename.left(filename.length()-4) == ".ini")
+            projectFolder = filename.left(filename.length()-4) + "/";
+        else
+        {
+            projectFolder = filename + "/";
+            filename += ".ini";
+        }
     }
 
-    QString projectName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT+projectFolder);
+    QString projectName = myProject->getCompleteFileName(filename, PATH_PROJECT+projectFolder);
 
     if (! myProject->loadPragaProject(projectName))
     {
@@ -124,6 +132,7 @@ bool cmdDownload(PragaProject* myProject, QStringList argumentList)
     QString var;
     meteoVariable meteoVar;
     bool prec0024 = true;
+    bool showInfo = false;
     frequencyType myFreq;
 
     for (int i = 1; i < argumentList.size(); i++)
@@ -165,6 +174,8 @@ bool cmdDownload(PragaProject* myProject, QStringList argumentList)
         }
         else if (argumentList.at(i).left(3) == "-p9")
             prec0024 = false;
+        else if (argumentList.at(i).left(5) == "-show")
+            showInfo = true;
     }
 
     if (! dateIni.isValid())
@@ -180,11 +191,11 @@ bool cmdDownload(PragaProject* myProject, QStringList argumentList)
     }
 
     if (dailyVarString.size() > 0)
-        if (! myProject->downloadDailyDataArkimet(dailyVarString, prec0024, dateIni, dateFin, false))
+        if (! myProject->downloadDailyDataArkimet(dailyVarString, prec0024, dateIni, dateFin, showInfo))
             return false;
 
     if (hourlyVarString.size() > 0)
-        if (! myProject->downloadHourlyDataArkimet(hourlyVarString, dateIni, dateFin, false))
+        if (! myProject->downloadHourlyDataArkimet(hourlyVarString, dateIni, dateFin, showInfo))
             return false;
 
     return true;
