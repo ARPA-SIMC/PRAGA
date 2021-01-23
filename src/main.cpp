@@ -68,6 +68,7 @@ int main(int argc, char *argv[])
     // read environment
     QProcessEnvironment myEnvironment = QProcessEnvironment::systemEnvironment();
     QString pragaHome = myEnvironment.value("PRAGA_HOME");
+    QString display = myEnvironment.value("DISPLAY");
 
     // check $PRAGA_HOME
     if (pragaHome == "")
@@ -98,9 +99,19 @@ int main(int argc, char *argv[])
     // start modality
     if (myProject.modality == MODE_GUI)
     {
-        return mainGUI(argc, argv, pragaHome);
+        if (!display.isEmpty())
+        {
+            // check if DISPLAY is defined
+            return mainGUI(argc, argv, pragaHome);
+        }
+        else
+        {
+            // server headless, switch modality
+            myProject.modality = MODE_CONSOLE;
+        }
     }
-    else if (myProject.modality == MODE_CONSOLE)
+
+    if (myProject.modality == MODE_CONSOLE)
     {
         QCoreApplication myApp(argc, argv);
         if (! pragaShell(&myProject))
