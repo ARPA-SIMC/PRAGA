@@ -2,7 +2,7 @@
 %{!?srcarchivename: %global srcarchivename PRAGA-%{version}}
 
 Name:           PRAGA
-Version:        1.3.2
+Version:        1.3.3
 Release:        1%{?dist}
 Summary:        PRogram for AGrometeorological Analysis
 
@@ -55,6 +55,9 @@ cp -a src/PRAGA %{buildroot}/%{_bindir}/
 
 
 %changelog
+* Tue Jan 26 2021 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.3.3-1
+- Release 1.3.3
+
 * Wed Jan 20 2021 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.3.2-1
 - Release 1.3.2
 
