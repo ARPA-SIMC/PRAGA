@@ -2933,6 +2933,7 @@
      <addaction name="actionFileMeteogridOpen"/>
      <addaction name="actionFileMeteogridClose"/>
      <addaction name="actionFileMeteogridExportNetcdf"/>
+     <addaction name="actionLoad_forecast"/>
     </widget>
     <widget class="QMenu" name="menuFileMeteopoint">
      <property name="title">
@@ -3469,6 +3470,11 @@
   <action name="actionMeteopointDataCount">
    <property name="text">
     <string>Data count...</string>
+   </property>
+  </action>
+  <action name="actionLoad_forecast">
+   <property name="text">
+    <string>Load forecast</string>
    </property>
   </action>
  </widget>

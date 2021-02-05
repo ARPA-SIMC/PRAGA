@@ -133,6 +133,8 @@
 
         void on_dayAfterButton_clicked();
 
+        void on_actionLoad_forecast_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

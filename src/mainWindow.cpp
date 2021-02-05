@@ -2471,3 +2471,14 @@ void MainWindow::on_dayAfterButton_clicked()
 {
     this->ui->dateEdit->setDate(this->ui->dateEdit->date().addDays(1));
 }
+
+void MainWindow::on_actionLoad_forecast_triggered()
+{
+    /*
+    QString xmlName = QFileDialog::getOpenFileName(this, tr("Open XML DB meteo grid"), "", tr("xml files (*.xml)"));
+    if (xmlName != "")
+    {
+
+    }
+    */
+}
