@@ -83,6 +83,7 @@ SOURCES += \
     ../agrolib/graphics/mapGraphicsRasterObject.cpp \
     ../agrolib/graphics/stationMarker.cpp \
     ../agrolib/graphics/rubberBand.cpp \
+    forecastDataset.cpp \
     main.cpp \
     mainGUI.cpp \
     mainWindow.cpp \
@@ -105,6 +106,7 @@ HEADERS  += \
     ../agrolib/graphics/mapGraphicsRasterObject.h \
     ../agrolib/graphics/stationMarker.h \
     ../agrolib/graphics/rubberBand.h \
+    forecastDataset.h \
     mainGUI.h \
     mainWindow.h \
     dialogPragaProject.h \

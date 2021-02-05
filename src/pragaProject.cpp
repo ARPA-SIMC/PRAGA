@@ -10,6 +10,7 @@
 #include "aggregation.h"
 #include "interpolationCmd.h"
 #include "pragaProject.h"
+#include "forecastDataset.h"
 #include "iostream" //debug
 #include <qdebug.h>
 #include <QFile>
