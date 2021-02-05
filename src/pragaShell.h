@@ -16,6 +16,7 @@
     bool cmdDownload(PragaProject* myProject, QStringList argumentList);
     bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentList);
     bool cmdAggregationGridPeriod(PragaProject* myProject, QStringList argumentList);
+    bool cmdLoadForecast(PragaProject* myProject, QStringList argumentList);
 
     #ifdef NETCDF
         bool cmdNetcdfExport(PragaProject* myProject, QStringList argumentList);

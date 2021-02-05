@@ -2474,11 +2474,11 @@ void MainWindow::on_dayAfterButton_clicked()
 
 void MainWindow::on_actionLoad_forecast_triggered()
 {
-    /*
-    QString xmlName = QFileDialog::getOpenFileName(this, tr("Open XML DB meteo grid"), "", tr("xml files (*.xml)"));
-    if (xmlName != "")
-    {
 
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("dat files (*.dat)"));
+    if (fileName != "")
+    {
+        myProject.loadForecastToGrid(fileName);
     }
-    */
+
 }

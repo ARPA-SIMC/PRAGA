@@ -2195,3 +2195,8 @@ bool PragaProject::dataCount(QDate myFirstDate, QDate myLastDate, meteoVariable 
 
 #endif
 
+bool PragaProject::loadForecastToGrid(QString fileName)
+{
+    // TO DO
+    return true;
+}

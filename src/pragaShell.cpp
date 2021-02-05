@@ -15,6 +15,7 @@ QStringList getPragaCommandList()
     cmdList.append("Download     | Download");
     cmdList.append("Netcdf       | ExportNetcdf");
     cmdList.append("XMLToNetcdf  | ExportXMLElaborationsToNetcdf");
+    cmdList.append("LoadForecast | LoadForecastData");
 
     return cmdList;
 }
@@ -76,6 +77,11 @@ bool PragaProject::executePragaCommand(QStringList argumentList, bool* isCommand
     {
         *isCommandFound = true;
         return cmdExportXMLElabToNetcdf(this, argumentList);
+    }
+    else if (command == "LOADFORECAST" || command == "LOADFORECASTDATA")
+    {
+        *isCommandFound = true;
+        return cmdLoadForecast(this, argumentList);
     }
     else
     {
@@ -442,3 +448,19 @@ bool pragaShell(PragaProject* myProject)
     }
 
 #endif
+    bool cmdLoadForecast(PragaProject* myProject, QStringList argumentList)
+    {
+        if (argumentList.size() < 2)
+        {
+            myProject->logError("Missing file name");
+            return false;
+        }
+
+        QString fileName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT);
+        if (!myProject->loadForecastToGrid(fileName))
+        {
+            return false;
+        }
+
+        return true;
+    }
