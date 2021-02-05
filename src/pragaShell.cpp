@@ -456,8 +456,28 @@ bool pragaShell(PragaProject* myProject)
             return false;
         }
 
+        bool overWrite = false;
+        bool checkTables = false;
+
+        for (int i = 2; i < argumentList.size(); i++)
+        {
+            if (argumentList[i] == "-o")
+            {
+                overWrite = true;
+            }
+            else if (argumentList[i] == "-c")
+            {
+                checkTables = true;
+            }
+            else
+            {
+                myProject->logError("Unknow option: loadforecast file -o -c ");
+                return false;
+            }
+        }
+
         QString fileName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT);
-        if (!myProject->loadForecastToGrid(fileName))
+        if (!myProject->loadForecastToGrid(fileName, overWrite, checkTables))
         {
             return false;
         }

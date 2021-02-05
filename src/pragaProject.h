@@ -88,7 +88,7 @@
         bool dataCount(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QString dataset, std::vector<int> &myCounter);
 
         bool executePragaCommand(QStringList argumentList, bool* isCommandFound);
-        bool loadForecastToGrid(QString fileName);
+        bool loadForecastToGrid(QString fileName, bool overWrite, bool checkTables);
 
         #ifdef NETCDF
                 bool exportMeteoGridToNetCDF(QString fileName);

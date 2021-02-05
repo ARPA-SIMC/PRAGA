@@ -2197,7 +2197,7 @@ bool PragaProject::dataCount(QDate myFirstDate, QDate myLastDate, meteoVariable 
 
 #endif
 
-bool PragaProject::loadForecastToGrid(QString fileName)
+bool PragaProject::loadForecastToGrid(QString fileName, bool overWrite, bool checkTables)
 {
     if (! QFile(fileName).exists() || ! QFileInfo(fileName).isFile())
     {
@@ -2209,5 +2209,7 @@ bool PragaProject::loadForecastToGrid(QString fileName)
         logError("Open a Meteo Grid before.");
         return false;
     }
+    //logInfo("overWrite is " + QString::number(overWrite));
+    //logInfo("checkTables is " + QString::number(checkTables));
     return true;
 }
