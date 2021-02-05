@@ -12,6 +12,8 @@
 #include "pragaProject.h"
 #include "iostream" //debug
 #include <qdebug.h>
+#include <QFile>
+#include <QDir>
 
 
 PragaProject::PragaProject()
@@ -2197,6 +2199,15 @@ bool PragaProject::dataCount(QDate myFirstDate, QDate myLastDate, meteoVariable 
 
 bool PragaProject::loadForecastToGrid(QString fileName)
 {
-    // TO DO
+    if (! QFile(fileName).exists() || ! QFileInfo(fileName).isFile())
+    {
+        logError("Missing file: " + fileName);
+        return false;
+    }
+    if (meteoGridDbHandler == nullptr)
+    {
+        logError("Open a Meteo Grid before.");
+        return false;
+    }
     return true;
 }
