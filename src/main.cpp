@@ -70,10 +70,14 @@ int main(int argc, char *argv[])
     QString pragaHome = myEnvironment.value("PRAGA_HOME");
     QString display = myEnvironment.value("DISPLAY");
 
-    if (myProject.modality == MODE_GUI && display.isEmpty())
+    if (QSysInfo::productType() != "windows" && QSysInfo::productType() != "osx")
     {
-        // server headless, switch modality
-        myProject.modality = MODE_CONSOLE;
+        // qDebug() << "LINUX";
+        if (myProject.modality == MODE_GUI && display.isEmpty())
+        {
+            // server headless, switch modality
+            myProject.modality = MODE_CONSOLE;
+        }
     }
 
     // check $PRAGA_HOME
