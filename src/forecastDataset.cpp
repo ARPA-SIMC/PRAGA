@@ -3,6 +3,7 @@
 #include <QTextStream>
 #include <QDate>
 #include <QDebug>
+#include <QFile>
 
 ForecastDataset::ForecastDataset()
 {
