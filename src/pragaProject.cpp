@@ -2210,7 +2210,7 @@ bool PragaProject::loadForecastToGrid(QString fileName, bool overWrite, bool che
         logError("Open a Meteo Grid before.");
         return false;
     }
-    //logInfo("overWrite is " + QString::number(overWrite));
-    //logInfo("checkTables is " + QString::number(checkTables));
+    ForecastDataset dataset;
+    dataset.importForecastData(fileName);
     return true;
 }

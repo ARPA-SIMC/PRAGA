@@ -83,6 +83,7 @@ SOURCES += \
     ../agrolib/graphics/mapGraphicsRasterObject.cpp \
     ../agrolib/graphics/stationMarker.cpp \
     ../agrolib/graphics/rubberBand.cpp \
+    dailyDataset.cpp \
     forecastDataset.cpp \
     main.cpp \
     mainGUI.cpp \
@@ -95,10 +96,12 @@ SOURCES += \
     dialogSeriesOnZones.cpp \
     dialogXMLComputation.cpp \
     dialogAnomaly.cpp \
+    pointDataset.cpp \
     pragaMeteoMaps.cpp \
     saveClimaLayout.cpp \
     pragaProject.cpp \
-    pragaShell.cpp
+    pragaShell.cpp \
+    varDataset.cpp
 
 
 HEADERS  += \
@@ -106,6 +109,7 @@ HEADERS  += \
     ../agrolib/graphics/mapGraphicsRasterObject.h \
     ../agrolib/graphics/stationMarker.h \
     ../agrolib/graphics/rubberBand.h \
+    dailyDataset.h \
     forecastDataset.h \
     mainGUI.h \
     mainWindow.h \
@@ -117,10 +121,12 @@ HEADERS  += \
     dialogSeriesOnZones.h \
     dialogXMLComputation.h \
     dialogAnomaly.h \
+    pointDataset.h \
     pragaMeteoMaps.h \
     saveClimaLayout.h \
     pragaProject.h \
-    pragaShell.h
+    pragaShell.h \
+    varDataset.h
 
 
 FORMS    += mainWindow.ui
