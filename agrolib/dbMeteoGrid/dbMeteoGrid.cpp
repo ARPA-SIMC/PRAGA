@@ -5,6 +5,8 @@
 
 #include <iostream>
 #include <QtSql>
+#include <random>    // cancellare
+#include <QRandomGenerator> // cancellare
 
 
 Crit3DMeteoGridDbHandler::Crit3DMeteoGridDbHandler()
@@ -171,6 +173,14 @@ bool Crit3DMeteoGridDbHandler::parseXMLGrid(QString xmlFileName, QString *myErro
                 return false;
             }
 
+            if (ancestor.toElement().attribute("isensemble").toUpper() == "TRUE")
+            {
+                _gridStructure.setIsEnsemble(true);
+            }
+            else
+            {
+                _gridStructure.setIsEnsemble(false);
+            }
 
             child = ancestor.firstChild();
             gis::Crit3DGridHeader header;
@@ -2260,7 +2270,6 @@ bool Crit3DMeteoGridDbHandler::getYearList(QString *myError, QString meteoPoint,
     }
     return true;
 }
-
 
 QDate Crit3DMeteoGridDbHandler::firstDate() const
 {
