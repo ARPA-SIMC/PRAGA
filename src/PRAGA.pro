@@ -14,7 +14,7 @@ INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/crit3dDate ../agrolib/mathFunctions ../agrolib/meteo ../agrolib/gis  \
                 ../agrolib/interpolation ../agrolib/solarRadiation ../agrolib/utilities  \
                 ../agrolib/dbMeteoPoints ../agrolib/dbMeteoGrid ../agrolib/meteoWidget ../agrolib/climate \
-                ../agrolib/netcdfHandler  ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/project
+                ../agrolib/netcdfHandler  ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/importDataset ../agrolib/project
 
 CONFIG += debug_and_release
 
@@ -39,6 +39,7 @@ CONFIG(debug, debug|release) {
     macx:{
         LIBS += -L/usr/local/lib/ -lnetcdf
     }
+    LIBS += -L../agrolib/importDataset/debug -limportDataset
     LIBS += -L../agrolib/meteoWidget/debug -lmeteoWidget
     LIBS += -L../agrolib/dbMeteoGrid/debug -ldbMeteoGrid
     LIBS += -L../agrolib/dbMeteoPoints/debug -ldbMeteoPoints
@@ -65,6 +66,7 @@ CONFIG(debug, debug|release) {
     macx:{
         LIBS += -L/usr/local/lib/ -lnetcdf
     }
+    LIBS += -L../agrolib/importDataset/release -limportDataset
     LIBS += -L../agrolib/meteoWidget/release -lmeteoWidget
     LIBS += -L../agrolib/dbMeteoGrid/release -ldbMeteoGrid
     LIBS += -L../agrolib/dbMeteoPoints/release -ldbMeteoPoints
@@ -83,8 +85,6 @@ SOURCES += \
     ../agrolib/graphics/mapGraphicsRasterObject.cpp \
     ../agrolib/graphics/stationMarker.cpp \
     ../agrolib/graphics/rubberBand.cpp \
-    dailyDataset.cpp \
-    forecastDataset.cpp \
     main.cpp \
     mainGUI.cpp \
     mainWindow.cpp \
@@ -96,12 +96,10 @@ SOURCES += \
     dialogSeriesOnZones.cpp \
     dialogXMLComputation.cpp \
     dialogAnomaly.cpp \
-    pointDataset.cpp \
     pragaMeteoMaps.cpp \
     saveClimaLayout.cpp \
     pragaProject.cpp \
     pragaShell.cpp \
-    varDataset.cpp
 
 
 HEADERS  += \
@@ -109,8 +107,6 @@ HEADERS  += \
     ../agrolib/graphics/mapGraphicsRasterObject.h \
     ../agrolib/graphics/stationMarker.h \
     ../agrolib/graphics/rubberBand.h \
-    dailyDataset.h \
-    forecastDataset.h \
     mainGUI.h \
     mainWindow.h \
     dialogPragaProject.h \
@@ -121,12 +117,10 @@ HEADERS  += \
     dialogSeriesOnZones.h \
     dialogXMLComputation.h \
     dialogAnomaly.h \
-    pointDataset.h \
     pragaMeteoMaps.h \
     saveClimaLayout.h \
     pragaProject.h \
     pragaShell.h \
-    varDataset.h
 
 
 FORMS    += mainWindow.ui

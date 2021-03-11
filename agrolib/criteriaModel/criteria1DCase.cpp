@@ -221,3 +221,55 @@ bool dailyModel(Crit3DDate myDate, Crit3DMeteoPoint &meteoPoint, Crit3DCrop &myC
 }
 
 
+/*!
+ * \brief get volumetric water content at specific depth
+ * \param depth [cm]
+ * \return volumetric water content [-]
+ */
+double Crit1DCase::getWaterContent(double depth)
+{
+    depth /= 100;                                   // [cm] --> [m]
+    if (depth <= 0 || depth > mySoil.totalDepth)
+        return NODATA;
+
+    double upperDepth, lowerDepth;
+    for (unsigned int i = 1; i < soilLayers.size(); i++)
+    {
+        upperDepth = soilLayers[i].depth - soilLayers[i].thickness * 0.5;
+        lowerDepth = soilLayers[i].depth + soilLayers[i].thickness * 0.5;
+        if (depth >= upperDepth && depth <= lowerDepth)
+        {
+            return soilLayers[i].waterContent / (soilLayers[i].thickness * 1000);
+        }
+    }
+
+    return NODATA;
+}
+
+
+/*!
+ * \brief get water potential at specific depth
+ * \param depth [cm]
+ * \return water potential [kPa]
+ */
+double Crit1DCase::getWaterPotential(double depth)
+{
+    depth /= 100;                                   // [cm] --> [m]
+    if (depth <= 0 || depth > mySoil.totalDepth)
+        return NODATA;
+
+    double upperDepth, lowerDepth;
+    for (unsigned int i = 1; i < soilLayers.size(); i++)
+    {
+        upperDepth = soilLayers[i].depth - soilLayers[i].thickness * 0.5;
+        lowerDepth = soilLayers[i].depth + soilLayers[i].thickness * 0.5;
+        if (depth >= upperDepth && depth <= lowerDepth)
+        {
+            return soilLayers[i].getWaterPotential();
+        }
+    }
+
+    return NODATA;
+}
+
+
