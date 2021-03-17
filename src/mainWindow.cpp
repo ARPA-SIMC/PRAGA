@@ -143,13 +143,14 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
-void MainWindow::updateMaps()
+bool KeyboardFilter::eventFilter(QObject* obj, QEvent* event)
 {
-    rasterObj->updateCenter();
-    meteoGridObj->updateCenter();
+    if (event->type() == QEvent::KeyPress) {
+        return true;
+    } else {
+        return QObject::eventFilter(obj, event);
+    }
 }
-
 
 // SLOT
 void MainWindow::mouseMove(const QPoint& mapPos)
@@ -383,6 +384,11 @@ void MainWindow::on_actionMeteopointRectangleSelection_triggered()
      }
 }
 
+void MainWindow::updateMaps()
+{
+    rasterObj->updateCenter();
+    meteoGridObj->updateCenter();
+}
 
 void MainWindow::clearDEM()
 {
@@ -1276,11 +1282,6 @@ void MainWindow::on_dateEdit_dateChanged(const QDate &date)
     this->on_dateChanged();
 }
 
-void MainWindow::on_actionInterpolationDem_triggered()
-{
-    interpolateDemGUI();
-}
-
 void MainWindow::on_actionElaboration_triggered()
 {
 
@@ -2128,32 +2129,30 @@ void MainWindow::checkSaveProject()
         ui->actionFileSaveProject->setEnabled(true);
 }
 
-bool KeyboardFilter::eventFilter(QObject* obj, QEvent* event)
+void MainWindow::on_actionInterpolationDem_triggered()
 {
-    if (event->type() == QEvent::KeyPress) {
-        return true;
-    } else {
-        return QObject::eventFilter(obj, event);
-    }
+    myProject.logInfoGUI("Interpolating on DEM...");
+    interpolateDemGUI();
+    myProject.closeLogInfo();
 }
+
 
 void MainWindow::on_actionInterpolationMeteogridCurrentTime_triggered()
 {
-
-    myProject.logInfoGUI("Interpolation Grid...");
-
+    myProject.logInfoGUI("Interpolating on meteo grid...");
     interpolateGridGUI();
-
     myProject.closeLogInfo();
 }
 
 void MainWindow::on_actionInterpolationMeteogridSaveCurrentData_triggered()
 {
+    myProject.logInfoGUI("Saving meteo grid data...");
     if (myProject.meteoGridDbHandler != nullptr)
     {
         myProject.saveGrid(myProject.getCurrentVariable(), myProject.getCurrentFrequency(),
                            myProject.getCrit3DCurrentTime(), true);
     }
+    myProject.closeLogInfo();
 }
 
 void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
