@@ -1779,7 +1779,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
         if (isHourly)
         {
-            for (myHour = 8; myHour <= 8; myHour++)
+            for (myHour = 1; myHour <= 24; myHour++)
             {
                 logInfoGUI("Interpolating hourly variables for " + myDate.toString("dd/MM/yyyy") + " " + QString("%1").arg(myHour, 2, 10, QChar('0')) + ":00");
 
