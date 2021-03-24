@@ -85,7 +85,8 @@
                                            std::vector<float> &outputValues, bool showInfo);
         bool getIsElabMeteoPointsValue() const;
         void setIsElabMeteoPointsValue(bool value);
-        bool dataCount(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QString dataset, std::vector<int> &myCounter);
+        bool dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QString dataset, std::vector<int> &myCounter);
+        bool dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QList <QDate> dateList, QList<QString> idList);
 
         bool executePragaCommand(QStringList argumentList, bool* isCommandFound);
         bool loadForecastToGrid(QString fileName, bool overWrite, bool checkTables);
