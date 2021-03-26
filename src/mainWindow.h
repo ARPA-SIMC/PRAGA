@@ -135,6 +135,8 @@
 
         void on_actionLoad_forecast_triggered();
 
+        void on_actionMeteogridMissingData_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

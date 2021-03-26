@@ -2466,7 +2466,7 @@
      <x>0</x>
      <y>0</y>
      <width>1392</width>
-     <height>30</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="palette">
@@ -3097,9 +3097,16 @@
     </property>
     <addaction name="actionRadiationSettings"/>
    </widget>
+   <widget class="QMenu" name="menuMeteoGrid">
+    <property name="title">
+     <string>MeteoGrid</string>
+    </property>
+    <addaction name="actionMeteogridMissingData"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuShow"/>
    <addaction name="menuMeteopoint"/>
+   <addaction name="menuMeteoGrid"/>
    <addaction name="menuInterpolation"/>
    <addaction name="menuRadiation"/>
    <addaction name="menuElaboration"/>
@@ -3475,6 +3482,11 @@
   <action name="actionLoad_forecast">
    <property name="text">
     <string>Load forecast</string>
+   </property>
+  </action>
+  <action name="actionMeteogridMissingData">
+   <property name="text">
+    <string>Find missing data...</string>
    </property>
   </action>
  </widget>

@@ -2428,7 +2428,7 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
 
     std::vector<int> myCounter;
 
-    if (myProject.dataCount(myFirstTime.date(), myLastTime.date(), myVar, dataset, myCounter))
+    if (myProject.dbMeteoPointDataCount(myFirstTime.date(), myLastTime.date(), myVar, dataset, myCounter))
     {
         QFile myFile(myFilename);
         if (myFile.open(QIODevice::ReadWrite))
@@ -2460,6 +2460,62 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
     }
 }
 
+void MainWindow::on_actionMeteogridMissingData_triggered()
+{
+    // check meteo grid
+    if (myProject.meteoGridDbHandler == nullptr)
+    {
+        QMessageBox::critical(nullptr, "Missing data finder", "No meteo grid DB open");
+        return;
+    }
+
+    meteoVariable myVar = chooseMeteoVariable(&myProject);
+    if (myVar == noMeteoVar) return;
+    frequencyType myFreq = getVarFrequency(myVar);
+
+    QDateTime myFirstTime = myProject.meteoGridDbHandler->firstDate().startOfDay();
+    QDateTime myLastTime = myProject.meteoGridDbHandler->lastDate().endOfDay();
+    if (myFirstTime.isNull())
+    {
+        myFirstTime.setDate(myProject.getCurrentDate());
+        myFirstTime.setTime(QTime(myProject.getCurrentHour(),0));
+    }
+    if (myLastTime.isNull())
+    {
+        myLastTime.setDate(myProject.getCurrentDate());
+        myLastTime.setTime(QTime(myProject.getCurrentHour(),0));
+    }
+
+    formPeriod myForm(&myFirstTime, &myLastTime);
+    myForm.show();
+    if (myForm.exec() == QDialog::Rejected) return;
+
+    QString myFilename  = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("text files (*.txt)"));
+    if (myFilename == "") return;
+
+    QList <QDate> myDateList;
+    QList <QString> idList;
+
+    if (myProject.dbMeteoGridMissingData(myFirstTime.date(), myLastTime.date(), myVar, myDateList, idList))
+    {
+        QFile myFile(myFilename);
+        if (myFile.open(QIODevice::ReadWrite))
+        {
+            QTextStream outStream(&myFile);
+
+            int i=0;
+            foreach (QDate myDate, myDateList)
+            {
+                outStream << idList[i] << myDate.toString("yyyy-MM-dd") << "\n";
+                i++;
+            }
+
+            myFile.close();
+            myDateList.clear();
+        }
+    }
+
+}
 
 void MainWindow::on_dayBeforeButton_clicked()
 {
@@ -2483,3 +2539,5 @@ void MainWindow::on_actionLoad_forecast_triggered()
     }
 
 }
+
+

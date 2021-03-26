@@ -1934,7 +1934,7 @@ bool PragaProject::interpolationMeteoGrid(meteoVariable myVar, frequencyType myF
     return true;
 }
 
-bool PragaProject::dataCount(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QString dataset, std::vector <int> &myCounter)
+bool PragaProject::dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QString dataset, std::vector<int> &myCounter)
 {
     frequencyType myFreq = getVarFrequency(myVar);
 
@@ -1994,6 +1994,82 @@ bool PragaProject::dataCount(QDate myFirstDate, QDate myLastDate, meteoVariable 
     if (modality == MODE_GUI) closeProgressBar();
 
 
+
+    return true;
+}
+
+bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QList <QDate> dateList, QList <QString> idList)
+{
+    frequencyType myFreq = getVarFrequency(myVar);
+
+    QDate myDate;
+    short myHour;
+
+    std::string id;
+
+    if (modality == MODE_GUI)
+        setProgressBar("Finding missing data for " + QString::fromStdString(getVariableString(myVar)), meteoGridDbHandler->gridStructure().header().nrRows);
+
+    int infoStep = 1;
+
+    for (int row = 0; row < this->meteoGridDbHandler->gridStructure().header().nrRows; row++)
+    {
+        if (modality == MODE_GUI && (row % infoStep) == 0) updateProgressBar(row);
+
+        for (int col = 0; col < this->meteoGridDbHandler->gridStructure().header().nrCols; col++)
+        {
+            if (meteoGridDbHandler->meteoGrid()->getMeteoPointActiveId(row, col, &id))
+            {
+                if (!meteoGridDbHandler->gridStructure().isFixedFields())
+                {
+                    if (myFreq == daily)
+                        meteoGridDbHandler->loadGridDailyData(&errorString, QString::fromStdString(id), myFirstDate, myLastDate);
+                    else if (myFreq == hourly)
+                        meteoGridDbHandler->loadGridHourlyData(&errorString, QString::fromStdString(id), myFirstDate.startOfDay(), myLastDate.endOfDay());
+                }
+                else
+                {
+                    if (myFreq == daily)
+                        meteoGridDbHandler->loadGridDailyDataFixedFields(&errorString, QString::fromStdString(id), myFirstDate, myLastDate);
+                    else if (myFreq ==hourly)
+                        meteoGridDbHandler->loadGridHourlyDataFixedFields(&errorString, QString::fromStdString(id), myFirstDate.startOfDay(), myLastDate.endOfDay());
+                }
+
+                for (myDate = myFirstDate; myDate <= myLastDate; myDate = myDate.addDays(1))
+                {
+                    if (myFreq == daily)
+                    {
+                        if (isEqual(meteoGridDbHandler->meteoGrid()->meteoPoint(row, col).getMeteoPointValueD(getCrit3DDate(myDate), myVar), NODATA))
+                        {
+                            if (dateList.indexOf(myDate) == -1)
+                            {
+                                dateList.push_back(myDate);
+                                idList.push_back(QString::fromStdString(id));
+                            }
+                        }
+                    }
+                    else if (myFreq == hourly)
+                    {
+                        for (myHour = 1; myHour <= 24; myHour++)
+                        {
+                            if (isEqual(meteoGridDbHandler->meteoGrid()->meteoPoint(row, col).getMeteoPointValueH(getCrit3DDate(myDate), myHour, 0, myVar), NODATA))
+                            {
+                                if (dateList.indexOf(myDate) == -1)
+                                {
+                                    dateList.push_back(myDate);
+                                    idList.push_back(QString::fromStdString(id));
+                                }
+
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (modality == MODE_GUI) closeProgressBar();
 
     return true;
 }
