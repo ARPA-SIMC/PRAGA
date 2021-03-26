@@ -2506,7 +2506,7 @@ void MainWindow::on_actionMeteogridMissingData_triggered()
             int i=0;
             foreach (QDate myDate, myDateList)
             {
-                outStream << idList[i] << myDate.toString("yyyy-MM-dd") << "\n";
+                outStream << idList[i] << "," << myDate.toString("yyyy-MM-dd") << "\n";
                 i++;
             }
 

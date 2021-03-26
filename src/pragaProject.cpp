@@ -1998,7 +1998,7 @@ bool PragaProject::dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, me
     return true;
 }
 
-bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QList <QDate> dateList, QList <QString> idList)
+bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QList <QDate> &dateList, QList <QString> &idList)
 {
     frequencyType myFreq = getVarFrequency(myVar);
 
