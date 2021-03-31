@@ -2025,14 +2025,14 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                     if (myFreq == daily)
                         meteoGridDbHandler->loadGridDailyData(&errorString, QString::fromStdString(id), myFirstDate, myLastDate);
                     else if (myFreq == hourly)
-                        meteoGridDbHandler->loadGridHourlyData(&errorString, QString::fromStdString(id), myFirstDate.startOfDay(), myLastDate.endOfDay());
+                        meteoGridDbHandler->loadGridHourlyData(&errorString, QString::fromStdString(id), QDateTime(myFirstDate,QTime(0,0,0)), QDateTime(myLastDate,QTime(23,0,0)));
                 }
                 else
                 {
                     if (myFreq == daily)
                         meteoGridDbHandler->loadGridDailyDataFixedFields(&errorString, QString::fromStdString(id), myFirstDate, myLastDate);
                     else if (myFreq ==hourly)
-                        meteoGridDbHandler->loadGridHourlyDataFixedFields(&errorString, QString::fromStdString(id), myFirstDate.startOfDay(), myLastDate.endOfDay());
+                        meteoGridDbHandler->loadGridHourlyDataFixedFields(&errorString, QString::fromStdString(id), QDateTime(myFirstDate,QTime(0,0,0)), QDateTime(myLastDate,QTime(23,0,0)));
                 }
 
                 for (myDate = myFirstDate; myDate <= myLastDate; myDate = myDate.addDays(1))

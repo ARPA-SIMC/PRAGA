@@ -2473,8 +2473,8 @@ void MainWindow::on_actionMeteogridMissingData_triggered()
     if (myVar == noMeteoVar) return;
     frequencyType myFreq = getVarFrequency(myVar);
 
-    QDateTime myFirstTime = myProject.meteoGridDbHandler->firstDate().startOfDay();
-    QDateTime myLastTime = myProject.meteoGridDbHandler->lastDate().endOfDay();
+    QDateTime myFirstTime(myProject.meteoGridDbHandler->firstDate(),QTime(0,0,0));
+    QDateTime myLastTime(myProject.meteoGridDbHandler->lastDate(),QTime(23,0,0));
     if (myFirstTime.isNull())
     {
         myFirstTime.setDate(myProject.getCurrentDate());
