@@ -336,6 +336,14 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                 QMenu menu;
                 QAction *openMeteoWidget = menu.addAction("Open new meteo widget");
                 QAction *appendMeteoWidget = menu.addAction("Append to last meteo widget");
+                if (myProject.meteoGridDbHandler->meteoGrid()->gridStructure().isEnsemble())
+                {
+                    appendMeteoWidget->setEnabled(false);
+                }
+                else
+                {
+                    appendMeteoWidget->setEnabled(true);
+                }
 
                 QAction *selection =  menu.exec(QCursor::pos());
 
