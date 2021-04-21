@@ -30,6 +30,7 @@
 #include "soilDbTools.h"
 #include "utilities.h"
 #include "commonConstants.h"
+#include "soilWidget.h"
 
 #include <QFileInfo>
 #include <QFileDialog>
@@ -50,7 +51,7 @@ Crit3DCropWidget::Crit3DCropWidget()
 
     // font
     QFont myFont = this->font();
-    myFont.setPointSize(8);
+    myFont.setPointSize(9);
     this->setFont(myFont);
 
     // layout
@@ -493,6 +494,9 @@ Crit3DCropWidget::Crit3DCropWidget()
     connect(volWaterContent, &QRadioButton::toggled, [=](){ this->variableWaterContentChanged(); });
 
     connect(tabWidget, &QTabWidget::currentChanged, [=](int index){ this->tabChanged(index); });
+
+    connect(viewWeather, &QAction::triggered, this, &Crit3DCropWidget::on_actionViewWeather);
+    connect(viewSoil, &QAction::triggered, this, &Crit3DCropWidget::on_actionViewSoil);
 
     connect(newCrop, &QAction::triggered, this, &Crit3DCropWidget::on_actionNewCrop);
     connect(deleteCrop, &QAction::triggered, this, &Crit3DCropWidget::on_actionDeleteCrop);
@@ -1830,4 +1834,17 @@ void Crit3DCropWidget::irrigationVolumeChanged()
 void Crit3DCropWidget::variableWaterContentChanged()
 {
     updateTabWaterContent();
+}
+
+void Crit3DCropWidget::on_actionViewWeather()
+{
+    // TO DO
+}
+
+void Crit3DCropWidget::on_actionViewSoil()
+{
+    // TO DO
+    //Crit3DSoilWidget soilWidget;
+    //soilWidget.show();
+
 }
