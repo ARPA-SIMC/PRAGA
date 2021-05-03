@@ -3,6 +3,7 @@ TAVG,line,red
 PREC,bar,blue
 RHAVG,bar,cyan
 RAD,line,magenta
+NET_RAD,line,darkMagenta
 W_VEC_INT,line,darkGreen
 W_VEC_DIR,bar,darkBlue
 W_SCAL_INT,line,darkGreen
@@ -26,6 +27,7 @@ DAILY_RHMIN,bar,yellow
 DAILY_RHMAX,bar,blue
 DAILY_RHAVG,bar,green
 DAILY_RAD,line,magenta
+DAILY_NET_RAD,line,darkMagenta
 DAILY_W_VEC_INT_AVG,line,green
 DAILY_W_VEC_DIR_PREV,bar,darkBlue
 DAILY_W_VEC_INT_MAX,line,darkGreen
