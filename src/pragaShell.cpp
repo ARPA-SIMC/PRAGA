@@ -257,7 +257,7 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
         else if (argumentList.at(i).left(2) == "-r")
             saveRasters = true;
         else if (argumentList.at(i).left(3) == "-s:")
-            saveInterval = argumentList[i].right(argumentList[i].length()-3).toInt(&parseSaveInterval, 1);
+            saveInterval = argumentList[i].right(argumentList[i].length()-3).toInt(&parseSaveInterval);
 
     }
 
