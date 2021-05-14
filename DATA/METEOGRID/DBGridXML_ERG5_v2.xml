@@ -87,23 +87,23 @@
 		</varcode>
 		<varcode>
 			<varcode>105</varcode>
-			<varpraganame>LEAFW</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>106</varcode>
-			<varpraganame>ET0</varpraganame>
-		</varcode>
-		<varcode>
-			<varcode>107</varcode>
 			<varpraganame>W_SCAL_INT</varpraganame>
 		</varcode>
 		<varcode>
-			<varcode>108</varcode>
+			<varcode>106</varcode>
+			<varpraganame>W_VEC_DIR</varpraganame>
+		</varcode>
+		<varcode>
+			<varcode>107</varcode>
 			<varpraganame>W_VEC_INT</varpraganame>
 		</varcode>
 		<varcode>
+			<varcode>108</varcode>
+			<varpraganame>LEAFW</varpraganame>
+		</varcode>
+		<varcode>
 			<varcode>109</varcode>
-			<varpraganame>W_VEC_DIR</varpraganame>
+			<varpraganame>ET0</varpraganame>
 		</varcode>
 	</tablehourly>
 	
