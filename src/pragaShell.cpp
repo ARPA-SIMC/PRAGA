@@ -302,14 +302,20 @@ bool cmdAggregationGridPeriod(PragaProject* myProject, QStringList argumentList)
 
     QDate dateIni, dateFin;
     QList <meteoVariable> variables;
+    QList <QString> varString;
+    QString var;
     meteoVariable meteoVar;
 
     for (int i = 1; i < argumentList.size(); i++)
     {
         if (argumentList[i].left(3) == "-v:")
         {
-            meteoVar = getMeteoVar(argumentList[i].right(argumentList[i].length()-3).toStdString());
-            if (meteoVar != noMeteoVar) variables << meteoVar;
+            varString = argumentList[i].right(argumentList[i].length()-3).split(",");
+            foreach (var,varString)
+            {
+                meteoVar = getMeteoVar(var.toStdString());
+                if (meteoVar != noMeteoVar) variables << meteoVar;
+            }
         }
         else if (argumentList.at(i).left(4) == "-d1:")
         {
