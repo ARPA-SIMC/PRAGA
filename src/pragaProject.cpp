@@ -1678,6 +1678,54 @@ bool PragaProject::timeAggregateGrid(QDate dateIni, QDate dateFin, QList <meteoV
     return true;
 }
 
+bool PragaProject::hourlyDerivedVariablesGrid(QDateTime first, QDateTime last, bool loadData, bool saveData)
+{
+
+    // check meteo grid
+    if (! meteoGridLoaded)
+    {
+        logError("No meteo grid");
+        return false;
+    }
+
+    // check dates
+    if (first.isNull() || last.isNull() || first > last)
+    {
+        logError("Wrong period");
+        return false;
+    }
+
+    // now only hourly-->daily
+    if (loadData)
+    {
+        logInfoGUI("Loading grid data... ");
+        logInfoGUI(first.toString("dd/MM/yyyyhh:mm"));
+        logInfoGUI(last.toString("dd/MM/yyyyhh:mm"));
+        loadMeteoGridHourlyData(first, last, false);
+    }
+
+    QDateTime firstDateTime = first;
+    while(firstDateTime < last)
+    {
+        meteoGridDbHandler->meteoGrid()->computeHourlyDerivedVariables(getCrit3DTime(firstDateTime));
+        firstDateTime = firstDateTime.addSecs(3600);
+    }
+
+    // saving hourly meteo grid data to DB
+    if (saveData)
+    {
+
+        // save derived variables
+        QList <meteoVariable> variables;
+        variables << leafWetness << referenceEvapotranspiration;
+        QString myError;
+        logInfoGUI("Saving meteo grid data");
+        if (! meteoGridDbHandler->saveGridData(&myError, first, last, variables)) return false;
+    }
+
+    return true;
+}
+
 bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, QList <meteoVariable> aggrVariables, bool saveRasters, int saveIntervalDays)
 {
     // check variables
