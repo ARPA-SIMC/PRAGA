@@ -16,6 +16,8 @@ QStringList getPragaCommandList()
     cmdList.append("Netcdf       | ExportNetcdf");
     cmdList.append("XMLToNetcdf  | ExportXMLElaborationsToNetcdf");
     cmdList.append("LoadForecast | LoadForecastData");
+    cmdList.append("GridAggragation | GridAggr");
+    cmdList.append("GridDerivedVariables | GridDerVar");
 
     return cmdList;
 }
@@ -67,6 +69,11 @@ bool PragaProject::executePragaCommand(QStringList argumentList, bool* isCommand
     {
         *isCommandFound = true;
         return cmdAggregationGridPeriod(this, argumentList);
+    }
+    else if (command == "GRIDDERIVEDVARIABLES" || command == "GRIDDERVAR")
+    {
+        *isCommandFound = true;
+        return cmdHourlyDerivedVariablesGrid(this, argumentList);
     }
     else if (command == "NETCDF" || command == "NETCDFEXPORT")
     {
@@ -318,6 +325,37 @@ bool cmdAggregationGridPeriod(PragaProject* myProject, QStringList argumentList)
     }
 
     if (! myProject->timeAggregateGrid(dateIni, dateFin, variables, true, true))
+        return false;
+
+    return true;
+}
+
+bool cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QStringList argumentList)
+{
+    if (argumentList.size() < 2)
+    {
+        myProject->logError("Missing parameters for hourly derived variables computation");
+        return false;
+    }
+
+    QDateTime first, last;
+
+    for (int i = 1; i < argumentList.size(); i++)
+    {
+        if (argumentList.at(i).left(4) == "-d1:")
+        {
+            QString dateIniStr = argumentList[i].right(argumentList[i].length()-4);
+            first = QDateTime::fromString(dateIniStr, "dd/MM/yyyyhh:mm");
+        }
+        else if (argumentList.at(i).left(4) == "-d2:")
+        {
+            QString dateFinStr = argumentList[i].right(argumentList[i].length()-4);
+            last = QDateTime::fromString(dateFinStr, "dd/MM/yyyyhh:mm");
+        }
+
+    }
+
+    if (! myProject->hourlyDerivedVariablesGrid(first, last, true, true))
         return false;
 
     return true;
