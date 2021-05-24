@@ -338,19 +338,19 @@ bool cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QStringList argument
         return false;
     }
 
-    QDateTime first, last;
+    QDate first, last;
 
     for (int i = 1; i < argumentList.size(); i++)
     {
         if (argumentList.at(i).left(4) == "-d1:")
         {
             QString dateIniStr = argumentList[i].right(argumentList[i].length()-4);
-            first = QDateTime::fromString(dateIniStr, "dd/MM/yyyyhh:mm");
+            first = QDate::fromString(dateIniStr, "dd/MM/yyyy");
         }
         else if (argumentList.at(i).left(4) == "-d2:")
         {
             QString dateFinStr = argumentList[i].right(argumentList[i].length()-4);
-            last = QDateTime::fromString(dateFinStr, "dd/MM/yyyyhh:mm");
+            last = QDate::fromString(dateFinStr, "dd/MM/yyyy");
         }
 
     }

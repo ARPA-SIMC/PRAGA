@@ -1678,7 +1678,7 @@ bool PragaProject::timeAggregateGrid(QDate dateIni, QDate dateFin, QList <meteoV
     return true;
 }
 
-bool PragaProject::hourlyDerivedVariablesGrid(QDateTime first, QDateTime last, bool loadData, bool saveData)
+bool PragaProject::hourlyDerivedVariablesGrid(QDate first, QDate last, bool loadData, bool saveData)
 {
 
     // check meteo grid
@@ -1695,22 +1695,23 @@ bool PragaProject::hourlyDerivedVariablesGrid(QDateTime first, QDateTime last, b
         return false;
     }
 
+    QDateTime firstDateTime = QDateTime(first, QTime(1,0));
+    QDateTime lastDateTime = QDateTime(last.addDays(1), QTime(0,0));
+
     // now only hourly-->daily
     if (loadData)
     {
         logInfoGUI("Loading grid data... ");
-        logInfoGUI(first.toString("dd/MM/yyyyhh:mm"));
-        logInfoGUI(last.toString("dd/MM/yyyyhh:mm"));
-        loadMeteoGridHourlyData(first, last, false);
+        loadMeteoGridHourlyData(firstDateTime, lastDateTime, false);
     }
 
-    QDateTime firstDateTime = first;
-    while(firstDateTime <= last)
+    while(firstDateTime <= lastDateTime)
     {
         meteoGridDbHandler->meteoGrid()->computeHourlyDerivedVariables(getCrit3DTime(firstDateTime));
         firstDateTime = firstDateTime.addSecs(3600);
     }
 
+    firstDateTime = QDateTime(first, QTime(1,0));
     // saving hourly meteo grid data to DB
     if (saveData)
     {
@@ -1720,7 +1721,7 @@ bool PragaProject::hourlyDerivedVariablesGrid(QDateTime first, QDateTime last, b
         variables << leafWetness << referenceEvapotranspiration;
         QString myError;
         logInfoGUI("Saving meteo grid data");
-        if (! meteoGridDbHandler->saveGridData(&myError, first, last, variables)) return false;
+        if (! meteoGridDbHandler->saveGridData(&myError, firstDateTime, lastDateTime, variables)) return false;
     }
 
     return true;

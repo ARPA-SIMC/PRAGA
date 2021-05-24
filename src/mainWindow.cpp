@@ -2536,7 +2536,6 @@ void MainWindow::on_dayAfterButton_clicked()
 
 void MainWindow::on_actionLoad_forecast_triggered()
 {
-
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("dat files (*.dat)"));
     bool overWrite = true;
     bool checkTables = false;
@@ -2544,7 +2543,6 @@ void MainWindow::on_actionLoad_forecast_triggered()
     {
         myProject.loadForecastToGrid(fileName, overWrite, checkTables);
     }
-
 }
 
 
