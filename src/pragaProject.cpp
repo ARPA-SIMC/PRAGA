@@ -1705,7 +1705,7 @@ bool PragaProject::hourlyDerivedVariablesGrid(QDateTime first, QDateTime last, b
     }
 
     QDateTime firstDateTime = first;
-    while(firstDateTime < last)
+    while(firstDateTime <= last)
     {
         meteoGridDbHandler->meteoGrid()->computeHourlyDerivedVariables(getCrit3DTime(firstDateTime));
         firstDateTime = firstDateTime.addSecs(3600);
