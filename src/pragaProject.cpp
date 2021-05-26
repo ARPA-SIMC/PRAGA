@@ -1659,7 +1659,7 @@ bool PragaProject::timeAggregateGrid(QDate dateIni, QDate dateFin, QList <meteoV
     // now only hourly-->daily
     if (loadData)
     {
-        logInfoGUI("Loading grid data... ");
+        logInfoGUI("Loading grid data: " + dateIni.toString("dd/MM/yyyy") + "-" + dateFin.toString("dd/MM/yyyy"));
         loadMeteoGridHourlyData(QDateTime(dateIni, QTime(1,0)), QDateTime(dateFin.addDays(1), QTime(0,0)), false);
     }
 
@@ -1701,7 +1701,7 @@ bool PragaProject::hourlyDerivedVariablesGrid(QDate first, QDate last, bool load
     // now only hourly-->daily
     if (loadData)
     {
-        logInfoGUI("Loading grid data... ");
+        logInfoGUI("Loading grid data: " + first.toString("dd/MM/yyyy") + "-" + last.toString("dd/MM/yyyy"));
         loadMeteoGridHourlyData(firstDateTime, lastDateTime, false);
     }
 
