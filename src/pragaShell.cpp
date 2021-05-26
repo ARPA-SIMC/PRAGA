@@ -300,7 +300,10 @@ bool cmdAggregationGridPeriod(PragaProject* myProject, QStringList argumentList)
         return false;
     }
 
-    QDate dateIni, dateFin;
+    // default date
+    QDate dateIni = QDate::currentDate();
+    QDate dateFin = dateIni.addDays(9);
+
     QList <meteoVariable> variables;
     QList <QString> varString;
     QString var;
@@ -338,13 +341,10 @@ bool cmdAggregationGridPeriod(PragaProject* myProject, QStringList argumentList)
 
 bool cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QStringList argumentList)
 {
-    if (argumentList.size() < 2)
-    {
-        myProject->logError("Missing parameters for hourly derived variables computation");
-        return false;
-    }
 
-    QDate first, last;
+    // default date
+    QDate first = QDate::currentDate();
+    QDate last = first.addDays(9);
 
     for (int i = 1; i < argumentList.size(); i++)
     {
