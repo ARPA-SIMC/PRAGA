@@ -600,7 +600,7 @@ void MainWindow::interpolateDemGUI()
         if (! myProject.interpolationDemMain(airTemperature, myProject.getCrit3DCurrentTime(), myProject.hourlyMeteoMaps->mapHourlyTair)) return;
 
         if (myProject.interpolationSettings.getUseInterpolatedTForRH())
-            myProject.passInterpolatedTemperatureToHumidityPoints(myProject.getCrit3DCurrentTime());
+            myProject.passInterpolatedTemperatureToHumidityPoints(myProject.getCrit3DCurrentTime(), myProject.meteoSettings);
 
         if (myProject.interpolationDemMain(airDewTemperature, myProject.getCrit3DCurrentTime(), myProject.hourlyMeteoMaps->mapHourlyTdew))
         {
@@ -1078,7 +1078,7 @@ void MainWindow::redrawMeteoGrid(visualizationType showType, bool showInterpolat
                 Crit3DTime time = myProject.getCrit3DCurrentTime();
 
                 if (frequency == daily)
-                    myProject.meteoGridDbHandler->meteoGrid()->fillCurrentDailyValue(time.date, variable);
+                    myProject.meteoGridDbHandler->meteoGrid()->fillCurrentDailyValue(time.date, variable, myProject.meteoSettings);
                 else if (frequency == hourly)
                     myProject.meteoGridDbHandler->meteoGrid()->fillCurrentHourlyValue(time.date, time.getHour(), time.getMinutes(), variable);
                 else                    return;

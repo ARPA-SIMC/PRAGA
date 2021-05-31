@@ -128,14 +128,6 @@ bool PragaProject::loadPragaSettings()
             {
                 elabSettings->setGridMinCoverage(parameters->value("grid_min_coverage").toFloat());
             }
-            if (parameters->contains("compute_tmed") && !parameters->value("compute_tmed").toString().isEmpty())
-            {
-                elabSettings->setAutomaticTmed(parameters->value("compute_tmed").toBool());
-            }
-            if (parameters->contains("compute_et0hs") && !parameters->value("compute_et0hs").toString().isEmpty())
-            {
-                elabSettings->setAutomaticETP(parameters->value("compute_et0hs").toBool());
-            }
             if (parameters->contains("merge_joint_stations") && !parameters->value("merge_joint_stations").toString().isEmpty())
             {
                 elabSettings->setMergeJointStations(parameters->value("merge_joint_stations").toBool());
@@ -1586,8 +1578,6 @@ void PragaProject::savePragaParameters()
         parameters->setValue("anomaly_pts_max_distance", QString::number(double(clima->getElabSettings()->getAnomalyPtsMaxDistance())));
         parameters->setValue("anomaly_pts_max_delta_z", QString::number(double(clima->getElabSettings()->getAnomalyPtsMaxDeltaZ())));
         parameters->setValue("grid_min_coverage", QString::number(double(clima->getElabSettings()->getGridMinCoverage())));
-        parameters->setValue("compute_tmed", clima->getElabSettings()->getAutomaticTmed());
-        parameters->setValue("compute_et0hs", clima->getElabSettings()->getAutomaticETP());
         parameters->setValue("merge_joint_stations", clima->getElabSettings()->getMergeJointStations());
     parameters->endGroup();
 }
@@ -1672,7 +1662,7 @@ bool PragaProject::timeAggregateGrid(QDate dateIni, QDate dateFin, QList <meteoV
     {
         QString myError;
         logInfoGUI("Saving meteo grid data");
-        if (! meteoGridDbHandler->saveGridData(&myError, QDateTime(dateIni, QTime(1,0,0)), QDateTime(dateFin.addDays(1), QTime(0,0,0)), variables)) return false;
+        if (! meteoGridDbHandler->saveGridData(&myError, QDateTime(dateIni, QTime(1,0,0)), QDateTime(dateFin.addDays(1), QTime(0,0,0)), variables, meteoSettings)) return false;
     }
 
     return true;
@@ -1721,7 +1711,7 @@ bool PragaProject::hourlyDerivedVariablesGrid(QDate first, QDate last, bool load
         variables << leafWetness << referenceEvapotranspiration;
         QString myError;
         logInfoGUI("Saving meteo grid data");
-        if (! meteoGridDbHandler->saveGridData(&myError, firstDateTime, lastDateTime, variables)) return false;
+        if (! meteoGridDbHandler->saveGridData(&myError, firstDateTime, lastDateTime, variables, meteoSettings)) return false;
     }
 
     return true;
@@ -1842,7 +1832,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
                         if (myVar == airRelHumidity && interpolationSettings.getUseDewPoint())
                         {
                             if (interpolationSettings.getUseInterpolatedTForRH())
-                                passInterpolatedTemperatureToHumidityPoints(getCrit3DTime(myDate, myHour));
+                                passInterpolatedTemperatureToHumidityPoints(getCrit3DTime(myDate, myHour), meteoSettings);
                             if (! interpolationDemMain(airDewTemperature, getCrit3DTime(myDate, myHour), hourlyMeteoMaps->mapHourlyTdew)) return false;
                             hourlyMeteoMaps->computeRelativeHumidityMap(hourlyMeteoMaps->mapHourlyRelHum);
 
@@ -1940,7 +1930,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
             // saving hourly and daily meteo grid data to DB
             logInfoGUI("Saving meteo grid data from " + saveDateIni.toString("dd/MM/yyyy") + " to " + myDate.toString("dd/MM/yyyy"));
-            meteoGridDbHandler->saveGridData(&myError, QDateTime(saveDateIni, QTime(1,0,0)), QDateTime(myDate.addDays(1), QTime(0,0,0)), varToSave);
+            meteoGridDbHandler->saveGridData(&myError, QDateTime(saveDateIni, QTime(1,0,0)), QDateTime(myDate.addDays(1), QTime(0,0,0)), varToSave, meteoSettings);
 
             meteoGridDbHandler->meteoGrid()->emptyGridData(getCrit3DDate(saveDateIni), getCrit3DDate(myDate));
 
@@ -2018,7 +2008,7 @@ bool PragaProject::dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, me
             counter = 0;
             for (i = 0; i < nrMeteoPoints; i++)
                 if (dataset == "" || meteoPoints[i].dataset == dataset.toStdString())
-                    if (! isEqual(meteoPoints[i].getMeteoPointValueD(getCrit3DDate(myDate), myVar), NODATA)) counter++;
+                    if (! isEqual(meteoPoints[i].getMeteoPointValueD(getCrit3DDate(myDate), myVar, meteoSettings), NODATA)) counter++;
 
             myCounter.push_back(counter);
         }
@@ -2088,7 +2078,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 {
                     if (myFreq == daily)
                     {
-                        if (isEqual(meteoGridDbHandler->meteoGrid()->meteoPoint(row, col).getMeteoPointValueD(getCrit3DDate(myDate), myVar), NODATA))
+                        if (isEqual(meteoGridDbHandler->meteoGrid()->meteoPoint(row, col).getMeteoPointValueD(getCrit3DDate(myDate), myVar, meteoSettings), NODATA))
                         {
                             if (dateList.indexOf(myDate) == -1)
                             {
