@@ -62,6 +62,7 @@ void Crit1DProject::initialize()
     waterDeficitDepth.clear();
     waterContentDepth.clear();
     waterPotentialDepth.clear();
+    awcDepth.clear();
 }
 
 
@@ -170,22 +171,25 @@ bool Crit1DProject::readSettings()
 
     projectSettings->beginGroup("csv");
         outputCsvFileName = projectSettings->value("csv_output","").toString();
-        if (outputCsvFileName.right(4) == ".csv")
+        if (outputCsvFileName != "")
         {
-            outputCsvFileName = outputCsvFileName.left(outputCsvFileName.length()-4);
-        }
+            if (outputCsvFileName.right(4) == ".csv")
+            {
+                outputCsvFileName = outputCsvFileName.left(outputCsvFileName.length()-4);
+            }
 
-        bool addDate = projectSettings->value("add_date_to_filename","").toBool();
-        if (addDate)
-        {
-            QString dateStr = QDate::currentDate().toString("yyyy-MM-dd");
-            outputCsvFileName += "_" + dateStr;
-        }
-        outputCsvFileName += ".csv";
+            bool addDate = projectSettings->value("add_date_to_filename","").toBool();
+            if (addDate)
+            {
+                QString dateStr = QDate::currentDate().toString("yyyy-MM-dd");
+                outputCsvFileName += "_" + dateStr;
+            }
+            outputCsvFileName += ".csv";
 
-        if (outputCsvFileName.left(1) == ".")
-        {
-            outputCsvFileName = path + QDir::cleanPath(outputCsvFileName);
+            if (outputCsvFileName.at(0) == ".")
+            {
+                outputCsvFileName = path + QDir::cleanPath(outputCsvFileName);
+            }
         }
 
     projectSettings->endGroup();
@@ -193,12 +197,6 @@ bool Crit1DProject::readSettings()
     // OUTPUT variables (optional)
     QStringList depthList;
     projectSettings->beginGroup("output");
-        depthList = projectSettings->value("waterDeficit").toStringList();
-        if (! setVariableDepth(depthList, waterDeficitDepth))
-        {
-            projectError = "Wrong water deficit depth in " + configFileName;
-            return false;
-        }
         depthList = projectSettings->value("waterContent").toStringList();
         if (! setVariableDepth(depthList, waterContentDepth))
         {
@@ -209,6 +207,18 @@ bool Crit1DProject::readSettings()
         if (! setVariableDepth(depthList, waterPotentialDepth))
         {
             projectError = "Wrong water potential depth in " + configFileName;
+            return false;
+        }
+        depthList = projectSettings->value("waterDeficit").toStringList();
+        if (! setVariableDepth(depthList, waterDeficitDepth))
+        {
+            projectError = "Wrong water deficit depth in " + configFileName;
+            return false;
+        }
+        depthList = projectSettings->value("awc").toStringList();
+        if (! setVariableDepth(depthList, awcDepth))
+        {
+            projectError = "Wrong available water capacity depth in " + configFileName;
             return false;
         }
     projectSettings->endGroup();
@@ -933,13 +943,17 @@ bool Crit1DProject::computeMonthlyForecast(unsigned int index, double irriRatio)
     if (irriRatio < EPSILON)
     {
         // No irrigation: nothing to do
-        outputCsvFile << unitList[index].idCase.toStdString() << "," << unitList[index].idCrop.toStdString() << ",";
-        outputCsvFile << unitList[index].idSoil.toStdString() << "," << unitList[index].idMeteo.toStdString();
-        outputCsvFile << ",0,0,0,0,0,0,0,0,0,0\n";
+        outputCsvFile << unitList[index].idCase.toStdString() << ",";
+        outputCsvFile << unitList[index].idCropClass.toStdString() << ",";
+        outputCsvFile << "0,0,0,0,0,0,0,0,0,0\n";
         return true;
     }
 
     // TODO
+    outputCsvFile << unitList[index].idCase.toStdString() << ",";
+    outputCsvFile << unitList[index].idCropClass.toStdString() << ",";
+    outputCsvFile << "0,0,0,0,0,0,0,0,0,0\n";
+
     return true;
 }
 
@@ -1007,7 +1021,7 @@ bool Crit1DProject::setPercentileOutputCsv()
         }
         if (isMonthlyForecast)
         {
-            outputCsvFile << "ID_CASE,CROP,SOIL,METEO,irr5,irr25,irr50,irr75,irr95,prec5,prec25,prec50,prec75,prec95\n";
+            outputCsvFile << "ID_CASE,CROP,irr5,irr25,irr50,irr75,irr95,prec5,prec25,prec50,prec75,prec95\n";
         }
     }
 
@@ -1220,11 +1234,6 @@ bool Crit1DProject::createOutputTable(QString &myError)
                   + " LAI REAL, ROOT_DEPTH REAL, BALANCE REAL";
 
     // specific depth variables
-    for (unsigned int i = 0; i < waterDeficitDepth.size(); i++)
-    {
-        QString fieldName = "DEFICIT_" + QString::number(waterDeficitDepth[i]);
-        queryString += ", " + fieldName + " REAL";
-    }
     for (unsigned int i = 0; i < waterContentDepth.size(); i++)
     {
         QString fieldName = "SWC_" + QString::number(waterContentDepth[i]);
@@ -1233,6 +1242,16 @@ bool Crit1DProject::createOutputTable(QString &myError)
     for (unsigned int i = 0; i < waterPotentialDepth.size(); i++)
     {
         QString fieldName = "WP_" + QString::number(waterPotentialDepth[i]);
+        queryString += ", " + fieldName + " REAL";
+    }
+    for (unsigned int i = 0; i < waterDeficitDepth.size(); i++)
+    {
+        QString fieldName = "DEFICIT_" + QString::number(waterDeficitDepth[i]);
+        queryString += ", " + fieldName + " REAL";
+    }
+    for (unsigned int i = 0; i < awcDepth.size(); i++)
+    {
+        QString fieldName = "AWC_" + QString::number(awcDepth[i]);
         queryString += ", " + fieldName + " REAL";
     }
 
@@ -1260,11 +1279,6 @@ void Crit1DProject::prepareOutput(Crit3DDate myDate, bool isFirst)
                        + " TRANSP_MAX, TRANSP, EVAP_MAX, EVAP, LAI, ROOT_DEPTH, BALANCE";
 
         // specific depth variables
-        for (unsigned int i = 0; i < waterDeficitDepth.size(); i++)
-        {
-            QString fieldName = "DEFICIT_" + QString::number(waterDeficitDepth[i]);
-            outputString += ", " + fieldName;
-        }
         for (unsigned int i = 0; i < waterContentDepth.size(); i++)
         {
             QString fieldName = "SWC_" + QString::number(waterContentDepth[i]);
@@ -1273,6 +1287,16 @@ void Crit1DProject::prepareOutput(Crit3DDate myDate, bool isFirst)
         for (unsigned int i = 0; i < waterPotentialDepth.size(); i++)
         {
             QString fieldName = "WP_" + QString::number(waterPotentialDepth[i]);
+            outputString += ", " + fieldName;
+        }
+        for (unsigned int i = 0; i < waterDeficitDepth.size(); i++)
+        {
+            QString fieldName = "DEFICIT_" + QString::number(waterDeficitDepth[i]);
+            outputString += ", " + fieldName;
+        }
+        for (unsigned int i = 0; i < awcDepth.size(); i++)
+        {
+            QString fieldName = "AWC_" + QString::number(awcDepth[i]);
             outputString += ", " + fieldName;
         }
 
@@ -1305,10 +1329,6 @@ void Crit1DProject::prepareOutput(Crit3DDate myDate, bool isFirst)
                     + "," + QString::number(myCase.output.dailyBalance, 'g', 3);
 
     // specific depth variables
-    for (unsigned int i = 0; i < waterDeficitDepth.size(); i++)
-    {
-        outputString += "," + QString::number(myCase.getSoilWaterDeficit(waterDeficitDepth[i]), 'g', 4);
-    }
     for (unsigned int i = 0; i < waterContentDepth.size(); i++)
     {
         outputString += "," + QString::number(myCase.getWaterContent(waterContentDepth[i]), 'g', 4);
@@ -1316,6 +1336,14 @@ void Crit1DProject::prepareOutput(Crit3DDate myDate, bool isFirst)
     for (unsigned int i = 0; i < waterPotentialDepth.size(); i++)
     {
         outputString += "," + QString::number(myCase.getWaterPotential(waterPotentialDepth[i]), 'g', 4);
+    }
+    for (unsigned int i = 0; i < waterDeficitDepth.size(); i++)
+    {
+        outputString += "," + QString::number(myCase.getSoilWaterDeficit(waterDeficitDepth[i]), 'g', 4);
+    }
+    for (unsigned int i = 0; i < awcDepth.size(); i++)
+    {
+        outputString += "," + QString::number(myCase.getAvailableWaterCapacity(awcDepth[i]), 'g', 4);
     }
 
     outputString += ")";
