@@ -25,18 +25,6 @@ ElaborationTab::ElaborationTab(Crit3DElaborationSettings *elabSettings)
     gridMinCoverageEdit.setValidator(doubleValPerc);
     gridMinCoverageEdit.setText(QString::number(elabSettings->getGridMinCoverage()));
 
-    QHBoxLayout *TmedLayout = new QHBoxLayout;
-    QLabel *automaticTmed = new QLabel(tr("compute daily tmed from tmin and tmax when missing:"));
-    TmedLayout->addWidget(automaticTmed);
-    automaticTmedEdit.setChecked(elabSettings->getAutomaticTmed());
-    TmedLayout->addWidget(&automaticTmedEdit);
-
-    QHBoxLayout *ETPLayout = new QHBoxLayout;
-    QLabel *automaticETP = new QLabel(tr("compute Hargreaves-Samani ET0 when missing:"));
-    ETPLayout->addWidget(automaticETP);
-    automaticETPEdit.setChecked(elabSettings->getAutomaticETP());
-    ETPLayout->addWidget(&automaticETPEdit);
-
     QHBoxLayout *StationsLayout = new QHBoxLayout;
     QLabel *mergeJointStations = new QLabel(tr("automatically merge joint stations:"));
     StationsLayout->addWidget(mergeJointStations);
@@ -52,10 +40,6 @@ ElaborationTab::ElaborationTab(Crit3DElaborationSettings *elabSettings)
 
     mainLayout->addWidget(gridMinCoverage);
     mainLayout->addWidget(&gridMinCoverageEdit);
-
-    mainLayout->addLayout(TmedLayout);
-
-    mainLayout->addLayout(ETPLayout);
 
     mainLayout->addLayout(StationsLayout);
 
@@ -99,8 +83,6 @@ bool DialogPragaSettings::acceptPragaValues()
     _elabSettings->setGridMinCoverage(elabTab->gridMinCoverageEdit.text().toFloat());
     _elabSettings->setAnomalyPtsMaxDistance(elabTab->anomalyPtsMaxDisEdit.text().toFloat());
     _elabSettings->setAnomalyPtsMaxDeltaZ(elabTab->anomalyPtsMaxDeltaZEdit.text().toFloat());
-    _elabSettings->setAutomaticTmed(elabTab->automaticTmedEdit.isChecked());
-    _elabSettings->setAutomaticETP(elabTab->automaticETPEdit.isChecked());
     _elabSettings->setMergeJointStations(elabTab->mergeJointStationsEdit.isChecked());
 
     project_->savePragaParameters();

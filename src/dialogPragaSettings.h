@@ -25,8 +25,6 @@ public:
     QLineEdit anomalyPtsMaxDisEdit;
     QLineEdit anomalyPtsMaxDeltaZEdit;
     QLineEdit gridMinCoverageEdit;
-    QCheckBox automaticTmedEdit;
-    QCheckBox automaticETPEdit;
     QCheckBox mergeJointStationsEdit;
 
 private:
