@@ -2534,8 +2534,11 @@ void MainWindow::on_dayAfterButton_clicked()
     this->ui->dateEdit->setDate(this->ui->dateEdit->date().addDays(1));
 }
 
+
 void MainWindow::on_actionLoad_forecast_triggered()
 {
+    // LC ELIMINARE?
+    /*
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("dat files (*.dat)"));
     bool overWrite = true;
     bool checkTables = false;
@@ -2543,6 +2546,8 @@ void MainWindow::on_actionLoad_forecast_triggered()
     {
         myProject.loadForecastToGrid(fileName, overWrite, checkTables);
     }
+    */
 }
+
 
 
