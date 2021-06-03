@@ -2534,20 +2534,34 @@ void MainWindow::on_dayAfterButton_clicked()
     this->ui->dateEdit->setDate(this->ui->dateEdit->date().addDays(1));
 }
 
-
-void MainWindow::on_actionLoad_forecast_triggered()
+void MainWindow::on_actionImport_data_XML_point_triggered()
 {
-    // LC ELIMINARE?
-    /*
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("dat files (*.dat)"));
-    bool overWrite = true;
-    bool checkTables = false;
+    // check meteo point
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        myProject.logError("Open a meteo points DB before");
+        return;
+    }
+
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("xml files (*.xml)"));
     if (fileName != "")
     {
-        myProject.loadForecastToGrid(fileName, overWrite, checkTables);
+        // TO DO
     }
-    */
 }
 
+void MainWindow::on_actionImport_data_XML_grid_triggered()
+{
+    // check meteo grid
+    if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr)
+    {
+        myProject.logError("Open a meteo grid DB before");
+        return;
+    }
 
-
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("xml files (*.xml)"));
+    if (fileName != "")
+    {
+        // TO DO
+    }
+}

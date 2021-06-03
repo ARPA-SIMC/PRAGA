@@ -133,9 +133,11 @@
 
         void on_dayAfterButton_clicked();
 
-        void on_actionLoad_forecast_triggered();
-
         void on_actionMeteogridMissingData_triggered();
+
+        void on_actionImport_data_XML_point_triggered();
+
+        void on_actionImport_data_XML_grid_triggered();
 
     protected:
         /*!

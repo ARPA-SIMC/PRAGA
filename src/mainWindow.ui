@@ -2466,7 +2466,7 @@
      <x>0</x>
      <y>0</y>
      <width>1392</width>
-     <height>22</height>
+     <height>30</height>
     </rect>
    </property>
    <property name="palette">
@@ -2933,7 +2933,7 @@
      <addaction name="actionFileMeteogridOpen"/>
      <addaction name="actionFileMeteogridClose"/>
      <addaction name="actionFileMeteogridExportNetcdf"/>
-     <addaction name="actionLoad_forecast"/>
+     <addaction name="actionImport_data_XML_grid"/>
     </widget>
     <widget class="QMenu" name="menuFileMeteopoint">
      <property name="title">
@@ -2949,6 +2949,7 @@
      <addaction name="actionFileMeteopointOpen"/>
      <addaction name="actionFileMeteopointClose"/>
      <addaction name="actionFileMeteopointDownload"/>
+     <addaction name="actionImport_data_XML_point"/>
     </widget>
     <addaction name="actionFileOpenProject"/>
     <addaction name="actionFileCloseProject"/>
@@ -3487,6 +3488,16 @@
   <action name="actionMeteogridMissingData">
    <property name="text">
     <string>Find missing data...</string>
+   </property>
+  </action>
+  <action name="actionImport_data_XML_point">
+   <property name="text">
+    <string>Import data XML</string>
+   </property>
+  </action>
+  <action name="actionImport_data_XML_grid">
+   <property name="text">
+    <string>Import data XML</string>
    </property>
   </action>
  </widget>
