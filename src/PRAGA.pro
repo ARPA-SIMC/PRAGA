@@ -14,7 +14,7 @@ INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/crit3dDate ../agrolib/mathFunctions ../agrolib/meteo ../agrolib/gis  \
                 ../agrolib/interpolation ../agrolib/solarRadiation ../agrolib/utilities  \
                 ../agrolib/dbMeteoPoints ../agrolib/dbMeteoGrid ../agrolib/meteoWidget ../agrolib/climate \
-                ../agrolib/netcdfHandler  ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/importDataset ../agrolib/project
+                ../agrolib/netcdfHandler  ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/importDataXML ../agrolib/project
 
 CONFIG += debug_and_release
 
@@ -39,7 +39,7 @@ CONFIG(debug, debug|release) {
     macx:{
         LIBS += -L/usr/local/lib/ -lnetcdf
     }
-    LIBS += -L../agrolib/importDataset/debug -limportDataset
+    LIBS += -L../agrolib/importDataXML/debug -limportDataXML
     LIBS += -L../agrolib/meteoWidget/debug -lmeteoWidget
     LIBS += -L../agrolib/dbMeteoGrid/debug -ldbMeteoGrid
     LIBS += -L../agrolib/dbMeteoPoints/debug -ldbMeteoPoints
@@ -66,7 +66,7 @@ CONFIG(debug, debug|release) {
     macx:{
         LIBS += -L/usr/local/lib/ -lnetcdf
     }
-    LIBS += -L../agrolib/importDataset/release -limportDataset
+    LIBS += -L../agrolib/importDataXML/release -limportDataXML
     LIBS += -L../agrolib/meteoWidget/release -lmeteoWidget
     LIBS += -L../agrolib/dbMeteoGrid/release -ldbMeteoGrid
     LIBS += -L../agrolib/dbMeteoPoints/release -ldbMeteoPoints

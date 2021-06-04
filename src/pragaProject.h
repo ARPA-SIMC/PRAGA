@@ -90,7 +90,7 @@
         bool dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QList<QDate> &dateList, QList<QString> &idList);
 
         bool executePragaCommand(QStringList argumentList, bool* isCommandFound);
-        bool loadForecastToGrid(QString fileName, bool overWrite, bool checkTables);
+        bool loadXMLImportData(QString xmlName, bool isGrid);
 
         #ifdef NETCDF
                 bool exportMeteoGridToNetCDF(QString fileName);

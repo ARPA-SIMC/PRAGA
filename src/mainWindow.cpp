@@ -2543,10 +2543,11 @@ void MainWindow::on_actionImport_data_XML_point_triggered()
         return;
     }
 
+    bool isGrid = false;
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("xml files (*.xml)"));
     if (fileName != "")
     {
-        // TO DO
+        myProject.loadXMLImportData(fileName, isGrid);
     }
 }
 
@@ -2559,9 +2560,10 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
         return;
     }
 
+    bool isGrid = true;
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("xml files (*.xml)"));
     if (fileName != "")
     {
-        // TO DO
+        myProject.loadXMLImportData(fileName, isGrid);
     }
 }

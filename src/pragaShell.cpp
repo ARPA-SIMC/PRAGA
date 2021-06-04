@@ -15,7 +15,7 @@ QStringList getPragaCommandList()
     cmdList.append("Download     | Download");
     cmdList.append("Netcdf       | ExportNetcdf");
     cmdList.append("XMLToNetcdf  | ExportXMLElaborationsToNetcdf");
-    cmdList.append("LoadForecast | LoadForecastData");
+    //cmdList.append("LoadForecast | LoadForecastData");
     cmdList.append("GridAggragation | GridAggr");
     cmdList.append("GridDerivedVariables | GridDerVar");
 
@@ -85,11 +85,11 @@ bool PragaProject::executePragaCommand(QStringList argumentList, bool* isCommand
         *isCommandFound = true;
         return cmdExportXMLElabToNetcdf(this, argumentList);
     }
-    else if (command == "LOADFORECAST" || command == "LOADFORECASTDATA")
-    {
-        *isCommandFound = true;
-        return cmdLoadForecast(this, argumentList);
-    }
+//    else if (command == "LOADFORECAST" || command == "LOADFORECASTDATA")
+//    {
+//        *isCommandFound = true;
+//        return cmdLoadForecast(this, argumentList);
+//    }
     else
     {
         // other specific Praga commands
@@ -492,6 +492,7 @@ bool pragaShell(PragaProject* myProject)
     }
 
 #endif
+    /*
     bool cmdLoadForecast(PragaProject* myProject, QStringList argumentList)
     {
         if (argumentList.size() < 2)
@@ -528,3 +529,4 @@ bool pragaShell(PragaProject* myProject)
 
         return true;
     }
+    */

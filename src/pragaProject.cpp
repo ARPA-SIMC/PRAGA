@@ -10,7 +10,7 @@
 #include "aggregation.h"
 #include "interpolationCmd.h"
 #include "pragaProject.h"
-#include "forecastDataset.h"
+#include "importDataXML.h"
 #include "iostream" //debug
 #include <qdebug.h>
 #include <QFile>
@@ -2313,6 +2313,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
 
 #endif
 
+/*
 bool PragaProject::loadForecastToGrid(QString fileName, bool overWrite, bool checkTables)
 {
     if (! QFile(fileName).exists() || ! QFileInfo(fileName).isFile())
@@ -2327,5 +2328,23 @@ bool PragaProject::loadForecastToGrid(QString fileName, bool overWrite, bool che
     }
     ForecastDataset dataset;
     dataset.importForecastData(fileName);
+    return true;
+}
+*/
+
+bool PragaProject::loadXMLImportData(QString xmlName, bool isGrid)
+{
+    if (! QFile(xmlName).exists() || ! QFileInfo(xmlName).isFile())
+    {
+        logError("Missing file: " + xmlName);
+        return false;
+    }
+    ImportDataXML importData(isGrid,xmlName);
+    QString error;
+    if (!importData.parserXML(&error))
+    {
+        logError(error);
+        return false;
+    }
     return true;
 }
