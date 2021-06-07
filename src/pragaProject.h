@@ -21,6 +21,10 @@
         #include "netcdfHandler.h"
     #endif
 
+    #ifndef IMPORTDATAXML_H
+        #include "importDataXML.h".h"
+    #endif
+
     class PragaProject : public Project
     {
     private:
@@ -42,6 +46,8 @@
         QSettings* pragaDefaultSettings;
         std::map<QString, QList<int> > idArkimetHourlyMap;
         std::map<QString, QList<int> > idArkimetDailyMap;
+
+        ImportDataXML* importData;
 
         #ifdef NETCDF
             NetCDFHandler netCDF;
@@ -90,7 +96,8 @@
         bool dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QList<QDate> &dateList, QList<QString> &idList);
 
         bool executePragaCommand(QStringList argumentList, bool* isCommandFound);
-        bool loadXMLImportData(QString xmlName, bool isGrid);
+        bool parserXMLImportData(QString xmlName, bool isGrid);
+        bool loadXMLImportData(QString fileName);
 
         #ifdef NETCDF
                 bool exportMeteoGridToNetCDF(QString fileName);

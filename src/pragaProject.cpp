@@ -10,8 +10,6 @@
 #include "aggregation.h"
 #include "interpolationCmd.h"
 #include "pragaProject.h"
-#include "importDataXML.h"
-#include "iostream" //debug
 #include <qdebug.h>
 #include <QFile>
 #include <QDir>
@@ -2332,16 +2330,33 @@ bool PragaProject::loadForecastToGrid(QString fileName, bool overWrite, bool che
 }
 */
 
-bool PragaProject::loadXMLImportData(QString xmlName, bool isGrid)
+bool PragaProject::parserXMLImportData(QString xmlName, bool isGrid)
 {
     if (! QFile(xmlName).exists() || ! QFileInfo(xmlName).isFile())
     {
         logError("Missing file: " + xmlName);
         return false;
     }
-    ImportDataXML importData(isGrid,xmlName);
+    ImportDataXML* importData = new ImportDataXML(isGrid,xmlName);
     QString error;
-    if (!importData.parserXML(&error))
+    if (!importData->parserXML(&error))
+    {
+        logError(error);
+        delete importData;
+        return false;
+    }
+    return true;
+}
+
+bool PragaProject::loadXMLImportData(QString fileName)
+{
+    if (! QFile(fileName).exists() || ! QFileInfo(fileName).isFile())
+    {
+        logError("Missing file: " + fileName);
+        return false;
+    }
+    QString error;
+    if (!importData->importData(fileName, &error))
     {
         logError(error);
         return false;

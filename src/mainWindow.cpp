@@ -2549,7 +2549,7 @@ void MainWindow::on_actionImport_data_XML_point_triggered()
         return;
 
 
-    if (!myProject.loadXMLImportData(fileName, isGrid))
+    if (!myProject.parserXMLImportData(fileName, isGrid))
     {
         return;
     }
@@ -2562,6 +2562,14 @@ void MainWindow::on_actionImport_data_XML_point_triggered()
 
     if (dateFiles.isEmpty())
         return;
+
+    for (int i=0; i<dateFiles.size(); i++)
+    {
+        if (!myProject.loadXMLImportData(dateFiles[i]))
+        {
+            // TO DO ask to interrupt or go on
+        }
+    }
 }
 
 void MainWindow::on_actionImport_data_XML_grid_triggered()
@@ -2579,7 +2587,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
         return;
 
 
-    if (!myProject.loadXMLImportData(fileName, isGrid))
+    if (!myProject.parserXMLImportData(fileName, isGrid))
     {
         return;
     }
@@ -2591,4 +2599,12 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
                             "Files (*.prn)");
     if (dateFiles.isEmpty())
         return;
+
+    for (int i=0; i<dateFiles.size(); i++)
+    {
+        if (!myProject.loadXMLImportData(dateFiles[i]))
+        {
+            // TO DO ask to interrupt or go on
+        }
+    }
 }
