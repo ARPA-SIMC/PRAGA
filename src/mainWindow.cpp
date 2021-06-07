@@ -2545,10 +2545,23 @@ void MainWindow::on_actionImport_data_XML_point_triggered()
 
     bool isGrid = false;
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("xml files (*.xml)"));
-    if (fileName != "")
+    if (fileName.isEmpty())
+        return;
+
+
+    if (!myProject.loadXMLImportData(fileName, isGrid))
     {
-        myProject.loadXMLImportData(fileName, isGrid);
+        return;
     }
+
+    QStringList dateFiles = QFileDialog::getOpenFileNames(
+                            this,
+                            "Select one or more files to open",
+                            "",
+                            "Files (*.prn)");
+
+    if (dateFiles.isEmpty())
+        return;
 }
 
 void MainWindow::on_actionImport_data_XML_grid_triggered()
@@ -2562,8 +2575,20 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
 
     bool isGrid = true;
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("xml files (*.xml)"));
-    if (fileName != "")
+    if (fileName.isEmpty())
+        return;
+
+
+    if (!myProject.loadXMLImportData(fileName, isGrid))
     {
-        myProject.loadXMLImportData(fileName, isGrid);
+        return;
     }
+
+    QStringList dateFiles = QFileDialog::getOpenFileNames(
+                            this,
+                            "Select one or more files to open",
+                            "",
+                            "Files (*.prn)");
+    if (dateFiles.isEmpty())
+        return;
 }
