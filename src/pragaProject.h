@@ -22,7 +22,7 @@
     #endif
 
     #ifndef IMPORTDATAXML_H
-        #include "importDataXML.h".h"
+        #include "importDataXML.h"
     #endif
 
     class PragaProject : public Project
