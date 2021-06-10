@@ -2337,7 +2337,14 @@ bool PragaProject::parserXMLImportData(QString xmlName, bool isGrid)
         logError("Missing file: " + xmlName);
         return false;
     }
-    ImportDataXML* importData = new ImportDataXML(isGrid,xmlName);
+    if (isGrid)
+    {
+        importData = new ImportDataXML(isGrid, nullptr, meteoGridDbHandler, xmlName);
+    }
+    else
+    {
+        importData = new ImportDataXML(isGrid, meteoPointsDbHandler, nullptr, xmlName);
+    }
     QString error;
     if (!importData->parserXML(&error))
     {
