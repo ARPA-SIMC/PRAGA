@@ -2563,13 +2563,32 @@ void MainWindow::on_actionImport_data_XML_point_triggered()
     if (dateFiles.isEmpty())
         return;
 
+    FormInfo formInfo;
+    formInfo.showInfo("Loading data...");
     for (int i=0; i<dateFiles.size(); i++)
     {
         if (!myProject.loadXMLImportData(dateFiles[i]))
         {
-            // TO DO ask to interrupt or go on
+            if (i!=dateFiles.size()-1)
+            {
+                // it is not the last
+                QMessageBox msgBox;
+                msgBox.setText("An error occurred: " + dateFiles[i]);
+                msgBox.setInformativeText("Do you want to go on with other files?");
+                msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+                int ret = msgBox.exec();
+                if (ret == QMessageBox::Ok)
+                {
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
+            }
         }
     }
+    formInfo.close();
 }
 
 void MainWindow::on_actionImport_data_XML_grid_triggered()
@@ -2600,11 +2619,30 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
     if (dateFiles.isEmpty())
         return;
 
+    FormInfo formInfo;
+    formInfo.showInfo("Loading data...");
     for (int i=0; i<dateFiles.size(); i++)
     {
         if (!myProject.loadXMLImportData(dateFiles[i]))
         {
-            // TO DO ask to interrupt or go on
+            if (i!=dateFiles.size()-1)
+            {
+                // it is not the last
+                QMessageBox msgBox;
+                msgBox.setText("An error occurred: " + dateFiles[i]);
+                msgBox.setInformativeText("Do you want to go on with other files?");
+                msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+                int ret = msgBox.exec();
+                if (ret == QMessageBox::Ok)
+                {
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
+            }
         }
     }
+    formInfo.close();
 }
