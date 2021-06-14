@@ -2534,76 +2534,6 @@ void MainWindow::on_dayAfterButton_clicked()
     this->ui->dateEdit->setDate(this->ui->dateEdit->date().addDays(1));
 }
 
-void MainWindow::on_actionImport_data_XML_point_triggered()
-{
-    // check meteo point
-    if (myProject.meteoPointsDbHandler == nullptr)
-    {
-        myProject.logError("Open a meteo points DB before");
-        return;
-    }
-
-    bool isGrid = false;
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("xml files (*.xml)"));
-    if (fileName.isEmpty())
-        return;
-
-
-    if (!myProject.parserXMLImportData(fileName, isGrid))
-    {
-        return;
-    }
-
-    QStringList dateFiles = QFileDialog::getOpenFileNames(
-                            this,
-                            "Select one or more files to open",
-                            "",
-                            "Files (*.prn, *.csv)");
-
-    if (dateFiles.isEmpty())
-        return;
-
-    FormInfo formInfo;
-    formInfo.showInfo("Loading data...");
-    QString warning;
-
-    for (int i=0; i<dateFiles.size(); i++)
-    {
-        if (myProject.loadXMLImportData(dateFiles[i]))
-        {
-            if (!myProject.errorString.isEmpty())
-            {
-                warning += dateFiles[i] + ": " + myProject.errorString+"\n";
-            }
-        }
-        else
-        {
-            if (i!=dateFiles.size()-1)
-            {
-                // it is not the last
-                QMessageBox msgBox;
-                msgBox.setText("An error occurred: " + dateFiles[i]);
-                msgBox.setInformativeText("Do you want to go on with other files?");
-                msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-                int ret = msgBox.exec();
-                if (ret == QMessageBox::Ok)
-                {
-                    continue;
-                }
-                else
-                {
-                    break;
-                }
-            }
-        }
-    }
-    formInfo.close();
-    if (!warning.isEmpty())
-    {
-        QMessageBox::warning(nullptr, " Not valid value: ", warning);
-    }
-}
-
 void MainWindow::on_actionImport_data_XML_grid_triggered()
 {
     // check meteo grid
@@ -2669,6 +2599,86 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
     formInfo.close();
     if (!warning.isEmpty())
     {
-        QMessageBox::warning(nullptr, " Not valid value: ", warning);
+        QMessageBox::warning(nullptr, " Not valid values: ", warning);
+    }
+}
+
+void MainWindow::on_actionFrom_CSV_triggered()
+{
+
+}
+
+void MainWindow::on_actionProperties_triggered()
+{
+
+}
+
+void MainWindow::on_actionData_triggered()
+{
+    // check meteo point
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        myProject.logError("Open a meteo points DB before");
+        return;
+    }
+
+    bool isGrid = false;
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("xml files (*.xml)"));
+    if (fileName.isEmpty())
+        return;
+
+
+    if (!myProject.parserXMLImportData(fileName, isGrid))
+    {
+        return;
+    }
+
+    QStringList dateFiles = QFileDialog::getOpenFileNames(
+                            this,
+                            "Select one or more files to open",
+                            "",
+                            "Files (*.prn, *.csv)");
+
+    if (dateFiles.isEmpty())
+        return;
+
+    FormInfo formInfo;
+    formInfo.showInfo("Loading data...");
+    QString warning;
+
+    for (int i=0; i<dateFiles.size(); i++)
+    {
+        if (myProject.loadXMLImportData(dateFiles[i]))
+        {
+            if (!myProject.errorString.isEmpty())
+            {
+                warning += dateFiles[i] + ": " + myProject.errorString+"\n";
+            }
+        }
+        else
+        {
+            if (i!=dateFiles.size()-1)
+            {
+                // it is not the last
+                QMessageBox msgBox;
+                msgBox.setText("An error occurred: " + dateFiles[i]);
+                msgBox.setInformativeText("Do you want to go on with other files?");
+                msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+                int ret = msgBox.exec();
+                if (ret == QMessageBox::Ok)
+                {
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+    }
+    formInfo.close();
+    if (!warning.isEmpty())
+    {
+        QMessageBox::warning(nullptr, " Not valid values: ", warning);
     }
 }

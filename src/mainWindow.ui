@@ -2944,12 +2944,20 @@
        <string>New</string>
       </property>
       <addaction name="actionFileMeteopointNewArkimet"/>
+      <addaction name="actionFrom_CSV"/>
+     </widget>
+     <widget class="QMenu" name="menuImport">
+      <property name="title">
+       <string>Import</string>
+      </property>
+      <addaction name="actionProperties"/>
+      <addaction name="actionData"/>
      </widget>
      <addaction name="menuFileMeteopointNew"/>
      <addaction name="actionFileMeteopointOpen"/>
      <addaction name="actionFileMeteopointClose"/>
      <addaction name="actionFileMeteopointDownload"/>
-     <addaction name="actionImport_data_XML_point"/>
+     <addaction name="menuImport"/>
     </widget>
     <addaction name="actionFileOpenProject"/>
     <addaction name="actionFileCloseProject"/>
@@ -3490,14 +3498,24 @@
     <string>Find missing data...</string>
    </property>
   </action>
-  <action name="actionImport_data_XML_point">
+  <action name="actionImport_data_XML_grid">
    <property name="text">
     <string>Import data XML</string>
    </property>
   </action>
-  <action name="actionImport_data_XML_grid">
+  <action name="actionFrom_CSV">
    <property name="text">
-    <string>Import data XML</string>
+    <string>From CSV</string>
+   </property>
+  </action>
+  <action name="actionProperties">
+   <property name="text">
+    <string>Properties</string>
+   </property>
+  </action>
+  <action name="actionData">
+   <property name="text">
+    <string>Data</string>
    </property>
   </action>
  </widget>
