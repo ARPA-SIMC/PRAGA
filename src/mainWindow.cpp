@@ -2558,7 +2558,7 @@ void MainWindow::on_actionImport_data_XML_point_triggered()
                             this,
                             "Select one or more files to open",
                             "",
-                            "Files (*.prn)");
+                            "Files (*.prn, *.csv)");
 
     if (dateFiles.isEmpty())
         return;
