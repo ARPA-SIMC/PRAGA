@@ -2565,9 +2565,18 @@ void MainWindow::on_actionImport_data_XML_point_triggered()
 
     FormInfo formInfo;
     formInfo.showInfo("Loading data...");
+    QString warning;
+
     for (int i=0; i<dateFiles.size(); i++)
     {
-        if (!myProject.loadXMLImportData(dateFiles[i]))
+        if (myProject.loadXMLImportData(dateFiles[i]))
+        {
+            if (!myProject.errorString.isEmpty())
+            {
+                warning += dateFiles[i] + ": " + myProject.errorString+"\n";
+            }
+        }
+        else
         {
             if (i!=dateFiles.size()-1)
             {
@@ -2586,13 +2595,13 @@ void MainWindow::on_actionImport_data_XML_point_triggered()
                     break;
                 }
             }
-            if (!myProject.errorString.isEmpty())
-            {
-                QMessageBox::information(nullptr, myProject.errorString + " not valid value in ", dateFiles[i]);
-            }
         }
     }
     formInfo.close();
+    if (!warning.isEmpty())
+    {
+        QMessageBox::warning(nullptr, " Not valid value: ", warning);
+    }
 }
 
 void MainWindow::on_actionImport_data_XML_grid_triggered()
@@ -2625,9 +2634,18 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
 
     FormInfo formInfo;
     formInfo.showInfo("Loading data...");
+    QString warning;
+
     for (int i=0; i<dateFiles.size(); i++)
     {
-        if (!myProject.loadXMLImportData(dateFiles[i]))
+        if (myProject.loadXMLImportData(dateFiles[i]))
+        {
+            if (!myProject.errorString.isEmpty())
+            {
+                warning += dateFiles[i] + ": " + myProject.errorString+"\n";
+            }
+        }
+        else
         {
             if (i!=dateFiles.size()-1)
             {
@@ -2646,11 +2664,11 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
                     break;
                 }
             }
-            if (!myProject.errorString.isEmpty())
-            {
-                QMessageBox::information(nullptr, myProject.errorString + " not valid value in ", dateFiles[i]);
-            }
         }
     }
     formInfo.close();
+    if (!warning.isEmpty())
+    {
+        QMessageBox::warning(nullptr, " Not valid value: ", warning);
+    }
 }
