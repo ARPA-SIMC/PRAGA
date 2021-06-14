@@ -2586,6 +2586,10 @@ void MainWindow::on_actionImport_data_XML_point_triggered()
                     break;
                 }
             }
+            if (!myProject.errorString.isEmpty())
+            {
+                QMessageBox::information(nullptr, myProject.errorString + " not valid value in ", dateFiles[i]);
+            }
         }
     }
     formInfo.close();
@@ -2615,7 +2619,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
                             this,
                             "Select one or more files to open",
                             "",
-                            "Files (*.prn)");
+                            "Files (*.prn, *.csv)");
     if (dateFiles.isEmpty())
         return;
 
@@ -2641,6 +2645,10 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
                 {
                     break;
                 }
+            }
+            if (!myProject.errorString.isEmpty())
+            {
+                QMessageBox::information(nullptr, myProject.errorString + " not valid value in ", dateFiles[i]);
             }
         }
     }
