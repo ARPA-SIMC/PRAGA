@@ -128,6 +128,17 @@ void DialogPointProperties::deleteCouple()
 
 }
 
+QList<QString> DialogPointProperties::getJoinedList()
+{
+    QList<QString> joinedFields;
+    for(int i = 0; i < joinedList->count(); ++i)
+    {
+        QString var = joinedList->item(i)->text();
+        joinedFields.append(var);
+    }
+    return joinedFields;
+}
+
 
 
 

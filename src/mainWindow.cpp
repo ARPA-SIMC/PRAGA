@@ -2640,7 +2640,11 @@ void MainWindow::on_actionProperties_triggered()
     }
     else
     {
-        // TO DO
+        QList<QString> joinedList = dialogPointProp.getJoinedList();
+        if (!myProject.writeImportedProperties(joinedList))
+        {
+            return;
+        }
     }
 }
 

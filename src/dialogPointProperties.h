@@ -16,6 +16,7 @@ public:
     void joinedClicked(QListWidgetItem* item);
     void addCouple();
     void deleteCouple();
+    QList<QString> getJoinedList();
 
 private:
     QList<QString> pragaProperties;

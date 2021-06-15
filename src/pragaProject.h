@@ -104,6 +104,7 @@
         bool parserXMLImportData(QString xmlName, bool isGrid);
         bool loadXMLImportData(QString fileName);
         bool parserCSVImportProperties(QString csvFileName, QList<QString> *csvFields);
+        bool writeImportedProperties(QList<QString> joinedList);
 
         #ifdef NETCDF
                 bool exportMeteoGridToNetCDF(QString fileName);

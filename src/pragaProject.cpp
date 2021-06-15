@@ -2376,6 +2376,29 @@ bool PragaProject::parserCSVImportProperties(QString csvFileName, QList<QString>
     return true;
 }
 
+bool PragaProject::writeImportedProperties(QList<QString> joinedList)
+{
+    QList<QString> header = importProperties->getHeader();
+    QList<QList<QString>> dataFields = importProperties->getData();
+
+    QMap<QString, int> MapFieldsPos;
+    for (int i = 0; i<joinedList.size(); i++)
+    {
+        QList<QString> couple = joinedList[i].split("-->");
+        QString pragaProperties = couple[0];
+        QString fileProperties = couple[1];
+        int pos = header.indexOf(fileProperties);
+        if (pos != -1)
+        {
+            MapFieldsPos.insert(pragaProperties, pos);
+        }
+    }
+
+    Crit3DMeteoPoint* pointProp = new Crit3DMeteoPoint();
+    // TO DO
+    return true;
+}
+
 bool PragaProject::loadXMLImportData(QString fileName)
 {
     if (! QFile(fileName).exists() || ! QFileInfo(fileName).isFile())
