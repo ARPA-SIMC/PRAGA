@@ -85,6 +85,7 @@ SOURCES += \
     ../agrolib/graphics/mapGraphicsRasterObject.cpp \
     ../agrolib/graphics/stationMarker.cpp \
     ../agrolib/graphics/rubberBand.cpp \
+    dialogPointProperties.cpp \
     main.cpp \
     mainGUI.cpp \
     mainWindow.cpp \
@@ -107,6 +108,7 @@ HEADERS  += \
     ../agrolib/graphics/mapGraphicsRasterObject.h \
     ../agrolib/graphics/stationMarker.h \
     ../agrolib/graphics/rubberBand.h \
+    dialogPointProperties.h \
     mainGUI.h \
     mainWindow.h \
     dialogPragaProject.h \
