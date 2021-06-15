@@ -2356,6 +2356,26 @@ bool PragaProject::parserXMLImportData(QString xmlName, bool isGrid)
     return true;
 }
 
+bool PragaProject::parserCSVImportProperties(QString csvFileName, QList<QString>* csvFields)
+{
+    if (! QFile(csvFileName).exists() || ! QFileInfo(csvFileName).isFile())
+    {
+        logError("Missing file: " + csvFileName);
+        return false;
+    }
+    importProperties = new ImportPropertiesCSV(csvFileName);
+
+    errorString = "";
+    if (!importProperties->parserCSV(&errorString))
+    {
+        logError(errorString);
+        delete importProperties;
+        return false;
+    }
+    *csvFields = importProperties->getHeader();
+    return true;
+}
+
 bool PragaProject::loadXMLImportData(QString fileName)
 {
     if (! QFile(fileName).exists() || ! QFileInfo(fileName).isFile())

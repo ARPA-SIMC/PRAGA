@@ -2627,10 +2627,13 @@ void MainWindow::on_actionProperties_triggered()
         myProject.logError("point_properties table error");
         return;
     }
-    /*
-    QList<QString> prova;
-    prova << "a " << "b " << "c";
-    DialogPointProperties dialogPointProp(pointPropertiesList, prova);
+    QList<QString> csvFields;
+    if (!myProject.parserCSVImportProperties(fileName, &csvFields))
+    {
+        return;
+    }
+
+    DialogPointProperties dialogPointProp(pointPropertiesList, csvFields);
     if (dialogPointProp.result() != QDialog::Accepted)
     {
         return;
@@ -2639,7 +2642,6 @@ void MainWindow::on_actionProperties_triggered()
     {
         // TO DO
     }
-    */
 }
 
 void MainWindow::on_actionData_triggered()
