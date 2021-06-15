@@ -10,7 +10,24 @@ class DialogPointProperties : public QDialog
     Q_OBJECT
 
 public:
-    DialogPointProperties();
+    DialogPointProperties(QList<QString> pragaProperties, QList<QString> CSVFields);
+    void propertiesClicked(QListWidgetItem* item);
+    void csvClicked(QListWidgetItem* item);
+    void joinedClicked(QListWidgetItem* item);
+    void addCouple();
+    void deleteCouple();
+
+private:
+    QList<QString> pragaProperties;
+    QList<QString> CSVFields;
+    QListWidget* propertiesList;
+    QListWidget* csvList;
+    QListWidget* joinedList;
+    QPushButton* joinButton;
+    QPushButton* deleteButton;
+    QString propertiesSelected;
+    QString csvSelected;
+
 };
 
 #endif // DIALOGPOINTPROPERTIES_H

@@ -31,6 +31,7 @@
 #include "dialogPragaSettings.h"
 #include "spatialControl.h"
 #include "dialogPragaProject.h"
+#include "dialogPointProperties.h"
 #include "utilities.h"
 
 
@@ -2610,7 +2611,35 @@ void MainWindow::on_actionFrom_CSV_triggered()
 
 void MainWindow::on_actionProperties_triggered()
 {
+    // check meteo point
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        myProject.logError("Open a meteo points DB before");
+        return;
+    }
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("csv files (*.csv)"));
+    if (fileName.isEmpty())
+        return;
 
+    QList<QString> pointPropertiesList;
+    if (!myProject.meteoPointsDbHandler->getNameColumn("point_properties", &pointPropertiesList))
+    {
+        myProject.logError("point_properties table error");
+        return;
+    }
+    /*
+    QList<QString> prova;
+    prova << "a " << "b " << "c";
+    DialogPointProperties dialogPointProp(pointPropertiesList, prova);
+    if (dialogPointProp.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    else
+    {
+        // TO DO
+    }
+    */
 }
 
 void MainWindow::on_actionData_triggered()
