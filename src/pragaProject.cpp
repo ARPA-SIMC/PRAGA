@@ -2381,7 +2381,9 @@ bool PragaProject::writeImportedProperties(QList<QString> joinedList)
     QList<QString> header = importProperties->getHeader();
     QList<QList<QString>> dataFields = importProperties->getData();
 
-    QMap<QString, int> MapFieldsPos;
+    QList<QString> column;
+    QList<int> posValues;
+
     for (int i = 0; i<joinedList.size(); i++)
     {
         QList<QString> couple = joinedList[i].split("-->");
@@ -2390,12 +2392,24 @@ bool PragaProject::writeImportedProperties(QList<QString> joinedList)
         int pos = header.indexOf(fileProperties);
         if (pos != -1)
         {
-            MapFieldsPos.insert(pragaProperties, pos);
+            column << pragaProperties;
+            posValues << pos;
         }
     }
 
-    Crit3DMeteoPoint* pointProp = new Crit3DMeteoPoint();
-    // TO DO
+    QList<QString> values;
+
+    for (int row = 0; row<dataFields.size(); row++)
+    {
+        values.clear();
+        for (int j = 0; j<posValues.size(); j++)
+        {
+            values << dataFields[row][posValues[j]];
+        }
+        meteoPointsDbHandler->updatePointProperties(column, values);
+    }
+
+
     return true;
 }
 

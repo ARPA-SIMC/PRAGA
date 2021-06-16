@@ -2641,10 +2641,14 @@ void MainWindow::on_actionProperties_triggered()
     else
     {
         QList<QString> joinedList = dialogPointProp.getJoinedList();
+        FormInfo formInfo;
+        formInfo.showInfo("Loading data...");
         if (!myProject.writeImportedProperties(joinedList))
         {
+            formInfo.close();
             return;
         }
+        formInfo.close();
     }
 }
 
