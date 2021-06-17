@@ -2606,7 +2606,72 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
 
 void MainWindow::on_actionFrom_CSV_triggered()
 {
+    resetMeteoPointsMarker();
 
+    QString templateFileName = myProject.getDefaultPath() + PATH_TEMPLATE + "template_meteo_arkimet.db";
+
+    QString dbName = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("DB files (*.db)"));
+    if (dbName == "")
+    {
+        qDebug() << "missing new db file name";
+        return;
+    }
+
+    QFile dbFile(dbName);
+    if (dbFile.exists())
+    {
+        myProject.closeMeteoPointsDB();
+        myProject.setIsElabMeteoPointsValue(false);
+        dbFile.close();
+        dbFile.setPermissions(QFile::ReadOther | QFile::WriteOther);
+        if (! dbFile.remove())
+        {
+            myProject.logError("Remove file failed: " + dbName + "\n" + dbFile.errorString());
+            return;
+        }
+    }
+
+    if (! QFile::copy(templateFileName, dbName))
+    {
+        myProject.logError("Copy file failed: " + templateFileName);
+        return;
+    }
+    myProject.meteoPointsDbHandler = new Crit3DMeteoPointsDbHandler(dbName);
+
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("csv files (*.csv)"));
+    if (fileName.isEmpty())
+        return;
+
+    QList<QString> pointPropertiesList;
+    if (!myProject.meteoPointsDbHandler->getNameColumn("point_properties", &pointPropertiesList))
+    {
+        myProject.logError("point_properties table error");
+        return;
+    }
+    QList<QString> csvFields;
+    if (!myProject.parserCSVImportProperties(fileName, &csvFields))
+    {
+        return;
+    }
+
+    DialogPointProperties dialogPointProp(pointPropertiesList, csvFields);
+    if (dialogPointProp.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    else
+    {
+        QList<QString> joinedList = dialogPointProp.getJoinedList();
+        FormInfo formInfo;
+        formInfo.showInfo("Loading data...");
+        if (!myProject.writeImportedProperties(joinedList))
+        {
+            formInfo.close();
+            return;
+        }
+        formInfo.close();
+    }
+    loadMeteoPoints(dbName);
 }
 
 void MainWindow::on_actionProperties_triggered()
