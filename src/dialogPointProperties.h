@@ -17,6 +17,7 @@ public:
     void addCouple();
     void deleteCouple();
     QList<QString> getJoinedList();
+    void done(bool res);
 
 private:
     QList<QString> pragaProperties;

@@ -139,6 +139,52 @@ QList<QString> DialogPointProperties::getJoinedList()
     return joinedFields;
 }
 
+void DialogPointProperties::done(bool res)
+{
+    if (res) // ok
+    {
+        QList<QString> unusedProperties;
+        for(int i = 0; i < propertiesList->count(); ++i)
+        {
+            if (!propertiesList->item(i)->isHidden())
+            {
+                QString var = propertiesList->item(i)->text();
+                unusedProperties.append(var);
+            }
+        }
+        if (unusedProperties.contains("id_point"))
+        {
+            QMessageBox::information(nullptr, "Missing id_point", "Join id_point");
+            return;
+        }
+        if (unusedProperties.contains("name"))
+        {
+            QMessageBox::information(nullptr, "Missing name", "Join name");
+            return;
+        }
+        if (unusedProperties.contains("altitude"))
+        {
+            QMessageBox::information(nullptr, "Missing altitude", "Join altitude");
+            return;
+        }
+        if (unusedProperties.contains("latitude") || unusedProperties.contains("longitude"))
+        {
+            if (unusedProperties.contains("utm_x") || unusedProperties.contains("utm_y"))
+            {
+                QMessageBox::information(nullptr, "Missing geographical coordinate", "Join coordinate");
+                return;
+            }
+        }
+        QDialog::done(QDialog::Accepted);
+        return;
+    }
+    else    // cancel, close or exc was pressed
+    {
+        QDialog::done(QDialog::Rejected);
+        return;
+    }
+}
+
 
 
 
