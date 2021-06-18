@@ -2602,6 +2602,9 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
     {
         QMessageBox::warning(nullptr, " Not valid values: ", warning);
     }
+    QString xmlName = myProject.meteoGridDbHandler->fileName();
+    closeMeteoGrid();
+    loadMeteoGrid(xmlName);
 }
 
 void MainWindow::on_actionFrom_CSV_triggered()
@@ -2785,4 +2788,7 @@ void MainWindow::on_actionData_triggered()
     {
         QMessageBox::warning(nullptr, " Not valid values: ", warning);
     }
+    QString dbName = myProject.meteoPointsDbHandler->getDbName();
+    closeMeteoPoints();
+    loadMeteoPoints(dbName);
 }
