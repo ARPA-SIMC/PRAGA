@@ -12,9 +12,6 @@ DialogPointProperties::DialogPointProperties(QList<QString> pragaProperties, QLi
     QHBoxLayout *layoutOk = new QHBoxLayout;
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-    connect(&buttonBox, &QDialogButtonBox::accepted, [=](){ this->done(true); });
-    connect(&buttonBox, &QDialogButtonBox::rejected, [=](){ this->done(false); });
-
     layoutOk->addWidget(&buttonBox);
     propertiesList = new QListWidget;
     csvList = new QListWidget;
