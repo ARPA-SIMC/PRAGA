@@ -16,6 +16,7 @@ class DialogSeriesOnZones: public QDialog
 
     private:
         QSettings* settings;
+        QList<QString> aggregations;
         QComboBox variableList;
         QLabel genericStartLabel;
         QLabel genericEndLabel;
@@ -29,7 +30,7 @@ class DialogSeriesOnZones: public QDialog
         aggregationMethod spatialElaboration;
 
     public:
-        DialogSeriesOnZones(QSettings *settings);
+        DialogSeriesOnZones(QSettings *settings, QList<QString> aggregations);
         void done(bool res);
         bool checkValidData();
 

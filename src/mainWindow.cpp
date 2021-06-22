@@ -1966,6 +1966,13 @@ bool MainWindow::on_actionAnalysisAggregateFromGrid_triggered()
         return false;
     }
 
+    QList<QString> aggregation = myProject.aggregationDbHandler->getAggregations();
+    if (aggregation.isEmpty())
+    {
+        QMessageBox::information(nullptr, "Empty aggregation", myProject.aggregationDbHandler->error());
+        return false;
+    }
+
     gis::Crit3DRasterGrid *myRaster = new(gis::Crit3DRasterGrid);
     // raster
     if (fileName.contains(".flt"))
@@ -1980,7 +1987,7 @@ bool MainWindow::on_actionAnalysisAggregateFromGrid_triggered()
         openShape(fileName);
     }
 
-    DialogSeriesOnZones zoneDialog(myProject.pragaDefaultSettings);
+    DialogSeriesOnZones zoneDialog(myProject.pragaDefaultSettings, aggregation);
     if (zoneDialog.result() != QDialog::Accepted)
     {
         delete myRaster;

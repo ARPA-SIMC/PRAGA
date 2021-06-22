@@ -24,8 +24,8 @@ aggregationMethod DialogSeriesOnZones::getSpatialElaboration() const
     return spatialElaboration;
 }
 
-DialogSeriesOnZones::DialogSeriesOnZones(QSettings *settings)
-    : settings(settings)
+DialogSeriesOnZones::DialogSeriesOnZones(QSettings *settings, QList<QString> aggregations)
+    : settings(settings), aggregations(aggregations)
 {
 
     setWindowTitle("Spatial average series on zones");
@@ -76,10 +76,10 @@ DialogSeriesOnZones::DialogSeriesOnZones(QSettings *settings)
     dateLayout.addWidget(&genericPeriodEnd);
 
     QLabel spatialElabLabel("Spatial Elaboration: ");
-    spatialElab.addItem("AVG");
-    spatialElab.addItem("MEDIAN");
-    spatialElab.addItem("STDDEV");
-
+    for (int i = 0; i<aggregations.size(); i++)
+    {
+        spatialElab.addItem(aggregations[i]);
+    }
 
     spatialElabLayout.addWidget(&spatialElabLabel);
     spatialElabLayout.addWidget(&spatialElab);
