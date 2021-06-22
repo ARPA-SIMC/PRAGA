@@ -17,6 +17,7 @@
     bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentList);
     bool cmdAggregationGridPeriod(PragaProject* myProject, QStringList argumentList);
     bool cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QStringList argumentList);
+    bool cmdGridAggregationOnZones(PragaProject* myProject, QStringList argumentList);
     //bool cmdLoadForecast(PragaProject* myProject, QStringList argumentList);
 
     #ifdef NETCDF

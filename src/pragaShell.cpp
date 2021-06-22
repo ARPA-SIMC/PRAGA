@@ -16,8 +16,9 @@ QStringList getPragaCommandList()
     cmdList.append("Netcdf       | ExportNetcdf");
     cmdList.append("XMLToNetcdf  | ExportXMLElaborationsToNetcdf");
     //cmdList.append("LoadForecast | LoadForecastData");
-    cmdList.append("GridAggragation | GridAggr");
-    cmdList.append("GridDerivedVariables | GridDerVar");
+    cmdList.append("GridAggr     | GridAggregation");
+    cmdList.append("GridDerVar   | GridDerivedVariables");
+    cmdList.append("AggrOnZones  | GridAggregationOnZones");
 
     return cmdList;
 }
@@ -84,6 +85,11 @@ bool PragaProject::executePragaCommand(QStringList argumentList, bool* isCommand
     {
         *isCommandFound = true;
         return cmdExportXMLElabToNetcdf(this, argumentList);
+    }
+    else if (command == "AGGRONZONES" || command == "GRIDAGGREGATIONONZONES")
+    {
+        *isCommandFound = true;
+        return cmdGridAggregationOnZones(this, argumentList);
     }
 //    else if (command == "LOADFORECAST" || command == "LOADFORECASTDATA")
 //    {
@@ -333,6 +339,18 @@ bool cmdAggregationGridPeriod(PragaProject* myProject, QStringList argumentList)
 
     }
 
+    if (! dateIni.isValid())
+    {
+        myProject->logError("Wrong initial date");
+        return false;
+    }
+
+    if (! dateFin.isValid())
+    {
+        myProject->logError("Wrong final date");
+        return false;
+    }
+
     if (! myProject->timeAggregateGrid(dateIni, dateFin, variables, true, true))
         return false;
 
@@ -361,9 +379,123 @@ bool cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QStringList argument
 
     }
 
+    if (! first.isValid())
+    {
+        myProject->logError("Wrong initial date");
+        return false;
+    }
+
+    if (! last.isValid())
+    {
+        myProject->logError("Wrong final date");
+        return false;
+    }
+
     if (! myProject->hourlyDerivedVariablesGrid(first, last, true, true))
         return false;
 
+    return true;
+}
+
+bool cmdGridAggregationOnZones(PragaProject* myProject, QStringList argumentList)
+{
+    if (argumentList.size() < 6)
+    {
+        myProject->logError("Missing parameters for aggregation on zones");
+        return false;
+    }
+
+    QDate first, last;
+    QList <meteoVariable> variables;
+    QList <QString> varString;
+    QString var, aggregation, fileName;
+    meteoVariable meteoVar;
+
+    for (int i = 1; i < argumentList.size(); i++)
+    {
+        // raster
+        if (argumentList.at(i).left(3) == "-r:")
+        {
+            fileName = argumentList[i].right(argumentList[i].length()-3);
+        }
+        // variables
+        else if (argumentList.at(i).left(3) == "-v:")
+        {
+            varString = argumentList[i].right(argumentList[i].length()-3).split(",");
+            foreach (var,varString)
+            {
+                meteoVar = getMeteoVar(var.toStdString());
+                if (meteoVar != noMeteoVar) variables << meteoVar;
+            }
+        }
+        // aggregation: STDDEV, MEDIAN or AVG
+        else if (argumentList.at(i).left(3) == "-a:")
+        {
+            aggregation = argumentList[i].right(argumentList[i].length()-3).toUpper();
+        }
+        else if (argumentList.at(i).left(4) == "-d1:")
+        {
+            QString dateIniStr = argumentList[i].right(argumentList[i].length()-4);
+            first = QDate::fromString(dateIniStr, "dd/MM/yyyy");
+        }
+        else if (argumentList.at(i).left(4) == "-d2:")
+        {
+            QString dateFinStr = argumentList[i].right(argumentList[i].length()-4);
+            last = QDate::fromString(dateFinStr, "dd/MM/yyyy");
+        }
+
+    }
+    if (variables.isEmpty())
+    {
+        myProject->logError("Wrong variable");
+        return false;
+    }
+
+    if (! first.isValid())
+    {
+        myProject->logError("Wrong initial date");
+        return false;
+    }
+
+    if (! last.isValid())
+    {
+        myProject->logError("Wrong final date");
+        return false;
+    }
+
+    if (aggregation != "STDDEV" && aggregation != "MEDIAN" && aggregation != "AVG")
+    {
+        myProject->logError("Valid aggregation: STDDEV, MEDIAN, AVG)");
+        return false;
+    }
+
+    std::vector<float> outputValues;
+    float threshold = NODATA;
+    meteoComputation elab1MeteoComp = noMeteoComp;
+    QString periodType = "D";
+
+    gis::Crit3DRasterGrid* myRaster = new gis::Crit3DRasterGrid();
+    // open raster
+    fileName = myProject->getProjectPath() + fileName;
+    std::string fnWithoutExt = fileName.left(fileName.length()-4).toStdString();
+    std::string* myError = new std::string();
+    if (! gis::readEsriGrid(fnWithoutExt, myRaster, myError))
+    {
+        myProject->logError("Load raster failed!");
+        delete myRaster;
+        return (false);
+    }
+
+    for (int i = 0; i<variables.size(); i++)
+    {
+        if (!myProject->averageSeriesOnZonesMeteoGrid(variables[i], elab1MeteoComp, aggregation, threshold, myRaster, first, last, periodType, outputValues, true))
+        {
+            delete myRaster;
+            return (false);
+        }
+
+    }
+    delete myRaster;
     return true;
 }
 

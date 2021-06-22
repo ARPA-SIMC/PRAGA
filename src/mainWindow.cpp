@@ -1973,10 +1973,11 @@ bool MainWindow::on_actionAnalysisAggregateFromGrid_triggered()
         return false;
     }
 
-    gis::Crit3DRasterGrid *myRaster = new(gis::Crit3DRasterGrid);
+    gis::Crit3DRasterGrid *myRaster;
     // raster
     if (fileName.contains(".flt"))
     {
+        myRaster = new(gis::Crit3DRasterGrid);
         openRaster(fileName, myRaster);
     }
     // shape
@@ -1984,13 +1985,18 @@ bool MainWindow::on_actionAnalysisAggregateFromGrid_triggered()
     {
         // TO DO
         // sarà necessaria una finestra in cui è selezionabile il campo dello shape
-        openShape(fileName);
+        //openShape(fileName);
+        return false;
     }
 
     DialogSeriesOnZones zoneDialog(myProject.pragaDefaultSettings, aggregation);
     if (zoneDialog.result() != QDialog::Accepted)
     {
-        delete myRaster;
+        if (myRaster != nullptr)
+        {
+            delete myRaster;
+        }
+
         return false;
     }
     else
@@ -2002,11 +2008,17 @@ bool MainWindow::on_actionAnalysisAggregateFromGrid_triggered()
         if (!myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, true))
         {
             QMessageBox::information(nullptr, "Error", "Error writing aggregation data");
-            delete myRaster;
+            if (myRaster != nullptr)
+            {
+                delete myRaster;
+            }
             return false;
         }
     }
-    delete myRaster;
+    if (myRaster != nullptr)
+    {
+        delete myRaster;
+    }
     return true;
 }
 

@@ -27,7 +27,7 @@ class DialogSeriesOnZones: public QDialog
         meteoVariable variable;
         QDate startDate;
         QDate endDate;
-        aggregationMethod spatialElaboration;
+        QString spatialElaboration;
 
     public:
         DialogSeriesOnZones(QSettings *settings, QList<QString> aggregations);
@@ -37,7 +37,7 @@ class DialogSeriesOnZones: public QDialog
         meteoVariable getVariable() const;
         QDate getStartDate() const;
         QDate getEndDate() const;
-        aggregationMethod getSpatialElaboration() const;
+        QString getSpatialElaboration() const;
 };
 
 

@@ -19,7 +19,7 @@ QDate DialogSeriesOnZones::getEndDate() const
     return endDate;
 }
 
-aggregationMethod DialogSeriesOnZones::getSpatialElaboration() const
+QString DialogSeriesOnZones::getSpatialElaboration() const
 {
     return spatialElaboration;
 }
@@ -145,7 +145,8 @@ bool DialogSeriesOnZones::checkValidData()
 
     QString var = variableList.currentText();
     variable = getKeyMeteoVarMeteoMap(MapDailyMeteoVarToString, var.toStdString());
-    spatialElaboration = getAggregationMethod(spatialElab.currentText().toStdString());
+    //spatialElaboration = getAggregationMethod(spatialElab.currentText().toStdString());
+    spatialElaboration = spatialElab.currentText();
 
     return true;
 
