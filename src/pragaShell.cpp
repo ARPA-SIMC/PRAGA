@@ -5,9 +5,9 @@
 #include <QTextStream>
 
 
-QStringList getPragaCommandList()
+QList<QString> getPragaCommandList()
 {
-    QStringList cmdList = getSharedCommandList();
+    QList<QString> cmdList = getSharedCommandList();
 
     // praga commands
     cmdList.append("List         | ListCommands");
@@ -26,7 +26,7 @@ QStringList getPragaCommandList()
 
 bool cmdList(PragaProject* myProject)
 {
-    QStringList list = getPragaCommandList();
+    QList<QString> list = getPragaCommandList();
 
     myProject->logInfo("Available PRAGA Console commands:");
     myProject->logInfo("(short  | long version)");
@@ -39,7 +39,7 @@ bool cmdList(PragaProject* myProject)
 }
 
 
-bool PragaProject::executePragaCommand(QStringList argumentList, bool* isCommandFound)
+bool PragaProject::executePragaCommand(QList<QString> argumentList, bool* isCommandFound)
 {
     *isCommandFound = false;
     if (argumentList.size() == 0) return false;
@@ -105,7 +105,7 @@ bool PragaProject::executePragaCommand(QStringList argumentList, bool* isCommand
     return false;
 }
 
-bool cmdOpenPragaProject(PragaProject* myProject, QStringList argumentList)
+bool cmdOpenPragaProject(PragaProject* myProject, QList<QString> argumentList)
 {
     if (argumentList.size() < 2)
     {
@@ -138,7 +138,7 @@ bool cmdOpenPragaProject(PragaProject* myProject, QStringList argumentList)
     return true;
 }
 
-bool cmdDownload(PragaProject* myProject, QStringList argumentList)
+bool cmdDownload(PragaProject* myProject, QList<QString> argumentList)
 {
     if (argumentList.size() < 2)
     {
@@ -147,7 +147,7 @@ bool cmdDownload(PragaProject* myProject, QStringList argumentList)
     }
 
     QDate dateIni, dateFin;
-    QStringList varString, dailyVarString, hourlyVarString;
+    QList<QString> varString, dailyVarString, hourlyVarString;
     QString var;
     meteoVariable meteoVar;
     bool prec0024 = true;
@@ -221,7 +221,7 @@ bool cmdDownload(PragaProject* myProject, QStringList argumentList)
 }
 
 
-bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentList)
+bool cmdInterpolationGridPeriod(PragaProject* myProject, QList<QString> argumentList)
 {
     if (argumentList.size() < 2)
     {
@@ -298,7 +298,7 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
     return true;
 }
 
-bool cmdAggregationGridPeriod(PragaProject* myProject, QStringList argumentList)
+bool cmdAggregationGridPeriod(PragaProject* myProject, QList<QString> argumentList)
 {
     if (argumentList.size() < 2)
     {
@@ -357,7 +357,7 @@ bool cmdAggregationGridPeriod(PragaProject* myProject, QStringList argumentList)
     return true;
 }
 
-bool cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QStringList argumentList)
+bool cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QList<QString> argumentList)
 {
 
     // default date
@@ -397,7 +397,7 @@ bool cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QStringList argument
     return true;
 }
 
-bool cmdGridAggregationOnZones(PragaProject* myProject, QStringList argumentList)
+bool cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentList)
 {
     if (argumentList.size() < 5)
     {
@@ -505,7 +505,7 @@ bool cmdGridAggregationOnZones(PragaProject* myProject, QStringList argumentList
     return true;
 }
 
-bool executeCommand(QStringList argumentList, PragaProject* myProject)
+bool executeCommand(QList<QString> argumentList, PragaProject* myProject)
 {
     if (argumentList.size() == 0) return false;
     bool isCommandFound, isExecuted;
@@ -551,7 +551,7 @@ bool pragaBatch(PragaProject* myProject, QString scriptFileName)
     while (! scriptFile.atEnd())
     {
         cmdLine = scriptFile.readLine();
-        QStringList argumentList = getArgumentList(cmdLine);
+        QList<QString> argumentList = getArgumentList(cmdLine);
         if (! executeCommand(argumentList, myProject))
             return false;
     }
@@ -581,7 +581,7 @@ bool pragaShell(PragaProject* myProject)
         QString commandLine = getCommandLine("PRAGA");
         if (commandLine != "")
         {
-            QStringList argumentList = getArgumentList(commandLine);
+            QList<QString> argumentList = getArgumentList(commandLine);
             executeCommand(argumentList, myProject);
         }
     }
@@ -591,7 +591,7 @@ bool pragaShell(PragaProject* myProject)
 
 #ifdef NETCDF
 
-    bool cmdNetcdfExport(PragaProject* myProject, QStringList argumentList)
+    bool cmdNetcdfExport(PragaProject* myProject, QList<QString> argumentList)
     {
         if (argumentList.size() < 2)
         {
@@ -612,7 +612,7 @@ bool pragaShell(PragaProject* myProject)
         return true;
     }
 
-    bool cmdExportXMLElabToNetcdf(PragaProject* myProject, QStringList argumentList)
+    bool cmdExportXMLElabToNetcdf(PragaProject* myProject, QList<QString> argumentList)
     {
         if (argumentList.size() < 2)
         {
@@ -631,7 +631,7 @@ bool pragaShell(PragaProject* myProject)
 
 #endif
     /*
-    bool cmdLoadForecast(PragaProject* myProject, QStringList argumentList)
+    bool cmdLoadForecast(PragaProject* myProject, QList<QString> argumentList)
     {
         if (argumentList.size() < 2)
         {

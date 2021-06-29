@@ -1441,8 +1441,8 @@ void MainWindow::on_actionClimateFields_triggered()
     }
 
     bool isMeteoGrid = ui->grid->isChecked();
-    QStringList climateDbElab;
-    QStringList climateDbVarList;
+    QList<QString> climateDbElab;
+    QList<QString> climateDbVarList;
     myProject.clima->resetListElab();
     if (myProject.showClimateFields(isMeteoGrid, &climateDbElab, &climateDbVarList))
     {
@@ -2259,7 +2259,7 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
 
     Download myDownload(dbName);
 
-    QStringList dataset = myDownload.getDbArkimet()->getDatasetsList();
+    QList<QString> dataset = myDownload.getDbArkimet()->getDatasetsList();
 
     QDialog datasetDialog;
 
@@ -2300,7 +2300,7 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
     if (!datasetSelected.isEmpty())
     {
         myDownload.getDbArkimet()->setDatasetsActive(datasetSelected);
-        QStringList datasets = datasetSelected.remove("'").split(",");
+        QList<QString> datasets = datasetSelected.remove("'").split(",");
 
         myProject.logInfoGUI("download points properties...");
         if (myDownload.getPointProperties(datasets))
@@ -2445,7 +2445,7 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
     QString dataset = "";
     if (reply == QMessageBox::Yes)
     {
-        QStringList datasets = myProject.meteoPointsDbHandler->getDatasetsActive();
+        QList<QString> datasets = myProject.meteoPointsDbHandler->getDatasetsActive();
         bool ok;
         dataset = QInputDialog::getItem(this, tr("Data count"), tr("Choose dataset"), datasets, 0, false, &ok);
         if (! ok && dataset.isEmpty()) return;
@@ -2574,7 +2574,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
         return;
     }
 
-    QStringList dateFiles = QFileDialog::getOpenFileNames(
+    QList<QString> dateFiles = QFileDialog::getOpenFileNames(
                             this,
                             "Select one or more files to open",
                             "",
@@ -2759,7 +2759,7 @@ void MainWindow::on_actionData_triggered()
         return;
     }
 
-    QStringList dateFiles = QFileDialog::getOpenFileNames(
+    QList<QString> dateFiles = QFileDialog::getOpenFileNames(
                             this,
                             "Select one or more files to open",
                             "",

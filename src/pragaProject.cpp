@@ -137,7 +137,7 @@ bool PragaProject::loadPragaSettings()
         else if (group == "id_arkimet")
         {
             parameters->beginGroup(group);
-            QStringList myList;
+            QList<QString> myList;
             QList<int> intList;
             if ( parameters->contains(QString::fromStdString(getKeyStringMeteoMap(MapDailyMeteoVar, dailyAirTemperatureAvg))) )
             {
@@ -525,7 +525,7 @@ bool PragaProject::elaborationCheck(bool isMeteoGrid, bool isAnomaly)
     return true;
 }
 
-bool PragaProject::showClimateFields(bool isMeteoGrid, QStringList* climateDbElab, QStringList* climateDbVarList)
+bool PragaProject::showClimateFields(bool isMeteoGrid, QList<QString>* climateDbElab, QList<QString>* climateDbVarList)
 {
     QSqlDatabase db;
     if (isMeteoGrid)
@@ -546,7 +546,7 @@ bool PragaProject::showClimateFields(bool isMeteoGrid, QStringList* climateDbEla
         }
         db = this->meteoPointsDbHandler->getDb();
     }
-    QStringList climateTables;
+    QList<QString> climateTables;
 
     if ( !showClimateTables(db, &errorString, &climateTables) )
     {
@@ -568,7 +568,7 @@ bool PragaProject::showClimateFields(bool isMeteoGrid, QStringList* climateDbEla
     for (int i=0; i < climateDbElab->size(); i++)
     {
         QString elab = climateDbElab->at(i);
-        QStringList words = elab.split('_');
+        QList<QString> words = elab.split('_');
         QString var = words[1];
         if (!climateDbVarList->contains(var))
         {
@@ -589,7 +589,7 @@ void PragaProject::saveClimateResult(bool isMeteoGrid, QString climaSelected, in
     QList<float> results;
 
     Crit3DClimateList climateList;
-    QStringList climate;
+    QList<QString> climate;
     climate.push_back(climaSelected);
 
     climateList.setListClimateElab(climate);
@@ -689,7 +689,7 @@ bool PragaProject::deleteClima(bool isMeteoGrid, QString climaSelected)
 {
     QSqlDatabase db;
 
-    QStringList words = climaSelected.split('_');
+    QList<QString> words = climaSelected.split('_');
     QString period = words[2];
     QString table = "climate_" + period;
 
@@ -1257,13 +1257,13 @@ bool PragaProject::climatePointsCycleGrid(bool showInfo)
 
 }
 
-bool PragaProject::downloadDailyDataArkimet(QStringList variables, bool prec0024, QDate startDate, QDate endDate, bool showInfo)
+bool PragaProject::downloadDailyDataArkimet(QList<QString> variables, bool prec0024, QDate startDate, QDate endDate, bool showInfo)
 {
     const int MAXDAYS = 30;
 
     QString id, dataset;
-    QStringList datasetList;
-    QList<QStringList> idList;
+    QList<QString> datasetList;
+    QList<QList<QString>> idList;
 
     QList<int> arkIdVar;
     Download* myDownload = new Download(meteoPointsDbHandler->getDbName());
@@ -1293,7 +1293,7 @@ bool PragaProject::downloadDailyDataArkimet(QStringList variables, bool prec0024
             if (!datasetList.contains(dataset))
             {
                 datasetList << dataset;
-                QStringList myList;
+                QList<QString> myList;
                 myList << id;
                 idList.append(myList);
             }
@@ -1339,7 +1339,7 @@ bool PragaProject::downloadDailyDataArkimet(QStringList variables, bool prec0024
 }
 
 
-bool PragaProject::downloadHourlyDataArkimet(QStringList variables, QDate startDate, QDate endDate, bool showInfo)
+bool PragaProject::downloadHourlyDataArkimet(QList<QString> variables, QDate startDate, QDate endDate, bool showInfo)
 {
     const int MAXDAYS = 7;
 
@@ -1360,8 +1360,8 @@ bool PragaProject::downloadHourlyDataArkimet(QStringList variables, QDate startD
 
     int index, nrPoints = 0;
     QString id, dataset;
-    QStringList datasetList;
-    QList<QStringList> idList;
+    QList<QString> datasetList;
+    QList<QList<QString>> idList;
 
     for( int i=0; i < nrMeteoPoints; i++ )
     {
@@ -1375,7 +1375,7 @@ bool PragaProject::downloadHourlyDataArkimet(QStringList variables, QDate startD
             if (!datasetList.contains(dataset))
             {
                 datasetList << dataset;
-                QStringList myList;
+                QList<QString> myList;
                 myList << id;
                 idList.append(myList);
             }

@@ -37,8 +37,8 @@
         QCheckBox allDaily;
         QCheckBox allHourly;
 
-        QStringList varD;
-        QStringList varH;
+        QList<QString> varD;
+        QList<QString> varH;
         bool prec0024;
 
     public:
@@ -48,8 +48,8 @@
         void allHourlyVarClicked(int state);
         void dailyItemClicked(QListWidgetItem * item);
         void hourlyItemClicked(QListWidgetItem * item);
-        QStringList getVarD() const;
-        QStringList getVarH() const;
+        QList<QString> getVarD() const;
+        QList<QString> getVarH() const;
         QDate getFirstDate();
         QDate getLastDate();
         bool getPrec0024() const;

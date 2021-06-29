@@ -58,7 +58,7 @@ class DialogAnomaly : public QDialog
         QHBoxLayout readParamLayout;
         QHBoxLayout secondElabLayout;
 
-        QStringList climateDbElab;
+        QList<QString> climateDbElab;
         QComboBox climateDbElabList;
 
         QComboBox climateDbClimaList;

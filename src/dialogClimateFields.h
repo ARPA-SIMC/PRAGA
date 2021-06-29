@@ -13,8 +13,8 @@ class DialogClimateFields : public QDialog
         QWidget elabW;
         QWidget indexW;
 
-        QStringList climateDbVarList;
-        QStringList climateDbElab;
+        QList<QString> climateDbVarList;
+        QList<QString> climateDbElab;
 
         QListWidget listVariable;
         QListWidget listElab;
@@ -36,7 +36,7 @@ class DialogClimateFields : public QDialog
         bool isShowClicked;
 
     public:
-        DialogClimateFields(QStringList climateDbElab, QStringList climateDbVarList);
+        DialogClimateFields(QList<QString> climateDbElab, QList<QString> climateDbVarList);
         void variableClicked(QListWidgetItem *item);
         void elabClicked(QListWidgetItem* item);
         void indexClicked(QListWidgetItem* item);
