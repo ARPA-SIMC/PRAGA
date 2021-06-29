@@ -493,7 +493,7 @@ bool cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentL
 
     for (int i = 0; i<variables.size(); i++)
     {
-        myProject->logInfo(QString::number(i));
+        myProject->logInfo("Computing variable number: "+QString::number(i));
         if (!myProject->averageSeriesOnZonesMeteoGrid(variables[i], elab1MeteoComp, aggregation, threshold, myRaster, first, last, periodType, outputValues, false))
         {
             delete myRaster;
