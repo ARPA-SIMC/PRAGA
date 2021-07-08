@@ -21,7 +21,7 @@ bool DialogClimateFields::getIsShowClicked() const
     return isShowClicked;
 }
 
-DialogClimateFields::DialogClimateFields(QStringList climateDbElab, QStringList climateDbVarList)
+DialogClimateFields::DialogClimateFields(QList<QString> climateDbElab, QList<QString> climateDbVarList)
 : climateDbElab(climateDbElab), climateDbVarList(climateDbVarList)
 {
     setWindowTitle("Climate Variables");
@@ -71,7 +71,7 @@ void DialogClimateFields::variableClicked(QListWidgetItem* item)
     deleteButton.setEnabled(false);
 
     listElab.clear();
-    QStringList elabVarSelected;
+    QList<QString> elabVarSelected;
 
     std::string variable = item->text().toStdString();
     var = getKeyMeteoVarMeteoMap(MapDailyMeteoVarToString, variable);
@@ -79,7 +79,7 @@ void DialogClimateFields::variableClicked(QListWidgetItem* item)
     for (int i=0; i < climateDbElab.size(); i++)
     {
         QString elab = climateDbElab[i];
-        QStringList words = elab.split('_');
+        QList<QString> words = elab.split('_');
         QString var = words[1];
         if (var == item->text())
         {
@@ -99,7 +99,7 @@ void DialogClimateFields::elabClicked(QListWidgetItem* item)
     listIndex.clear();
     showButton.setEnabled(false);
     deleteButton.setEnabled(true);
-    QStringList listIndexSelected;
+    QList<QString> listIndexSelected;
 
     int n = getNumberClimateIndexFromElab(climaSelected);
     if (n == 1)

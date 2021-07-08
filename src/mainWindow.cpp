@@ -31,6 +31,7 @@
 #include "dialogPragaSettings.h"
 #include "spatialControl.h"
 #include "dialogPragaProject.h"
+#include "dialogPointProperties.h"
 #include "utilities.h"
 
 
@@ -1440,8 +1441,8 @@ void MainWindow::on_actionClimateFields_triggered()
     }
 
     bool isMeteoGrid = ui->grid->isChecked();
-    QStringList climateDbElab;
-    QStringList climateDbVarList;
+    QList<QString> climateDbElab;
+    QList<QString> climateDbVarList;
     myProject.clima->resetListElab();
     if (myProject.showClimateFields(isMeteoGrid, &climateDbElab, &climateDbVarList))
     {
@@ -1965,10 +1966,18 @@ bool MainWindow::on_actionAnalysisAggregateFromGrid_triggered()
         return false;
     }
 
-    gis::Crit3DRasterGrid *myRaster = new(gis::Crit3DRasterGrid);
+    QList<QString> aggregation = myProject.aggregationDbHandler->getAggregations();
+    if (aggregation.isEmpty())
+    {
+        QMessageBox::information(nullptr, "Empty aggregation", myProject.aggregationDbHandler->error());
+        return false;
+    }
+
+    gis::Crit3DRasterGrid *myRaster;
     // raster
     if (fileName.contains(".flt"))
     {
+        myRaster = new(gis::Crit3DRasterGrid);
         openRaster(fileName, myRaster);
     }
     // shape
@@ -1976,13 +1985,18 @@ bool MainWindow::on_actionAnalysisAggregateFromGrid_triggered()
     {
         // TO DO
         // sarà necessaria una finestra in cui è selezionabile il campo dello shape
-        openShape(fileName);
+        //openShape(fileName);
+        return false;
     }
 
-    DialogSeriesOnZones zoneDialog(myProject.pragaDefaultSettings);
+    DialogSeriesOnZones zoneDialog(myProject.pragaDefaultSettings, aggregation);
     if (zoneDialog.result() != QDialog::Accepted)
     {
-        delete myRaster;
+        if (myRaster != nullptr)
+        {
+            delete myRaster;
+        }
+
         return false;
     }
     else
@@ -1994,11 +2008,17 @@ bool MainWindow::on_actionAnalysisAggregateFromGrid_triggered()
         if (!myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, true))
         {
             QMessageBox::information(nullptr, "Error", "Error writing aggregation data");
-            delete myRaster;
+            if (myRaster != nullptr)
+            {
+                delete myRaster;
+            }
             return false;
         }
     }
-    delete myRaster;
+    if (myRaster != nullptr)
+    {
+        delete myRaster;
+    }
     return true;
 }
 
@@ -2239,7 +2259,7 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
 
     Download myDownload(dbName);
 
-    QStringList dataset = myDownload.getDbArkimet()->getDatasetsList();
+    QList<QString> dataset = myDownload.getDbArkimet()->getDatasetsList();
 
     QDialog datasetDialog;
 
@@ -2280,7 +2300,7 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
     if (!datasetSelected.isEmpty())
     {
         myDownload.getDbArkimet()->setDatasetsActive(datasetSelected);
-        QStringList datasets = datasetSelected.remove("'").split(",");
+        QList<QString> datasets = datasetSelected.remove("'").split(",");
 
         myProject.logInfoGUI("download points properties...");
         if (myDownload.getPointProperties(datasets))
@@ -2425,7 +2445,7 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
     QString dataset = "";
     if (reply == QMessageBox::Yes)
     {
-        QStringList datasets = myProject.meteoPointsDbHandler->getDatasetsActive();
+        QList<QString> datasets = myProject.meteoPointsDbHandler->getDatasetsActive();
         bool ok;
         dataset = QInputDialog::getItem(this, tr("Data count"), tr("Choose dataset"), datasets, 0, false, &ok);
         if (! ok && dataset.isEmpty()) return;
@@ -2534,22 +2554,6 @@ void MainWindow::on_dayAfterButton_clicked()
     this->ui->dateEdit->setDate(this->ui->dateEdit->date().addDays(1));
 }
 
-void MainWindow::on_actionImport_data_XML_point_triggered()
-{
-    // check meteo point
-    if (myProject.meteoPointsDbHandler == nullptr)
-    {
-        myProject.logError("Open a meteo points DB before");
-        return;
-    }
-
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("xml files (*.xml)"));
-    if (fileName != "")
-    {
-        // TO DO
-    }
-}
-
 void MainWindow::on_actionImport_data_XML_grid_triggered()
 {
     // check meteo grid
@@ -2559,9 +2563,251 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
         return;
     }
 
+    bool isGrid = true;
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("xml files (*.xml)"));
-    if (fileName != "")
+    if (fileName.isEmpty())
+        return;
+
+
+    if (!myProject.parserXMLImportData(fileName, isGrid))
     {
-        // TO DO
+        return;
     }
+
+    QList<QString> dateFiles = QFileDialog::getOpenFileNames(
+                            this,
+                            "Select one or more files to open",
+                            "",
+                            "Files (*.prn *.csv)");
+    if (dateFiles.isEmpty())
+        return;
+
+    FormInfo formInfo;
+    formInfo.showInfo("Loading data...");
+    QString warning;
+
+    for (int i=0; i<dateFiles.size(); i++)
+    {
+        if (myProject.loadXMLImportData(dateFiles[i]))
+        {
+            if (!myProject.errorString.isEmpty())
+            {
+                warning += dateFiles[i] + ": " + myProject.errorString+"\n";
+            }
+        }
+        else
+        {
+            if (i!=dateFiles.size()-1)
+            {
+                // it is not the last
+                QMessageBox msgBox;
+                msgBox.setText("An error occurred: " + dateFiles[i]);
+                msgBox.setInformativeText("Do you want to go on with other files?");
+                msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+                int ret = msgBox.exec();
+                if (ret == QMessageBox::Ok)
+                {
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+    }
+    formInfo.close();
+    if (!warning.isEmpty())
+    {
+        QMessageBox::warning(nullptr, " Not valid values: ", warning);
+    }
+    QString xmlName = myProject.meteoGridDbHandler->fileName();
+    closeMeteoGrid();
+    loadMeteoGrid(xmlName);
+}
+
+void MainWindow::on_actionFrom_CSV_triggered()
+{
+    resetMeteoPointsMarker();
+
+    QString templateFileName = myProject.getDefaultPath() + PATH_TEMPLATE + "template_meteo_arkimet.db";
+
+    QString dbName = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("DB files (*.db)"));
+    if (dbName == "")
+    {
+        qDebug() << "missing new db file name";
+        return;
+    }
+
+    QFile dbFile(dbName);
+    if (dbFile.exists())
+    {
+        myProject.closeMeteoPointsDB();
+        myProject.setIsElabMeteoPointsValue(false);
+        dbFile.close();
+        dbFile.setPermissions(QFile::ReadOther | QFile::WriteOther);
+        if (! dbFile.remove())
+        {
+            myProject.logError("Remove file failed: " + dbName + "\n" + dbFile.errorString());
+            return;
+        }
+    }
+
+    if (! QFile::copy(templateFileName, dbName))
+    {
+        myProject.logError("Copy file failed: " + templateFileName);
+        return;
+    }
+    myProject.meteoPointsDbHandler = new Crit3DMeteoPointsDbHandler(dbName);
+
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("csv files (*.csv)"));
+    if (fileName.isEmpty())
+        return;
+
+    QList<QString> pointPropertiesList;
+    if (!myProject.meteoPointsDbHandler->getNameColumn("point_properties", &pointPropertiesList))
+    {
+        myProject.logError("point_properties table error");
+        return;
+    }
+    QList<QString> csvFields;
+    if (!myProject.parserCSVImportProperties(fileName, &csvFields))
+    {
+        return;
+    }
+
+    DialogPointProperties dialogPointProp(pointPropertiesList, csvFields);
+    if (dialogPointProp.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    else
+    {
+        QList<QString> joinedList = dialogPointProp.getJoinedList();
+        FormInfo formInfo;
+        formInfo.showInfo("Loading data...");
+        if (!myProject.writeImportedProperties(joinedList))
+        {
+            formInfo.close();
+            return;
+        }
+        formInfo.close();
+    }
+    loadMeteoPoints(dbName);
+}
+
+void MainWindow::on_actionProperties_triggered()
+{
+    // check meteo point
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        myProject.logError("Open a meteo points DB before");
+        return;
+    }
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("csv files (*.csv)"));
+    if (fileName.isEmpty())
+        return;
+
+    QList<QString> pointPropertiesList;
+    if (!myProject.meteoPointsDbHandler->getNameColumn("point_properties", &pointPropertiesList))
+    {
+        myProject.logError("point_properties table error");
+        return;
+    }
+    QList<QString> csvFields;
+    if (!myProject.parserCSVImportProperties(fileName, &csvFields))
+    {
+        return;
+    }
+
+    DialogPointProperties dialogPointProp(pointPropertiesList, csvFields);
+    if (dialogPointProp.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    else
+    {
+        QList<QString> joinedList = dialogPointProp.getJoinedList();
+        FormInfo formInfo;
+        formInfo.showInfo("Loading data...");
+        if (!myProject.writeImportedProperties(joinedList))
+        {
+            formInfo.close();
+            return;
+        }
+        formInfo.close();
+    }
+}
+
+void MainWindow::on_actionData_triggered()
+{
+    // check meteo point
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        myProject.logError("Open a meteo points DB before");
+        return;
+    }
+
+    bool isGrid = false;
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("xml files (*.xml)"));
+    if (fileName.isEmpty())
+        return;
+
+
+    if (!myProject.parserXMLImportData(fileName, isGrid))
+    {
+        return;
+    }
+
+    QList<QString> dateFiles = QFileDialog::getOpenFileNames(
+                            this,
+                            "Select one or more files to open",
+                            "",
+                            "Files (*.prn *.csv)");
+
+    if (dateFiles.isEmpty())
+        return;
+
+    FormInfo formInfo;
+    formInfo.showInfo("Loading data...");
+    QString warning;
+
+    for (int i=0; i<dateFiles.size(); i++)
+    {
+        if (myProject.loadXMLImportData(dateFiles[i]))
+        {
+            if (!myProject.errorString.isEmpty())
+            {
+                warning += dateFiles[i] + ": " + myProject.errorString+"\n";
+            }
+        }
+        else
+        {
+            if (i!=dateFiles.size()-1)
+            {
+                // it is not the last
+                QMessageBox msgBox;
+                msgBox.setText("An error occurred: " + dateFiles[i]);
+                msgBox.setInformativeText("Do you want to go on with other files?");
+                msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+                int ret = msgBox.exec();
+                if (ret == QMessageBox::Ok)
+                {
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+    }
+    formInfo.close();
+    if (!warning.isEmpty())
+    {
+        QMessageBox::warning(nullptr, " Not valid values: ", warning);
+    }
+    QString dbName = myProject.meteoPointsDbHandler->getDbName();
+    closeMeteoPoints();
+    loadMeteoPoints(dbName);
 }

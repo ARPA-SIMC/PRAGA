@@ -5,9 +5,9 @@
 #include <QTextStream>
 
 
-QStringList getPragaCommandList()
+QList<QString> getPragaCommandList()
 {
-    QStringList cmdList = getSharedCommandList();
+    QList<QString> cmdList = getSharedCommandList();
 
     // praga commands
     cmdList.append("List         | ListCommands");
@@ -15,9 +15,10 @@ QStringList getPragaCommandList()
     cmdList.append("Download     | Download");
     cmdList.append("Netcdf       | ExportNetcdf");
     cmdList.append("XMLToNetcdf  | ExportXMLElaborationsToNetcdf");
-    cmdList.append("LoadForecast | LoadForecastData");
-    cmdList.append("GridAggragation | GridAggr");
-    cmdList.append("GridDerivedVariables | GridDerVar");
+    //cmdList.append("LoadForecast | LoadForecastData");
+    cmdList.append("GridAggr     | GridAggregation");
+    cmdList.append("GridDerVar   | GridDerivedVariables");
+    cmdList.append("AggrOnZones  | GridAggregationOnZones");
 
     return cmdList;
 }
@@ -25,7 +26,7 @@ QStringList getPragaCommandList()
 
 bool cmdList(PragaProject* myProject)
 {
-    QStringList list = getPragaCommandList();
+    QList<QString> list = getPragaCommandList();
 
     myProject->logInfo("Available PRAGA Console commands:");
     myProject->logInfo("(short  | long version)");
@@ -38,7 +39,7 @@ bool cmdList(PragaProject* myProject)
 }
 
 
-bool PragaProject::executePragaCommand(QStringList argumentList, bool* isCommandFound)
+bool PragaProject::executePragaCommand(QList<QString> argumentList, bool* isCommandFound)
 {
     *isCommandFound = false;
     if (argumentList.size() == 0) return false;
@@ -85,11 +86,16 @@ bool PragaProject::executePragaCommand(QStringList argumentList, bool* isCommand
         *isCommandFound = true;
         return cmdExportXMLElabToNetcdf(this, argumentList);
     }
-    else if (command == "LOADFORECAST" || command == "LOADFORECASTDATA")
+    else if (command == "AGGRONZONES" || command == "GRIDAGGREGATIONONZONES")
     {
         *isCommandFound = true;
-        return cmdLoadForecast(this, argumentList);
+        return cmdGridAggregationOnZones(this, argumentList);
     }
+//    else if (command == "LOADFORECAST" || command == "LOADFORECASTDATA")
+//    {
+//        *isCommandFound = true;
+//        return cmdLoadForecast(this, argumentList);
+//    }
     else
     {
         // other specific Praga commands
@@ -99,7 +105,7 @@ bool PragaProject::executePragaCommand(QStringList argumentList, bool* isCommand
     return false;
 }
 
-bool cmdOpenPragaProject(PragaProject* myProject, QStringList argumentList)
+bool cmdOpenPragaProject(PragaProject* myProject, QList<QString> argumentList)
 {
     if (argumentList.size() < 2)
     {
@@ -132,7 +138,7 @@ bool cmdOpenPragaProject(PragaProject* myProject, QStringList argumentList)
     return true;
 }
 
-bool cmdDownload(PragaProject* myProject, QStringList argumentList)
+bool cmdDownload(PragaProject* myProject, QList<QString> argumentList)
 {
     if (argumentList.size() < 2)
     {
@@ -141,7 +147,7 @@ bool cmdDownload(PragaProject* myProject, QStringList argumentList)
     }
 
     QDate dateIni, dateFin;
-    QStringList varString, dailyVarString, hourlyVarString;
+    QList<QString> varString, dailyVarString, hourlyVarString;
     QString var;
     meteoVariable meteoVar;
     bool prec0024 = true;
@@ -215,7 +221,7 @@ bool cmdDownload(PragaProject* myProject, QStringList argumentList)
 }
 
 
-bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentList)
+bool cmdInterpolationGridPeriod(PragaProject* myProject, QList<QString> argumentList)
 {
     if (argumentList.size() < 2)
     {
@@ -292,7 +298,7 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QStringList argumentLis
     return true;
 }
 
-bool cmdAggregationGridPeriod(PragaProject* myProject, QStringList argumentList)
+bool cmdAggregationGridPeriod(PragaProject* myProject, QList<QString> argumentList)
 {
     if (argumentList.size() < 2)
     {
@@ -333,13 +339,25 @@ bool cmdAggregationGridPeriod(PragaProject* myProject, QStringList argumentList)
 
     }
 
+    if (! dateIni.isValid())
+    {
+        myProject->logError("Wrong initial date");
+        return false;
+    }
+
+    if (! dateFin.isValid())
+    {
+        myProject->logError("Wrong final date");
+        return false;
+    }
+
     if (! myProject->timeAggregateGrid(dateIni, dateFin, variables, true, true))
         return false;
 
     return true;
 }
 
-bool cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QStringList argumentList)
+bool cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QList<QString> argumentList)
 {
 
     // default date
@@ -361,13 +379,133 @@ bool cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QStringList argument
 
     }
 
+    if (! first.isValid())
+    {
+        myProject->logError("Wrong initial date");
+        return false;
+    }
+
+    if (! last.isValid())
+    {
+        myProject->logError("Wrong final date");
+        return false;
+    }
+
     if (! myProject->hourlyDerivedVariablesGrid(first, last, true, true))
         return false;
 
     return true;
 }
 
-bool executeCommand(QStringList argumentList, PragaProject* myProject)
+bool cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentList)
+{
+    if (argumentList.size() < 5)
+    {
+        myProject->logError("Missing parameters for aggregation on zones");
+        return false;
+    }
+
+    QDate first, last;
+    QList <meteoVariable> variables;
+    QList <QString> varString;
+    QString var, aggregation, fileName;
+    meteoVariable meteoVar;
+
+    for (int i = 1; i < argumentList.size(); i++)
+    {
+        // raster
+        if (argumentList.at(i).left(3) == "-r:")
+        {
+            fileName = argumentList[i].right(argumentList[i].length()-3);
+        }
+        // variables
+        else if (argumentList.at(i).left(3) == "-v:")
+        {
+            varString = argumentList[i].right(argumentList[i].length()-3).split(",");
+            foreach (var,varString)
+            {
+                meteoVar = getMeteoVar(var.toStdString());
+                if (meteoVar != noMeteoVar) variables << meteoVar;
+            }
+        }
+        // aggregation: STDDEV, MEDIAN or AVG
+        else if (argumentList.at(i).left(3) == "-a:")
+        {
+            aggregation = argumentList[i].right(argumentList[i].length()-3).toUpper();
+        }
+        else if (argumentList.at(i).left(4) == "-d1:")
+        {
+            QString dateIniStr = argumentList[i].right(argumentList[i].length()-4);
+            first = QDate::fromString(dateIniStr, "dd/MM/yyyy");
+        }
+        else if (argumentList.at(i).left(4) == "-d2:")
+        {
+            QString dateFinStr = argumentList[i].right(argumentList[i].length()-4);
+            last = QDate::fromString(dateFinStr, "dd/MM/yyyy");
+        }
+        else if (argumentList.at(i).left(10) == "-yesterday")
+        {
+            first = QDate::currentDate().addDays(-1);
+            last = first;
+        }
+
+    }
+    if (variables.isEmpty())
+    {
+        myProject->logError("Wrong variable");
+        return false;
+    }
+
+    if (! first.isValid())
+    {
+        myProject->logError("Wrong initial date");
+        return false;
+    }
+
+    if (! last.isValid())
+    {
+        myProject->logError("Wrong final date");
+        return false;
+    }
+
+    if (aggregation != "STDDEV" && aggregation != "MEDIAN" && aggregation != "AVG")
+    {
+        myProject->logError("Valid aggregation: STDDEV, MEDIAN, AVG)");
+        return false;
+    }
+
+    std::vector<float> outputValues;
+    float threshold = NODATA;
+    meteoComputation elab1MeteoComp = noMeteoComp;
+    QString periodType = "D";
+
+    gis::Crit3DRasterGrid* myRaster = new gis::Crit3DRasterGrid();
+    // open raster
+    fileName = myProject->getProjectPath() + fileName;
+    std::string fnWithoutExt = fileName.left(fileName.length()-4).toStdString();
+    std::string* myError = new std::string();
+    if (! gis::readEsriGrid(fnWithoutExt, myRaster, myError))
+    {
+        myProject->logError("Load raster failed!");
+        delete myRaster;
+        return (false);
+    }
+
+    for (int i = 0; i<variables.size(); i++)
+    {
+        myProject->logInfo("Computing variable number: "+QString::number(i));
+        if (!myProject->averageSeriesOnZonesMeteoGrid(variables[i], elab1MeteoComp, aggregation, threshold, myRaster, first, last, periodType, outputValues, false))
+        {
+            delete myRaster;
+            return (false);
+        }
+
+    }
+    delete myRaster;
+    return true;
+}
+
+bool executeCommand(QList<QString> argumentList, PragaProject* myProject)
 {
     if (argumentList.size() == 0) return false;
     bool isCommandFound, isExecuted;
@@ -413,7 +551,7 @@ bool pragaBatch(PragaProject* myProject, QString scriptFileName)
     while (! scriptFile.atEnd())
     {
         cmdLine = scriptFile.readLine();
-        QStringList argumentList = getArgumentList(cmdLine);
+        QList<QString> argumentList = getArgumentList(cmdLine);
         if (! executeCommand(argumentList, myProject))
             return false;
     }
@@ -443,7 +581,7 @@ bool pragaShell(PragaProject* myProject)
         QString commandLine = getCommandLine("PRAGA");
         if (commandLine != "")
         {
-            QStringList argumentList = getArgumentList(commandLine);
+            QList<QString> argumentList = getArgumentList(commandLine);
             executeCommand(argumentList, myProject);
         }
     }
@@ -453,7 +591,7 @@ bool pragaShell(PragaProject* myProject)
 
 #ifdef NETCDF
 
-    bool cmdNetcdfExport(PragaProject* myProject, QStringList argumentList)
+    bool cmdNetcdfExport(PragaProject* myProject, QList<QString> argumentList)
     {
         if (argumentList.size() < 2)
         {
@@ -474,7 +612,7 @@ bool pragaShell(PragaProject* myProject)
         return true;
     }
 
-    bool cmdExportXMLElabToNetcdf(PragaProject* myProject, QStringList argumentList)
+    bool cmdExportXMLElabToNetcdf(PragaProject* myProject, QList<QString> argumentList)
     {
         if (argumentList.size() < 2)
         {
@@ -492,7 +630,8 @@ bool pragaShell(PragaProject* myProject)
     }
 
 #endif
-    bool cmdLoadForecast(PragaProject* myProject, QStringList argumentList)
+    /*
+    bool cmdLoadForecast(PragaProject* myProject, QList<QString> argumentList)
     {
         if (argumentList.size() < 2)
         {
@@ -528,3 +667,4 @@ bool pragaShell(PragaProject* myProject)
 
         return true;
     }
+    */

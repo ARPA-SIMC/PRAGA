@@ -21,6 +21,14 @@
         #include "netcdfHandler.h"
     #endif
 
+    #ifndef IMPORTDATAXML_H
+        #include "importDataXML.h"
+    #endif
+
+    #ifndef IMPORTPROPERTIESCSV_H
+        #include "importPropertiesCSV.h"
+    #endif
+
     class PragaProject : public Project
     {
     private:
@@ -43,6 +51,9 @@
         std::map<QString, QList<int> > idArkimetHourlyMap;
         std::map<QString, QList<int> > idArkimetDailyMap;
 
+        ImportDataXML* importData;
+        ImportPropertiesCSV* importProperties;
+
         #ifdef NETCDF
             NetCDFHandler netCDF;
         #endif
@@ -61,8 +72,8 @@
 
         gis::Crit3DRasterGrid* getPragaMapFromVar(meteoVariable myVar);
 
-        bool downloadDailyDataArkimet(QStringList variables, bool prec0024, QDate startDate, QDate endDate, bool showInfo);
-        bool downloadHourlyDataArkimet(QStringList variables, QDate startDate, QDate endDate, bool showInfo);
+        bool downloadDailyDataArkimet(QList<QString> variables, bool prec0024, QDate startDate, QDate endDate, bool showInfo);
+        bool downloadHourlyDataArkimet(QList<QString> variables, QDate startDate, QDate endDate, bool showInfo);
 
         bool interpolationMeteoGrid(meteoVariable myVar, frequencyType myFrequency, const Crit3DTime& myTime, bool showInfo);
         bool interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, QList<meteoVariable> aggrVariables, bool saveRasters, int saveIntervalDays);
@@ -75,13 +86,13 @@
         bool elaborationPointsCycleGrid(bool isAnomaly, bool showInfo);
         bool elaborationCheck(bool isMeteoGrid, bool isAnomaly);
         bool elaboration(bool isMeteoGrid, bool isAnomaly, bool saveClima);
-        bool showClimateFields(bool isMeteoGrid, QStringList *climateDbElab, QStringList *climateDbVarList);
+        bool showClimateFields(bool isMeteoGrid, QList<QString> *climateDbElab, QList<QString> *climateDbVarList);
         void saveClimateResult(bool isMeteoGrid, QString climaSelected, int climateIndex, bool showInfo);
         bool deleteClima(bool isMeteoGrid, QString climaSelected);
         bool climatePointsCycle(bool showInfo);
         bool climatePointsCycleGrid(bool showInfo);
         bool averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoComputation elab1MeteoComp,
-                                           aggregationMethod spatialElab, float threshold, gis::Crit3DRasterGrid* zoneGrid,
+                                           QString aggregationString, float threshold, gis::Crit3DRasterGrid* zoneGrid,
                                            QDate startDate, QDate endDate, QString periodType,
                                            std::vector<float> &outputValues, bool showInfo);
         bool getIsElabMeteoPointsValue() const;
@@ -89,8 +100,11 @@
         bool dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QString dataset, std::vector<int> &myCounter);
         bool dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QList<QDate> &dateList, QList<QString> &idList);
 
-        bool executePragaCommand(QStringList argumentList, bool* isCommandFound);
-        bool loadForecastToGrid(QString fileName, bool overWrite, bool checkTables);
+        bool executePragaCommand(QList<QString> argumentList, bool* isCommandFound);
+        bool parserXMLImportData(QString xmlName, bool isGrid);
+        bool loadXMLImportData(QString fileName);
+        bool parserCSVImportProperties(QString csvFileName, QList<QString> *csvFields);
+        bool writeImportedProperties(QList<QString> joinedList);
 
         #ifdef NETCDF
                 bool exportMeteoGridToNetCDF(QString fileName);

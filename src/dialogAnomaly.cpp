@@ -558,7 +558,7 @@ void DialogAnomaly::AnomalyReadParameter(int state)
 
 void DialogAnomaly::AnomalyFillClimateDbList(QComboBox* dbList)
 {
-    QStringList climateTables;
+    QList<QString> climateTables;
     QString myError  = myProject.errorString;
     if (! showClimateTables(myProject.clima->db(), &myError, &climateTables) )
     {

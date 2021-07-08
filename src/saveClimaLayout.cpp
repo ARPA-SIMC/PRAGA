@@ -141,12 +141,12 @@ void SaveClimaLayout::loadElabList()
 
 }
 
-QStringList SaveClimaLayout::getList() const
+QList<QString> SaveClimaLayout::getList() const
 {
     return list;
 }
 
-void SaveClimaLayout::setList(const QStringList &value)
+void SaveClimaLayout::setList(const QList<QString> &value)
 {
     list = value;
     listView.addItems(list);

@@ -53,7 +53,7 @@ class DialogMeteoComputation : public QDialog
         QPushButton delAll;
         SaveClimaLayout saveClimaLayout;
 
-        QStringList climateDbElab;
+        QList<QString> climateDbElab;
         QComboBox climateDbElabList;
 
 
@@ -70,7 +70,7 @@ class DialogMeteoComputation : public QDialog
         void copyDataToAnomaly();
         void copyDataToSaveLayout();
         bool checkValidData();
-        QStringList getElabSaveList();
+        QList<QString> getElabSaveList();
         void copyDataFromXML();
         void saveDataToXML();
 };

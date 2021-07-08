@@ -9,10 +9,10 @@ class DialogXMLComputation : public QDialog
 private:
     bool isAnomaly;
     QListWidget listXMLWidget;
-    QStringList listXML;
+    QList<QString> listXML;
     int index;
 public:
-    DialogXMLComputation(bool isAnomaly, QStringList listXML);
+    DialogXMLComputation(bool isAnomaly, QList<QString> listXML);
     void elabClicked(QListWidgetItem* item);
     unsigned int getIndex() const;
 };

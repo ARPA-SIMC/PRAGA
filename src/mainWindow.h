@@ -135,9 +135,13 @@
 
         void on_actionMeteogridMissingData_triggered();
 
-        void on_actionImport_data_XML_point_triggered();
-
         void on_actionImport_data_XML_grid_triggered();
+
+        void on_actionFrom_CSV_triggered();
+
+        void on_actionProperties_triggered();
+
+        void on_actionData_triggered();
 
     protected:
         /*!

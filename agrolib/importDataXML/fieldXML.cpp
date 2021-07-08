@@ -1,8 +1,16 @@
 #include "fieldXML.h"
+#include "commonConstants.h"
 
 FieldXML::FieldXML()
 {
-
+    type = "";
+    format = "%s";
+    attribute = "";
+    position = NODATA;
+    firstChar = NODATA;
+    nrChar = NODATA;
+    alignment = "";
+    prefix = "";
 }
 
 QString FieldXML::getType() const
@@ -33,16 +41,6 @@ QString FieldXML::getAttribute() const
 void FieldXML::setAttribute(const QString &value)
 {
     attribute = value;
-}
-
-QString FieldXML::getField() const
-{
-    return field;
-}
-
-void FieldXML::setField(const QString &value)
-{
-    field = value;
 }
 
 int FieldXML::getFirstChar() const
@@ -83,4 +81,14 @@ QString FieldXML::getPrefix() const
 void FieldXML::setPrefix(const QString &value)
 {
     prefix = value;
+}
+
+int FieldXML::getPosition() const
+{
+    return position;
+}
+
+void FieldXML::setPosition(int value)
+{
+    position = value;
 }

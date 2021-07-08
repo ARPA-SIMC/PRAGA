@@ -15,22 +15,26 @@ QMAKE_CXXFLAGS += -std=c++11
 
 unix:{
     CONFIG(debug, debug|release) {
-        TARGET = debug/ImportDataXML
+        TARGET = debug/importDataXML
     } else {
-        TARGET = release/ImportDataXML
+        TARGET = release/importDataXML
     }
 }
 win32:{
-    TARGET = ImportDataXML
+    TARGET = importDataXML
 }
 
-INCLUDEPATH += ../crit3dDate ../mathFunctions ../dbMeteoPoints ../dbMeteoGrid
+INCLUDEPATH += ../crit3dDate ../mathFunctions ../meteo ../gis ../interpolation ../dbMeteoPoints ../dbMeteoGrid
 
 SOURCES += importDataXML.cpp \
-    fieldXML.cpp
+    fieldXML.cpp \
+    importPropertiesCSV.cpp \
+    variableXML.cpp
 
 
 HEADERS += importDataXML.h \
-    fieldXML.h
+    fieldXML.h \
+    importPropertiesCSV.h \
+    variableXML.h
 
 

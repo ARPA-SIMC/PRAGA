@@ -281,12 +281,12 @@ void DialogDownloadMeteoData::done(bool res)
 }
 
 
-QStringList DialogDownloadMeteoData::getVarD() const
+QList<QString> DialogDownloadMeteoData::getVarD() const
 {
     return varD;
 }
 
-QStringList DialogDownloadMeteoData::getVarH() const
+QList<QString> DialogDownloadMeteoData::getVarH() const
 {
     return varH;
 }

@@ -51,8 +51,8 @@ class SaveClimaLayout : public QDialog
         void saveElabList();
         void loadElabList();
 
-        QStringList getList() const;
-        void setList(const QStringList &value);
+        QList<QString> getList() const;
+        void setList(const QList<QString> &value);
 
         QString getElab1ParamFromdB() const;
         void setElab1ParamFromdB(const QString &value);
@@ -64,7 +64,7 @@ private:
         QHBoxLayout saveButtonLayout;
 
         QListWidget listView;
-        QStringList list;
+        QList<QString> list;
 
         QPushButton saveList;
         QPushButton loadList;

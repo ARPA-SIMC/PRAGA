@@ -5,7 +5,7 @@ unsigned int DialogXMLComputation::getIndex() const
     return index;
 }
 
-DialogXMLComputation::DialogXMLComputation(bool isAnomaly, QStringList listXML): isAnomaly(isAnomaly), listXML(listXML)
+DialogXMLComputation::DialogXMLComputation(bool isAnomaly, QList<QString> listXML): isAnomaly(isAnomaly), listXML(listXML)
 {
     if (isAnomaly)
     {

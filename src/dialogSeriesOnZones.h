@@ -16,6 +16,7 @@ class DialogSeriesOnZones: public QDialog
 
     private:
         QSettings* settings;
+        QList<QString> aggregations;
         QComboBox variableList;
         QLabel genericStartLabel;
         QLabel genericEndLabel;
@@ -26,17 +27,17 @@ class DialogSeriesOnZones: public QDialog
         meteoVariable variable;
         QDate startDate;
         QDate endDate;
-        aggregationMethod spatialElaboration;
+        QString spatialElaboration;
 
     public:
-        DialogSeriesOnZones(QSettings *settings);
+        DialogSeriesOnZones(QSettings *settings, QList<QString> aggregations);
         void done(bool res);
         bool checkValidData();
 
         meteoVariable getVariable() const;
         QDate getStartDate() const;
         QDate getEndDate() const;
-        aggregationMethod getSpatialElaboration() const;
+        QString getSpatialElaboration() const;
 };
 
 

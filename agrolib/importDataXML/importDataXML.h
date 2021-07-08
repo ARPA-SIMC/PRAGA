@@ -7,23 +7,39 @@
 
 #include <QString>
 #include <QList>
+#include <QDate>
+#include <QVariant>
 #include "fieldXML.h"
+#include "variableXML.h"
+#include "dbMeteoPointsHandler.h"
+#include "dbMeteoGrid.h"
+
+enum formatType{ XMLFORMATFIXED, XMLFORMATDELIMITED};
 
 class ImportDataXML
 {
 public:
-    ImportDataXML(bool isGrid, QString xmlFileName);
+    ImportDataXML(bool isGrid, Crit3DMeteoPointsDbHandler* meteoPointsDbHandler, Crit3DMeteoGridDbHandler* meteoGridDbHandler, QString xmlFileName);
     bool parseXMLFile(QDomDocument* xmlDoc, QString *error);
     bool parserXML(QString *error);
+    bool importData(QString fileName, QString *error);
+    bool importXMLDataFixed(QString *error);
+    bool importXMLDataDelimited(QString *error);
+    QString parseXMLPointCode(QString text);
+    QDate parseXMLDate(QString text);
+    QVariant parseXMLFixedValue(QString text, int nReplication, FieldXML myField);
+
 private:
     bool isGrid;
+    Crit3DMeteoPointsDbHandler* meteoPointsDbHandler;
+    Crit3DMeteoGridDbHandler* meteoGridDbHandler;
     QString xmlFileName;
-    bool isSinglePoint;
-    bool format_isFixed;
-    int headerRow;
-    float missingValue;
-    QString delimiter;
-    QString decimalSeparator;
+    bool format_isSinglePoint;
+    formatType format_type;
+    int format_headerRow;
+    float format_missingValue;
+    QString format_delimiter;
+    QString format_decimalSeparator;
     QString fileName_path;
     QList<QString> fileName_pragaName;
     QList<QString> fileName_fixedText;
@@ -31,6 +47,9 @@ private:
     FieldXML time;
     FieldXML pointCode;
     FieldXML variableCode;
+    QList<VariableXML> variable;
+    QString dataFileName;
+    int numVarFields;
 };
 
 #endif // IMPORTDATAXML_H
