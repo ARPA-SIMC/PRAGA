@@ -2626,11 +2626,12 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
     loadMeteoGrid(xmlName);
 }
 
+
 void MainWindow::on_actionFrom_CSV_triggered()
 {
     resetMeteoPointsMarker();
 
-    QString templateFileName = myProject.getDefaultPath() + PATH_TEMPLATE + "template_meteo_arkimet.db";
+    QString templateFileName = myProject.getDefaultPath() + PATH_TEMPLATE + "template_meteo.db";
 
     QString dbName = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("DB files (*.db)"));
     if (dbName == "")
@@ -2671,7 +2672,7 @@ void MainWindow::on_actionFrom_CSV_triggered()
         return;
     }
     QList<QString> csvFields;
-    if (!myProject.parserCSVImportProperties(fileName, &csvFields))
+    if (!myProject.parseMeteoPointsPropertiesCSV(fileName, &csvFields))
     {
         return;
     }
@@ -2686,7 +2687,7 @@ void MainWindow::on_actionFrom_CSV_triggered()
         QList<QString> joinedList = dialogPointProp.getJoinedList();
         FormInfo formInfo;
         formInfo.showInfo("Loading data...");
-        if (!myProject.writeImportedProperties(joinedList))
+        if (!myProject.writeMeteoPointsProperties(joinedList))
         {
             formInfo.close();
             return;
@@ -2695,6 +2696,7 @@ void MainWindow::on_actionFrom_CSV_triggered()
     }
     loadMeteoPoints(dbName);
 }
+
 
 void MainWindow::on_actionProperties_triggered()
 {
@@ -2715,7 +2717,7 @@ void MainWindow::on_actionProperties_triggered()
         return;
     }
     QList<QString> csvFields;
-    if (!myProject.parserCSVImportProperties(fileName, &csvFields))
+    if (!myProject.parseMeteoPointsPropertiesCSV(fileName, &csvFields))
     {
         return;
     }
@@ -2730,7 +2732,7 @@ void MainWindow::on_actionProperties_triggered()
         QList<QString> joinedList = dialogPointProp.getJoinedList();
         FormInfo formInfo;
         formInfo.showInfo("Loading data...");
-        if (!myProject.writeImportedProperties(joinedList))
+        if (!myProject.writeMeteoPointsProperties(joinedList))
         {
             formInfo.close();
             return;

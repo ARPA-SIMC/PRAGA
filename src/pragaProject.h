@@ -25,10 +25,6 @@
         #include "importDataXML.h"
     #endif
 
-    #ifndef IMPORTPROPERTIESCSV_H
-        #include "importPropertiesCSV.h"
-    #endif
-
     class PragaProject : public Project
     {
     private:
@@ -52,7 +48,6 @@
         std::map<QString, QList<int> > idArkimetDailyMap;
 
         ImportDataXML* importData;
-        ImportPropertiesCSV* importProperties;
 
         #ifdef NETCDF
             NetCDFHandler netCDF;
@@ -103,8 +98,6 @@
         bool executePragaCommand(QList<QString> argumentList, bool* isCommandFound);
         bool parserXMLImportData(QString xmlName, bool isGrid);
         bool loadXMLImportData(QString fileName);
-        bool parserCSVImportProperties(QString csvFileName, QList<QString> *csvFields);
-        bool writeImportedProperties(QList<QString> joinedList);
 
         #ifdef NETCDF
                 bool exportMeteoGridToNetCDF(QString fileName);
