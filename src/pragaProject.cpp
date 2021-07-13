@@ -1443,7 +1443,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
     gis::updateMinMaxRasterGrid(zoneGrid);
     std::vector <std::vector<float> > zoneVector((unsigned int)(zoneGrid->maximum+1), std::vector<float>());
 
-    QString infoStr;
+    QString infoStr = "Aggregating data...";
     int infoStep = 0;
     if (showInfo)
     {
@@ -1560,7 +1560,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
 
      }
      // save dailyElabAggregation result into DB
-     if (!aggregationDbHandler->saveAggrData(int(zoneGrid->maximum+1), aggregationString, periodType, QDateTime(startDate), QDateTime(endDate), variable, dailyElabAggregation))
+     if (!aggregationDbHandler->saveAggrData(int(zoneGrid->maximum+1), aggregationString, periodType, startDate, endDate, variable, dailyElabAggregation))
      {
          errorString = aggregationDbHandler->error();
          return false;
