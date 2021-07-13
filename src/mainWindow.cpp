@@ -1959,10 +1959,18 @@ bool MainWindow::on_actionAnalysisAggregateFromGrid_triggered()
         return false;
     }
 
+    /*
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open raster or Shape file"), "", tr("files (*.flt *.shp)"));
     if (fileName == "")
     {
         QMessageBox::information(nullptr, "No Raster or Shape", "Load raster/shape before");
+        return false;
+    }
+    */
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open raster"), "", tr("files (*.flt)"));
+    if (fileName == "")
+    {
+        QMessageBox::information(nullptr, "No Raster ", "Load raster before");
         return false;
     }
 
