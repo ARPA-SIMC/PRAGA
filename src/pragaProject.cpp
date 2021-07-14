@@ -1441,7 +1441,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
     std::vector <std::vector<int>> indexRowCol(meteoGridDbHandler->gridStructure().header().nrRows, std::vector<int>(meteoGridDbHandler->gridStructure().header().nrCols, NODATA));
 
     gis::updateMinMaxRasterGrid(zoneGrid);
-    std::vector <std::vector<float> > zoneVector((unsigned int)(zoneGrid->maximum+1), std::vector<float>());
+    std::vector <std::vector<float> > zoneVector((unsigned int)(zoneGrid->maximum), std::vector<float>());
 
     QString infoStr = "Aggregating data...";
     int infoStep = 0;
@@ -1489,7 +1489,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
     if (showInfo) closeProgressBar();
 
      int nrDays = int(startDate.daysTo(endDate) + 1);
-     std::vector< std::vector<float> > dailyElabAggregation(nrDays, std::vector<float>(int(zoneGrid->maximum+1), NODATA));
+     std::vector< std::vector<float> > dailyElabAggregation(nrDays, std::vector<float>(int(zoneGrid->maximum), NODATA));
 
      for (int day = 0; day < nrDays; day++)
      {
@@ -1511,7 +1511,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
                             value = outputSeries.at(indexRowCol[meteoGridRow[zoneRow][zoneCol]][meteoGridCol[zoneRow][zoneCol]]*outputValues.size()+day);
                             if (value != meteoGridDbHandler->gridStructure().header().flag)
                             {
-                                zoneVector[zoneIndex].push_back(value);
+                                zoneVector[zoneIndex-1].push_back(value);
                             }
                         }
                     }
@@ -1560,7 +1560,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
 
      }
      // save dailyElabAggregation result into DB
-     if (!aggregationDbHandler->saveAggrData(int(zoneGrid->maximum+1), aggregationString, periodType, startDate, endDate, variable, dailyElabAggregation))
+     if (!aggregationDbHandler->saveAggrData(int(zoneGrid->maximum), aggregationString, periodType, startDate, endDate, variable, dailyElabAggregation))
      {
          errorString = aggregationDbHandler->error();
          return false;
