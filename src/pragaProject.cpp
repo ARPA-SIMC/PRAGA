@@ -1496,7 +1496,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
 
          for (int zoneRow = 0; zoneRow < zoneGrid->header->nrRows; zoneRow++)
          {
-             for (int zoneCol = 0; zoneCol < zoneGrid->header->nrRows; zoneCol++)
+             for (int zoneCol = 0; zoneCol < zoneGrid->header->nrCols; zoneCol++)
              {
 
                 float zoneValue = zoneGrid->value[zoneRow][zoneCol];
