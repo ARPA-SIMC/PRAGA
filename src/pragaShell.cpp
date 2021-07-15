@@ -399,7 +399,7 @@ bool cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QList<QString> argum
 
 bool cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentList)
 {
-    if (argumentList.size() < 5)
+    if (argumentList.size() < 4)
     {
         myProject->logError("Missing parameters for aggregation on zones");
         return false;
@@ -408,18 +408,13 @@ bool cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentL
     QDate first, last;
     QList <meteoVariable> variables;
     QList <QString> varString;
-    QString var, aggregation, fileName;
+    QString var, aggregation;
     meteoVariable meteoVar;
 
     for (int i = 1; i < argumentList.size(); i++)
     {
-        // raster
-        if (argumentList.at(i).left(3) == "-r:")
-        {
-            fileName = argumentList[i].right(argumentList[i].length()-3);
-        }
         // variables
-        else if (argumentList.at(i).left(3) == "-v:")
+        if (argumentList.at(i).left(3) == "-v:")
         {
             varString = argumentList[i].right(argumentList[i].length()-3).split(",");
             foreach (var,varString)
@@ -480,11 +475,17 @@ bool cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentL
     QString periodType = "D";
 
     gis::Crit3DRasterGrid* myRaster = new gis::Crit3DRasterGrid();
+    QString rasterName;
+    if (!myProject->aggregationDbHandler->getRasterName(&rasterName))
+    {
+        myProject->errorString = "Missing Raster Name inside aggregation db";
+        myProject->logError();
+        return false;
+    }
     // open raster
-    fileName = myProject->getProjectPath() + fileName;
-    std::string fnWithoutExt = fileName.left(fileName.length()-4).toStdString();
+    QString fnWithoutExt = myProject->aggregationPath+"/"+rasterName;
     std::string* myError = new std::string();
-    if (! gis::readEsriGrid(fnWithoutExt, myRaster, myError))
+    if (! gis::readEsriGrid(fnWithoutExt.toStdString(), myRaster, myError))
     {
         myProject->logError("Load raster failed!");
         delete myRaster;
