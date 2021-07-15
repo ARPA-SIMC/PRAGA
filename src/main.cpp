@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
         QString warning = "Set PRAGA_HOME in the environment variables:"
                           "\n$PRAGA_HOME = path of praga directory\n";
 
-        std::cout << warning.toStdString();
+        std::cout << warning.toStdString() << std::flush;
         return -1;
     }
 
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
                           "Set correct $PRAGA_HOME variable:\n"
                           "$PRAGA_HOME = path of praga directory\n";
 
-        std::cout << warning.toStdString();
+        std::cout << warning.toStdString() << std::flush;
         return -1;
     }
 
