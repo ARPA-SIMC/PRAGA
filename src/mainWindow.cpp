@@ -1955,49 +1955,45 @@ bool MainWindow::on_actionAnalysisAggregateFromGrid_triggered()
     }
     if (myProject.aggregationDbHandler == nullptr)
     {
-        QMessageBox::information(nullptr, "Missing DB", "Open or Create a Aggregation DB");
+        myProject.errorString = "Missing DB: open or create a Aggregation DB";
+        myProject.logError();
+        return false;
+    }
+    QString rasterName;
+    if (!myProject.aggregationDbHandler->getRasterName(&rasterName))
+    {
+        myProject.errorString = "Missing Raster Name inside aggregation db";
+        myProject.logError();
         return false;
     }
 
-    /*
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open raster or Shape file"), "", tr("files (*.flt *.shp)"));
-    if (fileName == "")
+    QFileInfo rasterFileFltInfo(myProject.aggregationPath+"/"+rasterName+".flt");
+    QFileInfo rasterFileHdrInfo(myProject.aggregationPath+"/"+rasterName+".hdr");
+    if (!rasterFileFltInfo.exists() || !rasterFileHdrInfo.exists())
     {
-        QMessageBox::information(nullptr, "No Raster or Shape", "Load raster/shape before");
+        myProject.errorString = "Raster file does not exist: " + myProject.aggregationPath+"/"+rasterName;
+        myProject.logError();
         return false;
     }
-    */
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open raster"), "", tr("files (*.flt)"));
-    if (fileName == "")
+    gis::Crit3DRasterGrid *myRaster;
+    myRaster = new(gis::Crit3DRasterGrid);
+    if (!openRaster(myProject.aggregationPath+"/"+rasterName+".flt", myRaster))
     {
-        QMessageBox::information(nullptr, "No Raster ", "Load raster before");
+        myProject.errorString = "Open raster file failed";
+        myProject.logError();
         return false;
     }
 
     QList<QString> aggregation = myProject.aggregationDbHandler->getAggregations();
     if (aggregation.isEmpty())
     {
-        QMessageBox::information(nullptr, "Empty aggregation", myProject.aggregationDbHandler->error());
-        return false;
-    }
-
-    gis::Crit3DRasterGrid *myRaster;
-    // raster
-    if (fileName.contains(".flt"))
-    {
-        myRaster = new(gis::Crit3DRasterGrid);
-        openRaster(fileName, myRaster);
-    }
-    // shape
-    else if (fileName.contains(".shp"))
-    {
-        // TO DO
-        // sarà necessaria una finestra in cui è selezionabile il campo dello shape
-        //openShape(fileName);
+        myProject.errorString = "Empty aggregation " + myProject.aggregationDbHandler->error();
+        myProject.logError();
         return false;
     }
 
     DialogSeriesOnZones zoneDialog(myProject.pragaDefaultSettings, aggregation);
+
     if (zoneDialog.result() != QDialog::Accepted)
     {
         if (myRaster != nullptr)
@@ -2027,6 +2023,7 @@ bool MainWindow::on_actionAnalysisAggregateFromGrid_triggered()
     {
         delete myRaster;
     }
+
     return true;
 }
 
@@ -2053,6 +2050,7 @@ void MainWindow::on_actionAnalysisNewAggregationDB_triggered()
     }
 
     QFile dbFile(dbName);
+    QFileInfo dbFileInfo(dbFile.fileName());
     if (dbFile.exists())
     {
         if (!dbFile.remove())
@@ -2068,6 +2066,33 @@ void MainWindow::on_actionAnalysisNewAggregationDB_triggered()
         return;
     }
     myProject.loadAggregationdDB(dbName);
+
+    QString rasterName = QFileDialog::getOpenFileName(this, tr("Open raster"), "", tr("files (*.flt)"));
+    if (rasterName == "" || !rasterName.contains(".flt"))
+    {
+        QMessageBox::information(nullptr, "No Raster ", "Load raster before");
+        return;
+    }
+    QFileInfo rasterFileInfo(rasterName);
+
+    if (dbFileInfo.absolutePath() != rasterFileInfo.absolutePath())
+    {
+        QMessageBox::information(nullptr, "Raster will be copied at db path", "Raster and db should be in the same folder");
+        QString rasterCopiedFlt = dbFileInfo.absolutePath()+"/"+rasterFileInfo.baseName()+".flt";
+        QString rasterCopiedHdr = dbFileInfo.absolutePath()+"/"+rasterFileInfo.baseName()+".hdr";
+        QString rasterHdr = rasterFileInfo.absolutePath()+"/"+rasterFileInfo.baseName()+".hdr";
+        if (!QFile::copy(rasterName, rasterCopiedFlt) || !QFile::copy(rasterHdr, rasterCopiedHdr))
+        {
+            myProject.logError("Copy raster failed: " + rasterName);
+            return;
+        }
+        QMessageBox::information(nullptr, "Copied", "Successfully completed");
+    }
+    if (!myProject.aggregationDbHandler->writeRasterName(rasterFileInfo.baseName()))
+    {
+        myProject.logError("Writing raster name failed");
+        return;
+    }
 }
 
 void MainWindow::redrawTitle()
