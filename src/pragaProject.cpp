@@ -78,6 +78,8 @@ bool PragaProject::loadPragaProject(QString myFileName)
 
     if (myFileName == "") return(false);
 
+    projectPragaFolder = QFileInfo(myFileName).absolutePath();
+
     if (! loadProjectSettings(myFileName))
         return false;
 

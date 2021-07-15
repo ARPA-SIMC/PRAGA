@@ -48,6 +48,7 @@
         std::map<QString, QList<int> > idArkimetDailyMap;
 
         ImportDataXML* importData;
+        QString projectPragaFolder;
 
         #ifdef NETCDF
             NetCDFHandler netCDF;

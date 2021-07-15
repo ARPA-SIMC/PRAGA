@@ -127,7 +127,8 @@ bool cmdOpenPragaProject(PragaProject* myProject, QList<QString> argumentList)
         }
     }
 
-    QString projectName = myProject->getCompleteFileName(filename, PATH_PROJECT+projectFolder);
+    myProject->projectPragaFolder = PATH_PROJECT+projectFolder;
+    QString projectName = myProject->getCompleteFileName(filename, myProject->projectPragaFolder);
 
     if (! myProject->loadPragaProject(projectName))
     {
@@ -483,7 +484,7 @@ bool cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentL
         return false;
     }
     // open raster
-    QString fnWithoutExt = myProject->aggregationPath+"/"+rasterName;
+    QString fnWithoutExt = myProject->projectPragaFolder+"/"+rasterName;
     std::string* myError = new std::string();
     if (! gis::readEsriGrid(fnWithoutExt.toStdString(), myRaster, myError))
     {
