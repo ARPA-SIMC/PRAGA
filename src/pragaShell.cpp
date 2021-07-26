@@ -444,6 +444,16 @@ bool cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentL
             first = QDate::currentDate().addDays(-1);
             last = first;
         }
+        else if (argumentList.at(i).left(6) == "-today")
+        {
+            first = QDate::currentDate();
+            last = first;
+        }
+        else if (argumentList.at(i).left(11) == "-next10days")
+        {
+            first = QDate::currentDate();
+            last = QDate::currentDate().addDays(9);
+        }
 
     }
     if (variables.isEmpty())
