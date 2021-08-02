@@ -1,6 +1,7 @@
 #include "pragaShell.h"
 #include "shell.h"
 #include "utilities.h"
+#include "commonConstants.h"
 #include <QFile>
 #include <QTextStream>
 
@@ -24,7 +25,7 @@ QList<QString> getPragaCommandList()
 }
 
 
-bool cmdList(PragaProject* myProject)
+int cmdList(PragaProject* myProject)
 {
     QList<QString> list = getPragaCommandList();
 
@@ -35,14 +36,14 @@ bool cmdList(PragaProject* myProject)
         myProject->logInfo(list[i]);
     }
 
-    return true;
+    return PRAGA_OK;
 }
 
 
-bool PragaProject::executePragaCommand(QList<QString> argumentList, bool* isCommandFound)
+int PragaProject::executePragaCommand(QList<QString> argumentList, bool* isCommandFound)
 {
     *isCommandFound = false;
-    if (argumentList.size() == 0) return false;
+    if (argumentList.size() == 0) return PRAGA_INVALID_COMMAND;
 
     QString command = argumentList[0].toUpper();
 
@@ -102,15 +103,15 @@ bool PragaProject::executePragaCommand(QList<QString> argumentList, bool* isComm
         // ...
     }
 
-    return false;
+    return PRAGA_INVALID_COMMAND;
 }
 
-bool cmdOpenPragaProject(PragaProject* myProject, QList<QString> argumentList)
+int cmdOpenPragaProject(PragaProject* myProject, QList<QString> argumentList)
 {
     if (argumentList.size() < 2)
     {
         myProject->logError("Missing project name");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     // set fileName and projectFolder
@@ -133,18 +134,18 @@ bool cmdOpenPragaProject(PragaProject* myProject, QList<QString> argumentList)
     if (! myProject->loadPragaProject(projectName))
     {
         myProject->logError();
-        return false;
+        return PRAGA_ERROR;
     }
 
-    return true;
+    return PRAGA_OK;
 }
 
-bool cmdDownload(PragaProject* myProject, QList<QString> argumentList)
+int cmdDownload(PragaProject* myProject, QList<QString> argumentList)
 {
     if (argumentList.size() < 2)
     {
         myProject->logError("Missing parameters for download");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     QDate dateIni, dateFin;
@@ -166,7 +167,7 @@ bool cmdDownload(PragaProject* myProject, QList<QString> argumentList)
                 if (meteoVar == noMeteoVar)
                 {
                     myProject->logError("Unknown variable: " + var);
-                    return false;
+                    return PRAGA_ERROR;
                 }
                 else
                 {
@@ -174,7 +175,7 @@ bool cmdDownload(PragaProject* myProject, QList<QString> argumentList)
                     if (myFreq == noFrequency)
                     {
                         myProject->logError("Unknown frequency for variable : " + var);
-                        return false;
+                        return PRAGA_ERROR;
                     }
                     else if (myFreq == daily)
                         dailyVarString.append(var);
@@ -201,33 +202,33 @@ bool cmdDownload(PragaProject* myProject, QList<QString> argumentList)
     if (! dateIni.isValid())
     {
         myProject->logError("Wrong initial date");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     if (! dateFin.isValid())
     {
         myProject->logError("Wrong final date");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     if (dailyVarString.size() > 0)
         if (! myProject->downloadDailyDataArkimet(dailyVarString, prec0024, dateIni, dateFin, showInfo))
-            return false;
+            return PRAGA_ERROR;
 
     if (hourlyVarString.size() > 0)
         if (! myProject->downloadHourlyDataArkimet(hourlyVarString, dateIni, dateFin, showInfo))
-            return false;
+            return PRAGA_ERROR;
 
-    return true;
+    return PRAGA_OK;
 }
 
 
-bool cmdInterpolationGridPeriod(PragaProject* myProject, QList<QString> argumentList)
+int cmdInterpolationGridPeriod(PragaProject* myProject, QList<QString> argumentList)
 {
     if (argumentList.size() < 2)
     {
         myProject->logError("Missing parameters for gridding");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     QDate dateIni, dateFin;
@@ -278,33 +279,33 @@ bool cmdInterpolationGridPeriod(PragaProject* myProject, QList<QString> argument
     if (! dateIni.isValid())
     {
         myProject->logError("Wrong initial date");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     if (! dateFin.isValid())
     {
         myProject->logError("Wrong final date");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     if (saveInterval == NODATA || ! parseSaveInterval)
     {
         myProject->logError("Wrong save interval number");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     if (! myProject->interpolationMeteoGridPeriod(dateIni, dateFin, variables, aggrVariables, saveRasters, saveInterval))
-        return false;
+        return PRAGA_ERROR;
 
-    return true;
+    return PRAGA_OK;
 }
 
-bool cmdAggregationGridPeriod(PragaProject* myProject, QList<QString> argumentList)
+int cmdAggregationGridPeriod(PragaProject* myProject, QList<QString> argumentList)
 {
     if (argumentList.size() < 2)
     {
         myProject->logError("Missing parameters for aggregation");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     // default date
@@ -343,22 +344,22 @@ bool cmdAggregationGridPeriod(PragaProject* myProject, QList<QString> argumentLi
     if (! dateIni.isValid())
     {
         myProject->logError("Wrong initial date");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     if (! dateFin.isValid())
     {
         myProject->logError("Wrong final date");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     if (! myProject->timeAggregateGrid(dateIni, dateFin, variables, true, true))
-        return false;
+        return PRAGA_ERROR;
 
-    return true;
+    return PRAGA_OK;
 }
 
-bool cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QList<QString> argumentList)
+int cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QList<QString> argumentList)
 {
 
     // default date
@@ -383,27 +384,27 @@ bool cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QList<QString> argum
     if (! first.isValid())
     {
         myProject->logError("Wrong initial date");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     if (! last.isValid())
     {
         myProject->logError("Wrong final date");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     if (! myProject->hourlyDerivedVariablesGrid(first, last, true, true))
-        return false;
+        return PRAGA_ERROR;
 
-    return true;
+    return PRAGA_OK;
 }
 
-bool cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentList)
+int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentList)
 {
     if (argumentList.size() < 4)
     {
         myProject->logError("Missing parameters for aggregation on zones");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     QDate first, last;
@@ -459,25 +460,25 @@ bool cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentL
     if (variables.isEmpty())
     {
         myProject->logError("Wrong variable");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     if (! first.isValid())
     {
         myProject->logError("Wrong initial date");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     if (! last.isValid())
     {
         myProject->logError("Wrong final date");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     if (aggregation != "STDDEV" && aggregation != "MEDIAN" && aggregation != "AVG")
     {
         myProject->logError("Valid aggregation: STDDEV, MEDIAN, AVG)");
-        return false;
+        return PRAGA_INVALID_COMMAND;
     }
 
     std::vector<float> outputValues;
@@ -491,7 +492,7 @@ bool cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentL
     {
         myProject->errorString = "Missing Raster Name inside aggregation db";
         myProject->logError();
-        return false;
+        return PRAGA_ERROR;
     }
     // open raster
     QString fnWithoutExt = myProject->projectPragaFolder+"/"+rasterName;
@@ -500,7 +501,7 @@ bool cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentL
     {
         myProject->logError("Load raster failed!");
         delete myRaster;
-        return (false);
+        return PRAGA_ERROR;
     }
 
     for (int i = 0; i<variables.size(); i++)
@@ -509,18 +510,19 @@ bool cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentL
         if (!myProject->averageSeriesOnZonesMeteoGrid(variables[i], elab1MeteoComp, aggregation, threshold, myRaster, first, last, periodType, outputValues, false))
         {
             delete myRaster;
-            return (false);
+            return PRAGA_ERROR;
         }
 
     }
     delete myRaster;
-    return true;
+    return PRAGA_OK;
 }
 
-bool executeCommand(QList<QString> argumentList, PragaProject* myProject)
+int executeCommand(QList<QString> argumentList, PragaProject* myProject)
 {
-    if (argumentList.size() == 0) return false;
-    bool isCommandFound, isExecuted;
+    if (argumentList.size() == 0) return PRAGA_INVALID_COMMAND;
+    bool isCommandFound;
+    int isExecuted;
 
     myProject->logInfo(getTimeStamp(argumentList));
 
@@ -531,11 +533,11 @@ bool executeCommand(QList<QString> argumentList, PragaProject* myProject)
     if (isCommandFound) return isExecuted;
 
     myProject->logError("This is not a valid PRAGA command.");
-    return false;
+    return PRAGA_INVALID_COMMAND;
 }
 
 
-bool pragaBatch(PragaProject* myProject, QString scriptFileName)
+int pragaBatch(PragaProject* myProject, QString scriptFileName)
 {
     #ifdef _WIN32
         attachOutputToConsole();
@@ -547,25 +549,27 @@ bool pragaBatch(PragaProject* myProject, QString scriptFileName)
     if (scriptFileName == "")
     {
         myProject->logError("No script file provided");
-        return false;
+        return PRAGA_MISSING_FILE;
     }
 
     QFile scriptFile(scriptFileName);
     if(! scriptFile.open (QIODevice::ReadOnly))
     {
         myProject->logError(scriptFile.errorString());
-        return false;
+        return PRAGA_ERROR;
     }
 
     QTextStream myStream (&scriptFile);
     QString cmdLine;
 
+    int result;
     while (! scriptFile.atEnd())
     {
         cmdLine = scriptFile.readLine();
         QList<QString> argumentList = getArgumentList(cmdLine);
-        if (! executeCommand(argumentList, myProject))
-            return false;
+        result = executeCommand(argumentList, myProject) ;
+        if (result != 0)
+            return result;
     }
 
     myProject->logInfo("Batch finished at: " + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
@@ -579,66 +583,69 @@ bool pragaBatch(PragaProject* myProject, QString scriptFileName)
         if (isConsoleForeground()) sendEnterKey();
     #endif
 
-    return true;
+    return PRAGA_OK;
 }
 
 
-bool pragaShell(PragaProject* myProject)
+int pragaShell(PragaProject* myProject)
 {
     #ifdef _WIN32
         openNewConsole();
     #endif
+    int result;
     while (! myProject->requestedExit)
     {
         QString commandLine = getCommandLine("PRAGA");
         if (commandLine != "")
         {
             QList<QString> argumentList = getArgumentList(commandLine);
-            executeCommand(argumentList, myProject);
+            result = executeCommand(argumentList, myProject);
+            if (result != 0)
+                return result;
         }
     }
 
-    return true;
+    return PRAGA_OK;
 }
 
 #ifdef NETCDF
 
-    bool cmdNetcdfExport(PragaProject* myProject, QList<QString> argumentList)
+    int cmdNetcdfExport(PragaProject* myProject, QList<QString> argumentList)
     {
         if (argumentList.size() < 2)
         {
             myProject->logError("Missing netcdf name");
-            return false;
+            return PRAGA_INVALID_COMMAND;
         }
 
         QString netcdfName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT);
         if (! myProject->checkMeteoGridForExport())
         {
-            return false;
+            return PRAGA_ERROR;
         }
 
         if (! myProject->exportMeteoGridToNetCDF(netcdfName))
         {
-            return false;
+            return PRAGA_ERROR;
         }
-        return true;
+        return PRAGA_OK;
     }
 
-    bool cmdExportXMLElabToNetcdf(PragaProject* myProject, QList<QString> argumentList)
+    int cmdExportXMLElabToNetcdf(PragaProject* myProject, QList<QString> argumentList)
     {
         if (argumentList.size() < 2)
         {
             myProject->logError("Missing xml name");
-            return false;
+            return PRAGA_INVALID_COMMAND;
         }
 
         QString xmlName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT);
         if (!myProject->exportXMLElabGridToNetcdf(xmlName))
         {
-            return false;
+            return PRAGA_ERROR;
         }
 
-        return true;
+        return PRAGA_OK;
     }
 
 #endif

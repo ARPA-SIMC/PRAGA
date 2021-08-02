@@ -96,7 +96,7 @@
         bool dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QString dataset, std::vector<int> &myCounter);
         bool dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QList<QDate> &dateList, QList<QString> &idList);
 
-        bool executePragaCommand(QList<QString> argumentList, bool* isCommandFound);
+        int executePragaCommand(QList<QString> argumentList, bool* isCommandFound);
         bool parserXMLImportData(QString xmlName, bool isGrid);
         bool loadXMLImportData(QString fileName);
 
