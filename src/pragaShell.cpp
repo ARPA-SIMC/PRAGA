@@ -569,7 +569,10 @@ int pragaBatch(PragaProject* myProject, QString scriptFileName)
         QList<QString> argumentList = getArgumentList(cmdLine);
         result = executeCommand(argumentList, myProject) ;
         if (result != 0)
+        {
+            myProject->logError("Praga batch error code: "+QString::number(result));
             return result;
+        }
     }
 
     myProject->logInfo("Batch finished at: " + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
@@ -601,7 +604,10 @@ int pragaShell(PragaProject* myProject)
             QList<QString> argumentList = getArgumentList(commandLine);
             result = executeCommand(argumentList, myProject);
             if (result != 0)
+            {
+                myProject->logError("Praga shell error code: "+QString::number(result));
                 return result;
+            }
         }
     }
 
