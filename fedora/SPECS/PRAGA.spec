@@ -2,7 +2,7 @@
 %{!?srcarchivename: %global srcarchivename PRAGA-%{version}}
 
 Name:           PRAGA
-Version:        1.3.10
+Version:        1.4.0
 Release:        1%{?dist}
 Summary:        PRogram for AGrometeorological Analysis
 
