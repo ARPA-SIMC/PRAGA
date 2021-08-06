@@ -2,6 +2,7 @@
 #include "pragaShell.h"
 #include "shell.h"
 #include "mainGUI.h"
+#include "commonConstants.h"
 
 #include <QCoreApplication>
 #include <cstdio>
@@ -87,7 +88,7 @@ int main(int argc, char *argv[])
                           "\n$PRAGA_HOME = path of praga directory\n";
 
         std::cout << warning.toStdString() << std::flush;
-        return -1;
+        return PRAGA_ENV_ERROR;
     }
 
     if (!QDir(pragaHome).exists())
@@ -97,14 +98,14 @@ int main(int argc, char *argv[])
                           "$PRAGA_HOME = path of praga directory\n";
 
         std::cout << warning.toStdString() << std::flush;
-        return -1;
+        return PRAGA_ENV_ERROR;
     }
 
     if (! myProject.start(pragaHome))
-        return -1;
+        return PRAGA_ERROR;
 
     if (! myProject.loadPragaProject(myProject.getApplicationPath() + "default.ini"))
-        return -1;
+        return PRAGA_ERROR;
 
     // start modality
     if (myProject.modality == MODE_GUI)
@@ -114,13 +115,11 @@ int main(int argc, char *argv[])
     else if (myProject.modality == MODE_CONSOLE)
     {
         QCoreApplication myApp(argc, argv);
-        if (! pragaShell(&myProject))
-            return -1;
+        return pragaShell(&myProject);
     }
     else if (myProject.modality == MODE_BATCH)
     {
         QCoreApplication myApp(argc, argv);
-        if (! pragaBatch(&myProject, argv[1]))
-            return -1;
+        return pragaBatch(&myProject, argv[1]);
     }
 }
