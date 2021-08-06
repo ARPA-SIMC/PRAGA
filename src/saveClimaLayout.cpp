@@ -69,7 +69,7 @@ void SaveClimaLayout::addElab()
     }
 
     list.append(elabAdded);
-    qSort(list.begin(), list.end(), compareClimateElab);
+    std::sort(list.begin(), list.end(), compareClimateElab);
 
     listView.clear();
     listView.addItems(list);
@@ -127,7 +127,7 @@ void SaveClimaLayout::loadElabList()
             list << line;
           }
       }
-      qSort(list.begin(), list.end(), compareClimateElab);
+      std::sort(list.begin(), list.end(), compareClimateElab);
 
       listView.clear();
       listView.addItems(list);
