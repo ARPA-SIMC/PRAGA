@@ -628,7 +628,7 @@ void MainWindow::interpolateDemGUI()
 void MainWindow::interpolateGridGUI()
 {
     if (myProject.interpolationMeteoGrid(myProject.getCurrentVariable(), myProject.getCurrentFrequency(),
-                                         myProject.getCrit3DCurrentTime(), true))
+                                         myProject.getCrit3DCurrentTime()))
     {
         //setCurrentRaster(&(myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid));
         //ui->labelRasterScale->setText(QString::fromStdString(getVariableString(myProject.getCurrentVariable())));
