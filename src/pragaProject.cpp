@@ -2220,7 +2220,17 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
 
             elaborationPointsCycleGrid(false, false);
             meteoGridDbHandler->meteoGrid()->fillMeteoRasterElabValue();
-            QString netcdfName = getCompleteFileName("ELAB_"+listXMLElab->listAll()[i]+".nc", PATH_PROJECT);
+
+            QString netcdfName;
+            if(listXMLElab->listFileName()[i].isEmpty())
+            {
+                netcdfName = getCompleteFileName("ELAB_"+listXMLElab->listAll()[i]+".nc", PATH_PROJECT);
+            }
+            else
+            {
+                netcdfName = getCompleteFileName(listXMLElab->listFileName()[i]+".nc", PATH_PROJECT);
+            }
+
             exportMeteoGridToNetCDF(netcdfName);
             // reset param
             clima->resetParam();
@@ -2285,16 +2295,22 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
 
             elaborationPointsCycleGrid(false, false);
             elaborationPointsCycleGrid(true, false);
-            QString netcdfName;
             if (!listXMLAnomaly->isPercentage()[i])
             {
-                meteoGridDbHandler->meteoGrid()->fillMeteoRasterAnomalyValue();
-                netcdfName = getCompleteFileName("ANOMALY_"+listXMLAnomaly->listAll()[i]+".nc", PATH_PROJECT);
+                meteoGridDbHandler->meteoGrid()->fillMeteoRasterAnomalyValue();   
             }
             else
             {
                 meteoGridDbHandler->meteoGrid()->fillMeteoRasterAnomalyPercValue();
+            }
+            QString netcdfName;
+            if (listXMLAnomaly->listFileName()[i].isEmpty())
+            {
                 netcdfName = getCompleteFileName("ANOMALY_"+listXMLAnomaly->listAll()[i]+".nc", PATH_PROJECT);
+            }
+            else
+            {
+                netcdfName = getCompleteFileName(listXMLAnomaly->listFileName()[i]+".nc", PATH_PROJECT);
             }
 
             exportMeteoGridToNetCDF(netcdfName);
