@@ -24,6 +24,7 @@
 
 #include "cropWidget.h"
 #include "dialogNewCrop.h"
+#include "dialogNewProject.h"
 #include "cropDbTools.h"
 #include "cropDbQuery.h"
 #include "criteria1DMeteo.h"
@@ -33,6 +34,7 @@
 #include "soilWidget.h"
 #include "meteoWidget.h"
 #include "criteria1DMeteo.h"
+#include "utilities.h"
 
 #include <QFileInfo>
 #include <QFileDialog>
@@ -48,7 +50,7 @@
 
 Crit3DCropWidget::Crit3DCropWidget()
 {
-    setWindowTitle(QStringLiteral("CRITERIA 1D - Crop Editor"));
+    setWindowTitle(QStringLiteral("CRITERIA 1D_PRO"));
     resize(1400, 700);
 
     isRedraw = true;
@@ -452,6 +454,7 @@ Crit3DCropWidget::Crit3DCropWidget()
     this->layout()->setMenuBar(menuBar);
 
     QAction* openProject = new QAction(tr("&Open CRITERIA-1D Project"), this);
+    QAction* newProject = new QAction(tr("&New CRITERIA-1D Project"), this);
     QAction* openCropDB = new QAction(tr("&Open dbCrop"), this);
     QAction* openMeteoDB = new QAction(tr("&Open dbMeteo"), this);
     QAction* openSoilDB = new QAction(tr("&Open dbSoil"), this);
@@ -464,6 +467,7 @@ Crit3DCropWidget::Crit3DCropWidget()
     restoreData = new QAction(tr("&Restore Data"), this);
 
     fileMenu->addAction(openProject);
+    fileMenu->addAction(newProject);
     fileMenu->addSeparator();
     fileMenu->addAction(openCropDB);
     fileMenu->addAction(openMeteoDB);
@@ -483,6 +487,7 @@ Crit3DCropWidget::Crit3DCropWidget()
     cropChanged = false;
 
     connect(openProject, &QAction::triggered, this, &Crit3DCropWidget::on_actionOpenProject);
+    connect(newProject, &QAction::triggered, this, &Crit3DCropWidget::on_actionNewProject);
     connect(&caseListComboBox, &QComboBox::currentTextChanged, this, &Crit3DCropWidget::on_actionChooseCase);
 
     connect(openCropDB, &QAction::triggered, this, &Crit3DCropWidget::on_actionOpenCropDB);
@@ -571,6 +576,146 @@ void Crit3DCropWidget::on_actionOpenProject()
     isRedraw = true;
 }
 
+void Crit3DCropWidget::on_actionNewProject()
+{
+    DialogNewProject dialog;
+    if (dialog.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    else
+    {
+        QString dataPath;
+        QString projectName = dialog.getProjectName();
+        projectName = projectName.simplified().remove(' ');
+        if (searchDataPath(&dataPath))
+        {
+            QString completePath = dataPath+PATH_PROJECT+projectName;
+            if(!QDir().mkdir(completePath))
+            {
+                QMessageBox::StandardButton confirm;
+                QString msg = "Project dir "+ completePath + " already exists, do you want to overwrite it?";
+                confirm = QMessageBox::question(nullptr, "Warning", msg, QMessageBox::Yes|QMessageBox::No, QMessageBox::Yes);
+
+                if (confirm == QMessageBox::Yes)
+                {
+                    clearDir(completePath);
+                    QDir().mkdir(completePath+"/data");
+                }
+                else
+                {
+                    return;
+                }
+            }
+            else
+            {
+                QDir().mkdir(completePath+"/data");
+            }
+            // copy template units
+            if (!QFile::copy(dataPath+PATH_TEMPLATE+"template_units.db", completePath+"/data/"+"units.db"))
+            {
+                QMessageBox::critical(nullptr, "Error in copy template_units.db", "Copy failed");
+                return;
+            }
+            QString db_soil, db_meteo, db_crop;
+            // db soil
+            if (dialog.getSoilDbOption() == NEW_DB)
+            {
+                db_soil = "soil.db";
+                if (!QFile::copy(dataPath+PATH_TEMPLATE+"template_soil.db", completePath+"/data/"+db_soil))
+                {
+                    QMessageBox::critical(nullptr, "Error in copy template_soil.db", "Copy failed");
+                    return;
+                }
+            }
+            else if (dialog.getSoilDbOption() == DEFAULT_DB)
+            {
+                db_soil = "soil_ER_2002.db";
+                if (!QFile::copy(dataPath+"SOIL/soil_ER_2002.db", completePath+"/data/"+db_soil))
+                {
+                    QMessageBox::critical(nullptr, "Error in copy soil_ER_2002.db", "Copy failed");
+                    return;
+                }
+            }
+            else if (dialog.getSoilDbOption() == CHOOSE_DB)
+            {
+                QString soilPath = dialog.getDbSoilCompletePath();
+                db_soil = QFileInfo(soilPath).baseName()+".db";
+                if (!QFile::copy(soilPath, completePath+"/data/"+db_soil))
+                {
+                    QMessageBox::critical(nullptr, "Error in copy "+soilPath, "Copy failed");
+                    return;
+                }
+            }
+            // db meteo
+            if (dialog.getMeteoDbOption() == NEW_DB)
+            {
+                db_meteo = "meteo.db";
+                if (!QFile::copy(dataPath+PATH_TEMPLATE+"template_meteo.db", completePath+"/data/"+db_meteo))
+                {
+                    QMessageBox::critical(nullptr, "Error in copy template_meteo.db", "Copy failed");
+                    return;
+                }
+            }
+            else if (dialog.getMeteoDbOption() == DEFAULT_DB)
+            {
+                db_meteo = "meteo.db";
+                if (!QFile::copy(dataPath+PATH_PROJECT+"test/data/meteo.db", completePath+"/data/"+db_meteo))
+                {
+                    QMessageBox::critical(nullptr, "Error in copy meteo.db", "Copy failed");
+                    return;
+                }
+            }
+            else if (dialog.getMeteoDbOption() == CHOOSE_DB)
+            {
+                QString meteoPath = dialog.getDbMeteoCompletePath();
+                db_meteo = QFileInfo(meteoPath).baseName()+".db";
+                if (!QFile::copy(meteoPath, completePath+"/data/"+db_meteo))
+                {
+                    QMessageBox::critical(nullptr, "Error in copy "+meteoPath, "Copy failed");
+                    return;
+                }
+            }
+            // db crop
+            if (dialog.getCropDbOption() == DEFAULT_DB)
+            {
+                db_crop = "crop.db";
+                if (!QFile::copy(dataPath+PATH_TEMPLATE+"crop_default.db", completePath+"/data/"+"crop.db"))
+                {
+                    QMessageBox::critical(nullptr, "Error in copy crop_default.db", "Copy failed");
+                    return;
+                }
+            }
+            else if (dialog.getCropDbOption() == CHOOSE_DB)
+            {
+                QString cropPath = dialog.getDbCropCompletePath();
+                db_crop = QFileInfo(cropPath).baseName()+".db";
+                if (!QFile::copy(cropPath, completePath+"/data/"+db_crop))
+                {
+                    QMessageBox::critical(nullptr, "Error in copy "+cropPath, "Copy failed");
+                    return;
+                }
+            }
+            // write .ini
+            QSettings* projectSetting = new QSettings(dataPath+PATH_PROJECT+projectName+"/"+projectName+".ini", QSettings::IniFormat);
+            projectSetting->beginGroup("software");
+                    projectSetting->setValue("software", "CRITERIA1D");
+            projectSetting->endGroup();
+            projectSetting->beginGroup("project");
+                    projectSetting->setValue("path", "./");
+                    projectSetting->setValue("name", projectName);
+                    projectSetting->setValue("db_soil", "./data/"+db_soil);
+                    projectSetting->setValue("db_meteo", "./data/"+db_meteo);
+                    projectSetting->setValue("db_crop", "./data/"+db_crop);
+                    projectSetting->setValue("db_units", "./data/units.db");
+                    projectSetting->setValue("db_output", "./output/"+projectName+".db");
+            projectSetting->endGroup();
+            projectSetting->sync();
+
+        }
+    }
+}
+
 
 void Crit3DCropWidget::on_actionOpenCropDB()
 {
@@ -652,7 +797,7 @@ void Crit3DCropWidget::openCropDB(QString newDbCropName)
     }
 
     // read crop list
-    QStringList cropStringList;
+    QList<QString> cropStringList;
     if (! getCropIdList(&(myProject.dbCrop), &cropStringList, &error))
     {
         QMessageBox::critical(nullptr, "Error!", error);
