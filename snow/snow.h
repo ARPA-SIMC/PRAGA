@@ -1,5 +1,5 @@
-#ifndef SNOWPOINT_H
-#define SNOWPOINT_H
+#ifndef SNOW_H
+#define SNOW_H
 
     #ifndef RADIATIONDEFINITIONS_H
         #include "radiationDefinitions.h"
@@ -30,7 +30,11 @@
     #define SNOW_MINIMUM_HEIGHT 2               /*!<  [mm] */
 
 
-    struct snowParameters {
+    class Crit3DSnowParameters
+    {
+    public:
+        Crit3DSnowParameters();
+
         double snowSkinThickness;              /*!<  [m] */
         double soilAlbedo;                     /*!<  [-] bare soil */
         double snowVegetationHeight;           /*!<  [m] height of vegetation */
@@ -40,11 +44,15 @@
         double tempMinWithRain;                /*!<  [°C] */
     };
 
-    class Crit3DSnowPoint
+
+    class Crit3DSnow
     {
     public:
-        Crit3DSnowPoint(struct TradPoint* radpoint, double temp, double prec, double relHum, double windInt, double clearSkyTransmissivity);
-        ~Crit3DSnowPoint();
+        Crit3DSnowParameters snowParameters;
+
+        Crit3DSnow();
+
+        void setInputData(struct TradPoint* radpoint, double temp, double prec, double relHum, double windInt, double clearSkyTransmissivity);
 
         bool checkValidPoint();
         void computeSnowFall();
@@ -68,9 +76,8 @@
         double getTempMaxWithSnow();
         double getTempMinWithRain();
 
-        static double aerodynamicResistanceCampbell77(bool isSnow , double zRefWind, double myWindSpeed, double vegetativeHeight);
-
     private:
+
         /*! input */
         TradPoint* _radpoint;
         double _clearSkyTransmissivity;      /*!<   [-] */
@@ -80,7 +87,6 @@
         double _windInt;                     /*!<   [m/s] */
         double _waterContent;
         double _evaporation;
-        struct snowParameters* _parameters;
 
         /*! output */
         double _snowFall;
@@ -94,4 +100,10 @@
         double _ageOfSnow;
     };
 
-#endif // SNOWPOINT_H
+
+    double aerodynamicResistanceCampbell77(bool isSnow , double zRefWind, double myWindSpeed, double vegetativeHeight);
+    double computeInternalEnergy(double initSoilPackTemp,int bulkDensity, double initSWE);
+    double computeSurfaceInternalEnergy(double initSnowSurfaceTemp,int bulkDensity, double initSWE, double snowSkinThickness);
+
+
+#endif // SNOW_H

@@ -1,7 +1,7 @@
 #-----------------------------------------------------
 #
 #   snow library
-#   Compute snow accumulation and melt
+#   compute snow accumulation and melt
 #   mono-dimensional energy balance
 #
 #   This library is part of CRITERIA-3D distribution
@@ -20,9 +20,9 @@ TEMPLATE = lib
 INCLUDEPATH += ../crit3dDate ../mathFunctions ../gis ../meteo ../solarRadiation
 
 SOURCES += \
-    snowMaps.cpp \
-    snowPoint.cpp
+    snow.cpp \
+    snowMaps.cpp
 
 HEADERS += \
-    snowMaps.h \
-    snowPoint.h
+    snow.h \
+    snowMaps.h
