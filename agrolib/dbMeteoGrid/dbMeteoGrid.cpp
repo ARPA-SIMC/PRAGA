@@ -2073,6 +2073,33 @@ bool Crit3DMeteoGridDbHandler::saveListDailyDataEnsemble(QString *myError, QStri
     return true;
 }
 
+bool Crit3DMeteoGridDbHandler::cleanDailyOldData(QString *myError, QDate date)
+{
+    QSqlQuery qry(_db);
+    QString statement = QString("SHOW TABLES LIKE '%1%%2'").arg(_tableDaily.prefix).arg(_tableDaily.postFix);
+    if( !qry.exec(statement) )
+    {
+        *myError = qry.lastError().text();
+        return false;
+    }
+    else
+    {
+        while( qry.next() )
+        {
+            QString tableName = qry.value(0).toString();
+            statement = QString("DELETE FROM `%1` WHERE %2 < DATE('%3')")
+                                        .arg(tableName).arg(_tableDaily.fieldTime).arg(date.toString("yyyy-MM-dd"));
+            if( !qry.exec(statement) )
+            {
+                *myError = qry.lastError().text();
+                return false;
+            }
+
+        }
+    }
+    return true;
+}
+
 bool Crit3DMeteoGridDbHandler::saveCellGridDailyDataFF(QString *myError, QString meteoPointID, int row, int col, QDate firstDate, QDate lastDate, Crit3DMeteoSettings* meteoSettings)
 {
     QSqlQuery qry(_db);
