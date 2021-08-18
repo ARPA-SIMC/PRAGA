@@ -23,17 +23,17 @@ formPeriod::~formPeriod()
 }
 
 
-void formPeriod::setMinimumDate(QDate minDate)
+void formPeriod::setMinimumDate(QDate myDate)
 {
-    ui->dateTimeEditFirst->setMinimumDate(minDate);
-    ui->dateTimeEditLast->setMinimumDate(minDate);
+    ui->dateTimeEditFirst->setMinimumDate(myDate);
+    ui->dateTimeEditLast->setMinimumDate(myDate);
 }
 
 
-void formPeriod::setMaximumDate(QDate maxDate)
+void formPeriod::setMaximumDate(QDate myDate)
 {
-    ui->dateTimeEditFirst->setMaximumDate(maxDate);
-    ui->dateTimeEditLast->setMaximumDate(maxDate);
+    ui->dateTimeEditFirst->setMaximumDate(myDate);
+    ui->dateTimeEditLast->setMaximumDate(myDate);
 }
 
 
