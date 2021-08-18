@@ -11,9 +11,19 @@
 QT += core
 QT -= gui
 
-
-TARGET = snow
 CONFIG += staticlib
+CONFIG += debug_and_release
+
+unix:{
+    CONFIG(debug, debug|release) {
+        TARGET = debug/snow
+    } else {
+        TARGET = release/snow
+    }
+}
+win32:{
+    TARGET = snow
+}
 
 TEMPLATE = lib
 
@@ -26,3 +36,4 @@ SOURCES += \
 HEADERS += \
     snow.h \
     snowMaps.h
+
