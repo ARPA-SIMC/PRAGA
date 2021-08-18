@@ -55,6 +55,12 @@ Crit3DSnowMaps::Crit3DSnowMaps()
 
 Crit3DSnowMaps::~Crit3DSnowMaps()
 {
+    this->clear();
+}
+
+
+void Crit3DSnowMaps::clear()
+{
     snowWaterEquivalent->clear();
 
     _snowFallMap->clear();
@@ -65,6 +71,11 @@ Crit3DSnowMaps::~Crit3DSnowMaps()
     _surfaceInternalEnergyMap->clear();
     _snowSurfaceTempMap->clear();
     _ageOfSnowMap->clear();
+
+    _initSoilPackTemp = NODATA;
+    _initSnowSurfaceTemp = NODATA;
+
+    isInitialized = false;
 }
 
 
