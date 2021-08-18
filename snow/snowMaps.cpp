@@ -48,7 +48,8 @@ Crit3DSnowMaps::Crit3DSnowMaps()
 
     _initSoilPackTemp = NODATA;
     _initSnowSurfaceTemp = NODATA;
-    _isLoaded = false;
+
+    isInitialized = false;
 }
 
 
@@ -67,24 +68,28 @@ Crit3DSnowMaps::~Crit3DSnowMaps()
 }
 
 
-void Crit3DSnowMaps::initialize(const gis::Crit3DRasterHeader& dtmHeader)
+void Crit3DSnowMaps::initialize(const gis::Crit3DRasterGrid& dtm, double snowSkinThickness)
 {
-    snowWaterEquivalent->initializeGrid(dtmHeader);
-
-    _snowFallMap->initializeGrid(dtmHeader);
-    _snowMeltMap->initializeGrid(dtmHeader);
-    _iceContentMap->initializeGrid(dtmHeader);
-    _lWContentMap->initializeGrid(dtmHeader);
-    _internalEnergyMap->initializeGrid(dtmHeader);
-    _surfaceInternalEnergyMap->initializeGrid(dtmHeader);
-    _snowSurfaceTempMap->initializeGrid(dtmHeader);
-    _ageOfSnowMap->initializeGrid(dtmHeader);
+    _snowFallMap->initializeGrid(dtm);
+    _snowMeltMap->initializeGrid(dtm);
+    _iceContentMap->initializeGrid(dtm);
+    _lWContentMap->initializeGrid(dtm);
+    _internalEnergyMap->initializeGrid(dtm);
+    _surfaceInternalEnergyMap->initializeGrid(dtm);
+    _snowSurfaceTempMap->initializeGrid(dtm);
+    _ageOfSnowMap->initializeGrid(dtm);
 
     // TODO: pass initial temperature
     _initSoilPackTemp = 3.4;
     _initSnowSurfaceTemp = 5.0;
 
-    _isLoaded = true;
+    snowWaterEquivalent->initializeGrid(dtm);
+    // initialize with zero values
+    snowWaterEquivalent->setConstantValueWithBase(0, dtm);
+
+    resetSnowModel(snowSkinThickness);
+
+    isInitialized = true;
 }
 
 

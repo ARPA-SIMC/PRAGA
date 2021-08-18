@@ -9,11 +9,12 @@
     {
     public:
         gis::Crit3DRasterGrid* snowWaterEquivalent;
+        bool isInitialized;
 
         Crit3DSnowMaps();
         ~Crit3DSnowMaps();
 
-        void initialize(const gis::Crit3DRasterHeader &dtmHeader);
+        void initialize(const gis::Crit3DRasterGrid &dtm, double snowSkinThickness);
         void resetSnowModel(double snowSkinThickness);
         void updateMap(Crit3DSnow &snowPoint, int row, int col);
 
@@ -38,7 +39,6 @@
 
         double _initSoilPackTemp;
         double _initSnowSurfaceTemp;
-        bool _isLoaded;
     };
 
 
