@@ -52,7 +52,8 @@
 
         Crit3DSnow();
 
-        void setInputData(struct TradPoint* radpoint, double temp, double prec, double relHum, double windInt, double clearSkyTransmissivity);
+        void setInputData(double temp, double prec, double relHum, double windInt, double globalRad,
+                          double beamRad, double transmissivity, double clearSkyTransmissivity, double waterContent);
 
         bool checkValidPoint();
         void computeSnowFall();
@@ -60,44 +61,48 @@
 
         double getSnowFall();
         double getSnowMelt();
+
         double getSnowWaterEquivalent();
         double getIceContent();
-        double getLWContent();
+        double getLiquidWaterContent();
         double getInternalEnergy();
         double getSurfaceInternalEnergy();
         double getSnowSurfaceTemp();
         double getAgeOfSnow();
 
-        double getSnowSkinThickness();
-        double getSoilAlbedo();
-        double getSnowVegetationHeight();
-        double getSnowWaterHoldingCapacity();
-        double getSnowMaxWaterContent();
-        double getTempMaxWithSnow();
-        double getTempMinWithRain();
+        void setSnowWaterEquivalent(float value);
+        void setIceContent(float value);
+        void setLiquidWaterContent(float value);
+        void setInternalEnergy(float value);
+        void setSurfaceInternalEnergy(float value);
+        void setSnowSurfaceTemp(float value);
+        void setAgeOfSnow(float value);
 
     private:
 
         /*! input */
-        TradPoint* _radpoint;
         double _clearSkyTransmissivity;      /*!<   [-] */
+        double _transmissivity;              /*!<   [-] */
+        double _globalRadiation;             /*!<   [W/m2] */
+        double _beamRadiation;               /*!<   [W/m2] */
         double _prec;                        /*!<   [mm] */
         double _airT;                        /*!<   [°C] */
         double _airRH;                       /*!<   [%] */
         double _windInt;                     /*!<   [m/s] */
-        double _waterContent;
-        double _evaporation;
+        double _surfaceWaterContent;         /*!<   [mm] */
 
         /*! output */
-        double _snowFall;
-        double _snowMelt;
-        double _snowWaterEquivalent;
-        double _iceContent;
-        double _lWContent;
+        double _evaporation;                /*!<   [mm] */
+        double _snowFall;                   /*!<   [mm] */
+        double _snowMelt;                   /*!<   [mm] */
+
+        double _snowWaterEquivalent;        /*!<   [mm] */
+        double _iceContent;                 /*!<   [mm] */
+        double _liquidWaterContent;         /*!<   [mm] */
         double _internalEnergy;
         double _surfaceInternalEnergy;
-        double _snowSurfaceTemp;
-        double _ageOfSnow;
+        double _snowSurfaceTemp;            /*!<   [°C] */
+        double _ageOfSnow;                  /*!<   [days] */
     };
 
 

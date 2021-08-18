@@ -17,7 +17,9 @@
         void clear();
         void initialize(const gis::Crit3DRasterGrid &dtm, double snowSkinThickness);
         void resetSnowModel(double snowSkinThickness);
+
         void updateMap(Crit3DSnow &snowPoint, int row, int col);
+        void setPoint(Crit3DSnow &snowPoint, int row, int col);
 
         gis::Crit3DRasterGrid* getSnowFallMap();
         gis::Crit3DRasterGrid* getSnowMeltMap();
@@ -32,7 +34,7 @@
         gis::Crit3DRasterGrid* _snowFallMap;
         gis::Crit3DRasterGrid* _snowMeltMap;
         gis::Crit3DRasterGrid* _iceContentMap;
-        gis::Crit3DRasterGrid* _lWContentMap;
+        gis::Crit3DRasterGrid* _liquidWaterContentMap;
         gis::Crit3DRasterGrid* _internalEnergyMap;
         gis::Crit3DRasterGrid* _surfaceInternalEnergyMap;
         gis::Crit3DRasterGrid* _snowSurfaceTempMap;
