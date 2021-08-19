@@ -8,7 +8,6 @@
     class Crit3DSnowMaps
     {
     public:
-        gis::Crit3DRasterGrid* snowWaterEquivalent;
         bool isInitialized;
 
         Crit3DSnowMaps();
@@ -21,6 +20,7 @@
         void updateMap(Crit3DSnow &snowPoint, int row, int col);
         void setPoint(Crit3DSnow &snowPoint, int row, int col);
 
+        gis::Crit3DRasterGrid* getSnowWaterEquivalentMap();
         gis::Crit3DRasterGrid* getSnowFallMap();
         gis::Crit3DRasterGrid* getSnowMeltMap();
         gis::Crit3DRasterGrid* getIceContentMap();
@@ -31,6 +31,7 @@
         gis::Crit3DRasterGrid* getAgeOfSnowMap();
 
     private:
+        gis::Crit3DRasterGrid* _snowWaterEquivalentMap;
         gis::Crit3DRasterGrid* _snowFallMap;
         gis::Crit3DRasterGrid* _snowMeltMap;
         gis::Crit3DRasterGrid* _iceContentMap;

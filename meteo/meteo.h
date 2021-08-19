@@ -96,6 +96,7 @@
                     referenceEvapotranspiration, dailyReferenceEvapotranspirationHS, dailyReferenceEvapotranspirationPM, actualEvaporation,
                     dailyBIC, dailyHeatingDegreeDays, dailyCoolingDegreeDays,
                     dailyWaterTableDepth,
+                    snowWaterEquivalent, snowSurfaceTemperature, snowInternalEnergy,
                     anomaly, noMeteoTerrain, noMeteoVar};
 
 

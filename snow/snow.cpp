@@ -335,13 +335,13 @@ void Crit3DSnow::computeSnowBrooksModel()
               - myEmissivity * pow ((prevSurfacetemp + ZEROCELSIUS), 4.0)));
 
     // pag. 50 (3.17)
-    QTempGradient = HEAT_CAPACITY_AIR / 1000 * (_airT - prevSurfacetemp) / (aerodynamicResistance / 3600);
+    QTempGradient = (HEAT_CAPACITY_AIR / 1000) * (_airT - prevSurfacetemp) / (aerodynamicResistance / 3600);
 
     // FT calcolare solo se c'e' manto nevoso
     if (previousSWE > SNOW_MINIMUM_HEIGHT)
     {
         // LC: pag. 51 (3.19)
-        // assume WATER_DENSITY = 1
+        // assume WATER_DENSITY = 1 ?
         QVaporGradient = (LATENT_HEAT_VAPORIZATION + LATENT_HEAT_FUSION) * (AirActualVapDensity - WaterActualVapDensity) / (aerodynamicResistance / 3600);
     }
     else
