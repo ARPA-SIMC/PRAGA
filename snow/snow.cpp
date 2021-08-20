@@ -256,9 +256,9 @@ void Crit3DSnow::computeSnowBrooksModel()
 
     // brooks originale
     if ( previousSWE > SNOW_MINIMUM_HEIGHT)
-    aerodynamicResistance = aerodynamicResistanceCampbell77(true, 10, _windInt, snowParameters.snowVegetationHeight);
+        aerodynamicResistance = aerodynamicResistanceCampbell77(true, 10, _windInt, snowParameters.snowVegetationHeight);
     else
-    aerodynamicResistance = aerodynamicResistanceCampbell77(false, 10, _windInt, snowParameters.snowVegetationHeight);
+        aerodynamicResistance = aerodynamicResistanceCampbell77(false, 10, _windInt, snowParameters.snowVegetationHeight);
 
     // ok pag.52 (3.20)
     // source: Jensen et al. (1990) and Tetens (1930)
@@ -349,14 +349,14 @@ void Crit3DSnow::computeSnowBrooksModel()
               - myEmissivity * pow ((prevSurfacetemp + ZEROCELSIUS), 4.0)));
 
     // pag. 50 (3.17)
-    QTempGradient = (HEAT_CAPACITY_AIR / 1000) * (_airT - prevSurfacetemp) / (aerodynamicResistance / 3600);
+    QTempGradient = 3600 * (HEAT_CAPACITY_AIR / 1000) * (_airT - prevSurfacetemp) / aerodynamicResistance;
 
     // FT calcolare solo se c'e' manto nevoso
     if (previousSWE > SNOW_MINIMUM_HEIGHT)
     {
         // LC: pag. 51 (3.19)
         // assume WATER_DENSITY = 1 ?
-        QVaporGradient = (LATENT_HEAT_VAPORIZATION + LATENT_HEAT_FUSION) * (AirActualVapDensity - WaterActualVapDensity) / (aerodynamicResistance / 3600);
+        QVaporGradient = 3600 * (LATENT_HEAT_VAPORIZATION + LATENT_HEAT_FUSION) * (AirActualVapDensity - WaterActualVapDensity) / aerodynamicResistance;
     }
     else
     {
@@ -554,7 +554,7 @@ double aerodynamicResistanceCampbell77(bool isSnow , double zRefWind, double myW
     {
         zeroPlane = 0;
         momentumRoughness = 0.001;
-        log2 = 9.2;
+        log2 = 9.2;                 // equivalent to vegetativeHeight = 1
     }
     else
     {
@@ -565,7 +565,7 @@ double aerodynamicResistanceCampbell77(bool isSnow , double zRefWind, double myW
         zeroPlane = 0.64 * vegetativeHeight;
 
         momentumRoughness = 0.13 * vegetativeHeight;
-        log2 = 4;
+        log2 = 4;                   // equivalent to vegetativeHeight = 1
     }
 
     if (zeroPlane > zRefWind)
@@ -574,7 +574,7 @@ double aerodynamicResistanceCampbell77(bool isSnow , double zRefWind, double myW
     // formula 3.18 pag 51
     log1 = log((zRefWind - zeroPlane + momentumRoughness) / momentumRoughness);
 
-    return log1 * log2 / (double(VON_KARMAN_CONST * VON_KARMAN_CONST) * myWindSpeed);
+    return log1 * log2 / (VON_KARMAN_CONST * VON_KARMAN_CONST * myWindSpeed);
 }
 
 
