@@ -1,5 +1,5 @@
-#ifndef SNOWPOINT_H
-#define SNOWPOINT_H
+#ifndef SNOW_H
+#define SNOW_H
 
     #ifndef RADIATIONDEFINITIONS_H
         #include "radiationDefinitions.h"
@@ -30,7 +30,9 @@
     #define SNOW_MINIMUM_HEIGHT 2               /*!<  [mm] */
 
 
-    struct snowParameters {
+    class Crit3DSnowParameters
+    {
+    public:
         double snowSkinThickness;              /*!<  [m] */
         double soilAlbedo;                     /*!<  [-] bare soil */
         double snowVegetationHeight;           /*!<  [m] height of vegetation */
@@ -38,13 +40,24 @@
         double snowMaxWaterContent;            /*!<  [m] acqua libera (torrenti, laghetti) */
         double tempMaxWithSnow;                /*!<  [°C] */
         double tempMinWithRain;                /*!<  [°C] */
+
+        Crit3DSnowParameters();
+
+        void initialize();
     };
 
-    class Crit3DSnowPoint
+
+    class Crit3DSnow
     {
     public:
-        Crit3DSnowPoint(struct TradPoint* radpoint, double temp, double prec, double relHum, double windInt, double clearSkyTransmissivity);
-        ~Crit3DSnowPoint();
+        Crit3DSnowParameters snowParameters;
+
+        Crit3DSnow();
+
+        void initialize();
+
+        void setInputData(double temp, double prec, double relHum, double windInt, double globalRad,
+                          double beamRad, double transmissivity, double clearSkyTransmissivity, double waterContent);
 
         bool checkValidPoint();
         void computeSnowFall();
@@ -52,46 +65,54 @@
 
         double getSnowFall();
         double getSnowMelt();
+
         double getSnowWaterEquivalent();
         double getIceContent();
-        double getLWContent();
+        double getLiquidWaterContent();
         double getInternalEnergy();
         double getSurfaceInternalEnergy();
         double getSnowSurfaceTemp();
         double getAgeOfSnow();
 
-        double getSnowSkinThickness();
-        double getSoilAlbedo();
-        double getSnowVegetationHeight();
-        double getSnowWaterHoldingCapacity();
-        double getSnowMaxWaterContent();
-        double getTempMaxWithSnow();
-        double getTempMinWithRain();
-
-        static double aerodynamicResistanceCampbell77(bool isSnow , double zRefWind, double myWindSpeed, double vegetativeHeight);
+        void setSnowWaterEquivalent(float value);
+        void setIceContent(float value);
+        void setLiquidWaterContent(float value);
+        void setInternalEnergy(float value);
+        void setSurfaceInternalEnergy(float value);
+        void setSnowSurfaceTemp(float value);
+        void setAgeOfSnow(float value);
 
     private:
+
         /*! input */
-        TradPoint* _radpoint;
         double _clearSkyTransmissivity;      /*!<   [-] */
+        double _transmissivity;              /*!<   [-] */
+        double _globalRadiation;             /*!<   [W/m2] */
+        double _beamRadiation;               /*!<   [W/m2] */
         double _prec;                        /*!<   [mm] */
         double _airT;                        /*!<   [°C] */
         double _airRH;                       /*!<   [%] */
         double _windInt;                     /*!<   [m/s] */
-        double _waterContent;
-        double _evaporation;
-        struct snowParameters* _parameters;
+        double _surfaceWaterContent;         /*!<   [mm] */
 
         /*! output */
-        double _snowFall;
-        double _snowMelt;
-        double _snowWaterEquivalent;
-        double _iceContent;
-        double _lWContent;
+        double _evaporation;                /*!<   [mm] */
+        double _snowFall;                   /*!<   [mm] */
+        double _snowMelt;                   /*!<   [mm] */
+
+        double _snowWaterEquivalent;        /*!<   [mm] */
+        double _iceContent;                 /*!<   [mm] */
+        double _liquidWaterContent;         /*!<   [mm] */
         double _internalEnergy;
         double _surfaceInternalEnergy;
-        double _snowSurfaceTemp;
-        double _ageOfSnow;
+        double _snowSurfaceTemp;            /*!<   [°C] */
+        double _ageOfSnow;                  /*!<   [days] */
     };
 
-#endif // SNOWPOINT_H
+
+    double aerodynamicResistanceCampbell77(bool isSnow , double zRefWind, double myWindSpeed, double vegetativeHeight);
+    double computeInternalEnergy(double initSoilPackTemp,int bulkDensity, double initSWE);
+    double computeSurfaceInternalEnergy(double initSnowSurfaceTemp,int bulkDensity, double initSWE, double snowSkinThickness);
+
+
+#endif // SNOW_H

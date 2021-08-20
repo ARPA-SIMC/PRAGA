@@ -1,7 +1,7 @@
 #ifndef SOLARRADIATION_H
 #define SOLARRADIATION_H
 
-    #ifndef RADIATIONDEFINITIONS_H
+    #ifndef RADIATIONSETTINGS_H
         #include "radiationSettings.h"
     #endif
 

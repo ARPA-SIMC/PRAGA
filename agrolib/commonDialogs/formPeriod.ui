@@ -6,18 +6,18 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>230</width>
-    <height>140</height>
+    <width>282</width>
+    <height>180</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Select period</string>
   </property>
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>90</y>
+     <x>60</x>
+     <y>130</y>
      <width>171</width>
      <height>41</height>
     </rect>
@@ -32,8 +32,8 @@
   <widget class="QDateTimeEdit" name="dateTimeEditFirst">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>20</y>
+     <x>60</x>
+     <y>40</y>
      <width>171</width>
      <height>22</height>
     </rect>
@@ -51,12 +51,15 @@
    <property name="displayFormat">
     <string>dd/MM/yyyy HH.mm</string>
    </property>
+   <property name="calendarPopup">
+    <bool>true</bool>
+   </property>
   </widget>
   <widget class="QDateTimeEdit" name="dateTimeEditLast">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>50</y>
+     <x>60</x>
+     <y>90</y>
      <width>171</width>
      <height>22</height>
     </rect>
@@ -80,6 +83,35 @@
    </property>
    <property name="displayFormat">
     <string>dd/MM/yyyy HH.mm</string>
+   </property>
+   <property name="calendarPopup">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>20</y>
+     <width>71</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>First date:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>70</y>
+     <width>81</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Last date:</string>
    </property>
   </widget>
  </widget>
