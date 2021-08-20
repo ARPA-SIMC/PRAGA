@@ -39,6 +39,12 @@
 
 Crit3DSnowParameters::Crit3DSnowParameters()
 {
+    initialize();
+}
+
+
+void Crit3DSnowParameters::initialize()
+{
     // default values
     snowSkinThickness = 0.02;            /*!<  [m] */ // LC: VARIE VERSIONI IN BROOKS: 3mm (nel testo), 2-3cm (nel codice)
     soilAlbedo = 0.2;                    /*!<  [-] bare soil - 20% */
@@ -52,6 +58,14 @@ Crit3DSnowParameters::Crit3DSnowParameters()
 
 Crit3DSnow::Crit3DSnow()
 {
+    initialize();
+}
+
+
+void Crit3DSnow::initialize()
+{
+    snowParameters.initialize();
+
     // input
     _airT = NODATA;
     _prec = NODATA;

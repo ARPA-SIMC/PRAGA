@@ -33,8 +33,6 @@
     class Crit3DSnowParameters
     {
     public:
-        Crit3DSnowParameters();
-
         double snowSkinThickness;              /*!<  [m] */
         double soilAlbedo;                     /*!<  [-] bare soil */
         double snowVegetationHeight;           /*!<  [m] height of vegetation */
@@ -42,6 +40,10 @@
         double snowMaxWaterContent;            /*!<  [m] acqua libera (torrenti, laghetti) */
         double tempMaxWithSnow;                /*!<  [°C] */
         double tempMinWithRain;                /*!<  [°C] */
+
+        Crit3DSnowParameters();
+
+        void initialize();
     };
 
 
@@ -51,6 +53,8 @@
         Crit3DSnowParameters snowParameters;
 
         Crit3DSnow();
+
+        void initialize();
 
         void setInputData(double temp, double prec, double relHum, double windInt, double globalRad,
                           double beamRad, double transmissivity, double clearSkyTransmissivity, double waterContent);

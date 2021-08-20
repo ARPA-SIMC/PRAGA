@@ -144,6 +144,7 @@ void Crit3DSnowMaps::resetSnowModel(double snowSkinThickness)
             initSWE = _snowWaterEquivalentMap->value[row][col];
             if (! isEqual(initSWE, _snowWaterEquivalentMap->header->flag))
             {
+                _snowFallMap->value[row][col] = 0;
                 _snowMeltMap->value[row][col] = 0;
                 _iceContentMap->value[row][col] = 0;
                 _liquidWaterContentMap->value[row][col] = 0;
