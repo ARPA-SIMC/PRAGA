@@ -637,6 +637,7 @@ bool setColorScale(meteoVariable variable, Crit3DColorScale *colorScale)
         case airTemperature: case dailyAirTemperatureAvg: case dailyAirTemperatureMax:
         case dailyAirTemperatureMin: case dailyAirTemperatureRange:
         case airDewTemperature: case dailyAirDewTemperatureAvg: case dailyAirDewTemperatureMin: case dailyAirDewTemperatureMax:
+        case snowSurfaceTemperature:
             setTemperatureScale(colorScale);
             break;
         case airRelHumidity: case dailyAirRelHumidityAvg: case dailyAirRelHumidityMax:
@@ -647,12 +648,14 @@ bool setColorScale(meteoVariable variable, Crit3DColorScale *colorScale)
         case precipitation: case dailyPrecipitation: case referenceEvapotranspiration:
         case dailyReferenceEvapotranspirationHS: case dailyReferenceEvapotranspirationPM: case actualEvaporation:
         case dailyWaterTableDepth:
+        case snowFall: case snowWaterEquivalent:
             setPrecipitationScale(colorScale);
             break;
         case dailyBIC:
             setZeroCenteredScale(colorScale);
             break;
         case globalIrradiance: case netIrradiance: case dailyGlobalRadiation: case atmTransmissivity:
+        case snowInternalEnergy:
             setRadiationScale(colorScale);
             break;
         case windVectorIntensity: case windScalarIntensity: case windVectorX: case windVectorY: case dailyWindVectorIntensityAvg: case dailyWindVectorIntensityMax: case dailyWindScalarIntensityAvg: case dailyWindScalarIntensityMax:
@@ -745,6 +748,14 @@ std::string getVariableString(meteoVariable myVar)
         return "Hydroclimatic balance (mm)";
     else if (myVar == dailyWaterTableDepth)
         return "Water table depth (mm)";
+    else if (myVar == snowWaterEquivalent)
+        return "Snow water equivalent (mm)";
+    else if (myVar == snowFall)
+        return "Snow fall (mm)";
+    else if (myVar == snowSurfaceTemperature)
+        return "Snow surface temperature (°C)";
+    else if (myVar == snowInternalEnergy)
+        return "Snow internal energy (kJ m-2)";
     else if (myVar == noMeteoTerrain)
         return "Elevation (m)";
     else

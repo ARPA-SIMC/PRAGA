@@ -28,107 +28,145 @@
 
 #include <math.h>
 #include "commonConstants.h"
+#include "basicMath.h"
 #include "snowMaps.h"
-#include "snowPoint.h"
+#include "snow.h"
 
 
 Crit3DSnowMaps::Crit3DSnowMaps()
 {
-    this->initializeMaps();
-    _initSoilPackTemp = NODATA;
-    _initSnowSurfaceTemp = NODATA;
-    _isLoaded = false;
-}
-
-Crit3DSnowMaps::Crit3DSnowMaps(const gis::Crit3DRasterGrid& dtmGrid)
-{
-    this->initializeMaps();
-
-    _snowFallMap->initializeGrid(dtmGrid);
-    _snowMeltMap->initializeGrid(dtmGrid);
-    _snowWaterEquivalentMap->initializeGrid(dtmGrid);
-    _iceContentMap->initializeGrid(dtmGrid);
-    _lWContentMap->initializeGrid(dtmGrid);
-    _internalEnergyMap->initializeGrid(dtmGrid);
-    _surfaceInternalEnergyMap->initializeGrid(dtmGrid);
-    _snowSurfaceTempMap->initializeGrid(dtmGrid);
-    _ageOfSnowMap->initializeGrid(dtmGrid);
-
-    // TODO: pass initial temperature
-    _initSoilPackTemp = 3.4;
-    _initSnowSurfaceTemp = 5.0;
-    _isLoaded = true;
-}
-
-
-/*!
- * \brief Initialize all maps
- */
-void Crit3DSnowMaps::initializeMaps()
-{
+    _snowWaterEquivalentMap = new gis::Crit3DRasterGrid;
     _snowFallMap = new gis::Crit3DRasterGrid;
     _snowMeltMap = new gis::Crit3DRasterGrid;
-    _snowWaterEquivalentMap = new gis::Crit3DRasterGrid;
     _iceContentMap = new gis::Crit3DRasterGrid;
-    _lWContentMap = new gis::Crit3DRasterGrid;
+    _liquidWaterContentMap = new gis::Crit3DRasterGrid;
     _internalEnergyMap = new gis::Crit3DRasterGrid;
     _surfaceInternalEnergyMap = new gis::Crit3DRasterGrid;
     _snowSurfaceTempMap = new gis::Crit3DRasterGrid;
     _ageOfSnowMap = new gis::Crit3DRasterGrid;
+
+    _initSoilPackTemp = NODATA;
+    _initSnowSurfaceTemp = NODATA;
+
+    isInitialized = false;
 }
 
 
-void Crit3DSnowMaps::updateMap(Crit3DSnowPoint* snowPoint, int row, int col)
+Crit3DSnowMaps::~Crit3DSnowMaps()
 {
-    _snowFallMap->value[row][col] = float(snowPoint->getSnowFall());
-    _snowMeltMap->value[row][col] = float(snowPoint->getSnowMelt());
-    _snowWaterEquivalentMap->value[row][col] = float(snowPoint->getSnowWaterEquivalent());
-    _iceContentMap->value[row][col] = float(snowPoint->getIceContent());
-    _lWContentMap->value[row][col] = float(snowPoint->getLWContent());
-    _internalEnergyMap->value[row][col] = float(snowPoint->getInternalEnergy());
-    _surfaceInternalEnergyMap->value[row][col] = float(snowPoint->getSurfaceInternalEnergy());
-    _snowSurfaceTempMap->value[row][col] = float(snowPoint->getSnowSurfaceTemp());
-    _ageOfSnowMap->value[row][col] = float(snowPoint->getAgeOfSnow());
+    this->clear();
 }
 
 
-void Crit3DSnowMaps::resetSnowModel(gis::Crit3DRasterGrid* sweGrid, Crit3DSnowPoint* snowPoint)
+void Crit3DSnowMaps::clear()
 {
-    double initSWE;              /*!<   [mm] */
-    int surfaceBulkDensity;      /*!<   [kg/m^3] */
+    _snowWaterEquivalentMap->clear();
+    _snowFallMap->clear();
+    _snowMeltMap->clear();
+    _iceContentMap->clear();
+    _liquidWaterContentMap->clear();
+    _internalEnergyMap->clear();
+    _surfaceInternalEnergyMap->clear();
+    _snowSurfaceTempMap->clear();
+    _ageOfSnowMap->clear();
 
-    for (long row = 0; row < sweGrid->header->nrRows; row++)
+    _initSoilPackTemp = NODATA;
+    _initSnowSurfaceTemp = NODATA;
+
+    isInitialized = false;
+}
+
+
+void Crit3DSnowMaps::initialize(const gis::Crit3DRasterGrid& dtm, double snowSkinThickness)
+{
+    _snowFallMap->initializeGrid(dtm);
+    _snowMeltMap->initializeGrid(dtm);
+    _iceContentMap->initializeGrid(dtm);
+    _liquidWaterContentMap->initializeGrid(dtm);
+    _internalEnergyMap->initializeGrid(dtm);
+    _surfaceInternalEnergyMap->initializeGrid(dtm);
+    _snowSurfaceTempMap->initializeGrid(dtm);
+    _ageOfSnowMap->initializeGrid(dtm);
+
+    // TODO: pass initial temperature
+    _initSoilPackTemp = 3.4;
+    _initSnowSurfaceTemp = 5.0;
+
+    _snowWaterEquivalentMap->initializeGrid(dtm);
+    // initialize with zero values
+    _snowWaterEquivalentMap->setConstantValueWithBase(0, dtm);
+
+    resetSnowModel(snowSkinThickness);
+
+    isInitialized = true;
+}
+
+
+
+void Crit3DSnowMaps::updateMap(Crit3DSnow &snowPoint, int row, int col)
+{
+    _snowWaterEquivalentMap->value[row][col] = float(snowPoint.getSnowWaterEquivalent());
+    _snowFallMap->value[row][col] = float(snowPoint.getSnowFall());
+    _snowMeltMap->value[row][col] = float(snowPoint.getSnowMelt());
+    _iceContentMap->value[row][col] = float(snowPoint.getIceContent());
+    _liquidWaterContentMap->value[row][col] = float(snowPoint.getLiquidWaterContent());
+    _internalEnergyMap->value[row][col] = float(snowPoint.getInternalEnergy());
+    _surfaceInternalEnergyMap->value[row][col] = float(snowPoint.getSurfaceInternalEnergy());
+    _snowSurfaceTempMap->value[row][col] = float(snowPoint.getSnowSurfaceTemp());
+    _ageOfSnowMap->value[row][col] = float(snowPoint.getAgeOfSnow());
+}
+
+
+void Crit3DSnowMaps::setPoint(Crit3DSnow &snowPoint, int row, int col)
+{
+    snowPoint.setSnowWaterEquivalent(_snowWaterEquivalentMap->value[row][col]);
+    snowPoint.setIceContent(_iceContentMap->value[row][col]);
+    snowPoint.setLiquidWaterContent(_liquidWaterContentMap->value[row][col]);
+    snowPoint.setInternalEnergy(_internalEnergyMap->value[row][col]);
+    snowPoint.setSurfaceInternalEnergy(_surfaceInternalEnergyMap->value[row][col]);
+    snowPoint.setSnowSurfaceTemp(_snowSurfaceTempMap->value[row][col]);
+    snowPoint.setAgeOfSnow(_ageOfSnowMap->value[row][col]);
+}
+
+
+void Crit3DSnowMaps::resetSnowModel(double snowSkinThickness)
+{
+    float initSWE;                  /*!<  [mm]     */
+    int surfaceBulkDensity;         /*!<  [kg/m^3] */
+
+    // TODO pass real bulk density for each point if available
+    surfaceBulkDensity = DEFAULT_BULK_DENSITY;
+
+    for (long row = 0; row < _snowWaterEquivalentMap->header->nrRows; row++)
     {
-        for (long col = 0; col < sweGrid->header->nrCols; col++)
+        for (long col = 0; col < _snowWaterEquivalentMap->header->nrCols; col++)
         {
-            initSWE = sweGrid->value[row][col];
-            if (initSWE != sweGrid->header->flag)
+            initSWE = _snowWaterEquivalentMap->value[row][col];
+            if (! isEqual(initSWE, _snowWaterEquivalentMap->header->flag))
             {
-                // TODO usare dato reale bulk density se disponibile
-                surfaceBulkDensity = DEFAULT_BULK_DENSITY;
-
-                _snowWaterEquivalentMap->value[row][col] = float(initSWE);
-
-                /*! from [mm] to [m] */
-                initSWE = initSWE / 1000;
-
                 _snowMeltMap->value[row][col] = 0;
                 _iceContentMap->value[row][col] = 0;
-                _lWContentMap->value[row][col] = 0;
+                _liquidWaterContentMap->value[row][col] = 0;
                 _ageOfSnowMap->value[row][col] = 0;
 
                 _snowSurfaceTempMap->value[row][col] = float(_initSnowSurfaceTemp);
 
-                double snowSkinThickness = snowPoint->getSnowSkinThickness();
+                /*! from [mm] to [m] */
+                initSWE /=  1000;
 
-                _surfaceInternalEnergyMap->value[row][col] = float(Crit3DSnowMaps::computeSurfaceInternalEnergy(_initSnowSurfaceTemp, surfaceBulkDensity, initSWE, snowSkinThickness));
+                _surfaceInternalEnergyMap->value[row][col] = float(computeSurfaceInternalEnergy(_initSnowSurfaceTemp, surfaceBulkDensity, initSWE, snowSkinThickness));
 
-                _internalEnergyMap->value[row][col] = float(Crit3DSnowMaps::computeInternalEnergyMap(_initSnowSurfaceTemp, surfaceBulkDensity, initSWE));
+                _internalEnergyMap->value[row][col] = float(computeInternalEnergy(_initSnowSurfaceTemp, surfaceBulkDensity, initSWE));
             }
         }
     }
 }
 
+
+gis::Crit3DRasterGrid* Crit3DSnowMaps::getSnowWaterEquivalentMap()
+{
+    return _snowWaterEquivalentMap;
+}
 
 gis::Crit3DRasterGrid* Crit3DSnowMaps::getSnowFallMap()
 {
@@ -140,11 +178,6 @@ gis::Crit3DRasterGrid* Crit3DSnowMaps::getSnowMeltMap()
     return _snowMeltMap;
 }
 
-gis::Crit3DRasterGrid* Crit3DSnowMaps::getSnowWaterEquivalentMap()
-{
-    return _snowWaterEquivalentMap;
-}
-
 gis::Crit3DRasterGrid* Crit3DSnowMaps::getIceContentMap()
 {
     return _iceContentMap;
@@ -152,7 +185,7 @@ gis::Crit3DRasterGrid* Crit3DSnowMaps::getIceContentMap()
 
 gis::Crit3DRasterGrid* Crit3DSnowMaps::getLWContentMap()
 {
-    return _lWContentMap;
+    return _liquidWaterContentMap;
 }
 
 gis::Crit3DRasterGrid* Crit3DSnowMaps::getInternalEnergyMap()
@@ -175,17 +208,4 @@ gis::Crit3DRasterGrid* Crit3DSnowMaps::getAgeOfSnowMap()
     return _ageOfSnowMap;
 }
 
-// è la formula 3.27 a pag. 54 in cui ha diviso la surface come la somma dei contributi della parte "water" e di quella "soil"
-double computeSurfaceInternalEnergy(double initSnowSurfaceTemp,int bulkDensity, double initSWE, double snowSkinThickness)
-{
-   return initSnowSurfaceTemp * (HEAT_CAPACITY_SNOW / 1000 * MINVALUE(initSWE, snowSkinThickness)
-                                 + SOIL_SPECIFIC_HEAT * MAXVALUE(0, snowSkinThickness - initSWE) * bulkDensity);
-}
-
-
-// LC: InternalEnergyMap pag. 54 formula 3.29  initSoilPackTemp sarebbe da chiamare initSnowPackTemp ????
-double computeInternalEnergyMap(double initSoilPackTemp,int bulkDensity, double initSWE)
-{
-    return initSoilPackTemp * (HEAT_CAPACITY_SNOW / 1000 * initSWE + bulkDensity * SNOW_DAMPING_DEPTH * SOIL_SPECIFIC_HEAT);
-}
 
