@@ -620,11 +620,11 @@ void weatherGenerator2D::precipitationPDryUntilNSteps()
             int i;
             for (i=0;i<iMaxForInterpolation;i++)
             {
-                 precOccurence[idStation][iMonth].pDry[i] = occurrenceFitted[i];
+                 precOccurence[idStation][iMonth].pDry[i] = MINVALUE(0.99,occurrenceFitted[i]);
             }
             while (i<nrSteps)
             {
-                precOccurence[idStation][iMonth].pDry[i] = precOccurence[idStation][iMonth].pDry[i-1]*0.95;
+                precOccurence[idStation][iMonth].pDry[i] = precOccurence[idStation][iMonth].pDry[i-1]*0.999;
                 i++;
             }
             free(occurrenceFitting);
@@ -672,11 +672,11 @@ void weatherGenerator2D::precipitationPDryUntilNSteps()
             int i;
             for (i=0;i<iMaxForInterpolation;i++)
             {
-                 precOccurence[idStation][iMonth].pWet[i] = occurrenceFitted[i];
+                 precOccurence[idStation][iMonth].pWet[i] = MINVALUE(0.995, occurrenceFitted[i]);
             }
             while (i<nrSteps)
             {
-                precOccurence[idStation][iMonth].pWet[i] = precOccurence[idStation][iMonth].pWet[i-1]*0.95;
+                precOccurence[idStation][iMonth].pWet[i] = precOccurence[idStation][iMonth].pWet[i-1]*0.9999;
                 i++;
             }
             free(occurrenceFitting);
@@ -686,7 +686,7 @@ void weatherGenerator2D::precipitationPDryUntilNSteps()
         {
             for(int i=0;i<nrSteps;i++)
             {
-                precOccurence[idStation][iMonth].pWet[i] = 1 - precOccurence[idStation][iMonth].pWet[i];
+                precOccurence[idStation][iMonth].pWet[i] = MAXVALUE(0.000001, 1 - precOccurence[idStation][iMonth].pWet[i]);
                 printf("%d %f %f\n",i,precOccurence[idStation][iMonth].pDry[i],precOccurence[idStation][iMonth].pWet[i]);
             }
         }
@@ -1037,7 +1037,7 @@ void weatherGenerator2D::precipitationMultisiteOccurrenceGeneration()
             {
                 normalizedTransitionProbabilityAugmentedMemory[i][0][k]= - (SQRT_2*(statistics::inverseTabulatedERFC(2*precOccurence[i][iMonth].pDry[k])));
                 normalizedTransitionProbabilityAugmentedMemory[i][1][k]= - (SQRT_2*(statistics::inverseTabulatedERFC(2*precOccurence[i][iMonth].pWet[k])));
-                printf("%d,%f,%f\n",k,normalizedTransitionProbabilityAugmentedMemory[i][0][k],normalizedTransitionProbabilityAugmentedMemory[i][1][k]);
+                //printf("%d,%f,%f\n",k,normalizedTransitionProbabilityAugmentedMemory[i][0][k],normalizedTransitionProbabilityAugmentedMemory[i][1][k]);
             }
             //getchar();
             for (int jCount=0;jCount<nrDaysIterativeProcessMonthly[iMonth];jCount++)
@@ -1296,14 +1296,6 @@ void weatherGenerator2D::spatialIterationOccurrence(double ** M, double** K,doub
                     //if(normRandom[i][j]  > transitionNormal[i][0]) occurrences[i][j] = 1.;
                     transitionNormalAugmentedMemory[i][0][0] = transitionNormalAugmentedMemory[i][0][1] = transitionNormal[i][0];
                     if(normRandom[i][j]  > transitionNormalAugmentedMemory[i][0][nrConsecutiveDays]) occurrences[i][j] = 1.;
-                    /*if(j>1 && fabs(occurrences[i][j-2]) < EPSILON)
-                    {
-                        if(normRandom[i][j]  > transitionNormalAugmentedMemory[i][0][0]) occurrences[i][j] = 1.;
-                        if(j>2 && fabs(occurrences[i][j-3]) < EPSILON)
-                        {
-                            if(normRandom[i][j]  > transitionNormalAugmentedMemory[i][0][2]) occurrences[i][j] = 1.;
-                        }
-                    }*/
                 }
                 else
                 {
