@@ -684,11 +684,11 @@ void weatherGenerator2D::precipitationPDryUntilNSteps()
         }
         for(int iMonth=0;iMonth<12;iMonth++)
         {
-        for(int i=0;i<nrSteps;i++)
-        {
-            precOccurence[idStation][iMonth].pWet[i] = 1 - precOccurence[idStation][iMonth].pWet[i];
-            printf("%d %f %f\n",i,precOccurence[idStation][iMonth].pDry[i],precOccurence[idStation][iMonth].pWet[i]);
-        }
+            for(int i=0;i<nrSteps;i++)
+            {
+                precOccurence[idStation][iMonth].pWet[i] = 1 - precOccurence[idStation][iMonth].pWet[i];
+                printf("%d %f %f\n",i,precOccurence[idStation][iMonth].pDry[i],precOccurence[idStation][iMonth].pWet[i]);
+            }
         }
         //getchar();
 
@@ -972,14 +972,13 @@ void weatherGenerator2D::precipitationMultisiteOccurrenceGeneration()
         normalizedTransitionProbabilityAugmentedMemory[i]= (double **)calloc(2, sizeof(double*));
         for (int j=0;j<2;j++)
         {
-            normalizedTransitionProbabilityAugmentedMemory[i][j]= (double *)calloc(3, sizeof(double));
+            normalizedTransitionProbabilityAugmentedMemory[i][j]= (double *)calloc(60, sizeof(double));
+            //for (int k=0;k<60;k++)
+            //{
+                //normalizedTransitionProbabilityAugmentedMemory[i][0][k]= NODATA;
+                //normalizedTransitionProbabilityAugmentedMemory[i][1][k]= NODATA;
+            //}
         }
-        normalizedTransitionProbabilityAugmentedMemory[i][0][0]= NODATA;
-        normalizedTransitionProbabilityAugmentedMemory[i][1][0]= NODATA;
-        normalizedTransitionProbabilityAugmentedMemory[i][0][1]= NODATA;
-        normalizedTransitionProbabilityAugmentedMemory[i][1][1]= NODATA;
-        normalizedTransitionProbabilityAugmentedMemory[i][0][2]= NODATA; // 4 consecutive dry days
-        normalizedTransitionProbabilityAugmentedMemory[i][1][2]= NODATA; // 5 consecutive dry days
     }
     // random Occurrence structure. Used from step 3 on
 
@@ -1033,20 +1032,14 @@ void weatherGenerator2D::precipitationMultisiteOccurrenceGeneration()
             // [i][0][1] dryDay after a day without rain and previously wet,
             // [i][1][0] dryDay after a day with rain and previously dry,
             // [i][1][1] dryDay after a day with rain and previously wet,
-            double normProbDry[4];
-            normalizedTransitionProbabilityAugmentedMemory[i][0][0]= - (SQRT_2*(statistics::inverseTabulatedERFC(2*precOccurence[i][iMonth].p000)));
-            normalizedTransitionProbabilityAugmentedMemory[i][0][1]= - (SQRT_2*(statistics::inverseTabulatedERFC(2*precOccurence[i][iMonth].p100)));
-            normalizedTransitionProbabilityAugmentedMemory[i][1][0]= - (SQRT_2*(statistics::inverseTabulatedERFC(2*precOccurence[i][iMonth].p100)));
-            normalizedTransitionProbabilityAugmentedMemory[i][1][1]= - (SQRT_2*(statistics::inverseTabulatedERFC(2*precOccurence[i][iMonth].p110)));
-            normalizedTransitionProbabilityAugmentedMemory[i][0][2]= - (SQRT_2*(statistics::inverseTabulatedERFC(2*precOccurence[i][iMonth].p0000)));
-            normalizedTransitionProbabilityAugmentedMemory[i][1][2]= - (SQRT_2*(statistics::inverseTabulatedERFC(2*precOccurence[i][iMonth].p00000)));
-            normProbDry[0] = normalizedTransitionProbability[i][0];
-            normProbDry[1] = normalizedTransitionProbabilityAugmentedMemory[i][0][0];
-            normProbDry[2] = normalizedTransitionProbabilityAugmentedMemory[i][0][2];
-            normProbDry[3] = normalizedTransitionProbabilityAugmentedMemory[i][1][2];
-            printf("%f,%f,%f,%f\n",normProbDry[0],normProbDry[1],normProbDry[2],normProbDry[3]);
-
-
+            //double normProbDry[4];
+            for (int k=0;k<60;k++)
+            {
+                normalizedTransitionProbabilityAugmentedMemory[i][0][k]= - (SQRT_2*(statistics::inverseTabulatedERFC(2*precOccurence[i][iMonth].pDry[k])));
+                normalizedTransitionProbabilityAugmentedMemory[i][1][k]= - (SQRT_2*(statistics::inverseTabulatedERFC(2*precOccurence[i][iMonth].pWet[k])));
+                printf("%d,%f,%f\n",k,normalizedTransitionProbabilityAugmentedMemory[i][0][k],normalizedTransitionProbabilityAugmentedMemory[i][1][k]);
+            }
+            //getchar();
             for (int jCount=0;jCount<nrDaysIterativeProcessMonthly[iMonth];jCount++)
             {
                normalizedRandomMatrix[i][jCount]= myrandom::normalRandom(&gasDevIset,&gasDevGset);
@@ -1287,46 +1280,44 @@ void weatherGenerator2D::spatialIterationOccurrence(double ** M, double** K,doub
         {
             for (int j=1;j<lengthSeries;j++)
             {
-                /*if (j > 1)
+
+
+                if(fabs(occurrences[i][j-1]) < EPSILON)
                 {
-                    if(fabs(occurrences[i][j-1]) < EPSILON && fabs(occurrences[i][j-2]) < EPSILON)
+                    int nrConsecutiveDays=0;
+                    int count=j-1;
+                    while (occurrences[i][count] < EPSILON && count >0 && nrConsecutiveDays<59)
+                    {
+                        nrConsecutiveDays++;
+                        count--;
+                    }
+                    //printf("%d,%d,%f,%f\n",count,nrConsecutiveDays,normRandom[i][j], transitionNormalAugmentedMemory[i][0][nrConsecutiveDays]);
+                    //getchar();
+                    //if(normRandom[i][j]  > transitionNormal[i][0]) occurrences[i][j] = 1.;
+                    transitionNormalAugmentedMemory[i][0][0] = transitionNormalAugmentedMemory[i][0][1] = transitionNormal[i][0];
+                    if(normRandom[i][j]  > transitionNormalAugmentedMemory[i][0][nrConsecutiveDays]) occurrences[i][j] = 1.;
+                    /*if(j>1 && fabs(occurrences[i][j-2]) < EPSILON)
                     {
                         if(normRandom[i][j]  > transitionNormalAugmentedMemory[i][0][0]) occurrences[i][j] = 1.;
-                    }
-                    else if (fabs(occurrences[i][j-1]) < EPSILON && fabs(occurrences[i][j-2]) > EPSILON)
-                    {
-                        if(normRandom[i][j]  > transitionNormalAugmentedMemory[i][0][1]) occurrences[i][j] = 1.;
-                    }
-                    else if (fabs(occurrences[i][j-1]) > EPSILON && fabs(occurrences[i][j-2]) < EPSILON)
-                    {
-                        if(normRandom[i][j]  > transitionNormalAugmentedMemory[i][1][0]) occurrences[i][j] = 1.;
-                    }
-                    else if (fabs(occurrences[i][j-1]) > EPSILON && fabs(occurrences[i][j-2]) > EPSILON)
-                    {
-                        if(normRandom[i][j]  > transitionNormalAugmentedMemory[i][1][1]) occurrences[i][j] = 1.;
-                    }
+                        if(j>2 && fabs(occurrences[i][j-3]) < EPSILON)
+                        {
+                            if(normRandom[i][j]  > transitionNormalAugmentedMemory[i][0][2]) occurrences[i][j] = 1.;
+                        }
+                    }*/
                 }
                 else
-                {*/
-
-                    if(fabs(occurrences[i][j-1]) < EPSILON)
+                {
+                    int nrConsecutiveDays=0;
+                    int count=j-1;
+                    while (occurrences[i][count] > EPSILON && count >0 && nrConsecutiveDays<59)
                     {
-                        if(normRandom[i][j]  > transitionNormal[i][0]) occurrences[i][j] = 1.;
-                        /*if(j>1 && fabs(occurrences[i][j-2]) < EPSILON)
-                        {
-                            if(normRandom[i][j]  > transitionNormalAugmentedMemory[i][0][0]) occurrences[i][j] = 1.;
-                            if(j>2 && fabs(occurrences[i][j-3]) < EPSILON)
-                            {
-                                if(normRandom[i][j]  > transitionNormalAugmentedMemory[i][0][2]) occurrences[i][j] = 1.;
-                            }
-                        }*/
+                        nrConsecutiveDays++;
+                        count--;
                     }
-                    else
-                    {
-                        if(normRandom[i][j]> transitionNormal[i][1]) occurrences[i][j] = 1.;
-                    }
-
-                //}
+                    transitionNormalAugmentedMemory[i][1][0] = transitionNormalAugmentedMemory[i][1][1] = transitionNormal[i][1];
+                    //if(normRandom[i][j]> transitionNormal[i][1]) occurrences[i][j] = 1.;
+                    if(normRandom[i][j]> transitionNormalAugmentedMemory[i][1][nrConsecutiveDays]) occurrences[i][j] = 1.;
+                }
 
             }
         }
