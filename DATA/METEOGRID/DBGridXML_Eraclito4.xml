@@ -35,7 +35,6 @@
 	</tabledaily>
         
         <tablemonthly>
-		<name>MonthlyData</name>
 		<varcode>
 			<varcode>201</varcode>
 			<varpraganame>MONTHLY_TAVG</varpraganame>
