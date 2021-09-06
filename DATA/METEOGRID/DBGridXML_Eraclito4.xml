@@ -33,5 +33,33 @@
 			<varpraganame>DAILY_PREC</varpraganame>
 		</varcode>
 	</tabledaily>
+        
+        <tablemonthly>
+		<name>MonthlyData</name>
+		<varcode>
+			<varcode>201</varcode>
+			<varpraganame>MONTHLY_TAVG</varpraganame>
+		</varcode>
+		<varcode>
+			<varcode>202</varcode>
+			<varpraganame>MONTHLY_TMIN</varpraganame>
+		</varcode>
+		<varcode>
+			<varcode>203</varcode>
+			<varpraganame>MONTHLY_TMAX</varpraganame>
+		</varcode>
+		<varcode>
+			<varcode>204</varcode>
+			<varpraganame>MONTHLY_PREC</varpraganame>
+		</varcode>
+		<varcode>
+			<varcode>205</varcode>
+			<varpraganame>MONTHLY_ET0_HS</varpraganame>
+		</varcode>
+                <varcode>
+			<varcode>206</varcode>
+			<varpraganame>MONTHLY_BIC</varpraganame>
+		</varcode>
+	</tablemonthly>
 	
 </xml>
