@@ -670,6 +670,17 @@ void MainWindow::updateVariable()
                 myProject.setCurrentVariable(newVar);
             }
         }
+
+        else if (myProject.getCurrentFrequency() == monthly)
+        {
+            this->ui->labelFrequency->setText("Monthly");
+
+            meteoVariable newVar = updateMeteoVariable(myVar, monthly);
+            if (newVar != noMeteoVar)
+            {
+                myProject.setCurrentVariable(newVar);
+            }
+        }
     }
 
     std::string myString = getVariableString(myProject.getCurrentVariable());
