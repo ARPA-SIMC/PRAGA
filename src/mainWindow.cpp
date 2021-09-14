@@ -670,6 +670,17 @@ void MainWindow::updateVariable()
                 myProject.setCurrentVariable(newVar);
             }
         }
+
+        else if (myProject.getCurrentFrequency() == monthly)
+        {
+            this->ui->labelFrequency->setText("Monthly");
+
+            meteoVariable newVar = updateMeteoVariable(myVar, monthly);
+            if (newVar != noMeteoVar)
+            {
+                myProject.setCurrentVariable(newVar);
+            }
+        }
     }
 
     std::string myString = getVariableString(myProject.getCurrentVariable());
@@ -1082,7 +1093,10 @@ void MainWindow::redrawMeteoGrid(visualizationType showType, bool showInterpolat
                     myProject.meteoGridDbHandler->meteoGrid()->fillCurrentDailyValue(time.date, variable, myProject.meteoSettings);
                 else if (frequency == hourly)
                     myProject.meteoGridDbHandler->meteoGrid()->fillCurrentHourlyValue(time.date, time.getHour(), time.getMinutes(), variable);
-                else                    return;
+                else if (frequency == monthly)
+                    myProject.meteoGridDbHandler->meteoGrid()->fillCurrentMonthlyValue(time.date, variable);
+                else
+                    return;
 
                 myProject.meteoGridDbHandler->meteoGrid()->fillMeteoRaster();
             }
