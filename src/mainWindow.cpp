@@ -1038,6 +1038,7 @@ void MainWindow::drawMeteoGrid()
     updateDateTime();
 
     updateMaps();
+
 }
 
 

@@ -842,7 +842,7 @@ void weatherGenerator2D::computeTemperatureParameters()
         weatherGenerator2D::covarianceOfResidualsMeanDelta(matrixCovarianceLag1,1);
         ratioLag1 = 0;
         //double ratioLag0 = 0;
-        thresholdLag1 = 0.9; // to check !!!
+        //thresholdLag1 = 0.9; // to check !!!
         if (matrixCovarianceLag1[1][1] > thresholdLag1)  // the numeric value is thought in order to avoid too extreme values
         {
             ratioLag1 = thresholdLag1/matrixCovarianceLag1[1][1];
@@ -854,31 +854,12 @@ void weatherGenerator2D::computeTemperatureParameters()
                 }
             }
         }
-        thresholdLag0 = 0.8; // to check !!!
+        //thresholdLag0 = 0.8; // to check !!!
         if (matrixCovarianceLag0[0][1] > thresholdLag0) // the numeric value is thought in order to avoid too extreme values
         {
             matrixCovarianceLag0[0][1] = matrixCovarianceLag0[1][0] = thresholdLag0;
         }
-        /*
-        for (int j=0;j<matrixRang;j++)
-        {
-            for (int k=0;k<matrixRang;k++)
-            {
-                printf("%f  ",matrixCovarianceLag0[j][k]);
-            }
-            printf("\n");
-        }
-        printf("\n");
-        for (int j=0;j<matrixRang;j++)
-        {
-            for (int k=0;k<matrixRang;k++)
-            {
-                printf("%f  ",matrixCovarianceLag1[j][k]);
-            }
-            printf("\n");
-        }
-        getchar();
-        */
+
         matricial::inverse(matrixCovarianceLag0,matrixC,matrixRang); // matrixC becomes temporarely the inverse of lag0
         matricial::matrixProduct(matrixCovarianceLag1,matrixC,matrixRang,matrixRang,matrixRang,matrixRang,matrixA);
         matricial::transposedSquareMatrix(matrixCovarianceLag1,matrixRang);
@@ -919,12 +900,12 @@ void weatherGenerator2D::computeTemperatureParameters()
             {
                 temperatureCoefficients[iStation].A_mean_delta[i][j] = matrixA[i][j];
                 temperatureCoefficients[iStation].B_mean_delta[i][j] = matrixB[i][j];
-                //printf("%f  ",temperatureCoefficients[iStation].B[i][j]);
+                //printf("%f  ",temperatureCoefficients[iStation].A_mean_delta[i][j]);
             }
             //printf("\n");
         }
 
-
+        //getchar();
 
 
         for (int i=0;i<matrixRang;i++)
@@ -1434,6 +1415,106 @@ void weatherGenerator2D::temperaturesCorrelationMatrices()
             correlationMatrixTemperature.minT[i][j] = correlationMatrixTemperature.minT[j][i];
         }
     }
+
+
+    TcorrelationVar meanT;
+    TcorrelationVar deltaT;
+    int counterMeanT = 0;
+    int counterDeltaT = 0;
+    for (int j=0; j<nrStations;j++)
+    {
+        correlationMatrixTemperature.meanT[j][j] = 1;
+        correlationMatrixTemperature.deltaT[j][j] = 1;
+    }
+
+    // compute correlation for tmean
+    for (int j=0; j<nrStations-1;j++)
+    {
+        for (int i=j+1; i<nrStations;i++)
+        {
+            counterMeanT = 0;
+            meanT.meanValue1=0.;
+            meanT.meanValue2=0.;
+            meanT.covariance = meanT.variance1 = meanT.variance2 = 0.;
+
+            for (int k=0; k<nrData;k++) // compute the monthly means
+            {
+                if ((fabs(obsDataD[j][k].tMax - NODATA) > EPSILON) && (fabs(obsDataD[j][k].tMin - NODATA) > EPSILON) && (fabs(obsDataD[i][k].tMax - NODATA) > EPSILON) && (fabs(obsDataD[i][k].tMin - NODATA) > EPSILON))
+                {
+                    counterMeanT++;
+                    meanT.meanValue1 += 0.5*(obsDataD[j][k].tMax + obsDataD[j][k].tMin) ;
+                    meanT.meanValue2 += 0.5*(obsDataD[i][k].tMax + obsDataD[i][k].tMin);
+
+                }
+            }
+            if (counterMeanT != 0)
+            {
+                meanT.meanValue1 /= counterMeanT;
+                meanT.meanValue2 /= counterMeanT;
+            }
+
+            // compute the monthly rho off-diagonal elements
+            for (int k=0; k<nrData;k++)
+            {
+                if ((fabs(obsDataD[j][k].tMax - NODATA) > EPSILON) && (fabs(obsDataD[j][k].tMin - NODATA) > EPSILON) && (fabs(obsDataD[i][k].tMax - NODATA) > EPSILON) && (fabs(obsDataD[i][k].tMin - NODATA) > EPSILON))
+                {
+                    double value1,value2;
+                    value1 = 0.5*(obsDataD[j][k].tMax + obsDataD[j][k].tMin);
+                    value2 = 0.5*(obsDataD[i][k].tMax + obsDataD[i][k].tMin);
+
+                    meanT.covariance += (value1 - meanT.meanValue1)*(value2 - meanT.meanValue2);
+                    meanT.variance1 += (value1 - meanT.meanValue1)*(value1 - meanT.meanValue1);
+                    meanT.variance2 += (value2 - meanT.meanValue2)*(value2 - meanT.meanValue2);
+                }
+            }
+            correlationMatrixTemperature.meanT[j][i]= meanT.covariance / sqrt(meanT.variance1*meanT.variance2);
+            correlationMatrixTemperature.meanT[i][j] = correlationMatrixTemperature.meanT[j][i];
+        }
+    }
+
+    // compute correlation for tdelta
+    for (int j=0; j<nrStations-1;j++)
+    {
+        for (int i=j+1; i<nrStations;i++)
+        {
+            counterDeltaT = 0;
+            deltaT.meanValue1=0.;
+            deltaT.meanValue2=0.;
+            deltaT.covariance = deltaT.variance1 = deltaT.variance2 = 0.;
+
+            for (int k=0; k<nrData;k++) // compute the monthly means
+            {
+                if ((fabs(obsDataD[j][k].tMin - NODATA) > EPSILON) && (fabs(obsDataD[j][k].tMax - NODATA) > EPSILON) && (fabs(obsDataD[i][k].tMin - NODATA) > EPSILON) && (fabs(obsDataD[i][k].tMax - NODATA) > EPSILON))
+                {
+                    counterDeltaT++;
+                    deltaT.meanValue1 += obsDataD[j][k].tMax - obsDataD[j][k].tMin ;
+                    deltaT.meanValue2 += obsDataD[i][k].tMax - obsDataD[i][k].tMin;
+
+                }
+            }
+            if (counterMinT != 0)
+            {
+                deltaT.meanValue1 /= counterDeltaT;
+                deltaT.meanValue2 /= counterDeltaT;
+            }
+            // compute the monthly rho off-diagonal elements
+            for (int k=0; k<nrData;k++)
+            {
+                if ((fabs(obsDataD[j][k].tMin - NODATA) > EPSILON) && (fabs(obsDataD[j][k].tMax - NODATA) > EPSILON) && (fabs(obsDataD[i][k].tMin - NODATA) > EPSILON) && (fabs(obsDataD[i][k].tMax - NODATA) > EPSILON))
+                {
+                    double value1,value2;
+                    value1 = obsDataD[j][k].tMax - obsDataD[j][k].tMin;
+                    value2 = obsDataD[i][k].tMax - obsDataD[i][k].tMin;
+
+                    deltaT.covariance += (value1 - deltaT.meanValue1)*(value2 - deltaT.meanValue2);
+                    deltaT.variance1 += (value1 - deltaT.meanValue1)*(value1 - deltaT.meanValue1);
+                    deltaT.variance2 += (value2 - deltaT.meanValue2)*(value2 - deltaT.meanValue2);
+                }
+            }
+            correlationMatrixTemperature.deltaT[j][i]= deltaT.covariance / sqrt(deltaT.variance1*deltaT.variance2);
+            correlationMatrixTemperature.deltaT[i][j] = correlationMatrixTemperature.deltaT[j][i];
+        }
+    }
 }
 
 void weatherGenerator2D::initializeNormalRandomMatricesTemperatures()
@@ -1442,10 +1523,15 @@ void weatherGenerator2D::initializeNormalRandomMatricesTemperatures()
     lengthOfRandomSeries = parametersModel.yearOfSimulation*365;
     normRandomMaxT = (double**)calloc(lengthOfRandomSeries, sizeof(double*));
     normRandomMinT = (double**)calloc(lengthOfRandomSeries, sizeof(double*));
+    normRandomMeanT = (double**)calloc(lengthOfRandomSeries, sizeof(double*));
+    normRandomDeltaT = (double**)calloc(lengthOfRandomSeries, sizeof(double*));
+
     for (int i=0;i<lengthOfRandomSeries;i++)
     {
         normRandomMaxT[i] = (double*)calloc(nrStations, sizeof(double));
         normRandomMinT[i] = (double*)calloc(nrStations, sizeof(double));
+        normRandomMeanT[i] = (double*)calloc(nrStations, sizeof(double));
+        normRandomDeltaT[i] = (double*)calloc(nrStations, sizeof(double));
     }
     for (int i=0; i<nrStations;i++)
     {
@@ -1453,6 +1539,8 @@ void weatherGenerator2D::initializeNormalRandomMatricesTemperatures()
         {
             normRandomMaxT[j][i] = NODATA;
             normRandomMinT[j][i] = NODATA;
+            normRandomMeanT[j][i] = NODATA;
+            normRandomDeltaT[j][i] = NODATA;
         }
     }
 }
@@ -1542,24 +1630,9 @@ void weatherGenerator2D::multisiteRandomNumbersTemperature()
         }
 
     }
-    /*for (int iProva=0; iProva<nrStations; iProva++)
-    {
-        for (int jProva=0; jProva<nrStations; jProva++)
-        {
-            //printf("%d %d %f\n",iProva, jProva,dummyMatrix[iProva][jProva]);
-        }
-        //getchar();
-    }*/
+
     isLowerDiagonal = false;
     matricial::choleskyDecompositionTriangularMatrix(dummyMatrix,nrStations,isLowerDiagonal);
-    /*for (int iProva=0; iProva<nrStations; iProva++)
-    {
-        for (int jProva=0; jProva<nrStations; jProva++)
-        {
-            //printf("%d %d %f\n",iProva, jProva,dummyMatrix[iProva][jProva]);
-        }
-        //getchar();
-    }*/
     matricial::transposedMatrix(dummyMatrix,nrStations,nrStations,dummyMatrix2);
     matricial::matrixProduct(dummyMatrix2,dummyMatrix,nrStations,nrStations,nrStations,nrStations,dummyMatrix3);
     isLowerDiagonal = true;
@@ -1573,42 +1646,9 @@ void weatherGenerator2D::multisiteRandomNumbersTemperature()
             normRandom[i][j] = myrandom::normalRandom(&gasDevIset,&gasDevGset);
         }
     }
-    // !! this part was added to use "fixed" random numbers
-    /*double* arrayRandomNormalNumbers = (double *)calloc(nrStations*lengthOfRandomSeries, sizeof(double));
-    randomSet(arrayRandomNormalNumbers,lengthOfRandomSeries);
-    int countRandom = 0;
-    for (int i=0;i<nrStations;i++)
-    {
-        //randomSet(arrayRandomNormalNumbers,lengthOfRandomSeries);
-        for (int j=0;j<lengthOfRandomSeries;j++)
-        {
-            normRandom[i][j] = arrayRandomNormalNumbers[countRandom];
-            countRandom++;
-            //printf("%f  ",normalizedRandomMatrix[i][j]);
-        }
-        //printf("\n");
-    }*/
-    //free(arrayRandomNormalNumbers);
-    // fine parte da togliere
-    /*for (int iProva=0; iProva<nrStations; iProva++)
-    {
-        for (int jProva=0; jProva<nrStations; jProva++)
-        {
-            printf("%d %d %f\n",iProva, jProva,dummyMatrix3[iProva][jProva]);
-        }
-        getchar();
-    }*/
+
     matricial::matrixProduct(dummyMatrix3,normRandom,nrStations,nrStations,lengthOfRandomSeries,nrStations,normRandom2);
     matricial::transposedMatrix(normRandom2,nrStations,lengthOfRandomSeries,normRandomMaxT);
-    for (int iProva=0; iProva<nrStations; iProva++)
-    {
-        for (int jProva=0; jProva<lengthOfRandomSeries; jProva++)
-        {
-            //printf("%d %d %f\n",iProva, jProva,normRandom2[iProva][jProva]);
-        }
-        //getchar();
-    }
-
 
     // for Tmin
     counter = 0;
@@ -1659,11 +1699,9 @@ void weatherGenerator2D::multisiteRandomNumbersTemperature()
         for (int j=0;j<nrStations;j++)
         {
             dummyMatrix[i][j] = correlationMatrixTemperature.minT[i][j];
-            //printf("%f ",correlationMatrixTemperature.minT[i][j]);
         }
-        //printf("\n");
     }
-    //getchar();
+
     isLowerDiagonal = false;
     matricial::choleskyDecompositionTriangularMatrix(dummyMatrix,nrStations,isLowerDiagonal);
     matricial::transposedMatrix(dummyMatrix,nrStations,nrStations,dummyMatrix2);
@@ -1678,26 +1716,152 @@ void weatherGenerator2D::multisiteRandomNumbersTemperature()
             normRandom[i][j] = myrandom::normalRandom(&gasDevIset,&gasDevGset);
         }
     }
-    // !! this part was added to use "fixed" random numbers
-    //double* arrayRandomNormalNumbers = (double *)calloc(lengthOfRandomSeries, sizeof(double));
-    //randomSet(arrayRandomNormalNumbers,lengthOfRandomSeries);
-    /*countRandom = 0;
-    for (int i=0;i<nrStations;i++)
-    {
-        //randomSet(arrayRandomNormalNumbers,lengthOfRandomSeries);
-        for (int j=0;j<lengthOfRandomSeries;j++)
-        {
-            normRandom[i][j] = arrayRandomNormalNumbers[countRandom];
-            countRandom++;
-            //printf("%f  ",normalizedRandomMatrix[i][j]);
-        }
-        //printf("\n");
-    }
-    free(arrayRandomNormalNumbers); */
-    // fine parte da togliere
+
 
     matricial::matrixProduct(dummyMatrix3,normRandom,nrStations,nrStations,lengthOfRandomSeries,nrStations,normRandom2);
     matricial::transposedMatrix(normRandom2,nrStations,lengthOfRandomSeries,normRandomMinT);
+
+    // for tmean
+    for (int i=0; i<nrStations;i++)
+    {
+        for (int j=0; j<nrStations;j++)
+        {
+            correlationArray[counter] = correlationMatrixTemperature.meanT[i][j];
+            eigenvectors[counter] = NODATA;
+            counter++;
+        }
+        for (int j=0; j<lengthOfRandomSeries;j++)
+        {
+            normRandom[i][j] = NODATA;
+            normRandom2[i][j] = NODATA;
+        }
+        eigenvalues[i]= NODATA;
+    }
+
+    eigenproblem::rs(nrStations,correlationArray,eigenvalues,true,eigenvectors);
+    counter = 0;
+    for (int i=0; i<nrStations;i++)
+    {
+        if (eigenvalues[i] < 0)
+        {
+            counter++;
+            eigenvalues[i] = 0.000001;
+        }
+    }
+
+    if (counter > 0)
+    {
+        counter=0;
+        for (int i=0;i<nrStations;i++)
+        {
+            for (int j=0;j<nrStations;j++)
+            {
+                dummyMatrix[j][i]= eigenvectors[counter];
+                dummyMatrix2[i][j]= eigenvectors[counter]*eigenvalues[i];
+                counter++;
+            }
+        }
+        matricial::matrixProduct(dummyMatrix,dummyMatrix2,nrStations,nrStations,nrStations,nrStations,correlationMatrixTemperature.meanT);
+    }
+
+    for (int i=0;i<nrStations;i++)
+    {
+        for (int j=0;j<nrStations;j++)
+        {
+            dummyMatrix[i][j] = correlationMatrixTemperature.meanT[i][j];
+        }
+
+    }
+
+    isLowerDiagonal = false;
+    matricial::choleskyDecompositionTriangularMatrix(dummyMatrix,nrStations,isLowerDiagonal);
+    matricial::transposedMatrix(dummyMatrix,nrStations,nrStations,dummyMatrix2);
+    matricial::matrixProduct(dummyMatrix2,dummyMatrix,nrStations,nrStations,nrStations,nrStations,dummyMatrix3);
+    isLowerDiagonal = true;
+    matricial::choleskyDecompositionTriangularMatrix(dummyMatrix3,nrStations,isLowerDiagonal);
+
+
+    for (int i=0;i<nrStations;i++)
+    {
+        for (int j=0;j<lengthOfRandomSeries;j++)
+        {
+            normRandom[i][j] = myrandom::normalRandom(&gasDevIset,&gasDevGset);
+        }
+    }
+
+    matricial::matrixProduct(dummyMatrix3,normRandom,nrStations,nrStations,lengthOfRandomSeries,nrStations,normRandom2);
+    matricial::transposedMatrix(normRandom2,nrStations,lengthOfRandomSeries,normRandomMeanT);
+
+    // for Tdelta
+    counter = 0;
+    for (int i=0; i<nrStations;i++)
+    {
+        for (int j=0; j<nrStations;j++)
+        {
+            correlationArray[counter] = correlationMatrixTemperature.deltaT[i][j];
+            eigenvectors[counter] = NODATA;
+            counter++;
+        }
+        for (int j=0; j<lengthOfRandomSeries;j++)
+        {
+            normRandom[i][j] = NODATA;
+            normRandom2[i][j] = NODATA;
+        }
+        eigenvalues[i]= NODATA;
+    }
+
+    eigenproblem::rs(nrStations,correlationArray,eigenvalues,true,eigenvectors);
+    counter = 0;
+    for (int i=0; i<nrStations;i++)
+    {
+        if (eigenvalues[i] < 0)
+        {
+            counter++;
+            eigenvalues[i] = 0.000001;
+        }
+    }
+
+    if (counter > 0)
+    {
+        counter=0;
+        for (int i=0;i<nrStations;i++)
+        {
+            for (int j=0;j<nrStations;j++)
+            {
+                dummyMatrix[j][i]= eigenvectors[counter];
+                dummyMatrix2[i][j]= eigenvectors[counter]*eigenvalues[i];
+                counter++;
+            }
+        }
+        matricial::matrixProduct(dummyMatrix,dummyMatrix2,nrStations,nrStations,nrStations,nrStations,correlationMatrixTemperature.deltaT);
+    }
+
+    for (int i=0;i<nrStations;i++)
+    {
+        for (int j=0;j<nrStations;j++)
+        {
+            dummyMatrix[i][j] = correlationMatrixTemperature.deltaT[i][j];
+        }
+    }
+
+    isLowerDiagonal = false;
+    matricial::choleskyDecompositionTriangularMatrix(dummyMatrix,nrStations,isLowerDiagonal);
+    matricial::transposedMatrix(dummyMatrix,nrStations,nrStations,dummyMatrix2);
+    matricial::matrixProduct(dummyMatrix2,dummyMatrix,nrStations,nrStations,nrStations,nrStations,dummyMatrix3);
+    isLowerDiagonal = true;
+    matricial::choleskyDecompositionTriangularMatrix(dummyMatrix3,nrStations,isLowerDiagonal);
+
+    for (int i=0;i<nrStations;i++)
+    {
+        for (int j=0;j<lengthOfRandomSeries;j++)
+        {
+            normRandom[i][j] = myrandom::normalRandom(&gasDevIset,&gasDevGset);
+        }
+    }
+
+
+    matricial::matrixProduct(dummyMatrix3,normRandom,nrStations,nrStations,lengthOfRandomSeries,nrStations,normRandom2);
+    matricial::transposedMatrix(normRandom2,nrStations,lengthOfRandomSeries,normRandomDeltaT);
 
     for (int i=0;i<nrStations;i++)
     {
@@ -1733,6 +1897,7 @@ void weatherGenerator2D::multisiteRandomNumbersTemperature()
     }
     free(correlationMatrixTemperature.meanT);
     free(correlationMatrixTemperature.deltaT);
+    printf("abcd\n");
 }
 
 void weatherGenerator2D::initializeMultiOccurrenceTemperature(int length)
@@ -1782,16 +1947,16 @@ void weatherGenerator2D::multisiteTemperatureGeneration()
     lengthOfRandomSeries = parametersModel.yearOfSimulation*365;
     //weatherGenerator2D::initializeMultiOccurrenceTemperature(lengthOfRandomSeries);
     // fill in the data of simulations
-    int day,month;
+    int daySimulated,monthSimulated;
     int counter = 0;
     for (int j=1;j<=parametersModel.yearOfSimulation;j++)
     {
         for (int i=0; i<365;i++)
         {
-            weatherGenerator2D::dateFromDoy(i+1,1,&day,&month); // 1 to avoid leap years
+            weatherGenerator2D::dateFromDoy(i+1,1,&daySimulated,&monthSimulated); // 1 to avoid leap years
             multiOccurrenceTemperature[counter].year_simulated = j;
-            multiOccurrenceTemperature[counter].month_simulated = month;
-            multiOccurrenceTemperature[counter].day_simulated = day;
+            multiOccurrenceTemperature[counter].month_simulated = monthSimulated;
+            multiOccurrenceTemperature[counter].day_simulated = daySimulated;
             counter++;
         }
     }
@@ -1955,6 +2120,226 @@ void weatherGenerator2D::multisiteTemperatureGeneration()
             occurrencePrecGenerated[j][i] = X[j];
             averageTmax[j%365] += maxTGenerated[j][i]/parametersModel.yearOfSimulation;
             averageTmin[j%365] += minTGenerated[j][i]/parametersModel.yearOfSimulation;
+            //printf("%.1f %d\n",maxTGenerated[j][i],parametersModel.yearOfSimulation);
+        }
+        //getchar();
+        // free memory
+        free(ksi[0]);
+        free(ksi[1]);
+        free(eps[0]);
+        free(eps[1]);
+        free(cAverage[0]);
+        free(cAverage[1]);
+        free(cStdDev[0]);
+        free(cStdDev[1]);
+        free(Xp[0]);
+        free(Xp[1]);
+        free(ksi);
+        free(eps);
+        free(cAverage);
+        free(cStdDev);
+        free(residuals);
+        free(Xp);
+    }
+
+    for (int i=0;i<4;i++)
+    {
+        free(averageT[i]);
+        free(stdDevT[i]);
+    }
+
+    free(averageT);
+    free(stdDevT);
+    free(X);
+
+    // free class memory
+    for (int j=0;j<lengthOfRandomSeries;j++)
+    {
+        free(multiOccurrenceTemperature[j].occurrence_simulated);
+    }
+    free(multiOccurrenceTemperature);
+
+}
+
+void weatherGenerator2D::multisiteTemperatureGenerationMeanDelta()
+{
+    int lengthOfRandomSeries;
+    lengthOfRandomSeries = parametersModel.yearOfSimulation*365;
+    //weatherGenerator2D::initializeMultiOccurrenceTemperature(lengthOfRandomSeries);
+    // fill in the data of simulations
+    int daySimulated,monthSimulated;
+    int counter = 0;
+    for (int j=1;j<=parametersModel.yearOfSimulation;j++)
+    {
+        for (int i=0; i<365;i++)
+        {
+            weatherGenerator2D::dateFromDoy(i+1,1,&daySimulated,&monthSimulated); // 1 to avoid leap years
+            multiOccurrenceTemperature[counter].year_simulated = j;
+            multiOccurrenceTemperature[counter].month_simulated = monthSimulated;
+            multiOccurrenceTemperature[counter].day_simulated = daySimulated;
+            counter++;
+        }
+    }
+
+    for (int j=0;j<12;j++)
+    {
+        int counter2 = 0;
+        counter = 0;
+        for (int k=0; k<lengthOfRandomSeries; k++)
+        {
+            if (multiOccurrenceTemperature[counter].month_simulated == (j+1))
+            {
+                for (int i=0;i<nrStations;i++)
+                {
+                    multiOccurrenceTemperature[counter].occurrence_simulated[i] = randomMatrix[j].matrixOccurrences[i][counter2];
+                }
+                counter2++;
+            }
+            counter++;
+        }
+    }
+
+    //weatherGenerator2D::initializeTemperaturesOutput(lengthOfRandomSeries);
+    double* X = (double*)calloc(lengthOfRandomSeries, sizeof(double));
+    double** averageT = (double**)calloc(4, sizeof(double*));
+    double** stdDevT = (double**)calloc(4, sizeof(double*));
+    for (int i=0;i<4;i++)
+    {
+        averageT[i] = (double*)calloc(lengthOfRandomSeries, sizeof(double));
+        stdDevT[i] = (double*)calloc(lengthOfRandomSeries, sizeof(double));
+        for (int j=0; j<lengthOfRandomSeries;j++)
+        {
+            averageT[i][j] = NODATA;
+            stdDevT[i][j] = NODATA;
+        }
+    }
+
+    for (int i=0; i<lengthOfRandomSeries ; i++)
+    {
+        X[i] = NODATA;
+    }
+    for (int i=0;i<nrStations;i++)
+    {
+        int jModulo;
+        for (int j=0;j<lengthOfRandomSeries;j++)
+        {
+            X[j] = multiOccurrenceTemperature[j].occurrence_simulated[i];
+            jModulo = j%365;
+
+            averageT[0][j] = temperatureCoefficients[i].meanTDry.averageEstimation[jModulo];
+            averageT[1][j] = temperatureCoefficients[i].deltaTDry.averageEstimation[jModulo];
+            averageT[2][j] = temperatureCoefficients[i].meanTWet.averageEstimation[jModulo];
+            averageT[3][j] = temperatureCoefficients[i].deltaTWet.averageEstimation[jModulo];
+
+            stdDevT[0][j] = temperatureCoefficients[i].meanTDry.stdDevEstimation[jModulo];
+            stdDevT[1][j] = temperatureCoefficients[i].deltaTDry.stdDevEstimation[jModulo];
+            stdDevT[2][j] = temperatureCoefficients[i].meanTWet.stdDevEstimation[jModulo];
+            stdDevT[3][j] = temperatureCoefficients[i].deltaTWet.stdDevEstimation[jModulo];
+
+        }
+        double* residuals = (double*)calloc(2, sizeof(double));
+        residuals[0] = residuals[1] = 0;
+        double** ksi = (double**)calloc(2, sizeof(double*));
+        double** eps = (double**)calloc(2, sizeof(double*));
+        for (int j=0;j<2;j++)
+        {
+            ksi[j] = (double*)calloc(lengthOfRandomSeries, sizeof(double));
+            eps[j] = (double*)calloc(lengthOfRandomSeries, sizeof(double));
+            for (int k=0;k<lengthOfRandomSeries;k++)
+            {
+               ksi[j][k] = 0;  // initialization
+               eps[j][k] = 0;  // initialization
+            }
+        }
+
+        for (int j=0;j<lengthOfRandomSeries;j++)
+        {
+            eps[0][j] = normRandomMeanT[j][i];
+            eps[1][j] = normRandomDeltaT[j][i];
+            //printf("%.1f %.1f\n",eps[0][j],eps[1][j]);
+        }
+        //getchar();
+        double res0,res1;
+        res1 = res0 = 0;
+        for (int j=0;j<lengthOfRandomSeries;j++)
+        {
+
+
+            //printf("%.1f %.1f\n",residuals[0],residuals[1]);
+
+            res0 = temperatureCoefficients[i].A_mean_delta[0][0]*residuals[0] + temperatureCoefficients[i].A_mean_delta[0][1]*residuals[1];
+            res0 += temperatureCoefficients[i].B_mean_delta[0][0]*eps[0][j] + temperatureCoefficients[i].B_mean_delta[0][1]*eps[1][j];
+            res1 = temperatureCoefficients[i].A_mean_delta[1][0]*residuals[0] + temperatureCoefficients[i].A_mean_delta[1][1]*residuals[1];
+            res1 += temperatureCoefficients[i].B_mean_delta[1][0]*eps[0][j] + temperatureCoefficients[i].B_mean_delta[1][1]*eps[1][j];
+            ksi[0][j] = residuals[0] = res0;
+            ksi[1][j] = residuals[1] = res1;
+            //printf("%.1f %.1f\n",eps[0][j],eps[1][j]);
+            //printf("%d %.1f %.1f %.1f %.1f\n",i, temperatureCoefficients[i].B[0][0],temperatureCoefficients[i].B[0][1],temperatureCoefficients[i].B[1][0],temperatureCoefficients[i].B[1][1]);
+            //printf("%d %.1f %.1f %.1f %.1f\n",i, temperatureCoefficients[i].A[0][0],temperatureCoefficients[i].A[0][1],temperatureCoefficients[i].A[1][0],temperatureCoefficients[i].A[1][1]);
+            //residuals[0] = residuals[1]=0;
+            //printf("%.1f %.1f\n",residuals[0],residuals[1]);
+            //getchar();
+        }
+        //getchar();
+        double** cAverage = (double**)calloc(2, sizeof(double*));
+        double** cStdDev = (double**)calloc(2, sizeof(double*));
+        double** Xp = (double**)calloc(2, sizeof(double*));
+
+        for (int j=0;j<2;j++)
+        {
+            cAverage[j] = (double*)calloc(lengthOfRandomSeries, sizeof(double));
+            cStdDev[j] = (double*)calloc(lengthOfRandomSeries, sizeof(double));
+            Xp[j] = (double*)calloc(lengthOfRandomSeries, sizeof(double));
+
+            for (int k=0;k<lengthOfRandomSeries;k++)
+            {
+                cAverage[j][k] = NODATA;
+                cStdDev[j][k] = NODATA;
+                Xp[j][k] = NODATA;
+            }
+        }
+        // !!!!!! this part has been changed from the original one. To be verified with authors and colleagues!
+        for (int j=0;j<lengthOfRandomSeries;j++)
+        {
+            //X[j] = 1 - X[j]; // to come back to the original code
+            cAverage[0][j] = X[j]*averageT[2][j] + (1- X[j])*averageT[0][j]; // for Tmax
+            cAverage[1][j] = X[j]*averageT[3][j] + (1- X[j])*averageT[1][j]; // for Tmin
+            cStdDev[0][j] = X[j]*stdDevT[2][j] + (1-X[j])*stdDevT[0][j]; // for Tmax
+            cStdDev[1][j] = X[j]*stdDevT[3][j] + (1-X[j])*stdDevT[1][j]; // for Tmin
+        }
+        // !!!!!!
+        for (int j=0;j<lengthOfRandomSeries;j++)
+        {
+            if(cStdDev[0][j] >= cStdDev[1][j])
+            {
+                Xp[1][j] = ksi[1][j]*cStdDev[1][j] + cAverage[1][j];
+                Xp[0][j] = ksi[0][j]*sqrt(cStdDev[0][j]*cStdDev[0][j] - cStdDev[1][j]*cStdDev[1][j]) + (cAverage[0][j] - cAverage[1][j]) + Xp[1][j];
+            }
+            else
+            {
+                Xp[0][j] = ksi[0][j]*cStdDev[0][j] + cAverage[0][j];
+                Xp[1][j] = ksi[1][j]*sqrt(cStdDev[1][j]*cStdDev[1][j] - cStdDev[0][j]*cStdDev[0][j]) - (cAverage[0][j] - cAverage[1][j]) + Xp[0][j];
+            }
+             //printf("%.1f %.1f\n",ksi[0][j],ksi[1][j]);
+        }
+        //getchar();
+
+        for (int j=0;j<lengthOfRandomSeries;j++)
+        {
+            if (Xp[0][j] <= Xp[1][j])
+            {
+                Xp[1][j] = Xp[0][j] - 0.2*fabs(Xp[0][j]);
+            }
+        }
+        double averageTmean[365]={0};
+        double averageTdelta[365]={0};
+        for (int j=0;j<lengthOfRandomSeries;j++)
+        {
+            meanTGenerated[j][i] = Xp[0][j];
+            deltaTGenerated[j][i] = Xp[1][j];
+            occurrencePrecGenerated[j][i] = X[j];
+            averageTmean[j%365] += meanTGenerated[j][i]/parametersModel.yearOfSimulation;
+            averageTdelta[j%365] += deltaTGenerated[j][i]/parametersModel.yearOfSimulation;
             //printf("%.1f %d\n",maxTGenerated[j][i],parametersModel.yearOfSimulation);
         }
         //getchar();
