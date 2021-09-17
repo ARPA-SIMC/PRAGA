@@ -34,7 +34,6 @@
 #include "dialogPointProperties.h"
 #include "utilities.h"
 
-
 extern PragaProject myProject;
 
 #define MAPBORDER 10
@@ -1038,7 +1037,6 @@ void MainWindow::drawMeteoGrid()
     updateDateTime();
 
     updateMaps();
-
 }
 
 
