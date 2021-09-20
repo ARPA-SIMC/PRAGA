@@ -2391,3 +2391,34 @@ bool PragaProject::loadXMLImportData(QString fileName)
     }
     return true;
 }
+
+bool PragaProject::monthlyVariablesGrid(QDate first, QDate last, QList <meteoVariable> variables)
+{
+
+    // check meteo grid
+    if (! meteoGridLoaded)
+    {
+        logError("No meteo grid");
+        return false;
+    }
+
+    // check dates
+    if (first.isNull() || last.isNull() || first > last)
+    {
+        logError("Wrong period");
+        return false;
+    }
+
+    std::vector <meteoVariable> dailyMeteoVar;
+    for (int i = 0; i < variables.size(); i++)
+    {
+        meteoVariable dailyVar = updateMeteoVariable(variables[i], daily);
+        if (dailyVar != noMeteoVar)
+        {
+            dailyMeteoVar.push_back(dailyVar);
+        }
+    }
+    monthlyAggregateDataGrid(meteoGridDbHandler, first, last, dailyMeteoVar, meteoSettings);
+
+    return true;
+}

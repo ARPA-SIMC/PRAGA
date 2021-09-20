@@ -99,6 +99,7 @@
         int executePragaCommand(QList<QString> argumentList, bool* isCommandFound);
         bool parserXMLImportData(QString xmlName, bool isGrid);
         bool loadXMLImportData(QString fileName);
+        bool monthlyVariablesGrid(QDate first, QDate last, QList <meteoVariable> variables);
 
         #ifdef NETCDF
                 bool exportMeteoGridToNetCDF(QString fileName);

@@ -18,6 +18,7 @@
     int cmdAggregationGridPeriod(PragaProject* myProject, QList<QString> argumentList);
     int cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QList<QString> argumentList);
     int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentList);
+    int cmdMonthlyVariablesGrid(PragaProject* myProject, QList<QString> argumentList);
     //bool cmdLoadForecast(PragaProject* myProject, QList<QString> argumentList);
 
     #ifdef NETCDF
