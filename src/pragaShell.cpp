@@ -19,6 +19,7 @@ QList<QString> getPragaCommandList()
     //cmdList.append("LoadForecast | LoadForecastData");
     cmdList.append("GridAggr     | GridAggregation");
     cmdList.append("GridDerVar   | GridDerivedVariables");
+    cmdList.append("MonthlyVar   | GridMonthlyVariables");
     cmdList.append("AggrOnZones  | GridAggregationOnZones");
 
     return cmdList;
@@ -76,6 +77,11 @@ int PragaProject::executePragaCommand(QList<QString> argumentList, bool* isComma
     {
         *isCommandFound = true;
         return cmdHourlyDerivedVariablesGrid(this, argumentList);
+    }
+    else if (command == "GRIDMONTHLYVARIABLES" || command == "MONTHLYVAR")
+    {
+        *isCommandFound = true;
+        return cmdMonthlyVariablesGrid(this, argumentList);
     }
     else if (command == "NETCDF" || command == "NETCDFEXPORT")
     {
@@ -394,6 +400,65 @@ int cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QList<QString> argume
     }
 
     if (! myProject->hourlyDerivedVariablesGrid(first, last, true, true))
+        return PRAGA_ERROR;
+
+    return PRAGA_OK;
+}
+
+int cmdMonthlyVariablesGrid(PragaProject* myProject, QList<QString> argumentList)
+{
+
+    // default date
+    QDate first = QDate::currentDate();
+    QDate last = first.addDays(9);
+    QList <QString> varString;
+    QList <meteoVariable> variables;
+    QString var;
+    meteoVariable meteoVar;
+
+    for (int i = 1; i < argumentList.size(); i++)
+    {
+        if (argumentList.at(i).left(3) == "-v:")
+        {
+            varString = argumentList[i].right(argumentList[i].length()-3).split(",");
+            foreach (var,varString)
+            {
+                meteoVar = getMeteoVar(var.toStdString());
+                if (meteoVar != noMeteoVar) variables << meteoVar;
+            }
+        }
+        else if (argumentList.at(i).left(4) == "-d1:")
+        {
+            QString dateIniStr = argumentList[i].right(argumentList[i].length()-4);
+            first = QDate::fromString(dateIniStr, "dd/MM/yyyy");
+        }
+        else if (argumentList.at(i).left(4) == "-d2:")
+        {
+            QString dateFinStr = argumentList[i].right(argumentList[i].length()-4);
+            last = QDate::fromString(dateFinStr, "dd/MM/yyyy");
+        }
+
+    }
+
+    if (! first.isValid())
+    {
+        myProject->logError("Wrong initial date");
+        return PRAGA_INVALID_COMMAND;
+    }
+
+    if (variables.isEmpty())
+    {
+        myProject->logError("Wrong variable");
+        return PRAGA_INVALID_COMMAND;
+    }
+
+    if (! last.isValid())
+    {
+        myProject->logError("Wrong final date");
+        return PRAGA_INVALID_COMMAND;
+    }
+
+    if (! myProject->monthlyVariablesGrid(first, last, variables))
         return PRAGA_ERROR;
 
     return PRAGA_OK;

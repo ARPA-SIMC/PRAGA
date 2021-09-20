@@ -819,7 +819,19 @@ meteoVariable getMeteoVar(std::string varString)
     else
     {
         search = MapHourlyMeteoVar.find(varString);
-        if (search != MapHourlyMeteoVar.end()) return search->second;
+        if (search != MapHourlyMeteoVar.end())
+        {
+            return search->second;
+        }
+        else
+        {
+            search = MapMonthlyMeteoVar.find(varString);
+            if (search != MapMonthlyMeteoVar.end())
+            {
+                return search->second;
+            }
+        }
+
     }
 
     return noMeteoVar;
@@ -938,7 +950,6 @@ meteoVariable getDailyMeteoVarFromHourly(meteoVariable myVar, aggregationMethod 
     return noMeteoVar;
 }
 
-
 meteoVariable updateMeteoVariable(meteoVariable myVar, frequencyType myFreq)
 {
     if (myFreq == daily)
@@ -946,6 +957,12 @@ meteoVariable updateMeteoVariable(meteoVariable myVar, frequencyType myFreq)
         //check
         if (myVar == airTemperature || myVar == monthlyAirTemperatureAvg)
             return dailyAirTemperatureAvg;
+
+        else if (myVar == monthlyAirTemperatureMin)
+            return dailyAirTemperatureMin;
+
+        else if (myVar == monthlyAirTemperatureMax)
+            return dailyAirTemperatureMax;
 
         else if (myVar == precipitation || myVar == monthlyPrecipitation)
             return dailyPrecipitation;
@@ -1035,9 +1052,13 @@ meteoVariable updateMeteoVariable(meteoVariable myVar, frequencyType myFreq)
 
     if (myFreq == monthly)
     {
-        if (myVar == dailyAirTemperatureAvg || myVar == airTemperature)
+        if (myVar == dailyAirTemperatureMin)
+            return monthlyAirTemperatureMin;
+        else if (myVar == dailyAirTemperatureMax)
+            return monthlyAirTemperatureMax;
+        else if (myVar == dailyAirTemperatureAvg || myVar == airTemperature)
             return monthlyAirTemperatureAvg;
-        else if (myVar == monthlyPrecipitation || myVar == precipitation)
+        else if (myVar == dailyPrecipitation || myVar == precipitation)
             return monthlyPrecipitation;
         else if (myVar == dailyReferenceEvapotranspirationHS || myVar == dailyReferenceEvapotranspirationPM || myVar == referenceEvapotranspiration)
             return monthlyReferenceEvapotranspirationHS;
