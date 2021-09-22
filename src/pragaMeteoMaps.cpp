@@ -26,8 +26,6 @@ PragaHourlyMeteoMaps::~PragaHourlyMeteoMaps()
 
 void PragaHourlyMeteoMaps::clear()
 {
-    clear();
-
     mapHourlyWindVectorInt->clear();
     mapHourlyWindVectorDir->clear();
     mapHourlyWindVectorX->clear();
