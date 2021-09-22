@@ -2222,7 +2222,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             meteoGridDbHandler->meteoGrid()->fillMeteoRasterElabValue();
 
             QString netcdfName;
-            if(listXMLElab->listFileName()[i].isEmpty())
+            if(listXMLElab->listFileName().size() == i)
             {
                 netcdfName = getCompleteFileName("ELAB_"+listXMLElab->listAll()[i]+".nc", PATH_PROJECT);
             }
