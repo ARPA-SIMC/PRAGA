@@ -25,6 +25,10 @@
         #include "importDataXML.h"
     #endif
 
+    #ifndef DROUGHT_H
+        #include "drought.h"
+    #endif
+
     class PragaProject : public Project
     {
     private:
@@ -100,6 +104,7 @@
         bool parserXMLImportData(QString xmlName, bool isGrid);
         bool loadXMLImportData(QString fileName);
         bool monthlyVariablesGrid(QDate first, QDate last, QList <meteoVariable> variables);
+        bool computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear);
 
         #ifdef NETCDF
                 bool exportMeteoGridToNetCDF(QString fileName);

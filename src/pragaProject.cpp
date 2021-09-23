@@ -2422,3 +2422,65 @@ bool PragaProject::monthlyVariablesGrid(QDate first, QDate last, QList <meteoVar
 
     return true;
 }
+
+bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear)
+{
+
+    // check meteo grid
+    if (! meteoGridLoaded)
+    {
+        logError("No meteo grid");
+        return false;
+    }
+
+    // check dates
+    if (firstYear > lastYear)
+    {
+        logError("Wrong years");
+        return false;
+    }
+
+    bool res = false;
+
+    QDate firstDate(firstYear,1,1);
+    QDate lastDate;
+    if (lastYear == QDate::currentDate().year())
+    {
+        lastDate.setDate(lastYear,QDate::currentDate().month(),1);
+    }
+    else
+    {
+        lastDate.setDate(lastYear,12,1);
+    }
+
+    for (unsigned row = 0; row < unsigned(meteoGridDbHandler->meteoGrid()->gridStructure().header().nrRows); row++)
+    {
+        for (unsigned col = 0; col < unsigned(meteoGridDbHandler->meteoGrid()->gridStructure().header().nrCols); col++)
+        {
+            if (meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->active)
+            {
+                meteoGridDbHandler->loadGridMonthlyData(&errorString, QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->id), firstDate, lastDate);
+                Drought mydrought(INDEX_SPI, firstYear, lastYear, meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col), meteoSettings);
+                meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->elaboration = NODATA;
+                if (index == INDEX_DECILES)
+                {
+                    // TO DO
+                    /*
+                     * If computePercentileValuesCurrentDay(Definitions.MONTHLY_PREC, myYearIni, myYearFin) Then
+                                    meteoPoint(myIndex).Point.Elab = currentPercentileValues(month(currentDay))
+                                End If
+                     */
+                }
+                else if (index == INDEX_SPI || index == INDEX_SPEI)
+                {
+                    meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->elaboration = mydrought.computeDroughtIndex();
+                }
+                if (meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->elaboration != NODATA)
+                {
+                    res = true;
+                }
+            }
+        }
+    }
+    return res;
+}
