@@ -33,8 +33,7 @@
 #include "dialogPragaProject.h"
 #include "dialogPointProperties.h"
 #include "utilities.h"
-#include "drought.h" // cancellare
-#include "climate.h" // cancellare
+
 
 extern PragaProject myProject;
 
@@ -1040,19 +1039,6 @@ void MainWindow::drawMeteoGrid()
 
     updateMaps();
 
-    ////////////cancellare///////
-    QDate firstDate(2020,1,1);
-    QDate lastDate(2021,9,01);
-    QString myError;
-    //std::vector<meteoVariable> dailyMeteoVar;
-    //dailyMeteoVar.push_back(dailyReferenceEvapotranspirationHS);
-    //monthlyAggregateDataGrid(myProject.meteoGridDbHandler, firstDate, lastDate, dailyMeteoVar, myProject.meteoSettings);
-    QString id = "01380";
-    myProject.meteoGridDbHandler->loadGridDailyData(&myError, id, firstDate, lastDate);
-    myProject.meteoGridDbHandler->loadGridMonthlyData(&myError, id, firstDate, lastDate);
-    Drought mydrought(INDEX_SPI, 2020, 2021, myProject.meteoGridDbHandler->meteoGrid()->meteoPointPointer(20,34), myProject.meteoSettings);
-    mydrought.setComputeAll(false);
-    mydrought.computeDroughtIndex();
 }
 
 
