@@ -83,6 +83,11 @@ int PragaProject::executePragaCommand(QList<QString> argumentList, bool* isComma
         *isCommandFound = true;
         return cmdMonthlyVariablesGrid(this, argumentList);
     }
+    else if (command == "DROUGHTINDEX" || command == "DROUGHT")
+    {
+        *isCommandFound = true;
+        return cmdDroughtIndexGrid(this, argumentList);
+    }
     else if (command == "NETCDF" || command == "NETCDFEXPORT")
     {
         *isCommandFound = true;
@@ -460,6 +465,23 @@ int cmdMonthlyVariablesGrid(PragaProject* myProject, QList<QString> argumentList
 
     if (! myProject->monthlyVariablesGrid(first, last, variables))
         return PRAGA_ERROR;
+
+    return PRAGA_OK;
+}
+
+int cmdDroughtIndexGrid(PragaProject* myProject, QList<QString> argumentList)
+{
+    if (argumentList.size() < 2)
+    {
+        myProject->logError("Missing xml name");
+        return PRAGA_INVALID_COMMAND;
+    }
+
+    QString xmlName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT);
+    if (!myProject->exportXMLDroughtGridToNetcdf(xmlName))
+    {
+        return PRAGA_ERROR;
+    }
 
     return PRAGA_OK;
 }

@@ -2327,6 +2327,64 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
         return true;
     }
 
+    bool PragaProject::exportXMLDroughtGridToNetcdf(QString xmlName)
+    {
+        if (meteoGridDbHandler == nullptr)
+        {
+            return false;
+        }
+        Crit3DElabList *listXMLElab = new Crit3DElabList();
+
+        if (xmlName == "")
+        {
+            errorString = "Empty XML name";
+            delete listXMLElab;
+            return false;
+        }
+        // TO DO modificare parser xml esistente oppure farne uno specifico per drought
+        /*
+        if (!parseXMLElaboration(listXMLElab, listXMLAnomaly, xmlName, &errorString))
+        {
+            delete listXMLElab;
+            return false;
+        }
+        */
+        if (listXMLElab->isMeteoGrid() == false)
+        {
+            errorString = "Datatype is not Grid";
+            delete listXMLElab;
+            return false;
+        }
+        if (listXMLElab->listAll().isEmpty())
+        {
+            errorString = "There are not valid Elaborations";
+            delete listXMLElab;
+            return false;
+        }
+
+        for (int i = 0; i<listXMLElab->listAll().size(); i++)
+        {
+
+            droughtIndex index; // da inserire campo preso da XML
+            computeDroughtIndexAll(index, listXMLElab->listYearStart()[i], listXMLElab->listYearEnd()[i]);
+            meteoGridDbHandler->meteoGrid()->fillMeteoRasterElabValue();
+
+            QString netcdfName;
+            if(listXMLElab->listFileName().size() == i)
+            {
+                netcdfName = getCompleteFileName("ELAB_"+listXMLElab->listAll()[i]+".nc", PATH_PROJECT);
+            }
+            else
+            {
+                netcdfName = getCompleteFileName(listXMLElab->listFileName()[i]+".nc", PATH_PROJECT);
+            }
+            exportMeteoGridToNetCDF(netcdfName);
+        }
+
+        delete listXMLElab;
+        return true;
+    }
+
 #endif
 
 /*
