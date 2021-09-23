@@ -12,7 +12,7 @@ TEMPLATE = app
 
 INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/crit3dDate ../agrolib/mathFunctions ../agrolib/meteo ../agrolib/gis  \
-                ../agrolib/interpolation ../agrolib/solarRadiation ../agrolib/utilities  \
+                ../agrolib/drought ../agrolib/interpolation ../agrolib/solarRadiation ../agrolib/utilities  \
                 ../agrolib/dbMeteoPoints ../agrolib/dbMeteoGrid ../agrolib/meteoWidget ../agrolib/climate \
                 ../agrolib/netcdfHandler  ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/importDataXML ../agrolib/project
 
@@ -46,6 +46,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/utilities/debug -lutilities
     LIBS += -L../agrolib/solarRadiation/debug -lsolarRadiation
     LIBS += -L../agrolib/interpolation/debug -linterpolation
+    LIBS += -L../agrolib/drought/debug -ldrought
     LIBS += -L../agrolib/meteo/debug -lmeteo
     LIBS += -L../agrolib/gis/debug -lgis
     LIBS += -L../agrolib/crit3dDate/debug -lcrit3dDate
@@ -73,6 +74,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/utilities/release -lutilities
     LIBS += -L../agrolib/solarRadiation/release -lsolarRadiation
     LIBS += -L../agrolib/interpolation/release -linterpolation
+    LIBS += -L../agrolib/drought/release -ldrought
     LIBS += -L../agrolib/meteo/release -lmeteo
     LIBS += -L../agrolib/gis/release -lgis
     LIBS += -L../agrolib/crit3dDate/release -lcrit3dDate
