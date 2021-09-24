@@ -109,7 +109,6 @@
         #ifdef NETCDF
                 bool exportMeteoGridToNetCDF(QString fileName);
                 bool exportXMLElabGridToNetcdf(QString xmlName);
-                bool exportXMLDroughtGridToNetcdf(QString xmlName);
         #endif
     };
 

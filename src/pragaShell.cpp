@@ -478,7 +478,7 @@ int cmdDroughtIndexGrid(PragaProject* myProject, QList<QString> argumentList)
     }
 
     QString xmlName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT);
-    if (!myProject->exportXMLDroughtGridToNetcdf(xmlName))
+    if (!myProject->exportXMLElabGridToNetcdf(xmlName))
     {
         return PRAGA_ERROR;
     }

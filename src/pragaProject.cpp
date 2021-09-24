@@ -2153,32 +2153,53 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
         }
         Crit3DElabList *listXMLElab = new Crit3DElabList();
         Crit3DAnomalyList *listXMLAnomaly = new Crit3DAnomalyList();
+        Crit3DDroughtList *listXMLDrought = new Crit3DDroughtList();
 
         if (xmlName == "")
         {
             errorString = "Empty XML name";
             delete listXMLElab;
             delete listXMLAnomaly;
+            delete listXMLDrought;
             return false;
         }
-        if (!parseXMLElaboration(listXMLElab, listXMLAnomaly, xmlName, &errorString))
+        if (!parseXMLElaboration(listXMLElab, listXMLAnomaly, listXMLDrought, xmlName, &errorString))
         {
             delete listXMLElab;
             delete listXMLAnomaly;
+            delete listXMLDrought;
             return false;
         }
-        if (listXMLElab->isMeteoGrid() == false)
+        if (!listXMLElab->listAll().isEmpty() && listXMLElab->isMeteoGrid() == false)
         {
             errorString = "Datatype is not Grid";
             delete listXMLElab;
             delete listXMLAnomaly;
+            delete listXMLDrought;
             return false;
         }
-        if (listXMLElab->listAll().isEmpty() && listXMLAnomaly->listAll().isEmpty())
+        if (!listXMLAnomaly->listAll().isEmpty() && listXMLAnomaly->isMeteoGrid() == false)
         {
-            errorString = "There are not valid Elaborations or Anomalies";
+            errorString = "Datatype is not Grid";
             delete listXMLElab;
             delete listXMLAnomaly;
+            delete listXMLDrought;
+            return false;
+        }
+        if (listXMLDrought->listIndex().size()!= 0 && listXMLDrought->isMeteoGrid() == false)
+        {
+            errorString = "Datatype is not Grid";
+            delete listXMLElab;
+            delete listXMLAnomaly;
+            delete listXMLDrought;
+            return false;
+        }
+        if (listXMLElab->listAll().isEmpty() && listXMLAnomaly->listAll().isEmpty() && listXMLDrought->listIndex().size() == 0)
+        {
+            errorString = "There are not valid Elaborations or Anomalies or Drought";
+            delete listXMLElab;
+            delete listXMLAnomaly;
+            delete listXMLDrought;
             return false;
         }
         if (clima == nullptr)
@@ -2323,41 +2344,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             referenceClima->resetCurrentValues();
         }
 
-        delete listXMLElab;
-        delete listXMLAnomaly;
-        return true;
-    }
-
-    bool PragaProject::exportXMLDroughtGridToNetcdf(QString xmlName)
-    {
-        if (meteoGridDbHandler == nullptr)
-        {
-            return false;
-        }
-        Crit3DDroughtList *listXMLDrought = new Crit3DDroughtList();
-
-        if (xmlName == "")
-        {
-            errorString = "Empty XML name";
-            delete listXMLDrought;
-            return false;
-        }
-        // TO DO modificare parser xml esistente oppure farne uno specifico per drought
-        /*
-        if (!parseXMLElaboration(listXMLElab, listXMLAnomaly, xmlName, &errorString))
-        {
-            delete listXMLDrought;
-            return false;
-        }
-        */
-        if (listXMLDrought->isMeteoGrid() == false)
-        {
-            errorString = "Datatype is not Grid";
-            delete listXMLDrought;
-            return false;
-        }
-
-        for (int i = 0; i<listXMLDrought->listIndex().size(); i++)
+        for (unsigned int i = 0; i<listXMLDrought->listIndex().size(); i++)
         {
 
             computeDroughtIndexAll(listXMLDrought->listIndex()[i], listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i], listXMLDrought->listDate()[i]);
@@ -2388,6 +2375,8 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             exportMeteoGridToNetCDF(netcdfName);
         }
 
+        delete listXMLElab;
+        delete listXMLAnomaly;
         delete listXMLDrought;
         return true;
     }
