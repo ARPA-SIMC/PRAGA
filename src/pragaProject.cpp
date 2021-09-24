@@ -2186,7 +2186,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             delete listXMLDrought;
             return false;
         }
-        if (listXMLDrought->listIndex().size()!= 0 && listXMLDrought->isMeteoGrid() == false)
+        if (listXMLDrought->listAll().size() != 0 && listXMLDrought->isMeteoGrid() == false)
         {
             errorString = "Datatype is not Grid";
             delete listXMLElab;
@@ -2194,7 +2194,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             delete listXMLDrought;
             return false;
         }
-        if (listXMLElab->listAll().isEmpty() && listXMLAnomaly->listAll().isEmpty() && listXMLDrought->listIndex().size() == 0)
+        if (listXMLElab->listAll().isEmpty() && listXMLAnomaly->listAll().isEmpty() && listXMLDrought->listAll().size() == 0)
         {
             errorString = "There are not valid Elaborations or Anomalies or Drought";
             delete listXMLElab;
@@ -2344,7 +2344,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             referenceClima->resetCurrentValues();
         }
 
-        for (unsigned int i = 0; i<listXMLDrought->listIndex().size(); i++)
+        for (unsigned int i = 0; i<listXMLDrought->listAll().size(); i++)
         {
 
             computeDroughtIndexAll(listXMLDrought->listIndex()[i], listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i], listXMLDrought->listDate()[i]);
