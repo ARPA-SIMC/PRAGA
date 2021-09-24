@@ -2366,7 +2366,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
         {
 
             droughtIndex index; // da inserire campo preso da XML
-            computeDroughtIndexAll(index, listXMLElab->listYearStart()[i], listXMLElab->listYearEnd()[i]);
+            //computeDroughtIndexAll(index, listXMLElab->listYearStart()[i], listXMLElab->listYearEnd()[i]);
             meteoGridDbHandler->meteoGrid()->fillMeteoRasterElabValue();
 
             QString netcdfName;
@@ -2481,7 +2481,7 @@ bool PragaProject::monthlyVariablesGrid(QDate first, QDate last, QList <meteoVar
     return true;
 }
 
-bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear)
+bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, Crit3DDate date)
 {
 
     // check meteo grid
@@ -2518,7 +2518,7 @@ bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int
             if (meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->active)
             {
                 meteoGridDbHandler->loadGridMonthlyData(&errorString, QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->id), firstDate, lastDate);
-                Drought mydrought(INDEX_SPI, firstYear, lastYear, meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col), meteoSettings);
+                Drought mydrought(INDEX_SPI, firstYear, lastYear, date, meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col), meteoSettings);
                 meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->elaboration = NODATA;
                 if (index == INDEX_DECILES)
                 {
