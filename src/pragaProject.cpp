@@ -1,6 +1,7 @@
 #include "basicMath.h"
 #include "climate.h"
 #include "crit3dElabList.h"
+#include "crit3dDroughtList.h"
 #include "dbClimate.h"
 #include "download.h"
 #include "dbAggregationsHandler.h"
@@ -2333,55 +2334,61 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
         {
             return false;
         }
-        Crit3DElabList *listXMLElab = new Crit3DElabList();
+        Crit3DDroughtList *listXMLDrought = new Crit3DDroughtList();
 
         if (xmlName == "")
         {
             errorString = "Empty XML name";
-            delete listXMLElab;
+            delete listXMLDrought;
             return false;
         }
         // TO DO modificare parser xml esistente oppure farne uno specifico per drought
         /*
         if (!parseXMLElaboration(listXMLElab, listXMLAnomaly, xmlName, &errorString))
         {
-            delete listXMLElab;
+            delete listXMLDrought;
             return false;
         }
         */
-        if (listXMLElab->isMeteoGrid() == false)
+        if (listXMLDrought->isMeteoGrid() == false)
         {
             errorString = "Datatype is not Grid";
-            delete listXMLElab;
-            return false;
-        }
-        if (listXMLElab->listAll().isEmpty())
-        {
-            errorString = "There are not valid Elaborations";
-            delete listXMLElab;
+            delete listXMLDrought;
             return false;
         }
 
-        for (int i = 0; i<listXMLElab->listAll().size(); i++)
+        for (int i = 0; i<listXMLDrought->listIndex().size(); i++)
         {
 
-            droughtIndex index; // da inserire campo preso da XML
-            //computeDroughtIndexAll(index, listXMLElab->listYearStart()[i], listXMLElab->listYearEnd()[i]);
+            computeDroughtIndexAll(listXMLDrought->listIndex()[i], listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i], listXMLDrought->listDate()[i]);
             meteoGridDbHandler->meteoGrid()->fillMeteoRasterElabValue();
 
             QString netcdfName;
-            if(listXMLElab->listFileName().size() == i)
+            if(listXMLDrought->listFileName().size() == i)
             {
-                netcdfName = getCompleteFileName("ELAB_"+listXMLElab->listAll()[i]+".nc", PATH_PROJECT);
+                QString timeScaleStr = QString::number(listXMLDrought->listTimescale()[i]);
+                if (listXMLDrought->listIndex()[i] == INDEX_SPI)
+                {
+                    netcdfName = getCompleteFileName("DROUGHT_SPI"+timeScaleStr+".nc", PATH_PROJECT);
+                }
+                else if(listXMLDrought->listIndex()[i] == INDEX_SPEI)
+                {
+                    netcdfName = getCompleteFileName("DROUGHT_SPEI"+timeScaleStr+".nc", PATH_PROJECT);
+                }
+                else if(listXMLDrought->listIndex()[i] == INDEX_DECILES)
+                {
+                    netcdfName = getCompleteFileName("DROUGHT_DECILES"+timeScaleStr+".nc", PATH_PROJECT);
+                }
+
             }
             else
             {
-                netcdfName = getCompleteFileName(listXMLElab->listFileName()[i]+".nc", PATH_PROJECT);
+                netcdfName = getCompleteFileName(listXMLDrought->listFileName()[i]+".nc", PATH_PROJECT);
             }
             exportMeteoGridToNetCDF(netcdfName);
         }
 
-        delete listXMLElab;
+        delete listXMLDrought;
         return true;
     }
 
@@ -2481,7 +2488,7 @@ bool PragaProject::monthlyVariablesGrid(QDate first, QDate last, QList <meteoVar
     return true;
 }
 
-bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, Crit3DDate date)
+bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, QDate date)
 {
 
     // check meteo grid
@@ -2518,7 +2525,7 @@ bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int
             if (meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->active)
             {
                 meteoGridDbHandler->loadGridMonthlyData(&errorString, QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->id), firstDate, lastDate);
-                Drought mydrought(INDEX_SPI, firstYear, lastYear, date, meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col), meteoSettings);
+                Drought mydrought(INDEX_SPI, firstYear, lastYear, getCrit3DDate(date), meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col), meteoSettings);
                 meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->elaboration = NODATA;
                 if (index == INDEX_DECILES)
                 {
