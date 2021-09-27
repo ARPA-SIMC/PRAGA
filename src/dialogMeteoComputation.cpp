@@ -1191,7 +1191,7 @@ void DialogMeteoComputation::copyDataFromXML()
     QString xmlName = QFileDialog::getOpenFileName(this, tr("Open XML"), "", tr("xml files (*.xml)"));
     if (xmlName != "")
     {
-        if (!parseXMLElaboration(listXMLElab, listXMLAnomaly, nullptr, xmlName, myError))
+        if (!parseXMLElaboration(listXMLElab, listXMLAnomaly, nullptr, nullptr, xmlName, myError))
         {
             QMessageBox::information(nullptr, "XML error", "Check XML");
             return;

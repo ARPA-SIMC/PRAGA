@@ -2154,6 +2154,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
         Crit3DElabList *listXMLElab = new Crit3DElabList();
         Crit3DAnomalyList *listXMLAnomaly = new Crit3DAnomalyList();
         Crit3DDroughtList *listXMLDrought = new Crit3DDroughtList();
+        Crit3DPhenologyList *listXMLPhenology = new Crit3DPhenologyList();
 
         if (xmlName == "")
         {
@@ -2161,13 +2162,15 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             delete listXMLElab;
             delete listXMLAnomaly;
             delete listXMLDrought;
+            delete listXMLPhenology;
             return false;
         }
-        if (!parseXMLElaboration(listXMLElab, listXMLAnomaly, listXMLDrought, xmlName, &errorString))
+        if (!parseXMLElaboration(listXMLElab, listXMLAnomaly, listXMLDrought, listXMLPhenology, xmlName, &errorString))
         {
             delete listXMLElab;
             delete listXMLAnomaly;
             delete listXMLDrought;
+            delete listXMLPhenology;
             return false;
         }
         if (!listXMLElab->listAll().isEmpty() && listXMLElab->isMeteoGrid() == false)
@@ -2176,6 +2179,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             delete listXMLElab;
             delete listXMLAnomaly;
             delete listXMLDrought;
+            delete listXMLPhenology;
             return false;
         }
         if (!listXMLAnomaly->listAll().isEmpty() && listXMLAnomaly->isMeteoGrid() == false)
@@ -2184,6 +2188,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             delete listXMLElab;
             delete listXMLAnomaly;
             delete listXMLDrought;
+            delete listXMLPhenology;
             return false;
         }
         if (listXMLDrought->listAll().size() != 0 && listXMLDrought->isMeteoGrid() == false)
@@ -2192,14 +2197,25 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             delete listXMLElab;
             delete listXMLAnomaly;
             delete listXMLDrought;
+            delete listXMLPhenology;
             return false;
         }
-        if (listXMLElab->listAll().isEmpty() && listXMLAnomaly->listAll().isEmpty() && listXMLDrought->listAll().size() == 0)
+        if (listXMLPhenology->listAll().size() != 0 && listXMLPhenology->isMeteoGrid() == false)
+        {
+            errorString = "Datatype is not Grid";
+            delete listXMLElab;
+            delete listXMLAnomaly;
+            delete listXMLDrought;
+            delete listXMLPhenology;
+            return false;
+        }
+        if (listXMLElab->listAll().isEmpty() && listXMLAnomaly->listAll().isEmpty() && listXMLDrought->listAll().size() == 0 && listXMLPhenology->listAll().size() == 0)
         {
             errorString = "There are not valid Elaborations or Anomalies or Drought";
             delete listXMLElab;
             delete listXMLAnomaly;
             delete listXMLDrought;
+            delete listXMLPhenology;
             return false;
         }
         if (clima == nullptr)
@@ -2375,9 +2391,15 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             exportMeteoGridToNetCDF(netcdfName);
         }
 
+        for (unsigned int i = 0; i<listXMLPhenology->listAll().size(); i++)
+        {
+            // TO DO
+        }
+
         delete listXMLElab;
         delete listXMLAnomaly;
         delete listXMLDrought;
+        delete listXMLPhenology;
         return true;
     }
 
