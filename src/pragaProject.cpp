@@ -2363,7 +2363,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
         for (unsigned int i = 0; i<listXMLDrought->listAll().size(); i++)
         {
 
-            computeDroughtIndexAll(listXMLDrought->listIndex()[i], listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i], listXMLDrought->listDate()[i]);
+            computeDroughtIndexAll(listXMLDrought->listIndex()[i], listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i], listXMLDrought->listDate()[i], listXMLDrought->listTimescale()[i]);
             meteoGridDbHandler->meteoGrid()->fillMeteoRasterElabValue();
 
             QString netcdfName;
@@ -2499,7 +2499,7 @@ bool PragaProject::monthlyVariablesGrid(QDate first, QDate last, QList <meteoVar
     return true;
 }
 
-bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, QDate date)
+bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, QDate date, int timescale)
 {
 
     // check meteo grid
@@ -2537,6 +2537,10 @@ bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int
             {
                 meteoGridDbHandler->loadGridMonthlyData(&errorString, QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->id), firstDate, lastDate);
                 Drought mydrought(INDEX_SPI, firstYear, lastYear, getCrit3DDate(date), meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col), meteoSettings);
+                if (timescale > 0)
+                {
+                    mydrought.setTimeScale(timescale);
+                }
                 meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->elaboration = NODATA;
                 if (index == INDEX_DECILES)
                 {
