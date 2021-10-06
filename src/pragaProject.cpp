@@ -2520,13 +2520,14 @@ bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int
 
     QDate firstDate(firstYear,1,1);
     QDate lastDate;
-    if (lastYear == QDate::currentDate().year())
+    int maxYear = max(lastYear,date.year());
+    if (maxYear == QDate::currentDate().year())
     {
-        lastDate.setDate(lastYear,QDate::currentDate().month(),1);
+        lastDate.setDate(maxYear,QDate::currentDate().month(),1);
     }
     else
     {
-        lastDate.setDate(lastYear,12,1);
+        lastDate.setDate(maxYear,12,1);
     }
 
     for (unsigned row = 0; row < unsigned(meteoGridDbHandler->meteoGrid()->gridStructure().header().nrRows); row++)
@@ -2536,7 +2537,7 @@ bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int
             if (meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->active)
             {
                 meteoGridDbHandler->loadGridMonthlyData(&errorString, QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->id), firstDate, lastDate);
-                Drought mydrought(INDEX_SPI, firstYear, lastYear, getCrit3DDate(date), meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col), meteoSettings);
+                Drought mydrought(index, firstYear, lastYear, getCrit3DDate(date), meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col), meteoSettings);
                 if (timescale > 0)
                 {
                     mydrought.setTimeScale(timescale);
