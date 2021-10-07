@@ -2545,12 +2545,10 @@ bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int
                 meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->elaboration = NODATA;
                 if (index == INDEX_DECILES)
                 {
-                    // TO DO
-                    /*
-                     * If computePercentileValuesCurrentDay(Definitions.MONTHLY_PREC, myYearIni, myYearFin) Then
-                                    meteoPoint(myIndex).Point.Elab = currentPercentileValues(month(currentDay))
-                                End If
-                     */
+                    if (mydrought.computePercentileValuesCurrentDay())
+                    {
+                        meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->elaboration = mydrought.getCurrentPercentileValue();
+                    }
                 }
                 else if (index == INDEX_SPI || index == INDEX_SPEI)
                 {
