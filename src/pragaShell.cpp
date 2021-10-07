@@ -717,7 +717,7 @@ int pragaShell(PragaProject* myProject)
             return PRAGA_ERROR;
         }
 
-        if (! myProject->exportMeteoGridToNetCDF(netcdfName))
+        if (! myProject->exportMeteoGridToNetCDF(netcdfName, "MeteoGrid", "Variable"))
         {
             return PRAGA_ERROR;
         }

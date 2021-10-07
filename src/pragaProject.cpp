@@ -2115,7 +2115,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
 }
 
 #ifdef NETCDF
-    bool PragaProject::exportMeteoGridToNetCDF(QString fileName)
+    bool PragaProject::exportMeteoGridToNetCDF(QString fileName, QString title, QString variableName)
     {
         if (! checkMeteoGridForExport()) return false;
 
@@ -2127,7 +2127,8 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             return false;
         }
 
-        if (! netcdf->writeGeoDimensions(meteoGridDbHandler->gridStructure().header()))
+        if (! netcdf->writeMetadata(meteoGridDbHandler->gridStructure().header(), title.toStdString(),
+                                    variableName.toStdString(), NO_DATE))
         {
             logError("Error in writing geo dimensions.");
             return false;
@@ -2269,7 +2270,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 netcdfName = getCompleteFileName(listXMLElab->listFileName()[i]+".nc", PATH_PROJECT);
             }
 
-            exportMeteoGridToNetCDF(netcdfName);
+            exportMeteoGridToNetCDF(netcdfName, "Elaboration", "elaboration");
             // reset param
             clima->resetParam();
             // reset current values
@@ -2351,7 +2352,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 netcdfName = getCompleteFileName(listXMLAnomaly->listFileName()[i]+".nc", PATH_PROJECT);
             }
 
-            exportMeteoGridToNetCDF(netcdfName);
+            exportMeteoGridToNetCDF(netcdfName, "Anomaly", "anomaly");
             // reset param
             clima->resetParam();
             referenceClima->resetParam();
@@ -2388,7 +2389,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             {
                 netcdfName = getCompleteFileName(listXMLDrought->listFileName()[i]+".nc", PATH_PROJECT);
             }
-            exportMeteoGridToNetCDF(netcdfName);
+            exportMeteoGridToNetCDF(netcdfName, "DROUGHT", "drought");
         }
 
         for (unsigned int i = 0; i<listXMLPhenology->listAll().size(); i++)
