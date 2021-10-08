@@ -24,8 +24,8 @@ bool checkEnvironmentConsole(QString pragaHome)
 
     if (pragaHome == "")
     {
-        QString error = "Set PRAGA_HOME in the environment variables:"
-                          "\n$PRAGA_HOME = path of praga directory\n";
+        QString error = "\nSet PRAGA_HOME in the environment variables:"
+                        "\n$PRAGA_HOME = path of praga directory\n";
 
         myProject.logError(error);
         return false;
@@ -33,9 +33,9 @@ bool checkEnvironmentConsole(QString pragaHome)
 
     if (!QDir(pragaHome).exists())
     {
-        QString error = "Wrong environment!\n"
-                          "Set correct $PRAGA_HOME variable:\n"
-                          "$PRAGA_HOME = path of praga directory\n";
+        QString error = "\nWrong environment!\n"
+                        "Set correct $PRAGA_HOME variable:\n"
+                        "$PRAGA_HOME = path of praga directory\n";
 
         myProject.logError(error);
         return false;
