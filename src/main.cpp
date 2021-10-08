@@ -24,8 +24,8 @@ bool checkEnvironmentConsole(QString pragaHome)
 
     if (pragaHome == "")
     {
-        QString error = "\nSet PRAGA_HOME in the environment variables:"
-                        "\n$PRAGA_HOME = path of praga directory\n";
+        QString error = "\nSet PRAGA_HOME in the environment variables:\n"
+                        "$PRAGA_HOME = path of praga directory\n";
 
         myProject.logError(error);
         return false;
