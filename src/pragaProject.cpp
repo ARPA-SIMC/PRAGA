@@ -2115,7 +2115,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
 }
 
 #ifdef NETCDF
-    bool PragaProject::exportMeteoGridToNetCDF(QString fileName)
+    bool PragaProject::exportMeteoGridToNetCDF(QString fileName, QString title, QString variableName)
     {
         if (! checkMeteoGridForExport()) return false;
 
@@ -2127,7 +2127,8 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             return false;
         }
 
-        if (! netcdf->writeGeoDimensions(meteoGridDbHandler->gridStructure().header()))
+        if (! netcdf->writeMetadata(meteoGridDbHandler->gridStructure().header(), title.toStdString(),
+                                    variableName.toStdString(), NO_DATE))
         {
             logError("Error in writing geo dimensions.");
             return false;
@@ -2269,7 +2270,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 netcdfName = getCompleteFileName(listXMLElab->listFileName()[i]+".nc", PATH_PROJECT);
             }
 
-            exportMeteoGridToNetCDF(netcdfName);
+            exportMeteoGridToNetCDF(netcdfName, "Elaboration", "elaboration");
             // reset param
             clima->resetParam();
             // reset current values
@@ -2351,7 +2352,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 netcdfName = getCompleteFileName(listXMLAnomaly->listFileName()[i]+".nc", PATH_PROJECT);
             }
 
-            exportMeteoGridToNetCDF(netcdfName);
+            exportMeteoGridToNetCDF(netcdfName, "Anomaly", "anomaly");
             // reset param
             clima->resetParam();
             referenceClima->resetParam();
@@ -2363,32 +2364,19 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
         for (unsigned int i = 0; i<listXMLDrought->listAll().size(); i++)
         {
 
-            computeDroughtIndexAll(listXMLDrought->listIndex()[i], listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i], listXMLDrought->listDate()[i], listXMLDrought->listTimescale()[i]);
+            computeDroughtIndexAll(listXMLDrought->listIndex()[i], listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i], listXMLDrought->listDate()[i], listXMLDrought->listTimescale()[i], listXMLDrought->listVariable()[i]);
             meteoGridDbHandler->meteoGrid()->fillMeteoRasterElabValue();
 
             QString netcdfName;
             if(listXMLDrought->listFileName().size() == i)
             {
-                QString timeScaleStr = QString::number(listXMLDrought->listTimescale()[i]);
-                if (listXMLDrought->listIndex()[i] == INDEX_SPI)
-                {
-                    netcdfName = getCompleteFileName("DROUGHT_SPI"+timeScaleStr+".nc", PATH_PROJECT);
-                }
-                else if(listXMLDrought->listIndex()[i] == INDEX_SPEI)
-                {
-                    netcdfName = getCompleteFileName("DROUGHT_SPEI"+timeScaleStr+".nc", PATH_PROJECT);
-                }
-                else if(listXMLDrought->listIndex()[i] == INDEX_DECILES)
-                {
-                    netcdfName = getCompleteFileName("DROUGHT_DECILES"+timeScaleStr+".nc", PATH_PROJECT);
-                }
-
+                netcdfName = getCompleteFileName(listXMLDrought->listAll()[i]+".nc", PATH_PROJECT);
             }
             else
             {
                 netcdfName = getCompleteFileName(listXMLDrought->listFileName()[i]+".nc", PATH_PROJECT);
             }
-            exportMeteoGridToNetCDF(netcdfName);
+            exportMeteoGridToNetCDF(netcdfName, "DROUGHT", "drought");
         }
 
         for (unsigned int i = 0; i<listXMLPhenology->listAll().size(); i++)
@@ -2499,7 +2487,7 @@ bool PragaProject::monthlyVariablesGrid(QDate first, QDate last, QList <meteoVar
     return true;
 }
 
-bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, QDate date, int timescale)
+bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, QDate date, int timescale, meteoVariable myVar)
 {
 
     // check meteo grid
@@ -2545,12 +2533,14 @@ bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int
                 meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->elaboration = NODATA;
                 if (index == INDEX_DECILES)
                 {
-                    // TO DO
-                    /*
-                     * If computePercentileValuesCurrentDay(Definitions.MONTHLY_PREC, myYearIni, myYearFin) Then
-                                    meteoPoint(myIndex).Point.Elab = currentPercentileValues(month(currentDay))
-                                End If
-                     */
+                    if (myVar != noMeteoVar)
+                    {
+                        mydrought.setMyVar(myVar);
+                    }
+                    if (mydrought.computePercentileValuesCurrentDay())
+                    {
+                        meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->elaboration = mydrought.getCurrentPercentileValue();
+                    }
                 }
                 else if (index == INDEX_SPI || index == INDEX_SPEI)
                 {

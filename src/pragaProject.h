@@ -104,10 +104,10 @@
         bool parserXMLImportData(QString xmlName, bool isGrid);
         bool loadXMLImportData(QString fileName);
         bool monthlyVariablesGrid(QDate first, QDate last, QList <meteoVariable> variables);
-        bool computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, QDate date, int timescale);
+        bool computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, QDate date, int timescale, meteoVariable myVar);
 
         #ifdef NETCDF
-                bool exportMeteoGridToNetCDF(QString fileName);
+                bool exportMeteoGridToNetCDF(QString fileName, QString title, QString variableName);
                 bool exportXMLElabGridToNetcdf(QString xmlName);
         #endif
     };
