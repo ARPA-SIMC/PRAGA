@@ -10,9 +10,35 @@
 #include <QtNetwork/QNetworkProxy>
 #include <QProcessEnvironment>
 #include <QDir>
+#include <QDebug>
 
 
 PragaProject myProject;
+
+// check $PRAGA_HOME
+bool checkEnvironmentConsole(QString pragaHome)
+{
+    if (pragaHome == "")
+    {
+        std::string warning = "Set PRAGA_HOME in the environment variables:"
+                          "\n$PRAGA_HOME = path of praga directory\n";
+
+        std::cout << warning << std::flush;
+        return false;
+    }
+
+    if (!QDir(pragaHome).exists())
+    {
+        std::string warning = "Wrong environment!\n"
+                          "Set correct $PRAGA_HOME variable:\n"
+                          "$PRAGA_HOME = path of praga directory\n";
+
+        std::cout << warning << std::flush;
+        return false;
+    }
+
+    return true;
+}
 
 
 bool setProxy(QString hostName, unsigned short port)
@@ -33,16 +59,6 @@ bool setProxy(QString hostName, unsigned short port)
 
     return true;
 }
-
-
-/*
-QCoreApplication* createApplication(int &argc, char *argv[])
-{
-    for (int i = 1; i < argc; ++i)
-        if (!qstrcmp(argv[i], "-no-gui"))
-            return new QCoreApplication(argc, argv);
-    return new QApplication(argc, argv);
-}*/
 
 
 int main(int argc, char *argv[])
@@ -81,25 +97,14 @@ int main(int argc, char *argv[])
         }
     }
 
-    // check $PRAGA_HOME
-    if (pragaHome == "")
+    // start GUI
+    if (myProject.modality == MODE_GUI)
     {
-        QString warning = "Set PRAGA_HOME in the environment variables:"
-                          "\n$PRAGA_HOME = path of praga directory\n";
-
-        std::cout << warning.toStdString() << std::flush;
-        return PRAGA_ENV_ERROR;
+        return mainGUI(argc, argv, pragaHome, myProject);
     }
 
-    if (!QDir(pragaHome).exists())
-    {
-        QString warning = "Wrong environment!\n"
-                          "Set correct $PRAGA_HOME variable:\n"
-                          "$PRAGA_HOME = path of praga directory\n";
-
-        std::cout << warning.toStdString() << std::flush;
+    if (!checkEnvironmentConsole(pragaHome))
         return PRAGA_ENV_ERROR;
-    }
 
     if (! myProject.start(pragaHome))
         return PRAGA_ERROR;
@@ -107,19 +112,17 @@ int main(int argc, char *argv[])
     if (! myProject.loadPragaProject(myProject.getApplicationPath() + "default.ini"))
         return PRAGA_ERROR;
 
+    QCoreApplication myApp(argc, argv);
+
     // start modality
-    if (myProject.modality == MODE_GUI)
+    if (myProject.modality == MODE_CONSOLE)
     {
-        return mainGUI(argc, argv, pragaHome);
-    }
-    else if (myProject.modality == MODE_CONSOLE)
-    {
-        QCoreApplication myApp(argc, argv);
         return pragaShell(&myProject);
     }
     else if (myProject.modality == MODE_BATCH)
     {
-        QCoreApplication myApp(argc, argv);
         return pragaBatch(&myProject, argv[1]);
     }
+
+    return 0;
 }
