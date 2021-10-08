@@ -3,7 +3,7 @@
 #include <QMessageBox>
 
 
-int mainGUI(int argc, char *argv[], QString pragaHome)
+bool checkGUI(QString pragaHome)
 {
     if (pragaHome == "")
     {
@@ -11,7 +11,7 @@ int mainGUI(int argc, char *argv[], QString pragaHome)
                           "\n$PRAGA_HOME = path of praga directory";
 
         QMessageBox::information(nullptr, "Missing environment", warning);
-        return -1;
+        return false;
     }
 
     if (!QDir(pragaHome).exists())
@@ -21,8 +21,16 @@ int mainGUI(int argc, char *argv[], QString pragaHome)
                           "$PRAGA_HOME = path of praga directory";
 
         QMessageBox::information(nullptr, pragaHome, warning);
-        return -1;
+        return false;
     }
+
+    return true;
+}
+
+int mainGUI(int argc, char *argv[], QString pragaHome)
+{
+    if (!checkGUI(pragaHome))
+        return PRAGA_ENV_ERROR;
 
     QApplication myApp(argc, argv);
 
