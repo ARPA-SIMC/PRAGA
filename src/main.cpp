@@ -18,22 +18,26 @@ PragaProject myProject;
 // check $PRAGA_HOME
 bool checkEnvironmentConsole(QString pragaHome)
 {
+    #ifdef _WIN32
+        attachOutputToConsole();
+    #endif
+
     if (pragaHome == "")
     {
-        std::string warning = "Set PRAGA_HOME in the environment variables:"
-                          "\n$PRAGA_HOME = path of praga directory\n";
+        QString error = "\nSet PRAGA_HOME in the environment variables:\n"
+                        "$PRAGA_HOME = path of praga directory\n";
 
-        std::cout << warning << std::flush;
+        myProject.logError(error);
         return false;
     }
 
     if (!QDir(pragaHome).exists())
     {
-        std::string warning = "Wrong environment!\n"
-                          "Set correct $PRAGA_HOME variable:\n"
-                          "$PRAGA_HOME = path of praga directory\n";
+        QString error = "\nWrong environment!\n"
+                        "Set correct $PRAGA_HOME variable:\n"
+                        "$PRAGA_HOME = path of praga directory\n";
 
-        std::cout << warning << std::flush;
+        myProject.logError(error);
         return false;
     }
 
