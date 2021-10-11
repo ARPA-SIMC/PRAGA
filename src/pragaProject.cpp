@@ -2115,7 +2115,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
 }
 
 #ifdef NETCDF
-    bool PragaProject::exportMeteoGridToNetCDF(QString fileName, QString title, QString variableName)
+    bool PragaProject::exportMeteoGridToNetCDF(QString fileName, QString title, QString variableName, std::string variableUnit, Crit3DDate myDate, Crit3DDate firstDate, Crit3DDate lastDate)
     {
         if (! checkMeteoGridForExport()) return false;
 
@@ -2128,7 +2128,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
         }
 
         if (! netcdf->writeMetadata(meteoGridDbHandler->gridStructure().header(), title.toStdString(),
-                                    variableName.toStdString(), NO_DATE))
+                                    variableName.toStdString(), variableUnit, myDate, firstDate, lastDate))
         {
             logError("Error in writing geo dimensions.");
             return false;
@@ -2269,8 +2269,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             {
                 netcdfName = getCompleteFileName(listXMLElab->listFileName()[i]+".nc", PATH_PROJECT);
             }
-
-            exportMeteoGridToNetCDF(netcdfName, "Elaboration", "elaboration");
+            exportMeteoGridToNetCDF(netcdfName, "Elaboration", QString::fromStdString(MapDailyMeteoVarToString.at(listXMLElab->listVariable()[i])), getUnitFromVariable(listXMLElab->listVariable()[i]), NO_DATE, NO_DATE, NO_DATE);
             // reset param
             clima->resetParam();
             // reset current values
@@ -2352,7 +2351,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 netcdfName = getCompleteFileName(listXMLAnomaly->listFileName()[i]+".nc", PATH_PROJECT);
             }
 
-            exportMeteoGridToNetCDF(netcdfName, "Anomaly", "anomaly");
+            exportMeteoGridToNetCDF(netcdfName, "Anomaly", QString::fromStdString(MapDailyMeteoVarToString.at(listXMLAnomaly->listVariable()[i])), getUnitFromVariable(listXMLAnomaly->listVariable()[i]), NO_DATE, NO_DATE, NO_DATE);
             // reset param
             clima->resetParam();
             referenceClima->resetParam();
@@ -2376,7 +2375,18 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             {
                 netcdfName = getCompleteFileName(listXMLDrought->listFileName()[i]+".nc", PATH_PROJECT);
             }
-            exportMeteoGridToNetCDF(netcdfName, "DROUGHT", "drought");
+            if (listXMLDrought->listIndex()[i] == INDEX_SPI)
+            {
+                exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Index", "MONTHLY_PREC", "-", NO_DATE, NO_DATE, NO_DATE);
+            }
+            else if (listXMLDrought->listIndex()[i] == INDEX_SPEI )
+            {
+                exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Evapotranspiration Index", "MONTHLY_PREC", "-", NO_DATE, NO_DATE, NO_DATE);
+            }
+            else if (listXMLDrought->listIndex()[i] == INDEX_DECILES)
+            {
+                exportMeteoGridToNetCDF(netcdfName, "Deciles Index", QString::fromStdString(MapMonthlyMeteoVarToString.at(listXMLDrought->listVariable()[i])), getUnitFromVariable(listXMLDrought->listVariable()[i]), NO_DATE, NO_DATE, NO_DATE);
+            }
         }
 
         for (unsigned int i = 0; i<listXMLPhenology->listAll().size(); i++)
