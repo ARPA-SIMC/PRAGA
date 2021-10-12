@@ -821,7 +821,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
         if (fileName != "")
         {
-            myProject.exportMeteoGridToNetCDF(fileName, "Meteogrid", "variable");
+            myProject.exportMeteoGridToNetCDF(fileName, "Meteogrid", "variable", "unit", NO_DATE, NO_DATE, NO_DATE);
         }
     }
 
