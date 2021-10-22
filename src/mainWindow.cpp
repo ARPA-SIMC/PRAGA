@@ -219,6 +219,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
         QPoint firstCornerOffset = myRubberBand->getOrigin() - QPoint(MAPBORDER, MAPBORDER);
         QPoint pixelTopLeft;
         QPoint pixelBottomRight;
+        bool select = false;
 
         if (firstCornerOffset.y() > lastCornerOffset.y())
         {
@@ -227,12 +228,14 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
                 // bottom to left
                 pixelTopLeft = lastCornerOffset;
                 pixelBottomRight = firstCornerOffset;
+                select = false;
             }
             else
             {
                 // bottom to right
                 pixelTopLeft = QPoint(firstCornerOffset.x(), lastCornerOffset.y());
                 pixelBottomRight = QPoint(lastCornerOffset.x(), firstCornerOffset.y());
+                select = true;
             }
         }
         else
@@ -242,12 +245,14 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
                 // top to left
                 pixelTopLeft = QPoint(lastCornerOffset.x(), firstCornerOffset.y());
                 pixelBottomRight = QPoint(firstCornerOffset.x(), lastCornerOffset.y());
+                select = false;
             }
             else
             {
                 // top to right
                 pixelTopLeft = firstCornerOffset;
                 pixelBottomRight = lastCornerOffset;
+                select = true;
             }
         }
 
@@ -260,12 +265,26 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
         {
             if (rectF.contains(marker->longitude(), marker->latitude()))
             {
-                if ( marker->color() ==  Qt::white )
+                if ( marker->color() ==  Qt::white && select)
                 {
-                    marker->setFillColor(QColor((Qt::red)));
+                    marker->setFillColor(QColor((Qt::yellow)));
                     pointSelected.latitude = marker->latitude();
                     pointSelected.longitude = marker->longitude();
                     myProject.meteoPointsSelected << pointSelected;
+                }
+                else if ( marker->color() ==  Qt::yellow && !select)
+                {
+                    marker->setFillColor(QColor((Qt::white)));
+                    pointSelected.latitude = marker->latitude();
+                    pointSelected.longitude = marker->longitude();
+                    for (int i = 0; i<myProject.meteoPointsSelected.size(); i++)
+                    {
+                        if (myProject.meteoPointsSelected.at(i).latitude == pointSelected.latitude && myProject.meteoPointsSelected.at(i).longitude == pointSelected.longitude)
+                        {
+                            myProject.meteoPointsSelected.removeAt(i);
+                            break;
+                        }
+                    }
                 }
             }
         }
