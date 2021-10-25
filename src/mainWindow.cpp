@@ -862,6 +862,12 @@ void MainWindow::drawMeteoPoints()
     ui->actionShowPointsElab->setEnabled(false);
     ui->actionShowPointsClimate->setEnabled(false);
 
+    ui->menuActive_points->setEnabled(true);
+    ui->menuDeactive_points->setEnabled(true);
+    ui->menuDelete_data->setEnabled(true);
+    ui->actionShift_data->setEnabled(true);
+    ui->actionMeteopointDataCount->setEnabled(true);
+
     ui->grid->setChecked(false);
 
     if (currentPointsVisualization == notShown) currentPointsVisualization = showLocation;
@@ -2415,6 +2421,11 @@ void MainWindow::closeMeteoPoints()
 
         this->ui->meteoPoints->setChecked(false);
         this->ui->meteoPoints->setEnabled(false);
+        ui->menuActive_points->setEnabled(false);
+        ui->menuDeactive_points->setEnabled(false);
+        ui->menuDelete_data->setEnabled(false);
+        ui->actionShift_data->setEnabled(false);
+        ui->actionMeteopointDataCount->setEnabled(false);
 
         showPointsGroup->setEnabled(false);
         this->ui->menuShowPointsAnomaly->setEnabled(false);
