@@ -2983,7 +2983,7 @@
      <property name="title">
       <string>Active points</string>
      </property>
-     <addaction name="actionAll"/>
+     <addaction name="actionAll_active"/>
      <addaction name="actionSelected"/>
      <addaction name="actionFrom_point_list"/>
      <addaction name="actionwith_Criteria"/>
@@ -2996,7 +2996,7 @@
      <property name="title">
       <string>Deactive points</string>
      </property>
-     <addaction name="actionAll_2"/>
+     <addaction name="actionAll_notActive"/>
      <addaction name="actionSelected_2"/>
      <addaction name="actionWith_NO_DATA"/>
      <addaction name="actionWith_Criteria"/>
@@ -3560,7 +3560,7 @@
     <string>Data</string>
    </property>
   </action>
-  <action name="actionAll">
+  <action name="actionAll_active">
    <property name="text">
     <string>All</string>
    </property>
@@ -3585,7 +3585,7 @@
     <string>Random subset</string>
    </property>
   </action>
-  <action name="actionAll_2">
+  <action name="actionAll_notActive">
    <property name="text">
     <string>All</string>
    </property>

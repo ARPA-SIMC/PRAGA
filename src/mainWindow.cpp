@@ -2891,3 +2891,43 @@ void MainWindow::on_actionData_triggered()
     closeMeteoPoints();
     loadMeteoPoints(dbName);
 }
+
+void MainWindow::on_actionAll_active_triggered()
+{
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        QMessageBox::critical(nullptr, "Set all points active", "No meteo points DB open");
+        return;
+    }
+
+    if (!myProject.meteoPointsDbHandler->setAllPointsActive())
+    {
+        QMessageBox::critical(nullptr, "Update failed", "Failed to set all points active");
+        return;
+    }
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        myProject.meteoPoints[i].active = true;
+    }
+    return;
+}
+
+void MainWindow::on_actionAll_notActive_triggered()
+{
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        QMessageBox::critical(nullptr, "Set all points not active", "No meteo points DB open");
+        return;
+    }
+
+    if (!myProject.meteoPointsDbHandler->setAllPointsNotActive())
+    {
+        QMessageBox::critical(nullptr, "Update failed", "Failed to set all points not active");
+        return;
+    }
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        myProject.meteoPoints[i].active = false;
+    }
+    return;
+}
