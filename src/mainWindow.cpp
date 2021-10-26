@@ -265,7 +265,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
         {
             if (rectF.contains(marker->longitude(), marker->latitude()))
             {
-                if ( marker->color() ==  Qt::white && select)
+                if ( marker->color() !=  Qt::yellow && select)
                 {
                     marker->setFillColor(QColor((Qt::yellow)));
                     pointSelected.latitude = marker->latitude();
@@ -274,9 +274,25 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
                 }
                 else if ( marker->color() ==  Qt::yellow && !select)
                 {
-                    marker->setFillColor(QColor((Qt::white)));
                     pointSelected.latitude = marker->latitude();
                     pointSelected.longitude = marker->longitude();
+
+                    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+                    {
+                        if (myProject.meteoPoints[i].latitude == pointSelected.latitude && myProject.meteoPoints[i].longitude == pointSelected.longitude)
+                        {
+                            if (!myProject.meteoPoints[i].active)
+                            {
+                                marker->setFillColor(QColor(Qt::red));
+                            }
+                            else
+                            {
+                                marker->setFillColor(QColor((Qt::white)));
+                            }
+                            break;
+                        }
+                    }
+
                     for (int i = 0; i<myProject.meteoPointsSelected.size(); i++)
                     {
                         if (myProject.meteoPointsSelected.at(i).latitude == pointSelected.latitude && myProject.meteoPointsSelected.at(i).longitude == pointSelected.longitude)
@@ -904,7 +920,14 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
             for (int i = 0; i < myProject.nrMeteoPoints; i++)
             {
                     myProject.meteoPoints[i].currentValue = NODATA;
-                    pointList[i]->setFillColor(QColor(Qt::white));
+                    if (myProject.meteoPoints[i].active)
+                    {
+                        pointList[i]->setFillColor(QColor(Qt::white));
+                    }
+                    else
+                    {
+                        pointList[i]->setFillColor(QColor(Qt::red));
+                    }
                     pointList[i]->setRadius(5);
                     pointList[i]->setCurrentValue(NODATA);
                     pointList[i]->setToolTip();
@@ -1213,6 +1236,10 @@ void MainWindow::addMeteoPoints()
         point->setMunicipality(myProject.meteoPoints[i].municipality);
         point->setCurrentValue(myProject.meteoPoints[i].currentValue);
         point->setQuality(myProject.meteoPoints[i].quality);
+        if (!myProject.meteoPoints[i].active)
+        {
+            point->setFillColor(QColor(Qt::red));
+        }
 
         this->pointList.append(point);
         this->mapView->scene()->addObject(this->pointList[i]);
@@ -2909,6 +2936,7 @@ void MainWindow::on_actionAll_active_triggered()
     {
         myProject.meteoPoints[i].active = true;
     }
+    redrawMeteoPoints(currentPointsVisualization, true);
     return;
 }
 
@@ -2929,5 +2957,74 @@ void MainWindow::on_actionAll_notActive_triggered()
     {
         myProject.meteoPoints[i].active = false;
     }
+    redrawMeteoPoints(currentPointsVisualization, true);
+    return;
+}
+
+void MainWindow::on_actionSelected_triggered()
+{
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        QMessageBox::critical(nullptr, "Set selected points active", "No meteo points DB open");
+        return;
+    }
+
+    if (myProject.meteoPointsSelected.isEmpty())
+    {
+        QMessageBox::critical(nullptr, "Set selected points active", "No meteo points DB selected");
+        return;
+    }
+
+    if (!myProject.meteoPointsDbHandler->setGeoPointsListActiveState(myProject.meteoPointsSelected, true))
+    {
+        QMessageBox::critical(nullptr, "Update failed", "Failed to set selected points active");
+        return;
+    }
+    for (int j = 0; j < myProject.meteoPointsSelected.size(); j++)
+    {
+        for (int i = 0; i < myProject.nrMeteoPoints; i++)
+        {
+            if (myProject.meteoPoints[i].latitude == myProject.meteoPointsSelected[j].latitude && myProject.meteoPoints[i].longitude == myProject.meteoPointsSelected[j].longitude)
+            {
+                myProject.meteoPoints[i].active = true;
+            }
+        }
+    }
+    myProject.meteoPointsSelected.clear();
+    redrawMeteoPoints(currentPointsVisualization, true);
+    return;
+}
+
+void MainWindow::on_actionSelected_notActive_triggered()
+{
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        QMessageBox::critical(nullptr, "Set selected points not active", "No meteo points DB open");
+        return;
+    }
+
+    if (myProject.meteoPointsSelected.isEmpty())
+    {
+        QMessageBox::critical(nullptr, "Set selected points not active", "No meteo points DB selected");
+        return;
+    }
+
+    if (!myProject.meteoPointsDbHandler->setGeoPointsListActiveState(myProject.meteoPointsSelected, false))
+    {
+        QMessageBox::critical(nullptr, "Update failed", "Failed to set selected points not active");
+        return;
+    }
+    for (int j = 0; j < myProject.meteoPointsSelected.size(); j++)
+    {
+        for (int i = 0; i < myProject.nrMeteoPoints; i++)
+        {
+            if (myProject.meteoPoints[i].latitude == myProject.meteoPointsSelected[j].latitude && myProject.meteoPoints[i].longitude == myProject.meteoPointsSelected[j].longitude)
+            {
+                myProject.meteoPoints[i].active = false;
+            }
+        }
+    }
+    myProject.meteoPointsSelected.clear();
+    redrawMeteoPoints(currentPointsVisualization, true);
     return;
 }

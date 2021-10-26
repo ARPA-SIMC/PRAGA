@@ -2997,7 +2997,7 @@
       <string>Deactive points</string>
      </property>
      <addaction name="actionAll_notActive"/>
-     <addaction name="actionSelected_2"/>
+     <addaction name="actionSelected_notActive"/>
      <addaction name="actionWith_NO_DATA"/>
      <addaction name="actionWith_Criteria"/>
     </widget>
@@ -3590,7 +3590,7 @@
     <string>All</string>
    </property>
   </action>
-  <action name="actionSelected_2">
+  <action name="actionSelected_notActive">
    <property name="text">
     <string>Selected</string>
    </property>
