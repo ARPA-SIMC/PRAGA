@@ -880,6 +880,7 @@ void MainWindow::drawMeteoPoints()
 
     ui->menuActive_points->setEnabled(true);
     ui->menuDeactive_points->setEnabled(true);
+    ui->menuDelete_points->setEnabled(true);
     ui->menuDelete_data->setEnabled(true);
     ui->actionShift_data->setEnabled(true);
     ui->actionMeteopointDataCount->setEnabled(true);
@@ -2450,6 +2451,7 @@ void MainWindow::closeMeteoPoints()
         this->ui->meteoPoints->setEnabled(false);
         ui->menuActive_points->setEnabled(false);
         ui->menuDeactive_points->setEnabled(false);
+        ui->menuDelete_points->setEnabled(false);
         ui->menuDelete_data->setEnabled(false);
         ui->actionShift_data->setEnabled(false);
         ui->actionMeteopointDataCount->setEnabled(false);

@@ -3011,12 +3011,24 @@
      <addaction name="actionSelected_points_active"/>
      <addaction name="actionSelected_points_not_active"/>
     </widget>
+    <widget class="QMenu" name="menuDelete_points">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Delete points</string>
+     </property>
+     <addaction name="actionDeletePoint_selected"/>
+     <addaction name="actionDeletePoint_notSelected"/>
+     <addaction name="actionDeletePoint_notActive"/>
+    </widget>
     <addaction name="actionMeteopointQualitySpatial"/>
     <addaction name="actionMeteopointRectangleSelection"/>
     <addaction name="actionMeteopointDataCount"/>
     <addaction name="separator"/>
     <addaction name="menuActive_points"/>
     <addaction name="menuDeactive_points"/>
+    <addaction name="menuDelete_points"/>
     <addaction name="menuDelete_data"/>
     <addaction name="actionShift_data"/>
    </widget>
@@ -3621,6 +3633,24 @@
    </property>
    <property name="text">
     <string>Shift data</string>
+   </property>
+  </action>
+  <action name="actionDeletePoint_selected">
+   <property name="text">
+    <string>Selected</string>
+   </property>
+  </action>
+  <action name="actionDeletePoint_notSelected">
+   <property name="text">
+    <string>Not selected</string>
+   </property>
+  </action>
+  <action name="actionDeletePoint_notActive">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Not active</string>
    </property>
   </action>
  </widget>
