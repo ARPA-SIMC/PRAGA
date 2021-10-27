@@ -153,6 +153,12 @@
 
         void on_actionFrom_point_list_triggered();
 
+        void on_actionDeletePoint_selected_triggered();
+
+        void on_actionDeletePoint_notSelected_triggered();
+
+        void on_actionDeletePoint_notActive_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
