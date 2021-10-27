@@ -18,6 +18,7 @@
 #include "ui_mainWindow.h"
 #include "formInfo.h"
 #include "dbMeteoPointsHandler.h"
+#include "meteoPointsManagment.h"
 #include "dbArkimet.h"
 #include "download.h"
 #include "commonConstants.h"
@@ -3029,4 +3030,30 @@ void MainWindow::on_actionSelected_notActive_triggered()
     myProject.meteoPointsSelected.clear();
     redrawMeteoPoints(currentPointsVisualization, true);
     return;
+}
+
+void MainWindow::on_actionFrom_point_list_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open point list file"), "", tr("text files (*.txt)"));
+
+    if (fileName == "") return;
+    QList<QString> points = readPointList(fileName);
+    if (!myProject.meteoPointsDbHandler->setIdPointListActiveState(points, true))
+    {
+        QMessageBox::critical(nullptr, "Update failed", "Failed to set points from list active");
+        return;
+    }
+    for (int j = 0; j < points.size(); j++)
+    {
+        for (int i = 0; i < myProject.nrMeteoPoints; i++)
+        {
+            if (myProject.meteoPoints[i].id == points[j].toStdString())
+            {
+                myProject.meteoPoints[i].active = true;
+            }
+        }
+    }
+    redrawMeteoPoints(currentPointsVisualization, true);
+    return;
+
 }

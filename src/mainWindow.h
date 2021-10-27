@@ -151,6 +151,8 @@
 
         void on_actionSelected_notActive_triggered();
 
+        void on_actionFrom_point_list_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
