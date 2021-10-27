@@ -266,31 +266,49 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
         {
             if (rectF.contains(marker->longitude(), marker->latitude()))
             {
-                if ( marker->color() !=  Qt::yellow && select)
+                if (select)
                 {
-                    marker->setFillColor(QColor((Qt::yellow)));
                     pointSelected.latitude = marker->latitude();
                     pointSelected.longitude = marker->longitude();
-                    myProject.meteoPointsSelected << pointSelected;
+                    bool found = false;
+                    for (int i = 0; i < myProject.meteoPointsSelected.size(); i++)
+                    {
+                        if (myProject.meteoPointsSelected[i].latitude == pointSelected.latitude && myProject.meteoPointsSelected[i].longitude == pointSelected.longitude)
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        myProject.meteoPointsSelected << pointSelected;
+                    }
+                    if (currentPointsVisualization == showLocation && marker->color() !=  Qt::yellow)
+                    {
+                        marker->setFillColor(QColor((Qt::yellow)));
+                    }
                 }
-                else if ( marker->color() ==  Qt::yellow && !select)
+                else if (!select)
                 {
                     pointSelected.latitude = marker->latitude();
                     pointSelected.longitude = marker->longitude();
 
-                    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+                    if (currentPointsVisualization == showLocation && marker->color() ==  Qt::yellow)
                     {
-                        if (myProject.meteoPoints[i].latitude == pointSelected.latitude && myProject.meteoPoints[i].longitude == pointSelected.longitude)
+                        for (int i = 0; i < myProject.nrMeteoPoints; i++)
                         {
-                            if (!myProject.meteoPoints[i].active)
+                            if (myProject.meteoPoints[i].latitude == pointSelected.latitude && myProject.meteoPoints[i].longitude == pointSelected.longitude)
                             {
-                                marker->setFillColor(QColor(Qt::red));
+                                if (!myProject.meteoPoints[i].active)
+                                {
+                                    marker->setFillColor(QColor(Qt::red));
+                                }
+                                else
+                                {
+                                    marker->setFillColor(QColor((Qt::white)));
+                                }
+                                break;
                             }
-                            else
-                            {
-                                marker->setFillColor(QColor((Qt::white)));
-                            }
-                            break;
                         }
                     }
 
