@@ -147,7 +147,7 @@
 
         void on_actionAll_notActive_triggered();
 
-        void on_actionSelected_triggered();
+        void on_actionSelected_active_triggered();
 
         void on_actionSelected_notActive_triggered();
 
@@ -158,6 +158,7 @@
         void on_actionDeletePoint_notSelected_triggered();
 
         void on_actionDeletePoint_notActive_triggered();
+
 
     protected:
         /*!

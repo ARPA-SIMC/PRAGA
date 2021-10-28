@@ -2940,6 +2940,7 @@ void MainWindow::on_actionData_triggered()
     loadMeteoPoints(dbName);
 }
 
+
 void MainWindow::on_actionAll_active_triggered()
 {
     if (myProject.meteoPointsDbHandler == nullptr)
@@ -2957,6 +2958,7 @@ void MainWindow::on_actionAll_active_triggered()
     {
         myProject.meteoPoints[i].active = true;
     }
+    myProject.meteoPointsSelected.clear();
     redrawMeteoPoints(currentPointsVisualization, true);
     return;
 }
@@ -2978,11 +2980,12 @@ void MainWindow::on_actionAll_notActive_triggered()
     {
         myProject.meteoPoints[i].active = false;
     }
+    myProject.meteoPointsSelected.clear();
     redrawMeteoPoints(currentPointsVisualization, true);
     return;
 }
 
-void MainWindow::on_actionSelected_triggered()
+void MainWindow::on_actionSelected_active_triggered()
 {
     if (myProject.meteoPointsDbHandler == nullptr)
     {
@@ -3015,6 +3018,7 @@ void MainWindow::on_actionSelected_triggered()
     redrawMeteoPoints(currentPointsVisualization, true);
     return;
 }
+
 
 void MainWindow::on_actionSelected_notActive_triggered()
 {
@@ -3049,6 +3053,7 @@ void MainWindow::on_actionSelected_notActive_triggered()
     redrawMeteoPoints(currentPointsVisualization, true);
     return;
 }
+
 
 void MainWindow::on_actionFrom_point_list_triggered()
 {
@@ -3199,3 +3204,4 @@ void MainWindow::on_actionDeletePoint_notActive_triggered()
     }
     return;
 }
+

@@ -2466,7 +2466,7 @@
      <x>0</x>
      <y>0</y>
      <width>1392</width>
-     <height>30</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="palette">
@@ -2984,7 +2984,7 @@
       <string>Active points</string>
      </property>
      <addaction name="actionAll_active"/>
-     <addaction name="actionSelected"/>
+     <addaction name="actionSelected_active"/>
      <addaction name="actionFrom_point_list"/>
      <addaction name="actionwith_Criteria"/>
      <addaction name="actionRandom_subset"/>
@@ -3024,13 +3024,14 @@
     </widget>
     <addaction name="actionMeteopointQualitySpatial"/>
     <addaction name="actionMeteopointRectangleSelection"/>
-    <addaction name="actionMeteopointDataCount"/>
     <addaction name="separator"/>
     <addaction name="menuActive_points"/>
     <addaction name="menuDeactive_points"/>
     <addaction name="menuDelete_points"/>
     <addaction name="menuDelete_data"/>
+    <addaction name="separator"/>
     <addaction name="actionShift_data"/>
+    <addaction name="actionMeteopointDataCount"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
@@ -3577,7 +3578,7 @@
     <string>All</string>
    </property>
   </action>
-  <action name="actionSelected">
+  <action name="actionSelected_active">
    <property name="text">
     <string>Selected</string>
    </property>
