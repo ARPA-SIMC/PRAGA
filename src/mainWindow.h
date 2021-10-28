@@ -160,6 +160,8 @@
         void on_actionDeletePoint_notActive_triggered();
 
 
+        void on_actionwith_Criteria_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

@@ -3590,7 +3590,7 @@
   </action>
   <action name="actionwith_Criteria">
    <property name="text">
-    <string>With Criteria</string>
+    <string>With Criteria...</string>
    </property>
   </action>
   <action name="actionRandom_subset">
@@ -3615,7 +3615,7 @@
   </action>
   <action name="actionWith_Criteria">
    <property name="text">
-    <string>With Criteria</string>
+    <string>With Criteria...</string>
    </property>
   </action>
   <action name="actionSelected_points_active">
