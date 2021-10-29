@@ -2466,7 +2466,7 @@
      <x>0</x>
      <y>0</y>
      <width>1392</width>
-     <height>25</height>
+     <height>30</height>
     </rect>
    </property>
    <property name="palette">
@@ -2950,8 +2950,8 @@
       <property name="title">
        <string>Import</string>
       </property>
-      <addaction name="actionProperties"/>
-      <addaction name="actionData"/>
+      <addaction name="actionPointProperties_import"/>
+      <addaction name="actionPointData_import"/>
      </widget>
      <addaction name="menuFileMeteopointNew"/>
      <addaction name="actionFileMeteopointOpen"/>
@@ -2985,9 +2985,9 @@
      </property>
      <addaction name="actionAll_active"/>
      <addaction name="actionSelected_active"/>
-     <addaction name="actionFrom_point_list"/>
-     <addaction name="actionwith_Criteria"/>
-     <addaction name="actionRandom_subset"/>
+     <addaction name="actionFrom_point_list_active"/>
+     <addaction name="actionWith_Criteria_active"/>
+     <addaction name="actionRandom_subset_active"/>
     </widget>
     <widget class="QMenu" name="menuDeactive_points">
      <property name="enabled">
@@ -2998,8 +2998,8 @@
      </property>
      <addaction name="actionAll_notActive"/>
      <addaction name="actionSelected_notActive"/>
-     <addaction name="actionWith_NO_DATA"/>
-     <addaction name="actionWith_Criteria"/>
+     <addaction name="actionWith_NO_DATA_notActive"/>
+     <addaction name="actionWith_Criteria_notActive"/>
     </widget>
     <widget class="QMenu" name="menuDelete_data">
      <property name="enabled">
@@ -3563,12 +3563,12 @@
     <string>From CSV</string>
    </property>
   </action>
-  <action name="actionProperties">
+  <action name="actionPointProperties_import">
    <property name="text">
     <string>Properties</string>
    </property>
   </action>
-  <action name="actionData">
+  <action name="actionPointData_import">
    <property name="text">
     <string>Data</string>
    </property>
@@ -3583,17 +3583,17 @@
     <string>Selected</string>
    </property>
   </action>
-  <action name="actionFrom_point_list">
+  <action name="actionFrom_point_list_active">
    <property name="text">
     <string>From point list</string>
    </property>
   </action>
-  <action name="actionwith_Criteria">
+  <action name="actionWith_Criteria_active">
    <property name="text">
     <string>With Criteria...</string>
    </property>
   </action>
-  <action name="actionRandom_subset">
+  <action name="actionRandom_subset_active">
    <property name="text">
     <string>Random subset</string>
    </property>
@@ -3608,12 +3608,12 @@
     <string>Selected</string>
    </property>
   </action>
-  <action name="actionWith_NO_DATA">
+  <action name="actionWith_NO_DATA_notActive">
    <property name="text">
     <string>With NO DATA</string>
    </property>
   </action>
-  <action name="actionWith_Criteria">
+  <action name="actionWith_Criteria_notActive">
    <property name="text">
     <string>With Criteria...</string>
    </property>

@@ -2824,7 +2824,7 @@ void MainWindow::on_actionFrom_CSV_triggered()
 }
 
 
-void MainWindow::on_actionProperties_triggered()
+void MainWindow::on_actionPointProperties_import_triggered()
 {
     // check meteo point
     if (myProject.meteoPointsDbHandler == nullptr)
@@ -2867,7 +2867,7 @@ void MainWindow::on_actionProperties_triggered()
     }
 }
 
-void MainWindow::on_actionData_triggered()
+void MainWindow::on_PointData_import_triggered()
 {
     // check meteo point
     if (myProject.meteoPointsDbHandler == nullptr)
@@ -3055,7 +3055,7 @@ void MainWindow::on_actionSelected_notActive_triggered()
 }
 
 
-void MainWindow::on_actionFrom_point_list_triggered()
+void MainWindow::on_actionFrom_point_list_active_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open point list file"), "", tr("text files (*.txt)"));
 
@@ -3205,9 +3205,4 @@ void MainWindow::on_actionDeletePoint_notActive_triggered()
     return;
 }
 
-
-void MainWindow::on_actionwith_Criteria_triggered()
-{
-
-}
 

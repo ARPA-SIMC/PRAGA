@@ -139,9 +139,9 @@
 
         void on_actionFrom_CSV_triggered();
 
-        void on_actionProperties_triggered();
+        void on_actionPointProperties_import_triggered();
 
-        void on_actionData_triggered();
+        void on_PointData_import_triggered();
 
         void on_actionAll_active_triggered();
 
@@ -151,16 +151,13 @@
 
         void on_actionSelected_notActive_triggered();
 
-        void on_actionFrom_point_list_triggered();
+        void on_actionFrom_point_list_active_triggered();
 
         void on_actionDeletePoint_selected_triggered();
 
         void on_actionDeletePoint_notSelected_triggered();
 
         void on_actionDeletePoint_notActive_triggered();
-
-
-        void on_actionwith_Criteria_triggered();
 
     protected:
         /*!
