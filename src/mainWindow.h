@@ -159,6 +159,8 @@
 
         void on_actionDeletePoint_notActive_triggered();
 
+        void on_actionWith_NO_DATA_notActive_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

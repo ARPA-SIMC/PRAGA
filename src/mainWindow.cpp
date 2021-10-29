@@ -3112,14 +3112,16 @@ void MainWindow::on_actionDeletePoint_selected_triggered()
 
     if (reply == QMessageBox::Yes)
     {
-        myProject.logInfoGUI("Deleting points...");
+        FormInfo formInfo;
+        formInfo.showInfo("Deleting points...");
+
         if (!myProject.meteoPointsDbHandler->deleteAllPointsFromGeoPointList(myProject.meteoPointsSelected))
         {
-            myProject.closeLogInfo();
+            formInfo.close();
             QMessageBox::critical(nullptr, "Delete failed", "Failed to delete selected points");
             return;
         }
-        myProject.closeLogInfo();
+        formInfo.close();
         // reload meteoPoint, point properties table is changed
         QString dbName = myProject.dbPointsFileName;
         myProject.closeMeteoPointsDB();
@@ -3143,7 +3145,8 @@ void MainWindow::on_actionDeletePoint_notSelected_triggered()
 
     if (reply == QMessageBox::Yes)
     {
-        myProject.logInfoGUI("Deleting points...");
+        FormInfo formInfo;
+        formInfo.showInfo("Deleting points...");
         bool selected = false;
         QList<QString> idNotSelected;
         for (int i = 0; i < myProject.nrMeteoPoints; i++)
@@ -3164,11 +3167,11 @@ void MainWindow::on_actionDeletePoint_notSelected_triggered()
         }
         if (!myProject.meteoPointsDbHandler->deleteAllPointsFromIdList(idNotSelected))
         {
-            myProject.closeLogInfo();
+            formInfo.close();
             QMessageBox::critical(nullptr, "Delete failed", "Failed to delete not selected points");
             return;
         }
-        myProject.closeLogInfo();
+        formInfo.close();
         // reload meteoPoint, point properties table is changed
         QString dbName = myProject.dbPointsFileName;
         myProject.closeMeteoPointsDB();
@@ -3205,14 +3208,15 @@ void MainWindow::on_actionDeletePoint_notActive_triggered()
 
     if (reply == QMessageBox::Yes)
     {
-        myProject.logInfoGUI("Deleting points...");
+        FormInfo formInfo;
+        formInfo.showInfo("Deleting points...");
         if (!myProject.meteoPointsDbHandler->deleteAllPointsFromIdList(idNotActive))
         {
-            myProject.closeLogInfo();
+            formInfo.close();
             QMessageBox::critical(nullptr, "Delete failed", "Failed to delete not selected points");
             return;
         }
-        myProject.closeLogInfo();
+        formInfo.close();
         // reload meteoPoint, point properties table is changed
         QString dbName = myProject.dbPointsFileName;
         myProject.closeMeteoPointsDB();
@@ -3222,3 +3226,50 @@ void MainWindow::on_actionDeletePoint_notActive_triggered()
 }
 
 
+
+void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
+{
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        QMessageBox::critical(nullptr, "Set NODATA point not active", "No meteo points DB open");
+        return;
+    }
+
+    FormInfo formInfo;
+    formInfo.showInfo("Checking points...");
+    QList<QString> points;
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        if (myProject.meteoPoints[i].active)
+        {
+            bool existData = myProject.meteoPointsDbHandler->existData(&myProject.meteoPoints[i], daily) || myProject.meteoPointsDbHandler->existData(&myProject.meteoPoints[i], hourly);
+            if (!existData)
+            {
+                points.append(QString::fromStdString(myProject.meteoPoints[i].id));
+            }
+        }
+    }
+    formInfo.close();
+    if (points.isEmpty())
+    {
+        QMessageBox::critical(nullptr, "No active points with NODATA", "all active points have valid data");
+        return;
+    }
+    if (!myProject.meteoPointsDbHandler->setIdPointListActiveState(points, false))
+    {
+        QMessageBox::critical(nullptr, "Update failed", "Failed to set to not active NODATA points");
+        return;
+    }
+    for (int j = 0; j < points.size(); j++)
+    {
+        for (int i = 0; i < myProject.nrMeteoPoints; i++)
+        {
+            if (myProject.meteoPoints[i].id == points[j].toStdString())
+            {
+                myProject.meteoPoints[i].active = false;
+            }
+        }
+    }
+    redrawMeteoPoints(currentPointsVisualization, true);
+    return;
+}
