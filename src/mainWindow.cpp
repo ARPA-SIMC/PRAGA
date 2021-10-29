@@ -937,14 +937,25 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         case showLocation:
         {
             this->ui->actionShowPointsLocation->setChecked(true);
+            bool selected;
             for (int i = 0; i < myProject.nrMeteoPoints; i++)
             {
+                    selected = false;
                     myProject.meteoPoints[i].currentValue = NODATA;
-                    if (myProject.meteoPoints[i].active)
+                    for (int j = 0; j < myProject.meteoPointsSelected.size(); j++)
+                    {
+                        if (myProject.meteoPoints[i].latitude == myProject.meteoPointsSelected[j].latitude && myProject.meteoPoints[i].longitude == myProject.meteoPointsSelected[j].longitude)
+                        {
+                            pointList[i]->setFillColor(QColor(Qt::yellow));
+                            selected = true;
+                            break;
+                        }
+                    }
+                    if (!selected && myProject.meteoPoints[i].active)
                     {
                         pointList[i]->setFillColor(QColor(Qt::white));
                     }
-                    else
+                    else if (!selected && !myProject.meteoPoints[i].active)
                     {
                         pointList[i]->setFillColor(QColor(Qt::red));
                     }
