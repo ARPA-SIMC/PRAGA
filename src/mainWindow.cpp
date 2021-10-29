@@ -3193,6 +3193,11 @@ void MainWindow::on_actionDeletePoint_notActive_triggered()
             idNotActive << QString::fromStdString(myProject.meteoPoints[i].id);
         }
     }
+    if (idNotActive.isEmpty())
+    {
+        QMessageBox::critical(nullptr, "0 point not active", "all points are active");
+        return;
+    }
 
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, "Are you sure?" , QString::number(idNotActive.size()) + " not active points will be deleted",
