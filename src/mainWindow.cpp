@@ -2940,6 +2940,7 @@ void MainWindow::on_actionData_triggered()
     loadMeteoPoints(dbName);
 }
 
+
 void MainWindow::on_actionAll_active_triggered()
 {
     if (myProject.meteoPointsDbHandler == nullptr)
@@ -2957,6 +2958,7 @@ void MainWindow::on_actionAll_active_triggered()
     {
         myProject.meteoPoints[i].active = true;
     }
+    myProject.meteoPointsSelected.clear();
     redrawMeteoPoints(currentPointsVisualization, true);
     return;
 }
@@ -2978,11 +2980,12 @@ void MainWindow::on_actionAll_notActive_triggered()
     {
         myProject.meteoPoints[i].active = false;
     }
+    myProject.meteoPointsSelected.clear();
     redrawMeteoPoints(currentPointsVisualization, true);
     return;
 }
 
-void MainWindow::on_actionSelected_triggered()
+void MainWindow::on_actionSelected_active_triggered()
 {
     if (myProject.meteoPointsDbHandler == nullptr)
     {
@@ -2992,7 +2995,7 @@ void MainWindow::on_actionSelected_triggered()
 
     if (myProject.meteoPointsSelected.isEmpty())
     {
-        QMessageBox::critical(nullptr, "Set selected points active", "No meteo points DB selected");
+        QMessageBox::critical(nullptr, "Set selected points active", "No meteo points selected");
         return;
     }
 
@@ -3016,6 +3019,7 @@ void MainWindow::on_actionSelected_triggered()
     return;
 }
 
+
 void MainWindow::on_actionSelected_notActive_triggered()
 {
     if (myProject.meteoPointsDbHandler == nullptr)
@@ -3026,7 +3030,7 @@ void MainWindow::on_actionSelected_notActive_triggered()
 
     if (myProject.meteoPointsSelected.isEmpty())
     {
-        QMessageBox::critical(nullptr, "Set selected points not active", "No meteo points DB selected");
+        QMessageBox::critical(nullptr, "Set selected points not active", "No meteo points selected");
         return;
     }
 
@@ -3049,6 +3053,7 @@ void MainWindow::on_actionSelected_notActive_triggered()
     redrawMeteoPoints(currentPointsVisualization, true);
     return;
 }
+
 
 void MainWindow::on_actionFrom_point_list_triggered()
 {
@@ -3086,7 +3091,7 @@ void MainWindow::on_actionDeletePoint_selected_triggered()
 
     if (myProject.meteoPointsSelected.isEmpty())
     {
-        QMessageBox::critical(nullptr, "Delete point selected", "No meteo points DB selected");
+        QMessageBox::critical(nullptr, "Delete point selected", "No meteo points selected");
         return;
     }
 
@@ -3199,3 +3204,10 @@ void MainWindow::on_actionDeletePoint_notActive_triggered()
     }
     return;
 }
+
+
+void MainWindow::on_actionwith_Criteria_triggered()
+{
+
+}
+
