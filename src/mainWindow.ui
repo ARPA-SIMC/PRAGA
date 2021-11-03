@@ -2950,8 +2950,8 @@
       <property name="title">
        <string>Import</string>
       </property>
-      <addaction name="actionProperties"/>
-      <addaction name="actionData"/>
+      <addaction name="actionPointProperties_import"/>
+      <addaction name="actionPointData_import"/>
      </widget>
      <addaction name="menuFileMeteopointNew"/>
      <addaction name="actionFileMeteopointOpen"/>
@@ -2976,10 +2976,63 @@
     <property name="title">
      <string>MeteoPoints</string>
     </property>
+    <widget class="QMenu" name="menuActive_points">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Active points</string>
+     </property>
+     <addaction name="actionAll_active"/>
+     <addaction name="actionSelected_active"/>
+     <addaction name="actionFrom_point_list_active"/>
+     <addaction name="actionWith_Criteria_active"/>
+     <addaction name="actionRandom_subset_active"/>
+    </widget>
+    <widget class="QMenu" name="menuDeactive_points">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Deactive points</string>
+     </property>
+     <addaction name="actionAll_notActive"/>
+     <addaction name="actionSelected_notActive"/>
+     <addaction name="actionWith_NO_DATA_notActive"/>
+     <addaction name="actionWith_Criteria_notActive"/>
+    </widget>
+    <widget class="QMenu" name="menuDelete_data">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Delete data</string>
+     </property>
+     <addaction name="actionDeleteData_Active"/>
+     <addaction name="actionDeleteData_notActive"/>
+     <addaction name="actionDeleteData_selected"/>
+    </widget>
+    <widget class="QMenu" name="menuDelete_points">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Delete points</string>
+     </property>
+     <addaction name="actionDeletePoint_selected"/>
+     <addaction name="actionDeletePoint_notSelected"/>
+     <addaction name="actionDeletePoint_notActive"/>
+    </widget>
     <addaction name="actionMeteopointQualitySpatial"/>
     <addaction name="actionMeteopointRectangleSelection"/>
-    <addaction name="actionMeteopointDataCount"/>
     <addaction name="separator"/>
+    <addaction name="menuActive_points"/>
+    <addaction name="menuDeactive_points"/>
+    <addaction name="menuDelete_points"/>
+    <addaction name="menuDelete_data"/>
+    <addaction name="separator"/>
+    <addaction name="actionShift_data"/>
+    <addaction name="actionMeteopointDataCount"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
@@ -3153,6 +3206,9 @@
   <action name="actionMeteopointRectangleSelection">
    <property name="checkable">
     <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Rectangle Selection</string>
@@ -3484,6 +3540,9 @@
    </property>
   </action>
   <action name="actionMeteopointDataCount">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="text">
     <string>Data count...</string>
    </property>
@@ -3508,14 +3567,110 @@
     <string>From CSV</string>
    </property>
   </action>
-  <action name="actionProperties">
+  <action name="actionPointProperties_import">
    <property name="text">
     <string>Properties</string>
    </property>
   </action>
-  <action name="actionData">
+  <action name="actionPointData_import">
    <property name="text">
     <string>Data</string>
+   </property>
+  </action>
+  <action name="actionAll_active">
+   <property name="text">
+    <string>All</string>
+   </property>
+  </action>
+  <action name="actionSelected_active">
+   <property name="text">
+    <string>Selected</string>
+   </property>
+  </action>
+  <action name="actionFrom_point_list_active">
+   <property name="text">
+    <string>From point list</string>
+   </property>
+  </action>
+  <action name="actionWith_Criteria_active">
+   <property name="text">
+    <string>With Criteria...</string>
+   </property>
+  </action>
+  <action name="actionRandom_subset_active">
+   <property name="text">
+    <string>Random subset</string>
+   </property>
+  </action>
+  <action name="actionAll_notActive">
+   <property name="text">
+    <string>All</string>
+   </property>
+  </action>
+  <action name="actionSelected_notActive">
+   <property name="text">
+    <string>Selected</string>
+   </property>
+  </action>
+  <action name="actionWith_NO_DATA_notActive">
+   <property name="text">
+    <string>With NO DATA</string>
+   </property>
+  </action>
+  <action name="actionWith_Criteria_notActive">
+   <property name="text">
+    <string>With Criteria...</string>
+   </property>
+  </action>
+  <action name="actionSelected_points_active">
+   <property name="text">
+    <string>Selected points (active)</string>
+   </property>
+  </action>
+  <action name="actionSelected_points_not_active">
+   <property name="text">
+    <string>Selected points (not active)</string>
+   </property>
+  </action>
+  <action name="actionShift_data">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Shift data</string>
+   </property>
+  </action>
+  <action name="actionDeletePoint_selected">
+   <property name="text">
+    <string>Selected</string>
+   </property>
+  </action>
+  <action name="actionDeletePoint_notSelected">
+   <property name="text">
+    <string>Not selected</string>
+   </property>
+  </action>
+  <action name="actionDeletePoint_notActive">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Not active</string>
+   </property>
+  </action>
+  <action name="actionDeleteData_Active">
+   <property name="text">
+    <string>Active</string>
+   </property>
+  </action>
+  <action name="actionDeleteData_notActive">
+   <property name="text">
+    <string>Not active</string>
+   </property>
+  </action>
+  <action name="actionDeleteData_selected">
+   <property name="text">
+    <string>Selected</string>
    </property>
   </action>
  </widget>

@@ -292,7 +292,7 @@ void weatherGenerator2D::computeMonthlyTemperatures()
     }
     */
     float* parGauss = (float*)calloc(2,sizeof(float));
-    float** monthlyRandomDeviationTmean= (float**)calloc(parametersModel.yearOfSimulation,sizeof(float*));
+    monthlyRandomDeviationTmean= (float**)calloc(parametersModel.yearOfSimulation,sizeof(float*));
     for (int i=0;i<parametersModel.yearOfSimulation;i++)
     {
         monthlyRandomDeviationTmean[i]=(float*)calloc(36,sizeof(float));
@@ -329,12 +329,12 @@ void weatherGenerator2D::computeMonthlyTemperatures()
     free(countTmax);
     free(countTmin);
     //free(countTmean);
-    //free(monthlyAverageOverYearsAverageTmax);
-    //free(monthlyAverageOverYearsAverageTmin);
-    //free(monthlyAverageOverYearsAverageTmean);
-    //free(monthlyStdDevOverYearsAverageTmax);
-    //free(monthlyStdDevOverYearsAverageTmin);
-    //free(monthlyStdDevOverYearsAverageTmean);
+    free(monthlyAverageOverYearsAverageTmax);
+    free(monthlyAverageOverYearsAverageTmin);
+    free(monthlyAverageOverYearsAverageTmean);
+    free(monthlyStdDevOverYearsAverageTmax);
+    free(monthlyStdDevOverYearsAverageTmin);
+    free(monthlyStdDevOverYearsAverageTmean);
 
 
 
@@ -2272,16 +2272,39 @@ void weatherGenerator2D::multisiteTemperatureGeneration()
         }
         double averageTmax[365]={0};
         double averageTmin[365]={0};
+        srand(time(nullptr));
         for (int j=0;j<lengthOfRandomSeries;j++)
         {
-            maxTGenerated[j][i] = Xp[0][j];
-            minTGenerated[j][i] = Xp[1][j];
+            int getDecadal = (multiOccurrenceTemperature[j].month_simulated-1)*3 + floor(MINVALUE(multiOccurrenceTemperature[j].day_simulated,29)/10.);
+            int getYear = floor(1.*j/365.);
+            double random1,random2;
+            random1 = 0.5*((double) rand() / (RAND_MAX) -0.5) + monthlyRandomDeviationTmean[getYear][getDecadal];
+            random2 = 0.5*((double) rand() / (RAND_MAX) -0.5)+ monthlyRandomDeviationTmean[getYear][getDecadal];
+            random1 = MINVALUE(MAXVALUE(random1,-5),5);
+            random2 = MINVALUE(MAXVALUE(random2,-5),5);
+            maxTGenerated[j][i] = Xp[0][j] +random1;
+            minTGenerated[j][i] = Xp[1][j]  + random2;
+            double tempTemp;
+            if (maxTGenerated[j][i] < minTGenerated[j][i])
+            {
+                tempTemp = maxTGenerated[j][i];
+                maxTGenerated[j][i] = minTGenerated[j][i];
+                minTGenerated[j][i] = tempTemp;
+            }
+            random1 = 0.5*((double) rand() / (RAND_MAX) -0.5);
+            random2 = 0.5*((double) rand() / (RAND_MAX) -0.5);
+            maxTGenerated[j][i] = Xp[0][j] + monthlyRandomDeviationTmean[getYear][getDecadal]*1.0; //multiOccurrenceTemperature[j].;
+            minTGenerated[j][i] = Xp[1][j] + monthlyRandomDeviationTmean[getYear][getDecadal]*1.0;
+>>>>>>> d37827b6123e526b874c9c8e42b2e4b1cebc5b3c
             occurrencePrecGenerated[j][i] = X[j];
+            //maxTGenerated[j][i] = Xp[0][j];
+            //minTGenerated[j][i] = Xp[1][j];
+            //occurrencePrecGenerated[j][i] = X[j];
             averageTmax[j%365] += maxTGenerated[j][i]/parametersModel.yearOfSimulation;
             averageTmin[j%365] += minTGenerated[j][i]/parametersModel.yearOfSimulation;
-            //printf("%.1f %d\n",maxTGenerated[j][i],parametersModel.yearOfSimulation);
+            //printf("random1 %f random2 %f\n",random1,random2);
         }
-        //getchar();
+        //pressEnterToContinue();
         // free memory
         free(ksi[0]);
         free(ksi[1]);

@@ -139,9 +139,33 @@
 
         void on_actionFrom_CSV_triggered();
 
-        void on_actionProperties_triggered();
+        void on_actionPointProperties_import_triggered();
 
-        void on_actionData_triggered();
+        void on_PointData_import_triggered();
+
+        void on_actionAll_active_triggered();
+
+        void on_actionAll_notActive_triggered();
+
+        void on_actionSelected_active_triggered();
+
+        void on_actionSelected_notActive_triggered();
+
+        void on_actionFrom_point_list_active_triggered();
+
+        void on_actionDeletePoint_selected_triggered();
+
+        void on_actionDeletePoint_notSelected_triggered();
+
+        void on_actionDeletePoint_notActive_triggered();
+
+        void on_actionWith_NO_DATA_notActive_triggered();
+
+        void on_actionDeleteData_Active_triggered();
+
+        void on_actionDeleteData_notActive_triggered();
+
+        void on_actionDeleteData_selected_triggered();
 
     protected:
         /*!
