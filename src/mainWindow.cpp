@@ -33,6 +33,7 @@
 #include "spatialControl.h"
 #include "dialogPragaProject.h"
 #include "dialogPointProperties.h"
+#include "dialogPointDeleteData.h"
 #include "utilities.h"
 
 
@@ -3285,15 +3286,154 @@ void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
 
 void MainWindow::on_actionDeleteData_Active_triggered()
 {
-
+    DialogPointDeleteData dialogPointDelete;
+    if (dialogPointDelete.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    else
+    {
+        FormInfo formInfo;
+        formInfo.showInfo("Deleting data...");
+        QList<meteoVariable> dailyVarList = dialogPointDelete.getVarD();
+        QList<meteoVariable> hourlyVarList = dialogPointDelete.getVarH();
+        QDate startDate = dialogPointDelete.getFirstDate();
+        QDate endDate = dialogPointDelete.getLastDate();
+        bool allDaily = dialogPointDelete.getAllDailyVar();
+        bool allHourly = dialogPointDelete.getAllHourlyVar();
+        for (int i = 0; i < myProject.nrMeteoPoints; i++)
+        {
+            if (myProject.meteoPoints[i].active == true)
+            {
+                if (allDaily)
+                {
+                    myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), daily, startDate, endDate);
+                }
+                else
+                {
+                    if (!dailyVarList.isEmpty())
+                    {
+                        myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), daily, dailyVarList, startDate, endDate);
+                    }
+                }
+                if (allHourly)
+                {
+                    myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), hourly, startDate, endDate);
+                }
+                else
+                {
+                    if (!hourlyVarList.isEmpty())
+                    {
+                        myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), hourly, hourlyVarList, startDate, endDate);
+                    }
+                }
+            }
+        }
+        formInfo.close();
+        return;
+    }
 }
 
 void MainWindow::on_actionDeleteData_notActive_triggered()
 {
-
+    DialogPointDeleteData dialogPointDelete;
+    if (dialogPointDelete.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    else
+    {
+        FormInfo formInfo;
+        formInfo.showInfo("Deleting data...");
+        QList<meteoVariable> dailyVarList = dialogPointDelete.getVarD();
+        QList<meteoVariable> hourlyVarList = dialogPointDelete.getVarH();
+        QDate startDate = dialogPointDelete.getFirstDate();
+        QDate endDate = dialogPointDelete.getLastDate();
+        bool allDaily = dialogPointDelete.getAllDailyVar();
+        bool allHourly = dialogPointDelete.getAllHourlyVar();
+        for (int i = 0; i < myProject.nrMeteoPoints; i++)
+        {
+            if (myProject.meteoPoints[i].active == false)
+            {
+                if (allDaily)
+                {
+                    myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), daily, startDate, endDate);
+                }
+                else
+                {
+                    if (!dailyVarList.isEmpty())
+                    {
+                        myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), daily, dailyVarList, startDate, endDate);
+                    }
+                }
+                if (allHourly)
+                {
+                    myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), hourly, startDate, endDate);
+                }
+                else
+                {
+                    if (!hourlyVarList.isEmpty())
+                    {
+                        myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), hourly, hourlyVarList, startDate, endDate);
+                    }
+                }
+            }
+        }
+        formInfo.close();
+        return;
+    }
 }
 
 void MainWindow::on_actionDeleteData_selected_triggered()
 {
-
+    DialogPointDeleteData dialogPointDelete;
+    if (dialogPointDelete.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    else
+    {
+        FormInfo formInfo;
+        formInfo.showInfo("Deleting data...");
+        QList<meteoVariable> dailyVarList = dialogPointDelete.getVarD();
+        QList<meteoVariable> hourlyVarList = dialogPointDelete.getVarH();
+        QDate startDate = dialogPointDelete.getFirstDate();
+        QDate endDate = dialogPointDelete.getLastDate();
+        bool allDaily = dialogPointDelete.getAllDailyVar();
+        bool allHourly = dialogPointDelete.getAllHourlyVar();
+        for (int j = 0; j < myProject.meteoPointsSelected.size(); j++)
+        {
+            for (int i = 0; i < myProject.nrMeteoPoints; i++)
+            {
+                if (myProject.meteoPoints[i].latitude == myProject.meteoPointsSelected[j].latitude && myProject.meteoPoints[i].longitude == myProject.meteoPointsSelected[j].longitude)
+                {
+                    if (allDaily)
+                    {
+                        myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), daily, startDate, endDate);
+                    }
+                    else
+                    {
+                        if (!dailyVarList.isEmpty())
+                        {
+                            myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), daily, dailyVarList, startDate, endDate);
+                        }
+                    }
+                    if (allHourly)
+                    {
+                        myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), hourly, startDate, endDate);
+                    }
+                    else
+                    {
+                        if (!hourlyVarList.isEmpty())
+                        {
+                            myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), hourly, hourlyVarList, startDate, endDate);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        formInfo.close();
+        return;
+    }
 }
