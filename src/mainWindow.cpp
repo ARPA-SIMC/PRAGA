@@ -3149,6 +3149,12 @@ void MainWindow::on_actionDeletePoint_notSelected_triggered()
     }
 
     int nPointsToDelete = myProject.nrMeteoPoints - myProject.meteoPointsSelected.size();
+    if (nPointsToDelete == 0)
+    {
+        QMessageBox::critical(nullptr, "0 point not selected", "all points are selected");
+        return;
+    }
+
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, "Are you sure?" , QString::number(nPointsToDelete) + " selected points will be deleted",
             QMessageBox::Yes|QMessageBox::No);
@@ -3286,6 +3292,26 @@ void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
 
 void MainWindow::on_actionDeleteData_Active_triggered()
 {
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        QMessageBox::critical(nullptr, "Delete data point active", "No meteo points DB open");
+        return;
+    }
+
+    QList<QString> idActive;
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        if (myProject.meteoPoints[i].active)
+        {
+            idActive << QString::fromStdString(myProject.meteoPoints[i].id);
+        }
+    }
+    if (idActive.isEmpty())
+    {
+        QMessageBox::critical(nullptr, "0 point active", "all points are not active");
+        return;
+    }
+
     DialogPointDeleteData dialogPointDelete;
     if (dialogPointDelete.result() != QDialog::Accepted)
     {
@@ -3301,41 +3327,74 @@ void MainWindow::on_actionDeleteData_Active_triggered()
         QDate endDate = dialogPointDelete.getLastDate();
         bool allDaily = dialogPointDelete.getAllDailyVar();
         bool allHourly = dialogPointDelete.getAllHourlyVar();
-        for (int i = 0; i < myProject.nrMeteoPoints; i++)
+        for (int i = 0; i < idActive.size(); i++)
         {
-            if (myProject.meteoPoints[i].active == true)
+            if (allDaily)
             {
-                if (allDaily)
+                myProject.meteoPointsDbHandler->deleteData(idActive[i], daily, startDate, endDate);
+            }
+            else
+            {
+                if (!dailyVarList.isEmpty())
                 {
-                    myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), daily, startDate, endDate);
+                    myProject.meteoPointsDbHandler->deleteData(idActive[i], daily, dailyVarList, startDate, endDate);
                 }
-                else
+            }
+            if (allHourly)
+            {
+                myProject.meteoPointsDbHandler->deleteData(idActive[i], hourly, startDate, endDate);
+            }
+            else
+            {
+                if (!hourlyVarList.isEmpty())
                 {
-                    if (!dailyVarList.isEmpty())
-                    {
-                        myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), daily, dailyVarList, startDate, endDate);
-                    }
-                }
-                if (allHourly)
-                {
-                    myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), hourly, startDate, endDate);
-                }
-                else
-                {
-                    if (!hourlyVarList.isEmpty())
-                    {
-                        myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), hourly, hourlyVarList, startDate, endDate);
-                    }
+                    myProject.meteoPointsDbHandler->deleteData(idActive[i], hourly, hourlyVarList, startDate, endDate);
                 }
             }
         }
         formInfo.close();
+        // find last date
+        QDateTime dbLastTime = myProject.findDbPointLastTime();
+        if (! dbLastTime.isNull())
+        {
+            if (dbLastTime.time().hour() == 00)
+            {
+                myProject.setCurrentDate(dbLastTime.date().addDays(-1));
+                myProject.setCurrentHour(24);
+            }
+            else
+            {
+                myProject.setCurrentDate(dbLastTime.date());
+                myProject.setCurrentHour(dbLastTime.time().hour());
+            }
+        }
+        updateDateTime();
         return;
     }
 }
 
 void MainWindow::on_actionDeleteData_notActive_triggered()
 {
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        QMessageBox::critical(nullptr, "Delete data point not active", "No meteo points DB open");
+        return;
+    }
+
+    QList<QString> idNotActive;
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        if (!myProject.meteoPoints[i].active)
+        {
+            idNotActive << QString::fromStdString(myProject.meteoPoints[i].id);
+        }
+    }
+    if (idNotActive.isEmpty())
+    {
+        QMessageBox::critical(nullptr, "0 point not active", "all points are active");
+        return;
+    }
+
     DialogPointDeleteData dialogPointDelete;
     if (dialogPointDelete.result() != QDialog::Accepted)
     {
@@ -3351,41 +3410,67 @@ void MainWindow::on_actionDeleteData_notActive_triggered()
         QDate endDate = dialogPointDelete.getLastDate();
         bool allDaily = dialogPointDelete.getAllDailyVar();
         bool allHourly = dialogPointDelete.getAllHourlyVar();
-        for (int i = 0; i < myProject.nrMeteoPoints; i++)
+        for (int i = 0; i < idNotActive.size(); i++)
         {
-            if (myProject.meteoPoints[i].active == false)
+            if (allDaily)
             {
-                if (allDaily)
+                myProject.meteoPointsDbHandler->deleteData(idNotActive[i], daily, startDate, endDate);
+            }
+            else
+            {
+                if (!dailyVarList.isEmpty())
                 {
-                    myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), daily, startDate, endDate);
+                    myProject.meteoPointsDbHandler->deleteData(idNotActive[i], daily, dailyVarList, startDate, endDate);
                 }
-                else
+            }
+            if (allHourly)
+            {
+                myProject.meteoPointsDbHandler->deleteData(idNotActive[i], hourly, startDate, endDate);
+            }
+            else
+            {
+                if (!hourlyVarList.isEmpty())
                 {
-                    if (!dailyVarList.isEmpty())
-                    {
-                        myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), daily, dailyVarList, startDate, endDate);
-                    }
-                }
-                if (allHourly)
-                {
-                    myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), hourly, startDate, endDate);
-                }
-                else
-                {
-                    if (!hourlyVarList.isEmpty())
-                    {
-                        myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myProject.meteoPoints[i].id), hourly, hourlyVarList, startDate, endDate);
-                    }
+                    myProject.meteoPointsDbHandler->deleteData(idNotActive[i], hourly, hourlyVarList, startDate, endDate);
                 }
             }
         }
         formInfo.close();
+        // find last date
+        QDateTime dbLastTime = myProject.findDbPointLastTime();
+        if (! dbLastTime.isNull())
+        {
+            if (dbLastTime.time().hour() == 00)
+            {
+                myProject.setCurrentDate(dbLastTime.date().addDays(-1));
+                myProject.setCurrentHour(24);
+            }
+            else
+            {
+                myProject.setCurrentDate(dbLastTime.date());
+                myProject.setCurrentHour(dbLastTime.time().hour());
+            }
+        }
+        updateDateTime();
         return;
     }
 }
 
 void MainWindow::on_actionDeleteData_selected_triggered()
 {
+
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        QMessageBox::critical(nullptr, "Delete data point not selected", "No meteo points DB open");
+        return;
+    }
+
+    if (myProject.meteoPointsSelected.isEmpty())
+    {
+        QMessageBox::critical(nullptr, "Delete data point selected", "No meteo points selected");
+        return;
+    }
+
     DialogPointDeleteData dialogPointDelete;
     if (dialogPointDelete.result() != QDialog::Accepted)
     {
@@ -3434,6 +3519,22 @@ void MainWindow::on_actionDeleteData_selected_triggered()
             }
         }
         formInfo.close();
+        // find last date
+        QDateTime dbLastTime = myProject.findDbPointLastTime();
+        if (! dbLastTime.isNull())
+        {
+            if (dbLastTime.time().hour() == 00)
+            {
+                myProject.setCurrentDate(dbLastTime.date().addDays(-1));
+                myProject.setCurrentHour(24);
+            }
+            else
+            {
+                myProject.setCurrentDate(dbLastTime.date());
+                myProject.setCurrentHour(dbLastTime.time().hour());
+            }
+        }
+        updateDateTime();
         return;
     }
 }
