@@ -897,6 +897,7 @@ void MainWindow::drawMeteoPoints()
     ui->actionShowPointsElab->setEnabled(false);
     ui->actionShowPointsClimate->setEnabled(false);
 
+    ui->actionMeteopointRectangleSelection->setEnabled(true);
     ui->menuActive_points->setEnabled(true);
     ui->menuDeactive_points->setEnabled(true);
     ui->menuDelete_points->setEnabled(true);
@@ -931,12 +932,14 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         {
             meteoPointsLegend->setVisible(false);
             this->ui->actionShowPointsHide->setChecked(true);
+            ui->actionMeteopointRectangleSelection->setEnabled(false);
             break;
         }
 
         case showLocation:
         {
             this->ui->actionShowPointsLocation->setChecked(true);
+            ui->actionMeteopointRectangleSelection->setEnabled(true);
             bool selected;
             for (int i = 0; i < myProject.nrMeteoPoints; i++)
             {
@@ -973,6 +976,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         case showCurrentVariable:
         {
             this->ui->actionShowPointsCurrent->setChecked(true);
+            ui->actionMeteopointRectangleSelection->setEnabled(false);
 
             // quality control
             checkData(myProject.quality, myProject.getCurrentVariable(), myProject.meteoPoints,
@@ -1024,6 +1028,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         case showElaboration:
         {
             this->ui->actionShowPointsElab->setChecked(true);
+            ui->actionMeteopointRectangleSelection->setEnabled(false);
             showElabResult(true, false, false, false, false, nullptr);
             break;
         }
@@ -1031,6 +1036,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         case showAnomalyAbsolute:
         {
             this->ui->actionShowPointsAnomalyAbs->setChecked(true);
+            ui->actionMeteopointRectangleSelection->setEnabled(false);
             showElabResult(true, false, true, false, false, nullptr);
             break;
         }
@@ -1038,6 +1044,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         case showAnomalyPercentage:
         {
             this->ui->actionShowPointsAnomalyPerc->setChecked(true);
+            ui->actionMeteopointRectangleSelection->setEnabled(false);
             showElabResult(true, false, true, true, false, nullptr);
             break;
         }
@@ -1045,6 +1052,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         case showClimate:
         {
             this->ui->actionShowPointsClimate->setChecked(true);
+            ui->actionMeteopointRectangleSelection->setEnabled(false);
             showElabResult(true, false, false, false, true, myProject.climateIndex);
             break;
         }
@@ -2479,6 +2487,7 @@ void MainWindow::closeMeteoPoints()
 
         this->ui->meteoPoints->setChecked(false);
         this->ui->meteoPoints->setEnabled(false);
+        ui->actionMeteopointRectangleSelection->setEnabled(false);
         ui->menuActive_points->setEnabled(false);
         ui->menuDeactive_points->setEnabled(false);
         ui->menuDelete_points->setEnabled(false);
@@ -3272,4 +3281,19 @@ void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
     }
     redrawMeteoPoints(currentPointsVisualization, true);
     return;
+}
+
+void MainWindow::on_actionDeleteData_Active_triggered()
+{
+
+}
+
+void MainWindow::on_actionDeleteData_notActive_triggered()
+{
+
+}
+
+void MainWindow::on_actionDeleteData_selected_triggered()
+{
+
 }
