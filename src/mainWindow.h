@@ -167,6 +167,10 @@
 
         void on_actionDeleteData_selected_triggered();
 
+        void on_actionWith_Criteria_active_triggered();
+
+        void on_actionWith_Criteria_notActive_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

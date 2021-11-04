@@ -34,6 +34,7 @@
 #include "dialogPragaProject.h"
 #include "dialogPointProperties.h"
 #include "dialogPointDeleteData.h"
+#include "dialogSelectionMeteoPoint.h"
 #include "utilities.h"
 
 
@@ -3537,4 +3538,36 @@ void MainWindow::on_actionDeleteData_selected_triggered()
         updateDateTime();
         return;
     }
+}
+
+void MainWindow::on_actionWith_Criteria_active_triggered()
+{
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        QMessageBox::critical(nullptr, "Active data point with Criteria", "No meteo points DB open");
+        return;
+    }
+
+    bool active = true;
+    DialogSelectionMeteoPoint dialogPointSelection(active, myProject.meteoPointsDbHandler);
+    if (dialogPointSelection.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    else
+    {
+        QString selection = dialogPointSelection.getSelection();
+        QString operation = dialogPointSelection.getOperation();
+        QString item = dialogPointSelection.getItem();
+        qDebug() << "selection " << selection;
+        qDebug() << "operation " << operation;
+        qDebug() << "item " << item;
+        // TO DO
+        return;
+    }
+}
+
+void MainWindow::on_actionWith_Criteria_notActive_triggered()
+{
+    // TO DO
 }
