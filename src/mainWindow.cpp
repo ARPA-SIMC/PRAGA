@@ -3559,7 +3559,15 @@ void MainWindow::on_actionWith_Criteria_active_triggered()
         QString selection = dialogPointSelection.getSelection();
         QString operation = dialogPointSelection.getOperation();
         QString item = dialogPointSelection.getItem();
-        QString condition = selection + " " + operation + " '" +item +"'";
+        QString condition;
+        if (operation != "Like")
+        {
+            condition = selection + " " + operation + " '" +item +"'";
+        }
+        else
+        {
+            condition = selection + " " + operation + " '%" +item +"%'";
+        }
 
         myProject.meteoPointsDbHandler->setActiveStateIfCondition(active, condition);
     }
