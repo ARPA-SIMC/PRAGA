@@ -3568,8 +3568,14 @@ void MainWindow::on_actionWith_Criteria_active_triggered()
         {
             condition = selection + " " + operation + " '%" +item +"%'";
         }
-
-        myProject.meteoPointsDbHandler->setActiveStateIfCondition(active, condition);
+        if (selection != "DEM distance")
+        {
+            myProject.meteoPointsDbHandler->setActiveStateIfCondition(active, condition);
+        }
+        else
+        {
+            // TO DO
+        }
     }
     // reload meteoPoint, point properties table is changed
     QString dbName = myProject.dbPointsFileName;
@@ -3597,9 +3603,23 @@ void MainWindow::on_actionWith_Criteria_notActive_triggered()
         QString selection = dialogPointSelection.getSelection();
         QString operation = dialogPointSelection.getOperation();
         QString item = dialogPointSelection.getItem();
-        QString condition = selection + " " + operation + " '" +item +"'";
-
-        myProject.meteoPointsDbHandler->setActiveStateIfCondition(active, condition);
+        QString condition;
+        if (operation != "Like")
+        {
+            condition = selection + " " + operation + " '" +item +"'";
+        }
+        else
+        {
+            condition = selection + " " + operation + " '%" +item +"%'";
+        }
+        if (selection != "DEM distance")
+        {
+            myProject.meteoPointsDbHandler->setActiveStateIfCondition(active, condition);
+        }
+        else
+        {
+            // TO DO
+        }
     }
     // reload meteoPoint, point properties table is changed
     QString dbName = myProject.dbPointsFileName;
