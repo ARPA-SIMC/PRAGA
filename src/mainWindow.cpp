@@ -3559,15 +3559,43 @@ void MainWindow::on_actionWith_Criteria_active_triggered()
         QString selection = dialogPointSelection.getSelection();
         QString operation = dialogPointSelection.getOperation();
         QString item = dialogPointSelection.getItem();
-        qDebug() << "selection " << selection;
-        qDebug() << "operation " << operation;
-        qDebug() << "item " << item;
-        // TO DO
-        return;
+        QString condition = selection + " " + operation + " '" +item +"'";
+
+        myProject.meteoPointsDbHandler->setActiveStateIfCondition(active, condition);
     }
+    // reload meteoPoint, point properties table is changed
+    QString dbName = myProject.dbPointsFileName;
+    myProject.closeMeteoPointsDB();
+    loadMeteoPoints(dbName);
+    return;
 }
 
 void MainWindow::on_actionWith_Criteria_notActive_triggered()
 {
-    // TO DO
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        QMessageBox::critical(nullptr, "Not active data point with Criteria", "No meteo points DB open");
+        return;
+    }
+
+    bool active = false;
+    DialogSelectionMeteoPoint dialogPointSelection(active, myProject.meteoPointsDbHandler);
+    if (dialogPointSelection.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    else
+    {
+        QString selection = dialogPointSelection.getSelection();
+        QString operation = dialogPointSelection.getOperation();
+        QString item = dialogPointSelection.getItem();
+        QString condition = selection + " " + operation + " '" +item +"'";
+
+        myProject.meteoPointsDbHandler->setActiveStateIfCondition(active, condition);
+    }
+    // reload meteoPoint, point properties table is changed
+    QString dbName = myProject.dbPointsFileName;
+    myProject.closeMeteoPointsDB();
+    loadMeteoPoints(dbName);
+    return;
 }
