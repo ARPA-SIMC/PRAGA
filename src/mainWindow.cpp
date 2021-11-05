@@ -978,7 +978,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         case showCurrentVariable:
         {
             this->ui->actionShowPointsCurrent->setChecked(true);
-            ui->actionMeteopointRectangleSelection->setEnabled(false);
+            ui->actionMeteopointRectangleSelection->setEnabled(true);
 
             // quality control
             checkData(myProject.quality, myProject.getCurrentVariable(), myProject.meteoPoints,
@@ -1030,7 +1030,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         case showElaboration:
         {
             this->ui->actionShowPointsElab->setChecked(true);
-            ui->actionMeteopointRectangleSelection->setEnabled(false);
+            ui->actionMeteopointRectangleSelection->setEnabled(true);
             showElabResult(true, false, false, false, false, nullptr);
             break;
         }
@@ -1038,7 +1038,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         case showAnomalyAbsolute:
         {
             this->ui->actionShowPointsAnomalyAbs->setChecked(true);
-            ui->actionMeteopointRectangleSelection->setEnabled(false);
+            ui->actionMeteopointRectangleSelection->setEnabled(true);
             showElabResult(true, false, true, false, false, nullptr);
             break;
         }
@@ -1046,7 +1046,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         case showAnomalyPercentage:
         {
             this->ui->actionShowPointsAnomalyPerc->setChecked(true);
-            ui->actionMeteopointRectangleSelection->setEnabled(false);
+            ui->actionMeteopointRectangleSelection->setEnabled(true);
             showElabResult(true, false, true, true, false, nullptr);
             break;
         }
@@ -1054,7 +1054,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         case showClimate:
         {
             this->ui->actionShowPointsClimate->setChecked(true);
-            ui->actionMeteopointRectangleSelection->setEnabled(false);
+            ui->actionMeteopointRectangleSelection->setEnabled(true);
             showElabResult(true, false, false, false, true, myProject.climateIndex);
             break;
         }
