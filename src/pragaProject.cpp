@@ -5,7 +5,6 @@
 #include "dbClimate.h"
 #include "download.h"
 #include "dbAggregationsHandler.h"
-#include "formInfo.h"
 #include "utilities.h"
 #include "project.h"
 #include "aggregation.h"
