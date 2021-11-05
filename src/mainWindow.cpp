@@ -3252,11 +3252,11 @@ void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
         return;
     }
 
-    FormInfo formInfo;
-    formInfo.showInfo("Checking points...");
+    myProject.setProgressBar("Checking points...", myProject.nrMeteoPoints);
     QList<QString> points;
     for (int i = 0; i < myProject.nrMeteoPoints; i++)
     {
+        myProject.updateProgressBar(i);
         if (myProject.meteoPoints[i].active)
         {
             bool existData = myProject.meteoPointsDbHandler->existData(&myProject.meteoPoints[i], daily) || myProject.meteoPointsDbHandler->existData(&myProject.meteoPoints[i], hourly);
@@ -3266,17 +3266,22 @@ void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
             }
         }
     }
-    formInfo.close();
+    myProject.closeProgressBar();
+
     if (points.isEmpty())
     {
         QMessageBox::critical(nullptr, "No active points with NODATA", "all active points have valid data");
         return;
     }
+
+    myProject.logInfoGUI("Deactive points...");
     if (!myProject.meteoPointsDbHandler->setIdPointListActiveState(points, false))
     {
         QMessageBox::critical(nullptr, "Update failed", "Failed to set to not active NODATA points");
         return;
     }
+    myProject.closeLogInfo();
+
     for (int j = 0; j < points.size(); j++)
     {
         for (int i = 0; i < myProject.nrMeteoPoints; i++)
@@ -3287,6 +3292,7 @@ void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
             }
         }
     }
+
     redrawMeteoPoints(currentPointsVisualization, true);
     return;
 }
