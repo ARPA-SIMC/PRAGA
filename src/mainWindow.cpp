@@ -3568,13 +3568,63 @@ void MainWindow::on_actionWith_Criteria_active_triggered()
         {
             condition = selection + " " + operation + " '%" +item +"%'";
         }
-        if (selection != "DEM distance")
+        if (selection != "DEM distance [m]")
         {
             myProject.meteoPointsDbHandler->setActiveStateIfCondition(active, condition);
         }
         else
         {
-            // TO DO
+            if (!myProject.DEM.isLoaded)
+            {
+                QMessageBox::critical(nullptr, "DEM distance", "No DEM open");
+                return;
+            }
+            QList<QString> points;
+            for (int i = 0; i < myProject.nrMeteoPoints; i++)
+            {
+                if (!myProject.meteoPoints[i].active)
+                {
+                    float distance = gis::closestDistanceFromGrid(myProject.meteoPoints[i].point, myProject.DEM);
+                    if (operation == "=")
+                    {
+                        if (distance == item.toDouble())
+                        {
+                            points.append(QString::fromStdString(myProject.meteoPoints[i].id));
+                        }
+                    }
+                    else if (operation == "!=")
+                    {
+                        if (distance != item.toDouble())
+                        {
+                            points.append(QString::fromStdString(myProject.meteoPoints[i].id));
+                        }
+                    }
+                    else if (operation == ">")
+                    {
+                        if (distance > item.toDouble())
+                        {
+                            points.append(QString::fromStdString(myProject.meteoPoints[i].id));
+                        }
+                    }
+                    else if (operation == "<")
+                    {
+                        if (distance < item.toDouble())
+                        {
+                            points.append(QString::fromStdString(myProject.meteoPoints[i].id));
+                        }
+                    }
+                }
+            }
+            if (points.isEmpty())
+            {
+                QMessageBox::critical(nullptr, "No points", "No points fit your requirements");
+                return;
+            }
+            if (!myProject.meteoPointsDbHandler->setIdPointListActiveState(points, true))
+            {
+                QMessageBox::critical(nullptr, "Update failed", "Failed to set to active points selected");
+                return;
+            }
         }
     }
     // reload meteoPoint, point properties table is changed
@@ -3612,13 +3662,63 @@ void MainWindow::on_actionWith_Criteria_notActive_triggered()
         {
             condition = selection + " " + operation + " '%" +item +"%'";
         }
-        if (selection != "DEM distance")
+        if (selection != "DEM distance [m]")
         {
             myProject.meteoPointsDbHandler->setActiveStateIfCondition(active, condition);
         }
         else
         {
-            // TO DO
+            if (!myProject.DEM.isLoaded)
+            {
+                QMessageBox::critical(nullptr, "DEM distance", "No DEM open");
+                return;
+            }
+            QList<QString> points;
+            for (int i = 0; i < myProject.nrMeteoPoints; i++)
+            {
+                if (myProject.meteoPoints[i].active)
+                {
+                    float distance = gis::closestDistanceFromGrid(myProject.meteoPoints[i].point, myProject.DEM);
+                    if (operation == "=")
+                    {
+                        if (distance == item.toDouble())
+                        {
+                            points.append(QString::fromStdString(myProject.meteoPoints[i].id));
+                        }
+                    }
+                    else if (operation == "!=")
+                    {
+                        if (distance != item.toDouble())
+                        {
+                            points.append(QString::fromStdString(myProject.meteoPoints[i].id));
+                        }
+                    }
+                    else if (operation == ">")
+                    {
+                        if (distance > item.toDouble())
+                        {
+                            points.append(QString::fromStdString(myProject.meteoPoints[i].id));
+                        }
+                    }
+                    else if (operation == "<")
+                    {
+                        if (distance < item.toDouble())
+                        {
+                            points.append(QString::fromStdString(myProject.meteoPoints[i].id));
+                        }
+                    }
+                }
+            }
+            if (points.isEmpty())
+            {
+                QMessageBox::critical(nullptr, "No points", "No points fit your requirements");
+                return;
+            }
+            if (!myProject.meteoPointsDbHandler->setIdPointListActiveState(points, false))
+            {
+                QMessageBox::critical(nullptr, "Update failed", "Failed to set to not active points selected");
+                return;
+            }
         }
     }
     // reload meteoPoint, point properties table is changed
