@@ -16,7 +16,6 @@
 #include "formPeriod.h"
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
-#include "formInfo.h"
 #include "dbMeteoPointsHandler.h"
 #include "meteoPointsManagment.h"
 #include "dbArkimet.h"
@@ -978,7 +977,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         case showCurrentVariable:
         {
             this->ui->actionShowPointsCurrent->setChecked(true);
-            ui->actionMeteopointRectangleSelection->setEnabled(false);
+            ui->actionMeteopointRectangleSelection->setEnabled(true);
 
             // quality control
             checkData(myProject.quality, myProject.getCurrentVariable(), myProject.meteoPoints,
@@ -1030,7 +1029,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         case showElaboration:
         {
             this->ui->actionShowPointsElab->setChecked(true);
-            ui->actionMeteopointRectangleSelection->setEnabled(false);
+            ui->actionMeteopointRectangleSelection->setEnabled(true);
             showElabResult(true, false, false, false, false, nullptr);
             break;
         }
@@ -1038,7 +1037,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         case showAnomalyAbsolute:
         {
             this->ui->actionShowPointsAnomalyAbs->setChecked(true);
-            ui->actionMeteopointRectangleSelection->setEnabled(false);
+            ui->actionMeteopointRectangleSelection->setEnabled(true);
             showElabResult(true, false, true, false, false, nullptr);
             break;
         }
@@ -1046,7 +1045,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         case showAnomalyPercentage:
         {
             this->ui->actionShowPointsAnomalyPerc->setChecked(true);
-            ui->actionMeteopointRectangleSelection->setEnabled(false);
+            ui->actionMeteopointRectangleSelection->setEnabled(true);
             showElabResult(true, false, true, true, false, nullptr);
             break;
         }
@@ -1054,7 +1053,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         case showClimate:
         {
             this->ui->actionShowPointsClimate->setChecked(true);
-            ui->actionMeteopointRectangleSelection->setEnabled(false);
+            ui->actionMeteopointRectangleSelection->setEnabled(true);
             showElabResult(true, false, false, false, true, myProject.climateIndex);
             break;
         }
@@ -2730,12 +2729,12 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
     if (dateFiles.isEmpty())
         return;
 
-    FormInfo formInfo;
-    formInfo.showInfo("Loading data...");
+    myProject.setProgressBar("Loading data...", dateFiles.size());
     QString warning;
 
     for (int i=0; i<dateFiles.size(); i++)
     {
+        myProject.updateProgressBar(i);
         if (myProject.loadXMLImportData(dateFiles[i]))
         {
             if (!myProject.errorString.isEmpty())
@@ -2764,7 +2763,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
             }
         }
     }
-    formInfo.close();
+    myProject.closeProgressBar();
     if (!warning.isEmpty())
     {
         QMessageBox::warning(nullptr, " Not valid values: ", warning);
@@ -2833,14 +2832,13 @@ void MainWindow::on_actionFrom_CSV_triggered()
     else
     {
         QList<QString> joinedList = dialogPointProp.getJoinedList();
-        FormInfo formInfo;
-        formInfo.showInfo("Loading data...");
+        myProject.logInfoGUI("Loading data...");
         if (!myProject.writeMeteoPointsProperties(joinedList))
         {
-            formInfo.close();
+            myProject.closeLogInfo();
             return;
         }
-        formInfo.close();
+        myProject.closeLogInfo();
     }
     loadMeteoPoints(dbName);
 }
@@ -2878,14 +2876,14 @@ void MainWindow::on_actionPointProperties_import_triggered()
     else
     {
         QList<QString> joinedList = dialogPointProp.getJoinedList();
-        FormInfo formInfo;
-        formInfo.showInfo("Loading data...");
+
+        myProject.logInfoGUI("Loading data...");
         if (!myProject.writeMeteoPointsProperties(joinedList))
         {
-            formInfo.close();
+            myProject.closeLogInfo();
             return;
         }
-        formInfo.close();
+        myProject.closeLogInfo();
     }
 }
 
@@ -2918,12 +2916,12 @@ void MainWindow::on_PointData_import_triggered()
     if (dateFiles.isEmpty())
         return;
 
-    FormInfo formInfo;
-    formInfo.showInfo("Loading data...");
+    myProject.setProgressBar("Loading data...", dateFiles.size());
     QString warning;
 
     for (int i=0; i<dateFiles.size(); i++)
     {
+        myProject.updateProgressBar(i);
         if (myProject.loadXMLImportData(dateFiles[i]))
         {
             if (!myProject.errorString.isEmpty())
@@ -2952,7 +2950,7 @@ void MainWindow::on_PointData_import_triggered()
             }
         }
     }
-    formInfo.close();
+    myProject.closeProgressBar();
     if (!warning.isEmpty())
     {
         QMessageBox::warning(nullptr, " Not valid values: ", warning);
@@ -3123,16 +3121,15 @@ void MainWindow::on_actionDeletePoint_selected_triggered()
 
     if (reply == QMessageBox::Yes)
     {
-        FormInfo formInfo;
-        formInfo.showInfo("Deleting points...");
+        myProject.logInfoGUI("Deleting points...");
 
         if (!myProject.meteoPointsDbHandler->deleteAllPointsFromGeoPointList(myProject.meteoPointsSelected))
         {
-            formInfo.close();
+            myProject.closeLogInfo();
             QMessageBox::critical(nullptr, "Delete failed", "Failed to delete selected points");
             return;
         }
-        formInfo.close();
+        myProject.closeLogInfo();
         // reload meteoPoint, point properties table is changed
         QString dbName = myProject.dbPointsFileName;
         myProject.closeMeteoPointsDB();
@@ -3162,12 +3159,12 @@ void MainWindow::on_actionDeletePoint_notSelected_triggered()
 
     if (reply == QMessageBox::Yes)
     {
-        FormInfo formInfo;
-        formInfo.showInfo("Deleting points...");
+        myProject.setProgressBar("Checking points...", myProject.nrMeteoPoints);
         bool selected = false;
         QList<QString> idNotSelected;
         for (int i = 0; i < myProject.nrMeteoPoints; i++)
         {
+            myProject.updateProgressBar(i);
             for (int j = 0; j < myProject.meteoPointsSelected.size(); j++)
             {
                 if (myProject.meteoPoints[i].latitude == myProject.meteoPointsSelected[j].latitude && myProject.meteoPoints[i].longitude == myProject.meteoPointsSelected[j].longitude)
@@ -3182,13 +3179,16 @@ void MainWindow::on_actionDeletePoint_notSelected_triggered()
             }
             selected = false;
         }
+        myProject.closeProgressBar();
+
+        myProject.logInfoGUI("Deleting points...");
         if (!myProject.meteoPointsDbHandler->deleteAllPointsFromIdList(idNotSelected))
         {
-            formInfo.close();
+            myProject.closeLogInfo();
             QMessageBox::critical(nullptr, "Delete failed", "Failed to delete not selected points");
             return;
         }
-        formInfo.close();
+        myProject.closeLogInfo();
         // reload meteoPoint, point properties table is changed
         QString dbName = myProject.dbPointsFileName;
         myProject.closeMeteoPointsDB();
@@ -3225,15 +3225,14 @@ void MainWindow::on_actionDeletePoint_notActive_triggered()
 
     if (reply == QMessageBox::Yes)
     {
-        FormInfo formInfo;
-        formInfo.showInfo("Deleting points...");
+        myProject.logInfoGUI("Deleting points...");
         if (!myProject.meteoPointsDbHandler->deleteAllPointsFromIdList(idNotActive))
         {
-            formInfo.close();
+            myProject.closeLogInfo();
             QMessageBox::critical(nullptr, "Delete failed", "Failed to delete not selected points");
             return;
         }
-        formInfo.close();
+        myProject.closeLogInfo();
         // reload meteoPoint, point properties table is changed
         QString dbName = myProject.dbPointsFileName;
         myProject.closeMeteoPointsDB();
@@ -3252,11 +3251,11 @@ void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
         return;
     }
 
-    FormInfo formInfo;
-    formInfo.showInfo("Checking points...");
+    myProject.setProgressBar("Checking points...", myProject.nrMeteoPoints);
     QList<QString> points;
     for (int i = 0; i < myProject.nrMeteoPoints; i++)
     {
+        myProject.updateProgressBar(i);
         if (myProject.meteoPoints[i].active)
         {
             bool existData = myProject.meteoPointsDbHandler->existData(&myProject.meteoPoints[i], daily) || myProject.meteoPointsDbHandler->existData(&myProject.meteoPoints[i], hourly);
@@ -3266,17 +3265,23 @@ void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
             }
         }
     }
-    formInfo.close();
+    myProject.closeProgressBar();
+
     if (points.isEmpty())
     {
         QMessageBox::critical(nullptr, "No active points with NODATA", "all active points have valid data");
         return;
     }
+
+    myProject.logInfoGUI("Deactive points...");
     if (!myProject.meteoPointsDbHandler->setIdPointListActiveState(points, false))
     {
+        myProject.closeLogInfo();
         QMessageBox::critical(nullptr, "Update failed", "Failed to set to not active NODATA points");
         return;
     }
+    myProject.closeLogInfo();
+
     for (int j = 0; j < points.size(); j++)
     {
         for (int i = 0; i < myProject.nrMeteoPoints; i++)
@@ -3287,6 +3292,7 @@ void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
             }
         }
     }
+
     redrawMeteoPoints(currentPointsVisualization, true);
     return;
 }
@@ -3320,8 +3326,7 @@ void MainWindow::on_actionDeleteData_Active_triggered()
     }
     else
     {
-        FormInfo formInfo;
-        formInfo.showInfo("Deleting data...");
+        myProject.setProgressBar("Deleting data...", myProject.nrMeteoPoints);
         QList<meteoVariable> dailyVarList = dialogPointDelete.getVarD();
         QList<meteoVariable> hourlyVarList = dialogPointDelete.getVarH();
         QDate startDate = dialogPointDelete.getFirstDate();
@@ -3330,6 +3335,7 @@ void MainWindow::on_actionDeleteData_Active_triggered()
         bool allHourly = dialogPointDelete.getAllHourlyVar();
         for (int i = 0; i < idActive.size(); i++)
         {
+            myProject.updateProgressBar(i);
             if (allDaily)
             {
                 myProject.meteoPointsDbHandler->deleteData(idActive[i], daily, startDate, endDate);
@@ -3353,7 +3359,7 @@ void MainWindow::on_actionDeleteData_Active_triggered()
                 }
             }
         }
-        formInfo.close();
+        myProject.closeProgressBar();
         // find last date
         QDateTime dbLastTime = myProject.findDbPointLastTime();
         if (! dbLastTime.isNull())
@@ -3403,8 +3409,7 @@ void MainWindow::on_actionDeleteData_notActive_triggered()
     }
     else
     {
-        FormInfo formInfo;
-        formInfo.showInfo("Deleting data...");
+        myProject.setProgressBar("Deleting data...", idNotActive.size());
         QList<meteoVariable> dailyVarList = dialogPointDelete.getVarD();
         QList<meteoVariable> hourlyVarList = dialogPointDelete.getVarH();
         QDate startDate = dialogPointDelete.getFirstDate();
@@ -3413,6 +3418,7 @@ void MainWindow::on_actionDeleteData_notActive_triggered()
         bool allHourly = dialogPointDelete.getAllHourlyVar();
         for (int i = 0; i < idNotActive.size(); i++)
         {
+            myProject.updateProgressBar(i);
             if (allDaily)
             {
                 myProject.meteoPointsDbHandler->deleteData(idNotActive[i], daily, startDate, endDate);
@@ -3436,7 +3442,7 @@ void MainWindow::on_actionDeleteData_notActive_triggered()
                 }
             }
         }
-        formInfo.close();
+        myProject.closeProgressBar();
         // find last date
         QDateTime dbLastTime = myProject.findDbPointLastTime();
         if (! dbLastTime.isNull())
@@ -3479,8 +3485,7 @@ void MainWindow::on_actionDeleteData_selected_triggered()
     }
     else
     {
-        FormInfo formInfo;
-        formInfo.showInfo("Deleting data...");
+        myProject.setProgressBar("Deleting data...", myProject.meteoPointsSelected.size());
         QList<meteoVariable> dailyVarList = dialogPointDelete.getVarD();
         QList<meteoVariable> hourlyVarList = dialogPointDelete.getVarH();
         QDate startDate = dialogPointDelete.getFirstDate();
@@ -3489,6 +3494,7 @@ void MainWindow::on_actionDeleteData_selected_triggered()
         bool allHourly = dialogPointDelete.getAllHourlyVar();
         for (int j = 0; j < myProject.meteoPointsSelected.size(); j++)
         {
+            myProject.updateProgressBar(j);
             for (int i = 0; i < myProject.nrMeteoPoints; i++)
             {
                 if (myProject.meteoPoints[i].latitude == myProject.meteoPointsSelected[j].latitude && myProject.meteoPoints[i].longitude == myProject.meteoPointsSelected[j].longitude)
@@ -3519,7 +3525,7 @@ void MainWindow::on_actionDeleteData_selected_triggered()
                 }
             }
         }
-        formInfo.close();
+        myProject.closeProgressBar();
         // find last date
         QDateTime dbLastTime = myProject.findDbPointLastTime();
         if (! dbLastTime.isNull())
@@ -3568,13 +3574,69 @@ void MainWindow::on_actionWith_Criteria_active_triggered()
         {
             condition = selection + " " + operation + " '%" +item +"%'";
         }
-        if (selection != "DEM distance")
+        if (selection != "DEM distance [m]")
         {
             myProject.meteoPointsDbHandler->setActiveStateIfCondition(active, condition);
         }
         else
         {
-            // TO DO
+            if (!myProject.DEM.isLoaded)
+            {
+                QMessageBox::critical(nullptr, "DEM distance", "No DEM open");
+                return;
+            }
+            QList<QString> points;
+            myProject.setProgressBar("Checking distance...", myProject.nrMeteoPoints);
+            for (int i = 0; i < myProject.nrMeteoPoints; i++)
+            {
+                myProject.updateProgressBar(i);
+                if (!myProject.meteoPoints[i].active)
+                {
+                    float distance = gis::closestDistanceFromGrid(myProject.meteoPoints[i].point, myProject.DEM);
+                    if (operation == "=")
+                    {
+                        if (distance == item.toDouble())
+                        {
+                            points.append(QString::fromStdString(myProject.meteoPoints[i].id));
+                        }
+                    }
+                    else if (operation == "!=")
+                    {
+                        if (distance != item.toDouble())
+                        {
+                            points.append(QString::fromStdString(myProject.meteoPoints[i].id));
+                        }
+                    }
+                    else if (operation == ">")
+                    {
+                        if (distance > item.toDouble())
+                        {
+                            points.append(QString::fromStdString(myProject.meteoPoints[i].id));
+                        }
+                    }
+                    else if (operation == "<")
+                    {
+                        if (distance < item.toDouble())
+                        {
+                            points.append(QString::fromStdString(myProject.meteoPoints[i].id));
+                        }
+                    }
+                }
+            }
+            myProject.closeProgressBar();
+            if (points.isEmpty())
+            {
+                QMessageBox::critical(nullptr, "No points", "No points fit your requirements");
+                return;
+            }
+            myProject.logInfoGUI("Active points...");
+            if (!myProject.meteoPointsDbHandler->setIdPointListActiveState(points, true))
+            {
+                myProject.closeLogInfo();
+                QMessageBox::critical(nullptr, "Update failed", "Failed to set to active points selected");
+                return;
+            }
+            myProject.closeLogInfo();
         }
     }
     // reload meteoPoint, point properties table is changed
@@ -3612,13 +3674,69 @@ void MainWindow::on_actionWith_Criteria_notActive_triggered()
         {
             condition = selection + " " + operation + " '%" +item +"%'";
         }
-        if (selection != "DEM distance")
+        if (selection != "DEM distance [m]")
         {
             myProject.meteoPointsDbHandler->setActiveStateIfCondition(active, condition);
         }
         else
         {
-            // TO DO
+            if (!myProject.DEM.isLoaded)
+            {
+                QMessageBox::critical(nullptr, "DEM distance", "No DEM open");
+                return;
+            }
+            QList<QString> points;
+            myProject.setProgressBar("Checking distance...", myProject.nrMeteoPoints);
+            for (int i = 0; i < myProject.nrMeteoPoints; i++)
+            {
+                 myProject.updateProgressBar(i);
+                if (myProject.meteoPoints[i].active)
+                {
+                    float distance = gis::closestDistanceFromGrid(myProject.meteoPoints[i].point, myProject.DEM);
+                    if (operation == "=")
+                    {
+                        if (distance == item.toDouble())
+                        {
+                            points.append(QString::fromStdString(myProject.meteoPoints[i].id));
+                        }
+                    }
+                    else if (operation == "!=")
+                    {
+                        if (distance != item.toDouble())
+                        {
+                            points.append(QString::fromStdString(myProject.meteoPoints[i].id));
+                        }
+                    }
+                    else if (operation == ">")
+                    {
+                        if (distance > item.toDouble())
+                        {
+                            points.append(QString::fromStdString(myProject.meteoPoints[i].id));
+                        }
+                    }
+                    else if (operation == "<")
+                    {
+                        if (distance < item.toDouble())
+                        {
+                            points.append(QString::fromStdString(myProject.meteoPoints[i].id));
+                        }
+                    }
+                }
+            }
+            myProject.closeProgressBar();
+            if (points.isEmpty())
+            {
+                QMessageBox::critical(nullptr, "No points", "No points fit your requirements");
+                return;
+            }
+            myProject.logInfoGUI("Deactive points...");
+            if (!myProject.meteoPointsDbHandler->setIdPointListActiveState(points, false))
+            {
+                myProject.closeLogInfo();
+                QMessageBox::critical(nullptr, "Update failed", "Failed to set to not active points selected");
+                return;
+            }
+            myProject.closeLogInfo();
         }
     }
     // reload meteoPoint, point properties table is changed
