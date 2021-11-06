@@ -654,13 +654,18 @@ bool setColorScale(meteoVariable variable, Crit3DColorScale *colorScale)
         case precipitation: case dailyPrecipitation: case referenceEvapotranspiration:
         case dailyReferenceEvapotranspirationHS: case dailyReferenceEvapotranspirationPM: case actualEvaporation:
         case dailyWaterTableDepth:
-        case snowFall: case snowWaterEquivalent:
+    case snowFall: case snowWaterEquivalent: case snowLiquidWaterContent: case snowMelt:
             setPrecipitationScale(colorScale);
+            break;
+        case snowAge:
+            setGrayScale(colorScale);
+            reverseColorScale(colorScale);
             break;
         case dailyBIC:
             setZeroCenteredScale(colorScale);
             break;
-        case globalIrradiance: case netIrradiance: case dailyGlobalRadiation: case atmTransmissivity:
+        case globalIrradiance: case directIrradiance: case diffuseIrradiance: case reflectedIrradiance:
+        case netIrradiance: case dailyGlobalRadiation: case atmTransmissivity:
         case snowInternalEnergy: case snowSurfaceInternalEnergy:
             setRadiationScale(colorScale);
             break;
@@ -718,7 +723,13 @@ std::string getVariableString(meteoVariable myVar)
     else if (myVar == dailyGlobalRadiation || myVar == monthlyGlobalRadiation)
         return "Solar radiation (MJ m-2)";
     else if (myVar == globalIrradiance)
-        return "Solar irradiance (W m-2)";
+        return "Global solar irradiance (W m-2)";
+    else if (myVar == directIrradiance)
+        return "Direct solar irradiance (W m-2)";
+    else if (myVar == diffuseIrradiance)
+        return "Diffuse solar irradiance (W m-2)";
+    else if (myVar == reflectedIrradiance)
+        return "Reflected solar irradiance (W m-2)";
     else if (myVar == netIrradiance)
         return "Solar net irradiance (W m-2)";
     else if (myVar == atmTransmissivity)
@@ -759,6 +770,12 @@ std::string getVariableString(meteoVariable myVar)
         return "Snow water equivalent (mm)";
     else if (myVar == snowFall)
         return "Snow fall (mm)";
+    else if (myVar == snowMelt)
+        return "Snowmelt (mm)";
+    else if (myVar == snowLiquidWaterContent)
+        return "Snow liquid water content (mm)";
+    else if (myVar == snowAge)
+        return "Snow age (days)";
     else if (myVar == snowSurfaceTemperature)
         return "Snow surface temperature (°C)";
     else if (myVar == snowInternalEnergy)
