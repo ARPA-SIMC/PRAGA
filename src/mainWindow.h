@@ -171,6 +171,8 @@
 
         void on_actionWith_Criteria_notActive_triggered();
 
+        void on_actionView_not_active_points_toggled(bool state);
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -203,6 +205,7 @@
         RubberBand *myRubberBand;
         visualizationType currentPointsVisualization;
         visualizationType currentGridVisualization;
+        bool viewNotActivePoints;
         QActionGroup *showPointsGroup;
         QActionGroup *showGridGroup;
 

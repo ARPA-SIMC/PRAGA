@@ -128,6 +128,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     this->currentPointsVisualization = notShown;
     this->currentGridVisualization = notShown;
+    this->viewNotActivePoints = false;
 
     this->setWindowTitle("PRAGA");
 
@@ -265,6 +266,10 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 
         foreach (StationMarker* marker, pointList)
         {
+            if (!viewNotActivePoints && marker->active() == false)
+            {
+                continue;
+            }
             if (rectF.contains(marker->longitude(), marker->latitude()))
             {
                 if (select)
@@ -966,7 +971,24 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                     pointList[i]->setRadius(5);
                     pointList[i]->setCurrentValue(NODATA);
                     pointList[i]->setToolTip();
-                    pointList[i]->setVisible(true);
+
+                    if (!viewNotActivePoints)
+                    {
+                        // hide not active points
+                        if (myProject.meteoPoints[i].active == false)
+                        {
+                            pointList[i]->setVisible(false);
+                        }
+                        else
+                        {
+                            pointList[i]->setVisible(true);
+                        }
+                    }
+                    else
+                    {
+                        // show ALL points
+                        pointList[i]->setVisible(true);
+                    }
             }
 
             myProject.meteoPointsColorScale->setRange(NODATA, NODATA);
@@ -1018,7 +1040,23 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                     pointList[i]->setCurrentValue(myProject.meteoPoints[i].currentValue);
                     pointList[i]->setQuality(myProject.meteoPoints[i].quality);
                     pointList[i]->setToolTip();
-                    pointList[i]->setVisible(true);
+                    if (!viewNotActivePoints)
+                    {
+                        // hide not active points
+                        if (myProject.meteoPoints[i].active == false)
+                        {
+                            pointList[i]->setVisible(false);
+                        }
+                        else
+                        {
+                            pointList[i]->setVisible(true);
+                        }
+                    }
+                    else
+                    {
+                        // show ALL points
+                        pointList[i]->setVisible(true);
+                    }
                 }
             }
 
@@ -1278,6 +1316,7 @@ void MainWindow::addMeteoPoints()
         point->setQuality(myProject.meteoPoints[i].quality);
         if (!myProject.meteoPoints[i].active)
         {
+            point->setActive(false);
             point->setFillColor(QColor(Qt::red));
         }
 
@@ -3744,4 +3783,10 @@ void MainWindow::on_actionWith_Criteria_notActive_triggered()
     myProject.closeMeteoPointsDB();
     loadMeteoPoints(dbName);
     return;
+}
+
+void MainWindow::on_actionView_not_active_points_toggled(bool state)
+{
+    viewNotActivePoints = state;
+    redrawMeteoPoints(currentPointsVisualization, true);
 }

@@ -3117,6 +3117,8 @@
       <addaction name="actionShowPointsAnomalyAbs"/>
       <addaction name="actionShowPointsAnomalyPerc"/>
      </widget>
+     <addaction name="actionView_not_active_points"/>
+     <addaction name="separator"/>
      <addaction name="actionShowPointsHide"/>
      <addaction name="actionShowPointsLocation"/>
      <addaction name="actionShowPointsCurrent"/>
@@ -3671,6 +3673,14 @@
   <action name="actionDeleteData_selected">
    <property name="text">
     <string>Selected</string>
+   </property>
+  </action>
+  <action name="actionView_not_active_points">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>View not active points</string>
    </property>
   </action>
  </widget>
