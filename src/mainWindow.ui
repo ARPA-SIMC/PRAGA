@@ -3077,6 +3077,8 @@
     <addaction name="actionInterpolationSettings"/>
     <addaction name="separator"/>
     <addaction name="menuTopographicDistanceMaps"/>
+    <addaction name="separator"/>
+    <addaction name="action_Proxy_graph"/>
    </widget>
    <widget class="QMenu" name="menuElaboration">
     <property name="title">
@@ -3117,6 +3119,8 @@
       <addaction name="actionShowPointsAnomalyAbs"/>
       <addaction name="actionShowPointsAnomalyPerc"/>
      </widget>
+     <addaction name="actionView_not_active_points"/>
+     <addaction name="separator"/>
      <addaction name="actionShowPointsHide"/>
      <addaction name="actionShowPointsLocation"/>
      <addaction name="actionShowPointsCurrent"/>
@@ -3671,6 +3675,19 @@
   <action name="actionDeleteData_selected">
    <property name="text">
     <string>Selected</string>
+   </property>
+  </action>
+  <action name="actionView_not_active_points">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>View not active points</string>
+   </property>
+  </action>
+  <action name="action_Proxy_graph">
+   <property name="text">
+    <string>Proxy graph...</string>
    </property>
   </action>
  </widget>

@@ -5,6 +5,6 @@ SUBDIRS =       ../agrolib/crit3dDate  ../agrolib/mathFunctions  ../agrolib/gis 
                 ../agrolib/utilities  ../agrolib/dbMeteoPoints  ../agrolib/dbMeteoGrid  \
                 ../agrolib/phenology ../agrolib/climate ../agrolib/drought ../agrolib/netcdfHandler \
                 ../agrolib/commonDialogs ../agrolib/importDataXML ../agrolib/project ../agrolib/meteoWidget \
-                ../src/PRAGA.pro
+                ../agrolib/proxyWidget ../src/PRAGA.pro
 
 CONFIG += ordered
