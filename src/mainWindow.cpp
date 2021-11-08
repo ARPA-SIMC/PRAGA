@@ -13,7 +13,7 @@
 #include <iostream>
 #include <iomanip>      // std::setprecision
 
-#include "formPeriod.h"
+#include "formTimePeriod.h"
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
 #include "dbMeteoPointsHandler.h"
@@ -2391,7 +2391,7 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
         myLastTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
 
-    formPeriod myForm(&myFirstTime, &myLastTime);
+    FormTimePeriod myForm(&myFirstTime, &myLastTime);
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
 
@@ -2620,7 +2620,7 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
         myLastTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
 
-    formPeriod myForm(&myFirstTime, &myLastTime);
+    FormTimePeriod myForm(&myFirstTime, &myLastTime);
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
 
@@ -2699,7 +2699,7 @@ void MainWindow::on_actionMeteogridMissingData_triggered()
         myLastTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
 
-    formPeriod myForm(&myFirstTime, &myLastTime);
+    FormTimePeriod myForm(&myFirstTime, &myLastTime);
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
 
