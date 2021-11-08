@@ -3077,6 +3077,8 @@
     <addaction name="actionInterpolationSettings"/>
     <addaction name="separator"/>
     <addaction name="menuTopographicDistanceMaps"/>
+    <addaction name="separator"/>
+    <addaction name="action_Proxy_graph"/>
    </widget>
    <widget class="QMenu" name="menuElaboration">
     <property name="title">
@@ -3681,6 +3683,11 @@
    </property>
    <property name="text">
     <string>View not active points</string>
+   </property>
+  </action>
+  <action name="action_Proxy_graph">
+   <property name="text">
+    <string>Proxy graph...</string>
    </property>
   </action>
  </widget>

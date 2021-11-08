@@ -173,6 +173,8 @@
 
         void on_actionView_not_active_points_toggled(bool state);
 
+        void on_action_Proxy_graph_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

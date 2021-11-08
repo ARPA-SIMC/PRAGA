@@ -13,7 +13,7 @@
 #include <iostream>
 #include <iomanip>      // std::setprecision
 
-#include "formPeriod.h"
+#include "formTimePeriod.h"
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
 #include "dbMeteoPointsHandler.h"
@@ -2391,7 +2391,7 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
         myLastTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
 
-    formPeriod myForm(&myFirstTime, &myLastTime);
+    FormTimePeriod myForm(&myFirstTime, &myLastTime);
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
 
@@ -2620,7 +2620,7 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
         myLastTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
 
-    formPeriod myForm(&myFirstTime, &myLastTime);
+    FormTimePeriod myForm(&myFirstTime, &myLastTime);
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
 
@@ -2699,7 +2699,7 @@ void MainWindow::on_actionMeteogridMissingData_triggered()
         myLastTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
 
-    formPeriod myForm(&myFirstTime, &myLastTime);
+    FormTimePeriod myForm(&myFirstTime, &myLastTime);
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
 
@@ -3789,4 +3789,21 @@ void MainWindow::on_actionView_not_active_points_toggled(bool state)
 {
     viewNotActivePoints = state;
     redrawMeteoPoints(currentPointsVisualization, true);
+}
+
+void MainWindow::on_action_Proxy_graph_triggered()
+{
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        QMessageBox::critical(nullptr, "proxy graph", "No meteo points DB open");
+        return;
+    }
+
+    std::vector<Crit3DProxy> proxy = myProject.interpolationSettings.getCurrentProxy();
+    if (proxy.size() == 0)
+    {
+        QMessageBox::critical(nullptr, "proxy graph", "No proxy loaded");
+        return;
+    }
+    return myProject.showProxyGraph();
 }
