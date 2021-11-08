@@ -41,6 +41,7 @@ CONFIG(debug, debug|release) {
         LIBS += -L/usr/local/lib/ -lnetcdf
     }
     LIBS += -L../agrolib/importDataXML/debug -limportDataXML
+    LIBS += -L../agrolib/proxyWidget/debug -lproxyWidget
     LIBS += -L../agrolib/meteoWidget/debug -lmeteoWidget
     LIBS += -L../agrolib/dbMeteoGrid/debug -ldbMeteoGrid
     LIBS += -L../agrolib/dbMeteoPoints/debug -ldbMeteoPoints
@@ -70,6 +71,7 @@ CONFIG(debug, debug|release) {
         LIBS += -L/usr/local/lib/ -lnetcdf
     }
     LIBS += -L../agrolib/importDataXML/release -limportDataXML
+    LIBS += -L../agrolib/proxyWidget/release -lproxyWidget
     LIBS += -L../agrolib/meteoWidget/release -lmeteoWidget
     LIBS += -L../agrolib/dbMeteoGrid/release -ldbMeteoGrid
     LIBS += -L../agrolib/dbMeteoPoints/release -ldbMeteoPoints

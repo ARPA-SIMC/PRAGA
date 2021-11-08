@@ -3790,3 +3790,13 @@ void MainWindow::on_actionView_not_active_points_toggled(bool state)
     viewNotActivePoints = state;
     redrawMeteoPoints(currentPointsVisualization, true);
 }
+
+void MainWindow::on_action_Proxy_graph_triggered()
+{
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        QMessageBox::critical(nullptr, "proxy graph", "No meteo points DB open");
+        return;
+    }
+    return myProject.showProxyGraph();
+}
