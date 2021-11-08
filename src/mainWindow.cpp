@@ -3798,5 +3798,12 @@ void MainWindow::on_action_Proxy_graph_triggered()
         QMessageBox::critical(nullptr, "proxy graph", "No meteo points DB open");
         return;
     }
+
+    std::vector<Crit3DProxy> proxy = myProject.interpolationSettings.getCurrentProxy();
+    if (proxy.size() == 0)
+    {
+        QMessageBox::critical(nullptr, "proxy graph", "No proxy loaded");
+        return;
+    }
     return myProject.showProxyGraph();
 }
