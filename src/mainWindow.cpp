@@ -185,7 +185,20 @@ void MainWindow::mouseMove(const QPoint& mapPos)
         {
             std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
             std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
-            float value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue;
+            float value = NODATA;
+            switch(currentGridVisualization)
+            {
+                case showElaboration:
+                {
+                    value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->elaboration;
+                    break;
+                }
+                case showCurrentVariable:
+                {
+                    value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue;
+                    break;
+                }
+            }
             std::string valueStr;
             if (value == NODATA)
             {
