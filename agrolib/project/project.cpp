@@ -1175,7 +1175,7 @@ void Project::loadMeteoGridData(QDate firstDate, QDate lastDate, bool showInfo)
     if (this->meteoGridDbHandler != nullptr)
     {
         this->loadMeteoGridDailyData(firstDate, lastDate, showInfo);
-        this->loadMeteoGridHourlyData(QDateTime(firstDate, QTime(1,0)), QDateTime(lastDate.addDays(1), QTime(0,0)), showInfo);
+        this->loadMeteoGridHourlyData(QDateTime(firstDate, QTime(1,0), Qt::UTC), QDateTime(lastDate.addDays(1), QTime(0,0), Qt::UTC), showInfo);
         this->loadMeteoGridMonthlyData(firstDate, lastDate, showInfo);
     }
 }
@@ -1355,6 +1355,7 @@ bool Project::loadMeteoGridMonthlyData(QDate firstDate, QDate lastDate, bool sho
 QDateTime Project::findDbPointLastTime()
 {
     QDateTime lastTime;
+    lastTime.setTimeSpec(Qt::UTC);
 
     QDateTime lastDateD = meteoPointsDbHandler->getLastDate(daily);
     if (! lastDateD.isNull()) lastTime = lastDateD;
@@ -1374,6 +1375,7 @@ QDateTime Project::findDbPointLastTime()
 QDateTime Project::findDbPointFirstTime()
 {
     QDateTime firstTime;
+    firstTime.setTimeSpec(Qt::UTC);
 
     QDateTime firstDateD = meteoPointsDbHandler->getFirstDate(daily);
     if (! firstDateD.isNull()) firstTime = firstDateD;
@@ -2470,8 +2472,8 @@ void Project::showMeteoWidgetGrid(std::string idCell, bool isAppend)
     QDate firstDate = meteoGridDbHandler->firstDate();
     QDate lastDate = meteoGridDbHandler->lastDate();
 
-    QDateTime firstDateTime = QDateTime(firstDate, QTime(1,0));
-    QDateTime lastDateTime = QDateTime(lastDate.addDays(1), QTime(0,0));
+    QDateTime firstDateTime = QDateTime(firstDate, QTime(1,0), Qt::UTC);
+    QDateTime lastDateTime = QDateTime(lastDate.addDays(1), QTime(0,0), Qt::UTC);
 
     int meteoWidgetId = 0;
     if (meteoWidgetGridList.isEmpty() || meteoGridDbHandler->gridStructure().isEnsemble())
