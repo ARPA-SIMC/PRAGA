@@ -2686,8 +2686,8 @@ void MainWindow::on_actionMeteogridMissingData_triggered()
     meteoVariable myVar = chooseMeteoVariable(&myProject);
     if (myVar == noMeteoVar) return;
 
-    QDateTime myFirstTime(myProject.meteoGridDbHandler->firstDate(),QTime(1,0,0));
-    QDateTime myLastTime(myProject.meteoGridDbHandler->lastDate().addDays(1),QTime(0,0,0));
+    QDateTime myFirstTime(myProject.meteoGridDbHandler->firstDate(), QTime(1,0,0), Qt::UTC);
+    QDateTime myLastTime(myProject.meteoGridDbHandler->lastDate().addDays(1), QTime(0,0,0), Qt::UTC);
     if (myFirstTime.isNull())
     {
         myFirstTime.setDate(myProject.getCurrentDate());
