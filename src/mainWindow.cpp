@@ -3793,6 +3793,11 @@ void MainWindow::on_actionView_not_active_points_toggled(bool state)
 
 void MainWindow::on_action_Proxy_graph_triggered()
 {
+    if (myProject.proxyWidget != nullptr)
+    {
+        QMessageBox::critical(nullptr, "proxy graph", "Proxy graph already open");
+        return;
+    }
     if (myProject.meteoPointsDbHandler == nullptr)
     {
         QMessageBox::critical(nullptr, "proxy graph", "No meteo points DB open");
