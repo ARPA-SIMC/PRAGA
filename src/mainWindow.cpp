@@ -185,7 +185,20 @@ void MainWindow::mouseMove(const QPoint& mapPos)
         {
             std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
             std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
-            float value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue;
+            float value = NODATA;
+            switch(currentGridVisualization)
+            {
+                case showElaboration:
+                {
+                    value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->elaboration;
+                    break;
+                }
+                case showCurrentVariable:
+                {
+                    value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue;
+                    break;
+                }
+            }
             std::string valueStr;
             if (value == NODATA)
             {
@@ -2686,8 +2699,8 @@ void MainWindow::on_actionMeteogridMissingData_triggered()
     meteoVariable myVar = chooseMeteoVariable(&myProject);
     if (myVar == noMeteoVar) return;
 
-    QDateTime myFirstTime(myProject.meteoGridDbHandler->firstDate(),QTime(1,0,0));
-    QDateTime myLastTime(myProject.meteoGridDbHandler->lastDate().addDays(1),QTime(0,0,0));
+    QDateTime myFirstTime(myProject.meteoGridDbHandler->firstDate(), QTime(1,0,0), Qt::UTC);
+    QDateTime myLastTime(myProject.meteoGridDbHandler->lastDate().addDays(1), QTime(0,0,0), Qt::UTC);
     if (myFirstTime.isNull())
     {
         myFirstTime.setDate(myProject.getCurrentDate());
