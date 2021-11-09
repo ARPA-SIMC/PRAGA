@@ -1650,7 +1650,7 @@ bool PragaProject::timeAggregateGrid(QDate dateIni, QDate dateFin, QList <meteoV
     if (loadData)
     {
         logInfoGUI("Loading grid data: " + dateIni.toString("dd/MM/yyyy") + "-" + dateFin.toString("dd/MM/yyyy"));
-        loadMeteoGridHourlyData(QDateTime(dateIni, QTime(1,0)), QDateTime(dateFin.addDays(1), QTime(0,0)), false);
+        loadMeteoGridHourlyData(QDateTime(dateIni, QTime(1,0), Qt::UTC), QDateTime(dateFin.addDays(1), QTime(0,0), Qt::UTC), false);
     }
 
     foreach (meteoVariable myVar, variables)
@@ -1685,8 +1685,8 @@ bool PragaProject::hourlyDerivedVariablesGrid(QDate first, QDate last, bool load
         return false;
     }
 
-    QDateTime firstDateTime = QDateTime(first, QTime(1,0));
-    QDateTime lastDateTime = QDateTime(last.addDays(1), QTime(0,0));
+    QDateTime firstDateTime = QDateTime(first, QTime(1,0), Qt::UTC);
+    QDateTime lastDateTime = QDateTime(last.addDays(1), QTime(0,0), Qt::UTC);
 
     // now only hourly-->daily
     if (loadData)
@@ -1768,6 +1768,9 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     QList<meteoVariable> varToSave;
     int intervalDays = 0;
     QDate saveDateIni;
+
+    if (pragaDailyMaps == nullptr) pragaDailyMaps = new Crit3DDailyMeteoMaps(DEM);
+    if (pragaHourlyMaps == nullptr) pragaHourlyMaps = new PragaHourlyMeteoMaps(DEM);
 
     // find out needed frequency
     foreach (myVar, variables)
@@ -1930,7 +1933,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
             // saving hourly and daily meteo grid data to DB
             logInfoGUI("Saving meteo grid data from " + saveDateIni.toString("dd/MM/yyyy") + " to " + myDate.toString("dd/MM/yyyy"));
-            meteoGridDbHandler->saveGridData(&myError, QDateTime(saveDateIni, QTime(1,0,0)), QDateTime(myDate.addDays(1), QTime(0,0,0)), varToSave, meteoSettings);
+            meteoGridDbHandler->saveGridData(&myError, QDateTime(saveDateIni, QTime(1,0,0), Qt::UTC), QDateTime(myDate.addDays(1), QTime(0,0,0), Qt::UTC), varToSave, meteoSettings);
 
             meteoGridDbHandler->meteoGrid()->emptyGridData(getCrit3DDate(saveDateIni), getCrit3DDate(myDate));
 
@@ -2064,7 +2067,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                     if (myFreq == daily)
                         meteoGridDbHandler->loadGridDailyData(&errorString, QString::fromStdString(id), myFirstDate, myLastDate);
                     else if (myFreq == hourly)
-                        meteoGridDbHandler->loadGridHourlyData(&errorString, QString::fromStdString(id), QDateTime(myFirstDate,QTime(0,0,0)), QDateTime(myLastDate,QTime(23,0,0)));
+                        meteoGridDbHandler->loadGridHourlyData(&errorString, QString::fromStdString(id), QDateTime(myFirstDate,QTime(0,0,0),Qt::UTC), QDateTime(myLastDate,QTime(23,0,0),Qt::UTC));
                 }
                 else
                 {
