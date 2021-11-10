@@ -1,0 +1,14 @@
+name: Build source code
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.image }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run build
+        run: bash .travis-build.sh ${{ matrix.image }}
+
