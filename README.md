@@ -1,5 +1,4 @@
-[![Build Status](https://badges.herokuapp.com/travis/ARPA-SIMC/PRAGA?branch=master&env=DOCKER_IMAGE=centos:8&label=centos8)](https://travis-ci.org/ARPA-SIMC/PRAGA)
-[![Build Status](https://badges.herokuapp.com/travis/ARPA-SIMC/PRAGA?branch=master&env=DOCKER_IMAGE=ubuntu:xenial&label=ubuntuxenial)](https://travis-ci.org/ARPA-SIMC/PRAGA)
+[![Build Status](https://github.com/arpa-simc/praga/actions/workflows/build.yml/badge.svg)
 [![Build Status](https://copr.fedorainfracloud.org/coprs/simc/stable/package/PRAGA/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/simc/stable/package/PRAGA/)
 
 # PRAGA
