@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/arpa-simc/praga/actions/workflows/build-ubuntu-xenial.yml/badge.svg)
+[![Build Status](https://github.com/arpa-simc/praga/actions/workflows/build-ubuntu-xenial.yml/badge.svg)]
 [![Build Status](https://simc.arpae.it/moncic-ci/arkimet/centos8.png)](https://simc.arpae.it/moncic-ci/arkimet/)
 [![Build Status](https://copr.fedorainfracloud.org/coprs/simc/stable/package/PRAGA/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/simc/stable/package/PRAGA/)
 
