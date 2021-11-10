@@ -3,6 +3,9 @@ on: [push]
 
 jobs:
   build:
+    strategy:
+      matrix:
+        image: [centos:8]
     runs-on: ubuntu-latest
     container:
       image: ${{ matrix.image }}
