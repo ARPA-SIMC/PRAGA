@@ -11,7 +11,7 @@ jobs:
       image: ${{ matrix.image }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        run:  git clone ${{ github.repository }}
       - name: Run build
         run: bash .travis-build.sh ${{ matrix.image }}
 
