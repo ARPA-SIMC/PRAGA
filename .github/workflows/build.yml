@@ -7,6 +7,9 @@ jobs:
       matrix:
         image: ["centos:8"]
     runs-on: ubuntu-latest
+    container:
+      image: ${{ matrix.image }}
+      options: -v ${{ github.workspace }}:/root/src/ -w /root/src/
     steps:
       - name: Run build
-        run: docker run -v ${{ github.workspace }}:/root/src/ -w /root/src/ ${{ matrix.image }} /bin/bash ls -la
+        run: pwd
