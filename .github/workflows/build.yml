@@ -5,7 +5,7 @@ jobs:
   build:
     strategy:
       matrix:
-        image: ["centos:8"]
+        image: ["centos:8", "ubuntu:xenial"]
     runs-on: ubuntu-latest
     container:
       # image: ${{ matrix.image }}
@@ -14,4 +14,4 @@ jobs:
       - name: Clone repo
         uses: actions/checkout@v2
       - name: Run container
-        run: docker run -v ${{ github.workspace }}:/root/src/ -w /root/src/ ${{ matrix.image }} /bin/bash -c "ls -la"
+        run: docker run -v ${{ github.workspace }}:/root/src/ -w /root/src/ ${{ matrix.image }} /bin/bash .travis-build.sh
