@@ -7,11 +7,6 @@ jobs:
       matrix:
         image: ["centos:8"]
     runs-on: ubuntu-latest
-    container:
-      image: ${{ matrix.image }}
     steps:
-      - name: Checkout code
-        run:  git clone ${{ github.repository }}
       - name: Run build
-        run: bash .travis-build.sh ${{ matrix.image }}
-
+        run: docker run -v ${{ github.repository }}:/root/src/ -w /root/src/ ${{ matrix.image }} /bin/bash .travis-build.sh ${{ matrix.image }}
