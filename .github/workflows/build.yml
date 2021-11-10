@@ -9,4 +9,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run build
-        run: docker run -v ${{ github.repository }}:/root/src/ -w /root/src/ ${{ matrix.image }} /bin/bash .travis-build.sh ${{ matrix.image }}
+        run: docker run -v ${{ github.workdir }}:/root/src/ -w /root/src/ ${{ matrix.image }} /bin/bash .travis-build.sh ${{ matrix.image }}
