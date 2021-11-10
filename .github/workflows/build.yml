@@ -7,9 +7,11 @@ jobs:
       matrix:
         image: ["centos:8"]
     runs-on: ubuntu-latest
-    container:
-      image: ${{ matrix.image }}
-      options: -v ${{ github.workspace }}:/root/src/ -w /root/src/
+      # container:
+      #   image: ${{ matrix.image }}
+      #   options: -v ${{ github.workspace }}:/root/src/ -w /root/src/
     steps:
-      - name: Run build
-        run: ls -lah /root/src
+      - name: Clone repo
+        run: git clone ${{ github.repository }}
+      - name: Ls
+        run: ls -la
