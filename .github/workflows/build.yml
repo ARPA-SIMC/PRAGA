@@ -12,6 +12,6 @@ jobs:
       #   options: -v ${{ github.workspace }}:/root/src/ -w /root/src/
     steps:
       - name: Clone repo
-        run: git clone ${{ github.repository }}
+        uses: actions/checkout@v2
       - name: Ls
         run: ls -la
