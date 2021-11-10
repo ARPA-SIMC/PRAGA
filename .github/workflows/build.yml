@@ -8,10 +8,10 @@ jobs:
         image: ["centos:8"]
     runs-on: ubuntu-latest
     container:
-      image: ${{ matrix.image }}
-        # options: -v ${{ github.workspace }}:/root/src/ -w /root/src/
+      # image: ${{ matrix.image }}
+      # options: -v ${{ github.workspace }}:/root/src/ -w /root/src/
     steps:
       - name: Clone repo
         uses: actions/checkout@v2
-      - name: Ls
-        run: ls -la
+      - name: Run container
+        run: docker run -v ${{ github.workspace }}:/root/src/ -w /root/src/ ${{ matrix.image }} /bin/bash -c "ls -la"
