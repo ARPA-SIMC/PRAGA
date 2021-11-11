@@ -774,10 +774,9 @@ void MainWindow::on_dateChanged()
 
     if (date != myProject.getCurrentDate())
     {
-        myProject.setCurrentDate(date);
         myProject.loadMeteoPointsData(date, date, true, true, true);
         myProject.loadMeteoGridData(date, date, true);
-
+        myProject.setCurrentDate(date);
     }
 
     redrawMeteoPoints(currentPointsVisualization, true);
