@@ -1021,7 +1021,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
             if (updateColorScale)
             {
                 float minimum, maximum;
-                myProject.getMeteoPointsRange(&minimum, &maximum);
+                myProject.getMeteoPointsRange(minimum, maximum);
 
                 myProject.meteoPointsColorScale->setRange(minimum, maximum);
             }
@@ -3824,3 +3824,5 @@ void MainWindow::on_action_Proxy_graph_triggered()
     }
     return myProject.showProxyGraph();
 }
+
+
