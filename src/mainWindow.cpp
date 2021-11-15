@@ -781,7 +781,6 @@ void MainWindow::on_dateChanged()
 
     redrawMeteoPoints(currentPointsVisualization, true);
     redrawMeteoGrid(currentGridVisualization, false);
-    myProject.updateProxyWidgetPoints();
 }
 
 void MainWindow::on_timeEdit_valueChanged(int myHour)
@@ -793,7 +792,6 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
     redrawMeteoPoints(currentPointsVisualization, true);
     redrawMeteoGrid(currentGridVisualization, false);
-    myProject.updateProxyWidgetPoints();
 }
 
 
