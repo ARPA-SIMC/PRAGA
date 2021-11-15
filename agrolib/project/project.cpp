@@ -779,18 +779,36 @@ int Project::getCurrentHour()
 
 Crit3DTime Project::getCrit3DCurrentTime()
 {
-    return getCrit3DTime(this->currentDate, this->currentHour);
+    if (this->currentHour < 24)
+    {
+        return getCrit3DTime(this->currentDate, this->currentHour);
+    }
+    else
+    {
+        int nrDays = this->currentHour / 24;
+        int newHour = this->currentHour % 24;
+        return getCrit3DTime(this->currentDate.addDays(nrDays), newHour);
+    }
 }
 
 QDateTime Project::getCurrentTime()
 {
-    return QDateTime(this->currentDate, QTime(this->currentHour, 0, 0), Qt::UTC);
+    if (this->currentHour < 24)
+    {
+        return QDateTime(this->currentDate, QTime(this->currentHour, 0, 0), Qt::UTC);
+    }
+    else
+    {
+        int nrDays = this->currentHour / 24;
+        int newHour = this->currentHour % 24;
+        return QDateTime(this->currentDate.addDays(nrDays), QTime(newHour, 0, 0), Qt::UTC);
+    }
 }
 
-void Project::getMeteoPointsRange(float *minimum, float *maximum)
+void Project::getMeteoPointsRange(float& minimum, float& maximum)
 {
-    *minimum = NODATA;
-    *maximum = NODATA;
+    minimum = NODATA;
+    maximum = NODATA;
 
     if (currentFrequency == noFrequency || currentVariable == noMeteoVar)
         return;
@@ -798,17 +816,19 @@ void Project::getMeteoPointsRange(float *minimum, float *maximum)
     float v;
     for (int i = 0; i < nrMeteoPoints; i++)
     {
-        v = meteoPoints[i].currentValue;
-
-        if (int(v) != int(NODATA) && meteoPoints[i].quality == quality::accepted)
+        if (meteoPoints[i].active)
         {
-            if (int(*minimum) == int(NODATA))
+            v = meteoPoints[i].currentValue;
+            if (! isEqual(v, NODATA) && meteoPoints[i].quality == quality::accepted)
             {
-                *minimum = v;
-                *maximum = v;
+                if (isEqual(minimum, NODATA))
+                {
+                    minimum = v;
+                    maximum = v;
+                }
+                else if (v < minimum) minimum = v;
+                else if (v > maximum) maximum = v;
             }
-            else if (v < *minimum) *minimum = v;
-            else if (v > *maximum) *maximum = v;
         }
     }
 }
