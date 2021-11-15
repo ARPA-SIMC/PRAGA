@@ -3824,3 +3824,5 @@ void MainWindow::on_action_Proxy_graph_triggered()
     }
     return myProject.showProxyGraph();
 }
+
+
