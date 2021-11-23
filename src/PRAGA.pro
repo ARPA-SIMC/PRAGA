@@ -29,6 +29,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/climate/debug -lclimate
     LIBS += -L../agrolib/phenology/debug -lphenology
     LIBS += -L../agrolib/netcdfHandler/debug -lnetcdfHandler
+    LIBS += -L../agrolib/graphics/debug -lgraphics
     win32:{
         LIBS += -L../mapGraphics/debug -lMapGraphics
         LIBS += -L$$(NC4_INSTALL_DIR)/lib -lnetcdf
@@ -38,6 +39,7 @@ CONFIG(debug, debug|release) {
         LIBS += -lnetcdf
     }
     macx:{
+        LIBS += -L../mapGraphics/debug -lMapGraphics
         LIBS += -L/usr/local/lib/ -lnetcdf
     }
     LIBS += -L../agrolib/importDataXML/debug -limportDataXML
@@ -55,6 +57,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/mathFunctions/debug -lmathFunctions
 
 } else {
+    LIBS += -L../agrolib/graphics/release -lgraphics
     LIBS += -L../mapGraphics/release -lMapGraphics
     LIBS += -L../agrolib/project/release -lproject
     LIBS += -L../agrolib/commonDialogs/release -lcommonDialogs
@@ -87,10 +90,6 @@ CONFIG(debug, debug|release) {
 
 
 SOURCES += \
-    ../agrolib/graphics/colorLegend.cpp \
-    ../agrolib/graphics/mapGraphicsRasterObject.cpp \
-    ../agrolib/graphics/stationMarker.cpp \
-    ../agrolib/graphics/rubberBand.cpp \
     main.cpp \
     mainGUI.cpp \
     mainWindow.cpp \
@@ -109,10 +108,6 @@ SOURCES += \
 
 
 HEADERS  += \
-    ../agrolib/graphics/colorLegend.h \
-    ../agrolib/graphics/mapGraphicsRasterObject.h \
-    ../agrolib/graphics/stationMarker.h \
-    ../agrolib/graphics/rubberBand.h \
     mainGUI.h \
     mainWindow.h \
     dialogPragaProject.h \
