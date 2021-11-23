@@ -1,0 +1,35 @@
+*******************
+PRAGA
+resettare il repository
+*******************
+
+1) fare un clone pulito (per non avere tutti i file di compilazione)
+git clone https://github.com/ARPA-SIMC/PRAGA
+
+2) eliminare la history:
+git reset --hard
+rm -rf .git/
+
+3) cancellare cartelle agrolib e mapgraphics 
+(e ripulire eventuali dati in DATA/ che non servono)
+
+4) git init e primo commit:
+git init
+git add .
+git commit -m 'first commit'
+
+5) definire origin e primo push:
+git remote add origin https://github.com/ARPA-SIMC/PRAGA
+git push --force origin master
+
+6) aggiungere agrolib:
+git remote add agrolib https://github.com/ARPA-SIMC/agrolib
+git subtree add --prefix agrolib agrolib master
+git push origin master
+
+7) aggiungere mapGraphics:
+git remote add mapGraphics https://github.com/ARPA-SIMC/mapGraphics
+git subtree add --prefix mapGraphics mapGraphics master
+git push origin master
+
+
