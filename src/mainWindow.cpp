@@ -275,51 +275,40 @@ bool MainWindow::updateSelection(const QPoint& pos)
     QPointF topLeft = this->mapView->mapToScene(pixelTopLeft);
     QPointF bottomRight = this->mapView->mapToScene(pixelBottomRight);
     QRectF rectF(topLeft, bottomRight);
-    gis::Crit3DGeoPoint pointSelected;
 
-    foreach (StationMarker* marker, pointList)
+    for (int i = 0; i < meteoPointList.size(); i++)
     {
-        if (rectF.contains(marker->longitude(), marker->latitude()))
+        if (rectF.contains(meteoPointList[i]->longitude(), meteoPointList[i]->latitude()))
         {
-            pointSelected.latitude = marker->latitude();
-            pointSelected.longitude = marker->longitude();
-
             if (isAdd)
             {
-                bool found = false;
-                for (int i = 0; i < myProject.meteoPointsSelected.size(); i++)
-                {
-                    if (isEqual(myProject.meteoPointsSelected[i].latitude, pointSelected.latitude)
-                        && isEqual(myProject.meteoPointsSelected[i].longitude, pointSelected.longitude))
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-                if (!found)
-                {
-                    myProject.meteoPointsSelected << pointSelected;
-                }
+                myProject.meteoPoints[i].selected = true;
             }
-            else if (!isAdd)
+            else
             {
-                // remove
-                for (int i = 0; i<myProject.meteoPointsSelected.size(); i++)
-                {
-                    if (isEqual(myProject.meteoPointsSelected.at(i).latitude, pointSelected.latitude)
-                        && isEqual(myProject.meteoPointsSelected.at(i).longitude, pointSelected.longitude))
-                    {
-                        myProject.meteoPointsSelected.removeAt(i);
-                        break;
-                    }
-                }
+                myProject.meteoPoints[i].selected = false;
             }
         }
     }
 
-    myProject.updateSelectedPoints();
+    for (int i = 0; i < outputPointList.size(); i++)
+    {
+        if (rectF.contains(outputPointList[i]->longitude(), outputPointList[i]->latitude()))
+        {
+            if (isAdd)
+            {
+                myProject.outputPoints[i].selected = true;
+            }
+            else
+            {
+                myProject.outputPoints[i].selected = false;
+            }
+        }
+    }
+
     rubberBand->isActive = false;
     rubberBand->hide();
+
     return true;
 }
 
