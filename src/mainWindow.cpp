@@ -276,9 +276,9 @@ bool MainWindow::updateSelection(const QPoint& pos)
     QPointF bottomRight = this->mapView->mapToScene(pixelBottomRight);
     QRectF rectF(topLeft, bottomRight);
 
-    for (int i = 0; i < meteoPointList.size(); i++)
+    for (int i = 0; i < pointList.size(); i++)
     {
-        if (rectF.contains(meteoPointList[i]->longitude(), meteoPointList[i]->latitude()))
+        if (rectF.contains(pointList[i]->longitude(), pointList[i]->latitude()))
         {
             if (isAdd)
             {
@@ -287,21 +287,6 @@ bool MainWindow::updateSelection(const QPoint& pos)
             else
             {
                 myProject.meteoPoints[i].selected = false;
-            }
-        }
-    }
-
-    for (int i = 0; i < outputPointList.size(); i++)
-    {
-        if (rectF.contains(outputPointList[i]->longitude(), outputPointList[i]->latitude()))
-        {
-            if (isAdd)
-            {
-                myProject.outputPoints[i].selected = true;
-            }
-            else
-            {
-                myProject.outputPoints[i].selected = false;
             }
         }
     }
