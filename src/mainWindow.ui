@@ -2466,7 +2466,7 @@
      <x>0</x>
      <y>0</y>
      <width>1392</width>
-     <height>25</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="palette">
@@ -2944,7 +2944,7 @@
        <string>New</string>
       </property>
       <addaction name="actionFileMeteopointNewArkimet"/>
-      <addaction name="actionFrom_CSV"/>
+      <addaction name="actionFileMeteopointNewCsv"/>
      </widget>
      <widget class="QMenu" name="menuImport">
       <property name="title">
@@ -3566,7 +3566,7 @@
     <string>Import data XML</string>
    </property>
   </action>
-  <action name="actionFrom_CSV">
+  <action name="actionFileMeteopointNewCsv">
    <property name="text">
     <string>From CSV</string>
    </property>

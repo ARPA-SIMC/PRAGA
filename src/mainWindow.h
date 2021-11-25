@@ -137,8 +137,6 @@
 
         void on_actionImport_data_XML_grid_triggered();
 
-        void on_actionFrom_CSV_triggered();
-
         void on_actionPointProperties_import_triggered();
 
         void on_PointData_import_triggered();
@@ -174,6 +172,8 @@
         void on_actionView_not_active_points_toggled(bool state);
 
         void on_action_Proxy_graph_triggered();
+
+        void on_actionFileMeteopointNewCsv_triggered();
 
     protected:
         /*!

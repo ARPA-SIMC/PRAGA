@@ -2766,74 +2766,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
 }
 
 
-void MainWindow::on_actionFrom_CSV_triggered()
-{
-    resetMeteoPointsMarker();
 
-    QString templateFileName = myProject.getDefaultPath() + PATH_TEMPLATE + "template_meteo.db";
-
-    QString dbName = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("DB files (*.db)"));
-    if (dbName == "")
-    {
-        qDebug() << "missing new db file name";
-        return;
-    }
-
-    QFile dbFile(dbName);
-    if (dbFile.exists())
-    {
-        myProject.closeMeteoPointsDB();
-        myProject.setIsElabMeteoPointsValue(false);
-        dbFile.close();
-        dbFile.setPermissions(QFile::ReadOther | QFile::WriteOther);
-        if (! dbFile.remove())
-        {
-            myProject.logError("Remove file failed: " + dbName + "\n" + dbFile.errorString());
-            return;
-        }
-    }
-
-    if (! QFile::copy(templateFileName, dbName))
-    {
-        myProject.logError("Copy file failed: " + templateFileName);
-        return;
-    }
-    myProject.meteoPointsDbHandler = new Crit3DMeteoPointsDbHandler(dbName);
-
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("csv files (*.csv)"));
-    if (fileName.isEmpty())
-        return;
-
-    QList<QString> pointPropertiesList;
-    if (!myProject.meteoPointsDbHandler->getNameColumn("point_properties", &pointPropertiesList))
-    {
-        myProject.logError("point_properties table error");
-        return;
-    }
-    QList<QString> csvFields;
-    if (!myProject.parseMeteoPointsPropertiesCSV(fileName, &csvFields))
-    {
-        return;
-    }
-
-    DialogPointProperties dialogPointProp(pointPropertiesList, csvFields);
-    if (dialogPointProp.result() != QDialog::Accepted)
-    {
-        return;
-    }
-    else
-    {
-        QList<QString> joinedList = dialogPointProp.getJoinedList();
-        myProject.logInfoGUI("Loading data...");
-        if (!myProject.writeMeteoPointsProperties(joinedList))
-        {
-            myProject.closeLogInfo();
-            return;
-        }
-        myProject.closeLogInfo();
-    }
-    loadMeteoPoints(dbName);
-}
 
 
 void MainWindow::on_actionPointProperties_import_triggered()
@@ -3338,4 +3271,74 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
+
+
+void MainWindow::on_actionFileMeteopointNewCsv_triggered()
+{
+    resetMeteoPointsMarker();
+
+    QString templateFileName = myProject.getDefaultPath() + PATH_TEMPLATE + "template_meteo.db";
+
+    QString dbName = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("DB files (*.db)"));
+    if (dbName == "")
+    {
+        qDebug() << "missing new db file name";
+        return;
+    }
+
+    QFile dbFile(dbName);
+    if (dbFile.exists())
+    {
+        myProject.closeMeteoPointsDB();
+        myProject.setIsElabMeteoPointsValue(false);
+        dbFile.close();
+        dbFile.setPermissions(QFile::ReadOther | QFile::WriteOther);
+        if (! dbFile.remove())
+        {
+            myProject.logError("Remove file failed: " + dbName + "\n" + dbFile.errorString());
+            return;
+        }
+    }
+
+    if (! QFile::copy(templateFileName, dbName))
+    {
+        myProject.logError("Copy file failed: " + templateFileName);
+        return;
+    }
+    myProject.meteoPointsDbHandler = new Crit3DMeteoPointsDbHandler(dbName);
+
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("csv files (*.csv)"));
+    if (fileName.isEmpty())
+        return;
+
+    QList<QString> pointPropertiesList;
+    if (!myProject.meteoPointsDbHandler->getNameColumn("point_properties", &pointPropertiesList))
+    {
+        myProject.logError("point_properties table error");
+        return;
+    }
+    QList<QString> csvFields;
+    if (!myProject.parseMeteoPointsPropertiesCSV(fileName, &csvFields))
+    {
+        return;
+    }
+
+    DialogPointProperties dialogPointProp(pointPropertiesList, csvFields);
+    if (dialogPointProp.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    else
+    {
+        QList<QString> joinedList = dialogPointProp.getJoinedList();
+        myProject.logInfoGUI("Loading data...");
+        if (!myProject.writeMeteoPointsProperties(joinedList))
+        {
+            myProject.closeLogInfo();
+            return;
+        }
+        myProject.closeLogInfo();
+    }
+    loadMeteoPoints(dbName);
+}
 
