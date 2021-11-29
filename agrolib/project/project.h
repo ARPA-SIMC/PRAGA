@@ -7,6 +7,12 @@
     #ifndef GIS_H
         #include "gis.h"
     #endif
+    #ifndef OUTPUTPOINTS_H
+        #include "outputPoints.h"
+    #endif
+    #ifndef DBOUTPUTPOINTSHANDLER_H
+        #include "dbOutputPointsHandler.h"
+    #endif
     #ifndef DBMETEOPOINTS_H
         #include "dbMeteoPointsHandler.h"
     #endif
@@ -101,9 +107,10 @@
         bool meteoPointsLoaded;
         int nrMeteoPoints;
         Crit3DMeteoPoint* meteoPoints;
-        std::vector<gis::Crit3DOutputPoint> outputPoints;
+        std::vector<Crit3DOutputPoint> outputPoints;
 
         Crit3DMeteoPointsDbHandler* meteoPointsDbHandler;
+        Crit3DOutputPointsDbHandler* outputPointsDbHandler;
         Crit3DAggregationsDbHandler* aggregationDbHandler;
 
         Crit3DColorScale* meteoPointsColorScale;
@@ -196,6 +203,8 @@
         void closeMeteoGridDB();
         void cleanMeteoPointsData();
 
+        void closeOutputPointsDB();
+
         bool loadDEM(QString myFileName);
         void closeDEM();
         bool loadMeteoPointsData(QDate firstDate, QDate lastDate, bool loadHourly, bool loadDaily, bool showInfo);
@@ -203,6 +212,8 @@
         bool loadMeteoPointsDB(QString dbName);
         bool loadMeteoGridDB(QString xmlName);
         bool loadAggregationdDB(QString dbName);
+        bool loadOutputPointsDB(QString dbName);
+        bool newOutputPointsDB(QString dbName);
         bool loadMeteoGridDailyData(QDate firstDate, QDate lastDate, bool showInfo);
         bool loadMeteoGridHourlyData(QDateTime firstDate, QDateTime lastDate, bool showInfo);
         bool loadMeteoGridMonthlyData(QDate firstDate, QDate lastDate, bool showInfo);
