@@ -66,25 +66,6 @@
         };
 
 
-        class  Crit3DOutputPoint : Crit3DPoint
-        {
-        public:
-            Crit3DOutputPoint();
-
-            std::string id;
-            double latitude;
-            double longitude;
-
-            bool active;
-            bool selected;
-
-            float currentValue;
-
-            void initialize(const std::string& _id, bool isActive, double _latitude, double _longitude,
-                            double _z, int zoneNumber);
-        };
-
-
         class Crit3DGridHeader
         {
         public:
