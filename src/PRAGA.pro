@@ -12,7 +12,7 @@ TEMPLATE = app
 
 INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/crit3dDate ../agrolib/mathFunctions ../agrolib/phenology ../agrolib/meteo ../agrolib/gis  \
-                ../agrolib/drought ../agrolib/interpolation ../agrolib/solarRadiation ../agrolib/utilities  \
+                ../agrolib/drought ../agrolib/interpolation ../agrolib/solarRadiation ../agrolib/utilities ../agrolib/outputPoints \
                 ../agrolib/dbMeteoPoints ../agrolib/dbMeteoGrid ../agrolib/meteoWidget ../agrolib/proxyWidget ../agrolib/climate \
                 ../agrolib/netcdfHandler  ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/importDataXML ../agrolib/project
 
@@ -47,6 +47,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/meteoWidget/debug -lmeteoWidget
     LIBS += -L../agrolib/dbMeteoGrid/debug -ldbMeteoGrid
     LIBS += -L../agrolib/dbMeteoPoints/debug -ldbMeteoPoints
+    LIBS += -L../agrolib/outputPoints/debug -loutputPoints
     LIBS += -L../agrolib/utilities/debug -lutilities
     LIBS += -L../agrolib/solarRadiation/debug -lsolarRadiation
     LIBS += -L../agrolib/interpolation/debug -linterpolation
@@ -78,6 +79,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/meteoWidget/release -lmeteoWidget
     LIBS += -L../agrolib/dbMeteoGrid/release -ldbMeteoGrid
     LIBS += -L../agrolib/dbMeteoPoints/release -ldbMeteoPoints
+    LIBS += -L../agrolib/outputPoints/release -loutputPoints
     LIBS += -L../agrolib/utilities/release -lutilities
     LIBS += -L../agrolib/solarRadiation/release -lsolarRadiation
     LIBS += -L../agrolib/interpolation/release -linterpolation
