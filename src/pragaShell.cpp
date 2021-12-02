@@ -497,6 +497,7 @@ int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentLi
     QDate first, last;
     QList <meteoVariable> variables;
     QList <QString> varString;
+    QList <QString> aggregationList;
     QString var, aggregation;
     meteoVariable meteoVar;
 
@@ -512,10 +513,18 @@ int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentLi
                 if (meteoVar != noMeteoVar) variables << meteoVar;
             }
         }
-        // aggregation: STDDEV, MEDIAN or AVG
+        // aggregation: STDDEV, MEDIAN, AVG or PERC95
         else if (argumentList.at(i).left(3) == "-a:")
         {
-            aggregation = argumentList[i].right(argumentList[i].length()-3).toUpper();
+            aggregationList = argumentList[i].right(argumentList[i].length()-3).toUpper().split(",");
+            foreach (aggregation, aggregationList)
+            {
+                if (aggregation != "STDDEV" && aggregation != "MEDIAN" && aggregation != "AVG" && aggregation != "PERC95")
+                {
+                    myProject->logError("Valid aggregation: STDDEV, MEDIAN, AVG, PERC95)");
+                    return PRAGA_INVALID_COMMAND;
+                }
+            }
         }
         else if (argumentList.at(i).left(4) == "-d1:")
         {
@@ -550,6 +559,12 @@ int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentLi
         return PRAGA_INVALID_COMMAND;
     }
 
+    if (aggregationList.isEmpty())
+    {
+        myProject->logError("Wrong aggregation");
+        return PRAGA_INVALID_COMMAND;
+    }
+
     if (! first.isValid())
     {
         myProject->logError("Wrong initial date");
@@ -559,12 +574,6 @@ int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentLi
     if (! last.isValid())
     {
         myProject->logError("Wrong final date");
-        return PRAGA_INVALID_COMMAND;
-    }
-
-    if (aggregation != "STDDEV" && aggregation != "MEDIAN" && aggregation != "AVG")
-    {
-        myProject->logError("Valid aggregation: STDDEV, MEDIAN, AVG)");
         return PRAGA_INVALID_COMMAND;
     }
 
@@ -593,13 +602,15 @@ int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentLi
 
     for (int i = 0; i<variables.size(); i++)
     {
-        myProject->logInfo("Computing variable number: "+QString::number(i));
-        if (!myProject->averageSeriesOnZonesMeteoGrid(variables[i], elab1MeteoComp, aggregation, threshold, myRaster, first, last, periodType, outputValues, false))
+        for (int j = 0; j < aggregationList.size(); j++)
         {
-            delete myRaster;
-            return PRAGA_ERROR;
+            myProject->logInfo("Computing variable number: "+QString::number(i) + ", aggregation number: "+QString::number(j));
+            if (!myProject->averageSeriesOnZonesMeteoGrid(variables[i], elab1MeteoComp, aggregationList[j], threshold, myRaster, first, last, periodType, outputValues, false))
+            {
+                delete myRaster;
+                return PRAGA_ERROR;
+            }
         }
-
     }
     delete myRaster;
     return PRAGA_OK;

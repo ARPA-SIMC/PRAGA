@@ -1553,6 +1553,11 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
                         res = statistics::standardDeviation(validValues, size);
                         break;
                     }
+                case aggr95Perc:
+                    {
+                        res = sorting::percentile(validValues, &size, 95.0, true);
+                        break;
+                    }
             }
             dailyElabAggregation[unsigned(day)][zonePos] = res;
          }
