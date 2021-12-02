@@ -1,6 +1,6 @@
 #include "dbOutputPointsHandler.h"
 #include "commonConstants.h"
-#include "meteo.h"
+#include "utilities.h"
 
 #include <QtSql>
 
@@ -35,6 +35,11 @@ Crit3DOutputPointsDbHandler::~Crit3DOutputPointsDbHandler()
 }
 
 
+bool Crit3DOutputPointsDbHandler::isOpen()
+{
+    return _db.isOpen();
+}
+
 QString Crit3DOutputPointsDbHandler::getDbName()
 {
     return _db.databaseName();
@@ -44,3 +49,51 @@ QString Crit3DOutputPointsDbHandler::getErrorString()
 {
     return errorString;
 }
+
+
+bool Crit3DOutputPointsDbHandler::createTable(QString tableName)
+{
+    QString queryString = "CREATE TABLE IF NOT EXISTS '" + tableName + "'";
+    queryString += " (DATE_TIME TEXT, PRIMARY KEY(DATE_TIME))";
+
+    QSqlQuery myQuery = _db.exec(queryString);
+
+    if (myQuery.lastError().isValid())
+    {
+        errorString = "Error in creating table: " + tableName + "\n" + myQuery.lastError().text();
+        return false;
+    }
+
+    return true;
+}
+
+
+bool Crit3DOutputPointsDbHandler::addColumn(QString tableName, meteoVariable myVar)
+{
+    // column name
+    QString newField = QString::fromStdString(getMeteoVarName(myVar));
+    if (newField == "")
+    {
+        errorString = "Missing variable name.";
+        return false;
+    }
+
+    // column exists already
+    QList<QString> fieldList = getFields(&_db, tableName);
+    if (fieldList.contains(newField))
+        return true;
+
+    // add column
+    QString queryString = "ALTER TABLE '" + tableName + "'";
+    queryString += " ADD " + newField + " REAL";
+
+    QSqlQuery myQuery = _db.exec(queryString);
+    if (myQuery.lastError().isValid())
+    {
+        errorString = "Error in add column: " + newField + "\n" + myQuery.lastError().text();
+        return false;
+    }
+
+    return true;
+}
+
