@@ -1507,6 +1507,11 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
                 if ( zoneValue != zoneGrid->header->flag)
                 {
                     zoneIndex = (unsigned int)(zoneValue);
+                    if (zoneIndex < 1)
+                    {
+                        errorString = "invalid zone index: " + QString::number(zoneIndex);
+                        return false;
+                    }
 
                     if (meteoGridRow[zoneRow][zoneCol] != NODATA && meteoGridCol[zoneRow][zoneCol] != NODATA)
                     {
