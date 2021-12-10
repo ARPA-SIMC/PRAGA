@@ -2283,7 +2283,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             {
                 netcdfName = getCompleteFileName(listXMLElab->listFileName()[i]+".nc", PATH_PROJECT);
             }
-            exportMeteoGridToNetCDF(netcdfName, "Elaboration", QString::fromStdString(MapDailyMeteoVarToString.at(listXMLElab->listVariable()[i])), getUnitFromVariable(listXMLElab->listVariable()[i]), NO_DATE, NO_DATE, NO_DATE);
+            exportMeteoGridToNetCDF(netcdfName, "Elaboration", QString::fromStdString(MapDailyMeteoVarToString.at(listXMLElab->listVariable()[i])), getUnitFromVariable(listXMLElab->listVariable()[i]), getCrit3DDate(listXMLElab->listDateStart()[i]), NO_DATE, NO_DATE);
             // reset param
             clima->resetParam();
             // reset current values
@@ -2365,7 +2365,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 netcdfName = getCompleteFileName(listXMLAnomaly->listFileName()[i]+".nc", PATH_PROJECT);
             }
 
-            exportMeteoGridToNetCDF(netcdfName, "Anomaly", QString::fromStdString(MapDailyMeteoVarToString.at(listXMLAnomaly->listVariable()[i])), getUnitFromVariable(listXMLAnomaly->listVariable()[i]), NO_DATE, NO_DATE, NO_DATE);
+            exportMeteoGridToNetCDF(netcdfName, "Anomaly", QString::fromStdString(MapDailyMeteoVarToString.at(listXMLAnomaly->listVariable()[i])), getUnitFromVariable(listXMLAnomaly->listVariable()[i]), getCrit3DDate(listXMLAnomaly->listDateStart()[i]), NO_DATE, NO_DATE);
             // reset param
             clima->resetParam();
             referenceClima->resetParam();
