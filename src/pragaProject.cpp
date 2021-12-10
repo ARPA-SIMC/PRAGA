@@ -2275,7 +2275,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             meteoGridDbHandler->meteoGrid()->fillMeteoRasterElabValue();
 
             QString netcdfName;
-            if(listXMLElab->listFileName().size() == i)
+            if(listXMLElab->listFileName().size() <= i)
             {
                 netcdfName = getCompleteFileName("ELAB_"+listXMLElab->listAll()[i]+".nc", PATH_PROJECT);
             }
@@ -2356,7 +2356,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 meteoGridDbHandler->meteoGrid()->fillMeteoRasterAnomalyPercValue();
             }
             QString netcdfName;
-            if (listXMLAnomaly->listFileName()[i].isEmpty())
+            if (listXMLAnomaly->listFileName().size() <= i)
             {
                 netcdfName = getCompleteFileName("ANOMALY_"+listXMLAnomaly->listAll()[i]+".nc", PATH_PROJECT);
             }
@@ -2381,7 +2381,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             meteoGridDbHandler->meteoGrid()->fillMeteoRasterElabValue();
 
             QString netcdfName;
-            if(listXMLDrought->listFileName().size() == i)
+            if(listXMLDrought->listFileName().size() <= i)
             {
                 netcdfName = getCompleteFileName(listXMLDrought->listAll()[i]+".nc", PATH_PROJECT);
             }
