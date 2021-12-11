@@ -107,7 +107,7 @@
         bool computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, QDate date, int timescale, meteoVariable myVar);
 
         #ifdef NETCDF
-                bool exportMeteoGridToNetCDF(QString fileName, QString title, QString variableName, std::string variableUnit, Crit3DDate myDate, Crit3DDate firstDate, Crit3DDate lastDate);
+                bool exportMeteoGridToNetCDF(QString fileName, QString title, QString variableName, std::string variableUnit, Crit3DDate myDate, int nDays, std::string elab);
                 bool exportXMLElabGridToNetcdf(QString xmlName);
         #endif
     };
