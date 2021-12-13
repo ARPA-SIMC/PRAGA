@@ -2399,15 +2399,29 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             }
             if (listXMLDrought->listIndex()[i] == INDEX_SPI)
             {
-                exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Index", "MONTHLY_PREC", "-", NO_DATE, 0, "");
+                int fistMonth = listXMLDrought->listDate()[i].month() - listXMLDrought->listTimescale()[i];
+                QDate dateStart(listXMLDrought->listDate()[i].year(), fistMonth, 1);
+                int lastDay = listXMLDrought->listDate()[i].daysInMonth();
+                QDate dateEnd(listXMLDrought->listDate()[i].year(),listXMLDrought->listDate()[i].month(),lastDay);
+                int nDays = dateStart.daysTo(dateEnd)+1;
+                exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Index", "MONTHLY_PREC", "-", getCrit3DDate(dateStart), nDays, "SPI");
             }
             else if (listXMLDrought->listIndex()[i] == INDEX_SPEI )
             {
-                exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Evapotranspiration Index", "MONTHLY_PREC", "-", NO_DATE, 0, "");
+                int fistMonth = listXMLDrought->listDate()[i].month() - listXMLDrought->listTimescale()[i];
+                QDate dateStart(listXMLDrought->listDate()[i].year(), fistMonth, 1);
+                int lastDay = listXMLDrought->listDate()[i].daysInMonth();
+                QDate dateEnd(listXMLDrought->listDate()[i].year(),listXMLDrought->listDate()[i].month(),lastDay);
+                int nDays = dateStart.daysTo(dateEnd)+1;
+                exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Evapotranspiration Index", "MONTHLY_PREC", "-", getCrit3DDate(dateStart), nDays, "SPEI");
             }
             else if (listXMLDrought->listIndex()[i] == INDEX_DECILES)
             {
-                exportMeteoGridToNetCDF(netcdfName, "Deciles Index", QString::fromStdString(MapMonthlyMeteoVarToString.at(listXMLDrought->listVariable()[i])), getUnitFromVariable(listXMLDrought->listVariable()[i]), NO_DATE, 0, "");
+                QDate dateStart(listXMLDrought->listDate()[i].year(), listXMLDrought->listDate()[i].month(), 1);
+                int lastDay = listXMLDrought->listDate()[i].daysInMonth();
+                QDate dateEnd(listXMLDrought->listDate()[i].year(),listXMLDrought->listDate()[i].month(),lastDay);
+                int nDays = dateStart.daysTo(dateEnd)+1;
+                exportMeteoGridToNetCDF(netcdfName, "Deciles Index", QString::fromStdString(MapMonthlyMeteoVarToString.at(listXMLDrought->listVariable()[i])), getUnitFromVariable(listXMLDrought->listVariable()[i]), getCrit3DDate(dateStart), nDays, "DECILES");
             }
         }
 
