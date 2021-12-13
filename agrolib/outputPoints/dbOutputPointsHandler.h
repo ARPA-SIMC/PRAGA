@@ -1,12 +1,12 @@
 #ifndef DBOUTPUTPOINTSHANDLER_H
 #define DBOUTPUTPOINTSHANDLER_H
 
-    #ifndef QSQLDATABASE_H
-        #include <QSqlDatabase>
-    #endif
     #ifndef METEO_H
         #include "meteo.h"
     #endif
+
+    #include <QSqlDatabase>
+    #include <QDateTime>
 
     class Crit3DOutputPointsDbHandler
     {
@@ -20,10 +20,14 @@
         QString getErrorString();
         bool isOpen();
 
-        bool createTable(QString tableName);
-        bool addColumn(QString tableName, meteoVariable myVar);
+        bool createTable(QString tableName, QString &errorStr);
+        bool addColumn(QString tableName, meteoVariable myVar, QString &errorString);
+        bool saveHourlyData(QString tableName, const QDateTime &myTime,
+                            const std::vector<meteoVariable> &varList,
+                            const std::vector<float> &values, QString& errorStr);
 
     private:
+
         QSqlDatabase _db;
         QString errorString;
     };
