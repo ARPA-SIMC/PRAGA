@@ -139,8 +139,6 @@
 
         void on_actionPointProperties_import_triggered();
 
-        void on_PointData_import_triggered();
-
         void on_actionAll_active_triggered();
 
         void on_actionAll_notActive_triggered();
@@ -174,6 +172,8 @@
         void on_action_Proxy_graph_triggered();
 
         void on_actionFileMeteopointNewCsv_triggered();
+
+        void on_actionPointData_import_triggered();
 
     protected:
         /*!

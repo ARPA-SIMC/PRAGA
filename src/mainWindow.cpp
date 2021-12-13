@@ -2812,7 +2812,7 @@ void MainWindow::on_actionPointProperties_import_triggered()
     }
 }
 
-void MainWindow::on_PointData_import_triggered()
+void MainWindow::on_actionPointData_import_triggered()
 {
     // check meteo point
     if (myProject.meteoPointsDbHandler == nullptr)
@@ -3341,4 +3341,3 @@ void MainWindow::on_actionFileMeteopointNewCsv_triggered()
     }
     loadMeteoPoints(dbName);
 }
-
