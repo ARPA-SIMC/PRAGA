@@ -2403,7 +2403,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 QDate dateStart(listXMLDrought->listDate()[i].year(), fistMonth, 1);
                 int lastDay = listXMLDrought->listDate()[i].daysInMonth();
                 QDate dateEnd(listXMLDrought->listDate()[i].year(),listXMLDrought->listDate()[i].month(),lastDay);
-                int nDays = dateStart.daysTo(dateEnd)+1;
+                int nDays = dateStart.daysTo(dateEnd);
                 exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Index", "MONTHLY_PREC", "-", getCrit3DDate(dateStart), nDays, "SPI");
             }
             else if (listXMLDrought->listIndex()[i] == INDEX_SPEI )
@@ -2412,7 +2412,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 QDate dateStart(listXMLDrought->listDate()[i].year(), fistMonth, 1);
                 int lastDay = listXMLDrought->listDate()[i].daysInMonth();
                 QDate dateEnd(listXMLDrought->listDate()[i].year(),listXMLDrought->listDate()[i].month(),lastDay);
-                int nDays = dateStart.daysTo(dateEnd)+1;
+                int nDays = dateStart.daysTo(dateEnd);
                 exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Evapotranspiration Index", "MONTHLY_PREC", "-", getCrit3DDate(dateStart), nDays, "SPEI");
             }
             else if (listXMLDrought->listIndex()[i] == INDEX_DECILES)
@@ -2420,7 +2420,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 QDate dateStart(listXMLDrought->listDate()[i].year(), listXMLDrought->listDate()[i].month(), 1);
                 int lastDay = listXMLDrought->listDate()[i].daysInMonth();
                 QDate dateEnd(listXMLDrought->listDate()[i].year(),listXMLDrought->listDate()[i].month(),lastDay);
-                int nDays = dateStart.daysTo(dateEnd)+1;
+                int nDays = dateStart.daysTo(dateEnd);
                 exportMeteoGridToNetCDF(netcdfName, "Deciles Index", "MONTHLY_PREC", getUnitFromVariable(listXMLDrought->listVariable()[i]), getCrit3DDate(dateStart), nDays, "DECILES");
             }
         }
