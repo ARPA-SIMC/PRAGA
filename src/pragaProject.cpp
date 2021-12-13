@@ -2286,7 +2286,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             QDate dateEnd = listXMLElab->listDateEnd()[i].addYears(listXMLElab->listNYears()[i]);
             QDate dateStart = listXMLElab->listDateStart()[i];
             QString elab = listXMLElab->listElab1()[i];
-            int nDays = dateStart.daysTo(dateEnd)+1;
+            int nDays = dateStart.daysTo(dateEnd);
             exportMeteoGridToNetCDF(netcdfName, "Elaboration", QString::fromStdString(MapDailyMeteoVarToString.at(listXMLElab->listVariable()[i])), getUnitFromVariable(listXMLElab->listVariable()[i]), getCrit3DDate(listXMLElab->listDateStart()[i]), nDays, elab.toStdString());
             // reset param
             clima->resetParam();
@@ -2372,7 +2372,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             QDate dateEnd = listXMLAnomaly->listDateEnd()[i].addYears(listXMLAnomaly->listNYears()[i]);
             QDate dateStart = listXMLAnomaly->listDateStart()[i];
             QString elab = listXMLAnomaly->listElab1()[i];
-            int nDays = dateStart.daysTo(dateEnd)+1;
+            int nDays = dateStart.daysTo(dateEnd);
             exportMeteoGridToNetCDF(netcdfName, "Anomaly", QString::fromStdString(MapDailyMeteoVarToString.at(listXMLAnomaly->listVariable()[i])), getUnitFromVariable(listXMLAnomaly->listVariable()[i]), getCrit3DDate(listXMLAnomaly->listDateStart()[i]), nDays, elab.toStdString());
             // reset param
             clima->resetParam();
