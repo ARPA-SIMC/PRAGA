@@ -2129,7 +2129,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
 }
 
 #ifdef NETCDF
-    bool PragaProject::exportMeteoGridToNetCDF(QString fileName, QString title, QString variableName, std::string variableUnit, Crit3DDate myDate, int nDays, std::string elab)
+    bool PragaProject::exportMeteoGridToNetCDF(QString fileName, QString title, QString variableName, std::string variableUnit, Crit3DDate myDate, int nDays, std::string elab, int refYearStart, int refYearEnd)
     {
         if (! checkMeteoGridForExport()) return false;
 
@@ -2142,7 +2142,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
         }
 
         if (! netcdf->writeMetadata(meteoGridDbHandler->gridStructure().header(), title.toStdString(),
-                                    variableName.toStdString(), variableUnit, myDate, nDays, elab))
+                                    variableName.toStdString(), variableUnit, myDate, nDays, elab, refYearStart, refYearEnd))
         {
             logError("Error in writing geo dimensions.");
             return false;
@@ -2287,7 +2287,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             QDate dateStart = listXMLElab->listDateStart()[i];
             QString elab = listXMLElab->listElab1()[i];
             int nDays = dateStart.daysTo(dateEnd);
-            exportMeteoGridToNetCDF(netcdfName, "Elaboration", QString::fromStdString(MapDailyMeteoVarToString.at(listXMLElab->listVariable()[i])), getUnitFromVariable(listXMLElab->listVariable()[i]), getCrit3DDate(listXMLElab->listDateStart()[i]), nDays, elab.toStdString());
+            exportMeteoGridToNetCDF(netcdfName, "Elaboration", QString::fromStdString(MapDailyMeteoVarToString.at(listXMLElab->listVariable()[i])), getUnitFromVariable(listXMLElab->listVariable()[i]), getCrit3DDate(listXMLElab->listDateStart()[i]), nDays, elab.toStdString(), 0, 0);
             // reset param
             clima->resetParam();
             // reset current values
@@ -2373,7 +2373,8 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
             QDate dateStart = listXMLAnomaly->listDateStart()[i];
             QString elab = listXMLAnomaly->listElab1()[i];
             int nDays = dateStart.daysTo(dateEnd);
-            exportMeteoGridToNetCDF(netcdfName, "Anomaly", QString::fromStdString(MapDailyMeteoVarToString.at(listXMLAnomaly->listVariable()[i])), getUnitFromVariable(listXMLAnomaly->listVariable()[i]), getCrit3DDate(listXMLAnomaly->listDateStart()[i]), nDays, elab.toStdString());
+            exportMeteoGridToNetCDF(netcdfName, "Anomaly", QString::fromStdString(MapDailyMeteoVarToString.at(listXMLAnomaly->listVariable()[i])), getUnitFromVariable(listXMLAnomaly->listVariable()[i]), getCrit3DDate(listXMLAnomaly->listDateStart()[i]),
+                                    nDays, elab.toStdString(), listXMLAnomaly->listRefYearStart()[i], listXMLAnomaly->listRefYearEnd()[i]);
             // reset param
             clima->resetParam();
             referenceClima->resetParam();
@@ -2404,7 +2405,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 int lastDay = listXMLDrought->listDate()[i].daysInMonth();
                 QDate dateEnd(listXMLDrought->listDate()[i].year(),listXMLDrought->listDate()[i].month(),lastDay);
                 int nDays = dateStart.daysTo(dateEnd);
-                exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Index", "MONTHLY_PREC", "-", getCrit3DDate(dateStart), nDays, "SPI");
+                exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Index", "MONTHLY_PREC", "-", getCrit3DDate(dateStart), nDays, "SPI", listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i]);
             }
             else if (listXMLDrought->listIndex()[i] == INDEX_SPEI )
             {
@@ -2413,7 +2414,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 int lastDay = listXMLDrought->listDate()[i].daysInMonth();
                 QDate dateEnd(listXMLDrought->listDate()[i].year(),listXMLDrought->listDate()[i].month(),lastDay);
                 int nDays = dateStart.daysTo(dateEnd);
-                exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Evapotranspiration Index", "MONTHLY_PREC", "-", getCrit3DDate(dateStart), nDays, "SPEI");
+                exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Evapotranspiration Index", "MONTHLY_PREC", "-", getCrit3DDate(dateStart), nDays, "SPEI", listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i]);
             }
             else if (listXMLDrought->listIndex()[i] == INDEX_DECILES)
             {
@@ -2421,7 +2422,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 int lastDay = listXMLDrought->listDate()[i].daysInMonth();
                 QDate dateEnd(listXMLDrought->listDate()[i].year(),listXMLDrought->listDate()[i].month(),lastDay);
                 int nDays = dateStart.daysTo(dateEnd);
-                exportMeteoGridToNetCDF(netcdfName, "Deciles Index", "MONTHLY_PREC", getUnitFromVariable(listXMLDrought->listVariable()[i]), getCrit3DDate(dateStart), nDays, "DECILES");
+                exportMeteoGridToNetCDF(netcdfName, "Deciles Index", "MONTHLY_PREC", getUnitFromVariable(listXMLDrought->listVariable()[i]), getCrit3DDate(dateStart), nDays, "DECILES", listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i]);
             }
         }
 
