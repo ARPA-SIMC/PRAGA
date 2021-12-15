@@ -2405,7 +2405,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 int lastDay = listXMLDrought->listDate()[i].daysInMonth();
                 QDate dateEnd(listXMLDrought->listDate()[i].year(),listXMLDrought->listDate()[i].month(),lastDay);
                 int nDays = dateStart.daysTo(dateEnd);
-                exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Index", "SPI", "", getCrit3DDate(dateStart), nDays, "SPI", listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i]);
+                exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Index", "SPI", "", getCrit3DDate(dateStart), nDays, "standard_deviation (SPI at 1 month scale)", listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i]);
             }
             else if (listXMLDrought->listIndex()[i] == INDEX_SPEI )
             {
@@ -2414,7 +2414,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 int lastDay = listXMLDrought->listDate()[i].daysInMonth();
                 QDate dateEnd(listXMLDrought->listDate()[i].year(),listXMLDrought->listDate()[i].month(),lastDay);
                 int nDays = dateStart.daysTo(dateEnd);
-                exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Evapotranspiration Index", "SPEI", "", getCrit3DDate(dateStart), nDays, "SPEI", listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i]);
+                exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Evapotranspiration Index", "SPEI", "", getCrit3DDate(dateStart), nDays, "standard_deviation (SPEI at 1 month scale)", listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i]);
             }
             else if (listXMLDrought->listIndex()[i] == INDEX_DECILES)
             {
@@ -2422,7 +2422,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 int lastDay = listXMLDrought->listDate()[i].daysInMonth();
                 QDate dateEnd(listXMLDrought->listDate()[i].year(),listXMLDrought->listDate()[i].month(),lastDay);
                 int nDays = dateStart.daysTo(dateEnd);
-                exportMeteoGridToNetCDF(netcdfName, "Deciles Index", "DECILES", getUnitFromVariable(listXMLDrought->listVariable()[i]), getCrit3DDate(dateStart), nDays, "DECILES", listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i]);
+                exportMeteoGridToNetCDF(netcdfName, "Deciles Index", "DECILES", getUnitFromVariable(listXMLDrought->listVariable()[i]), getCrit3DDate(dateStart), nDays, "point (precipitation sum percentile rank)", listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i]);
             }
         }
 
