@@ -2422,7 +2422,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 int lastDay = listXMLDrought->listDate()[i].daysInMonth();
                 QDate dateEnd(listXMLDrought->listDate()[i].year(),listXMLDrought->listDate()[i].month(),lastDay);
                 int nDays = dateStart.daysTo(dateEnd);
-                exportMeteoGridToNetCDF(netcdfName, "Deciles Index", "DECILES", getUnitFromVariable(listXMLDrought->listVariable()[i]), getCrit3DDate(dateStart), nDays, "", listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i]);
+                exportMeteoGridToNetCDF(netcdfName, "Deciles Index", "DECILES", getUnitFromVariable(listXMLDrought->listVariable()[i]), getCrit3DDate(dateStart), nDays, "precipitation sum percentile rank", listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i]);
             }
         }
 
