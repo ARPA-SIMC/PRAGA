@@ -762,15 +762,21 @@ bool NetCDFHandler::createNewFile(std::string fileName)
 
 bool NetCDFHandler::writeMetadata(const gis::Crit3DGridHeader& latLonHeader, const string& title,
                                   const string& variableName, const string& variableUnit,
-                                  const Crit3DDate& myDate, int nDays, const string& elab)
+                                  const Crit3DDate& myDate, int nDays, int refYearStart, int refYearEnd)
 {
     if (ncId == NODATA) return false;
 
     bool timeDimensionExists = (myDate != NO_DATE);
     bool boundsExist = false;
-    if (nDays != 0)
+    bool referenceIntervalExists = false;
+    if (nDays != 0 && nDays != NODATA)
     {
         boundsExist = true;
+    }
+    if (refYearStart != 0 && refYearStart != NODATA
+        && refYearEnd != 0 && refYearEnd != NODATA)
+    {
+        referenceIntervalExists = true;
     }
     nrLat = latLonHeader.nrRows;
     nrLon = latLonHeader.nrCols;
@@ -800,6 +806,10 @@ bool NetCDFHandler::writeMetadata(const gis::Crit3DGridHeader& latLonHeader, con
 
         std::string timeUnits = "days since " + myDate.toStdString();
         status = nc_put_att_text(ncId, varTime, "units", timeUnits.length(), timeUnits.c_str());
+        if (status != NC_NOERR) return false;
+
+        std::string timeCalendarAtt = "gregorian" ;
+        status = nc_put_att_text(ncId, varTime, "calendar", timeCalendarAtt.length(), timeCalendarAtt.c_str());
         if (status != NC_NOERR) return false;
 
         if (boundsExist)
@@ -866,10 +876,13 @@ bool NetCDFHandler::writeMetadata(const gis::Crit3DGridHeader& latLonHeader, con
         if (status != NC_NOERR) return false;
     }
 
-    if (elab != "")
+    if (referenceIntervalExists)
     {
-        std::string cellMethods = "time: " + elab;
-        status = nc_put_att_text(ncId, variables[0].id, "cell_methods", cellMethods.length(), cellMethods.c_str());
+        std::string referenceYearStart = std::to_string(refYearStart);
+        status = nc_put_att_text(ncId, variables[0].id, "reference_start_year", referenceYearStart.length(), referenceYearStart.c_str());
+        if (status != NC_NOERR) return false;
+        std::string referenceYearEnd = std::to_string(refYearEnd);
+        status = nc_put_att_text(ncId, variables[0].id, "reference_end_year", referenceYearEnd.length(), referenceYearEnd.c_str());
         if (status != NC_NOERR) return false;
     }
 
@@ -877,8 +890,12 @@ bool NetCDFHandler::writeMetadata(const gis::Crit3DGridHeader& latLonHeader, con
     status = nc_put_att_text(ncId, variables[0].id, "long_name", variableName.length(), variableName.c_str());
     if (status != NC_NOERR) return false;
 
-    status = nc_put_att_text(ncId, variables[0].id, "units", variableUnit.length(), variableUnit.c_str());
-    if (status != NC_NOERR) return false;
+    // Units are not required for dimensionless quantities
+    if (variableUnit != "")
+    {
+        status = nc_put_att_text(ncId, variables[0].id, "units", variableUnit.length(), variableUnit.c_str());
+        if (status != NC_NOERR) return false;
+    }
 
     // no data
     float missing[] = {NODATA};
