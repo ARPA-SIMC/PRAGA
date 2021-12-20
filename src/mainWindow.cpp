@@ -2760,7 +2760,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
     {
         QMessageBox::warning(nullptr, " Not valid values: ", warning);
     }
-    QString xmlName = myProject.meteoGridDbHandler->fileName();
+    QString xmlName = myProject.dbGridXMLFileName;
     closeMeteoGrid();
     loadMeteoGrid(xmlName);
 }
