@@ -2108,7 +2108,8 @@ bool MainWindow::on_actionAnalysisAggregateFromGrid_triggered()
         float threshold = NODATA;
         meteoComputation elab1MeteoComp = noMeteoComp;
         QString periodType = "D";
-        if (!myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, true))
+        int nMissing = 0;
+        if (!myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, nMissing, true))
         {
             QMessageBox::information(nullptr, "Error", "Error writing aggregation data");
             if (myRaster != nullptr)
@@ -2116,6 +2117,10 @@ bool MainWindow::on_actionAnalysisAggregateFromGrid_triggered()
                 delete myRaster;
             }
             return false;
+        }
+        if (nMissing != 0)
+        {
+            QMessageBox::information(nullptr, "Warning", "Missing values");
         }
     }
     if (myRaster != nullptr)
@@ -2760,7 +2765,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
     {
         QMessageBox::warning(nullptr, " Not valid values: ", warning);
     }
-    QString xmlName = myProject.meteoGridDbHandler->fileName();
+    QString xmlName = myProject.dbGridXMLFileName;
     closeMeteoGrid();
     loadMeteoGrid(xmlName);
 }

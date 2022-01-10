@@ -488,9 +488,8 @@ bool ImportDataXML::importXMLDataFixed(QString *error)
     int nErrors = 0;
     int nReplication = 0;  // LC è sempre 0,eliminare?
 
-    QList<QDate> dateList;
-    QList<meteoVariable> varList;
-    QList<float> valueList;
+    QMultiMap<QString, QList<QString>> mapIdValues;
+    QList<QString> listEntries;
 
     while (!in.atEnd())
     {
@@ -551,25 +550,28 @@ bool ImportDataXML::importXMLDataFixed(QString *error)
                             *error = "Meteovariable not found or not valid for file:\n" + dataFileName;
                             return false;
                         }
-                        dateList.push_back(myDate);
-                        varList.push_back(var);
-                        valueList.push_back(myValue.toFloat());
-                        // TO DO modificare in modo che scriva la lista
                         if (isGrid)
                         {
-                            if (meteoGridDbHandler->meteoGrid()->gridStructure().isFixedFields())
+                            if (time.getType().toUpper() == "DAILY")
                             {
-                                if (!meteoGridDbHandler->saveCellCurrentGridDailyFF(error, myPointCode, myDate, QString::fromStdString(meteoGridDbHandler->getDailyPragaName(var)), myValue.toFloat()))
-                                {
-                                    return false;
-                                }
+                                listEntries.push_back(QString("('%1',%2,%3)").arg(myDate.toString("yyyy-MM-dd")).arg(meteoGridDbHandler->getDailyVarCode(var)).arg(myValue.toFloat()));
                             }
-                            else
+                            else if (time.getType().toUpper() == "HOURLY")
                             {
-                                if(!meteoGridDbHandler->saveCellCurrentGridDaily(error, myPointCode, myDate, meteoGridDbHandler->getDailyVarCode(var), myValue.toFloat()))
-                                {
-                                    return false;
-                                }
+                                listEntries.push_back(QString("('%1',%2,%3)").arg(myDate.toString("yyyy-MM-dd")).arg(meteoGridDbHandler->getHourlyVarCode(var)).arg(myValue.toFloat()));
+                            }
+                        }
+                        else
+                        {
+                            listEntries.push_back(QString("('%1',%2,%3)").arg(myDate.toString("yyyy-MM-dd")).arg(meteoPointsDbHandler->getIdfromMeteoVar(var)).arg(myValue.toFloat()));
+                        }
+                        mapIdValues.insert(myPointCode, listEntries);
+                        // TO DO isFixedFields non è ottimizzata la scrittura, struttura non piu' utilizzata
+                        if (isGrid && meteoGridDbHandler->meteoGrid()->gridStructure().isFixedFields())
+                        {
+                            if (!meteoGridDbHandler->saveCellCurrentGridDailyFF(error, myPointCode, myDate, QString::fromStdString(meteoGridDbHandler->getDailyPragaName(var)), myValue.toFloat()))
+                            {
+                                return false;
                             }
                         }
                     }
@@ -662,28 +664,28 @@ bool ImportDataXML::importXMLDataFixed(QString *error)
                             *error = "Meteovariable not found or not valid for file:\n" + dataFileName;
                             return false;
                         }
-                        if (!isGrid)
+                        if (isGrid)
                         {
-                            if (!meteoPointsDbHandler->writeDailyData(myPointCode, myDate, var, myValue.toFloat(), error))
+                            if (time.getType().toUpper() == "DAILY")
                             {
-                                return false;
+                                listEntries.push_back(QString("('%1',%2,%3)").arg(myDate.toString("yyyy-MM-dd")).arg(meteoGridDbHandler->getDailyVarCode(var)).arg(myValue.toFloat()));
+                            }
+                            else if (time.getType().toUpper() == "HOURLY")
+                            {
+                                listEntries.push_back(QString("('%1',%2,%3)").arg(myDate.toString("yyyy-MM-dd")).arg(meteoGridDbHandler->getHourlyVarCode(var)).arg(myValue.toFloat()));
                             }
                         }
                         else
                         {
-                            if (meteoGridDbHandler->meteoGrid()->gridStructure().isFixedFields())
+                            listEntries.push_back(QString("('%1',%2,%3)").arg(myDate.toString("yyyy-MM-dd")).arg(meteoPointsDbHandler->getIdfromMeteoVar(var)).arg(myValue.toFloat()));
+                        }
+                        mapIdValues.insert(myPointCode, listEntries);
+                        // TO DO isFixedFields non è ottimizzata la scrittura, struttura non piu' utilizzata
+                        if (isGrid && meteoGridDbHandler->meteoGrid()->gridStructure().isFixedFields())
+                        {
+                            if (!meteoGridDbHandler->saveCellCurrentGridDailyFF(error, myPointCode, myDate, QString::fromStdString(meteoGridDbHandler->getDailyPragaName(var)), myValue.toFloat()))
                             {
-                                if (!meteoGridDbHandler->saveCellCurrentGridDailyFF(error, myPointCode, myDate, QString::fromStdString(meteoGridDbHandler->getDailyPragaName(var)), myValue.toFloat()))
-                                {
-                                    return false;
-                                }
-                            }
-                            else
-                            {
-                                if(!meteoGridDbHandler->saveCellCurrentGridDaily(error, myPointCode, myDate, meteoGridDbHandler->getDailyVarCode(var), myValue.toFloat()))
-                                {
-                                    return false;
-                                }
+                                return false;
                             }
                         }
                     }
@@ -699,14 +701,30 @@ bool ImportDataXML::importXMLDataFixed(QString *error)
       nRow = nRow + 1;
     }
     myFile.close();
-    // TO DO aggiungere qui anche le altre casistiche
-    if (format_isSinglePoint && !isGrid)
+
+    if (isGrid && !meteoGridDbHandler->meteoGrid()->gridStructure().isFixedFields())
     {
-        if (!meteoPointsDbHandler->writeDailyDataList(myPointCode, dateList, varList, valueList, error))
+        QList<QString> keys = mapIdValues.uniqueKeys();
+        for (int i = 0; i<keys.size(); i++)
         {
-            return false;
+            if (!meteoGridDbHandler->saveCellCurrentGridDailyList(keys[i], mapIdValues.value(keys[i]), error))
+            {
+                return false;
+            }
         }
     }
+    else
+    {
+        QList<QString> keys = mapIdValues.uniqueKeys();
+        for (int i = 0; i<keys.size(); i++)
+        {
+            if (!meteoPointsDbHandler->writeDailyDataList(keys[i], mapIdValues.value(keys[i]), error))
+            {
+                return false;
+            }
+        }
+    }
+
     if (nErrors != 0)
     {
         *error = QString::number(nErrors);
@@ -766,6 +784,8 @@ bool ImportDataXML::importXMLDataDelimited(QString *error)
     QVariant myValue;
     int nReplication = 0;  // TO DO
     int nErrors = 0;
+    QMultiMap<QString, QList<QString>> mapIdValues;
+    QList<QString> listEntries;
 
     while (!in.atEnd())
     {
@@ -845,28 +865,28 @@ bool ImportDataXML::importXMLDataDelimited(QString *error)
                                 *error = "Meteovariable not found or not valid for file:\n" + dataFileName;
                                 return false;
                             }
-                            if (!isGrid)
+                            if (isGrid)
                             {
-                                if (!meteoPointsDbHandler->writeDailyData(myPointCode, myDate, var, myValue.toFloat(), error))
+                                if (time.getType().toUpper() == "DAILY")
                                 {
-                                    return false;
+                                    listEntries.push_back(QString("('%1',%2,%3)").arg(myDate.toString("yyyy-MM-dd")).arg(meteoGridDbHandler->getDailyVarCode(var)).arg(myValue.toFloat()));
+                                }
+                                else if (time.getType().toUpper() == "HOURLY")
+                                {
+                                    listEntries.push_back(QString("('%1',%2,%3)").arg(myDate.toString("yyyy-MM-dd")).arg(meteoGridDbHandler->getHourlyVarCode(var)).arg(myValue.toFloat()));
                                 }
                             }
                             else
                             {
-                                if (meteoGridDbHandler->meteoGrid()->gridStructure().isFixedFields())
+                                listEntries.push_back(QString("('%1',%2,%3)").arg(myDate.toString("yyyy-MM-dd")).arg(meteoPointsDbHandler->getIdfromMeteoVar(var)).arg(myValue.toFloat()));
+                            }
+                            mapIdValues.insert(myPointCode, listEntries);
+                            // TO DO isFixedFields non è ottimizzata la scrittura, struttura non piu' utilizzata
+                            if (isGrid && meteoGridDbHandler->meteoGrid()->gridStructure().isFixedFields())
+                            {
+                                if (!meteoGridDbHandler->saveCellCurrentGridDailyFF(error, myPointCode, myDate, QString::fromStdString(meteoGridDbHandler->getDailyPragaName(var)), myValue.toFloat()))
                                 {
-                                    if (!meteoGridDbHandler->saveCellCurrentGridDailyFF(error, myPointCode, myDate, QString::fromStdString(meteoGridDbHandler->getDailyPragaName(var)), myValue.toFloat()))
-                                    {
-                                        return false;
-                                    }
-                                }
-                                else
-                                {
-                                    if(!meteoGridDbHandler->saveCellCurrentGridDaily(error, myPointCode, myDate, meteoGridDbHandler->getDailyVarCode(var), myValue.toFloat()))
-                                    {
-                                        return false;
-                                    }
+                                    return false;
                                 }
                             }
                         }
@@ -890,6 +910,29 @@ bool ImportDataXML::importXMLDataDelimited(QString *error)
       nRow = nRow + 1;
     }
     myFile.close();
+
+    if (isGrid && !meteoGridDbHandler->meteoGrid()->gridStructure().isFixedFields())
+    {
+        QList<QString> keys = mapIdValues.uniqueKeys();
+        for (int i = 0; i<keys.size(); i++)
+        {
+            if (!meteoGridDbHandler->saveCellCurrentGridDailyList(keys[i], mapIdValues.value(keys[i]), error))
+            {
+                return false;
+            }
+        }
+    }
+    else
+    {
+        QList<QString> keys = mapIdValues.uniqueKeys();
+        for (int i = 0; i<keys.size(); i++)
+        {
+            if (!meteoPointsDbHandler->writeDailyDataList(keys[i], mapIdValues.value(keys[i]), error))
+            {
+                return false;
+            }
+        }
+    }
     if (nErrors != 0)
     {
         *error = QString::number(nErrors);
