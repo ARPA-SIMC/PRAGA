@@ -1263,6 +1263,8 @@ void MainWindow::addMeteoPoints()
         point->setMunicipality(myProject.meteoPoints[i].municipality);
         point->setCurrentValue(myProject.meteoPoints[i].currentValue);
         point->setQuality(myProject.meteoPoints[i].quality);
+        point->setShowValue(false);
+
         if (!myProject.meteoPoints[i].active)
         {
             point->setActive(false);
