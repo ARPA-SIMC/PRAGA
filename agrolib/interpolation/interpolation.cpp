@@ -332,6 +332,11 @@ bool regressionGeneric(std::vector <Crit3DInterpolationDataPoint> &myPoints, Cri
     myProxy->setRegressionIntercept(q);
     myProxy->setRegressionR2(r2);
     myProxy->setLapseRateT0(q);
+
+    // clean inversion (only thermal variables)
+    myProxy->setInversionIsSignificative(false);
+    myProxy->setInversionLapseRate(NODATA);
+
     return (r2 >= mySettings->getMinRegressionR2());
 }
 
@@ -943,6 +948,24 @@ bool checkPrecipitationZero(std::vector <Crit3DInterpolationDataPoint> &myPoints
 }
 
 
+// predisposta per eventuale aggiunta wind al detrend
+bool isThermal(meteoVariable myVar)
+{
+    if (myVar == airTemperature ||
+            myVar == airDewTemperature ||
+            myVar == dailyAirTemperatureAvg ||
+            myVar == dailyAirTemperatureMax ||
+            myVar == dailyAirTemperatureMin ||
+            myVar == dailyAirDewTemperatureAvg ||
+            myVar == dailyAirDewTemperatureMax ||
+            myVar == dailyAirDewTemperatureMin)
+
+        return true;
+    else
+        return false;
+}
+
+
 bool getUseDetrendingVar(meteoVariable myVar)
 {
     if (myVar == airTemperature ||
@@ -953,6 +976,7 @@ bool getUseDetrendingVar(meteoVariable myVar)
             myVar == dailyAirDewTemperatureAvg ||
             myVar == dailyAirDewTemperatureMax ||
             myVar == dailyAirDewTemperatureMin)
+            // todo aggiungere windScalarIntensity?
 
         return true;
     else
