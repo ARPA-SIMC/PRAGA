@@ -1836,28 +1836,10 @@ void Project::passInterpolatedTemperatureToHumidityPoints(Crit3DTime myTime, Cri
 }
 
 
-bool Project::interpolationPoints(meteoVariable myVar, const Crit3DTime& myTime)
+bool Project::interpolationOutputPoints(std::vector <Crit3DInterpolationDataPoint> &interpolationPoints,
+                                        gis::Crit3DRasterGrid *outputGrid, meteoVariable myVar)
 {
-    std::vector <Crit3DInterpolationDataPoint> interpolationPoints;
-
-    // check quality and pass data to interpolation
-    if (!checkAndPassDataToInterpolation(quality, myVar, meteoPoints, nrMeteoPoints, myTime,
-                                         &qualityInterpolationSettings, &interpolationSettings,
-                                         meteoSettings, &climateParameters, interpolationPoints,
-                                         checkSpatialQuality))
-    {
-        logError("No data available: " + QString::fromStdString(getVariableString(myVar)));
-        return false;
-    }
-
-    // detrending and checking precipitation
-    bool interpolationReady = preInterpolation(interpolationPoints, &interpolationSettings, meteoSettings,
-                                               &climateParameters, meteoPoints, nrMeteoPoints, myVar, myTime);
-    if (! interpolationReady)
-    {
-        logError("Interpolation: error in function preInterpolation");
-        return false;
-    }
+    if (! getComputeOnlyPoints()) return false;
 
     std::vector <float> proxyValues;
     proxyValues.resize(unsigned(interpolationSettings.getProxyNr()));
@@ -1870,9 +1852,15 @@ bool Project::interpolationPoints(meteoVariable myVar, const Crit3DTime& myTime)
             double y = outputPoints[i].utm.y;
             double z = outputPoints[i].z;
 
-            if (getUseDetrendingVar(myVar)) getProxyValuesXY(x, y, &interpolationSettings, proxyValues);
-            outputPoints[i].currentValue = interpolate(interpolationPoints, &interpolationSettings,
+            int row, col;
+            gis::getRowColFromXY(*outputGrid, x, y, &row, &col);
+            if (! gis::isOutOfGridRowCol(row, col, *outputGrid))
+            {
+                if (getUseDetrendingVar(myVar)) getProxyValuesXY(x, y, &interpolationSettings, proxyValues);
+                outputPoints[i].currentValue = interpolate(interpolationPoints, &interpolationSettings,
                                                        meteoSettings, myVar, x, y, z, proxyValues, true);
+                outputGrid->value[row][col] = outputPoints[i].currentValue;
+            }
         }
     }
 
@@ -1902,8 +1890,19 @@ bool Project::interpolationDem(meteoVariable myVar, const Crit3DTime& myTime, gi
         return false;
     }
 
+
     // interpolate
-    if (! interpolationRaster(interpolationPoints, &interpolationSettings, meteoSettings, myRaster, DEM, myVar))
+    bool result;
+    if (getComputeOnlyPoints())
+    {
+        result = interpolationOutputPoints(interpolationPoints, myRaster, myVar);
+    }
+    else
+    {
+        result = interpolationRaster(interpolationPoints, &interpolationSettings, meteoSettings, myRaster, DEM, myVar);
+    }
+
+    if (!result)
     {
         logError("Interpolation: error in function interpolationRaster");
         return false;
@@ -1917,6 +1916,8 @@ bool Project::interpolationDem(meteoVariable myVar, const Crit3DTime& myTime, gi
 
 bool Project::interpolateDemRadiation(const Crit3DTime& myTime, gis::Crit3DRasterGrid *myRaster)
 {
+    this->radiationMaps->initialize();
+
     std::vector <Crit3DInterpolationDataPoint> interpolationPoints;
 
     radSettings.setGisSettings(&gisSettings);
@@ -1936,25 +1937,47 @@ bool Project::interpolateDemRadiation(const Crit3DTime& myTime, gis::Crit3DRaste
         }
     }
 
-    if (! checkAndPassDataToInterpolation(quality, atmTransmissivity, meteoPoints, nrMeteoPoints,
-                                        myTime, &qualityInterpolationSettings,
-                                        &interpolationSettings, meteoSettings, &climateParameters, interpolationPoints, checkSpatialQuality))
+    bool result;
+    result = checkAndPassDataToInterpolation(quality, atmTransmissivity, meteoPoints, nrMeteoPoints,
+                                          myTime, &qualityInterpolationSettings, &interpolationSettings,
+                                          meteoSettings, &climateParameters, interpolationPoints, checkSpatialQuality);
+    if (! result)
     {
-        logError("Function interpolateRasterRadiation: not enough transmissivity data.");
+        logError("Function interpolateDemRadiation: not enough transmissivity data.");
         return false;
     }
 
-    preInterpolation(interpolationPoints, &interpolationSettings, meteoSettings, &climateParameters, meteoPoints, nrMeteoPoints, atmTransmissivity, myTime);
+    preInterpolation(interpolationPoints, &interpolationSettings, meteoSettings, &climateParameters,
+                     meteoPoints, nrMeteoPoints, atmTransmissivity, myTime);
 
-    if (! interpolationRaster(interpolationPoints, &interpolationSettings, meteoSettings, this->radiationMaps->transmissivityMap, DEM, atmTransmissivity))
+    // interpolate transmissivity
+    if (getComputeOnlyPoints())
     {
-        logError("Function interpolateRasterRadiation: error interpolating transmissivity.");
+        result = interpolationOutputPoints(interpolationPoints, this->radiationMaps->transmissivityMap, atmTransmissivity);
+    }
+    else
+    {
+        result = interpolationRaster(interpolationPoints, &interpolationSettings, meteoSettings,
+                                     this->radiationMaps->transmissivityMap, DEM, atmTransmissivity);
+    }
+    if (! result)
+    {
+        logError("Function interpolateDemRadiation: error interpolating transmissivity.");
         return false;
     }
 
-    if (! radiation::computeRadiationGridPresentTime(&radSettings, this->DEM, this->radiationMaps, myTime))
+    // compute radiation
+    if (getComputeOnlyPoints())
     {
-        logError("Function interpolateRasterRadiation: error computing solar radiation");
+        result = radiation::computeRadiationPointsPresentTime(&radSettings, this->DEM, this->radiationMaps, outputPoints, myTime);
+    }
+    else
+    {
+        result = radiation::computeRadiationGridPresentTime(&radSettings, this->DEM, this->radiationMaps, myTime);
+    }
+    if (! result)
+    {
+        logError("Function interpolateDemRadiation: error computing solar radiation");
         return false;
     }
 
