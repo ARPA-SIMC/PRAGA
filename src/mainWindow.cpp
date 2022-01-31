@@ -1244,6 +1244,25 @@ bool MainWindow::loadMeteoGrid(QString xmlName)
     }
 }
 
+bool MainWindow::newMeteoGrid(QString xmlName)
+{
+    #ifdef NETCDF
+        closeNetCDF();
+    #endif
+
+    if (myProject.newMeteoGridDB(xmlName))
+    {
+        drawMeteoGrid();
+        this->update();
+        return true;
+    }
+    else
+    {
+        myProject.logError();
+        return false;
+    }
+}
+
 
 void MainWindow::addMeteoPoints()
 {
@@ -3347,4 +3366,22 @@ void MainWindow::on_actionFileMeteopointNewCsv_triggered()
         myProject.closeLogInfo();
     }
     loadMeteoPoints(dbName);
+}
+
+void MainWindow::on_actionNewMeteoGrid_triggered()
+{
+    QString xmlName = QFileDialog::getOpenFileName(this, tr("New XML DB meteo grid"), "", tr("xml files (*.xml)"));
+    if (xmlName != "")
+    {
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Are you sure?" ,
+                                      "A new meteo grid will be created",
+                                      QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::Yes)
+        {
+            closeMeteoGrid();
+            newMeteoGrid(xmlName);
+        }
+    }
+    return;
 }
