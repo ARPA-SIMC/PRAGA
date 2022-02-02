@@ -2466,7 +2466,7 @@
      <x>0</x>
      <y>0</y>
      <width>1392</width>
-     <height>22</height>
+     <height>30</height>
     </rect>
    </property>
    <property name="palette">
@@ -2932,6 +2932,7 @@
      </property>
      <addaction name="actionFileMeteogridOpen"/>
      <addaction name="actionFileMeteogridClose"/>
+     <addaction name="actionNewMeteoGrid"/>
      <addaction name="actionFileMeteogridExportNetcdf"/>
      <addaction name="actionImport_data_XML_grid"/>
     </widget>
@@ -3688,6 +3689,11 @@
   <action name="action_Proxy_graph">
    <property name="text">
     <string>Proxy graph...</string>
+   </property>
+  </action>
+  <action name="actionNewMeteoGrid">
+   <property name="text">
+    <string>New</string>
    </property>
   </action>
  </widget>

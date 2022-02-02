@@ -175,6 +175,8 @@
 
         void on_actionPointData_import_triggered();
 
+        void on_actionNewMeteoGrid_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -240,6 +242,7 @@
 
         bool loadMeteoPoints(QString dbName);
         bool loadMeteoGrid(QString xmlName);
+        bool newMeteoGrid(QString xmlName);
         bool openRaster(QString fileName, gis::Crit3DRasterGrid *myRaster);
         bool openShape(QString fileName);
         void setCurrentRaster(gis::Crit3DRasterGrid *myRaster);
