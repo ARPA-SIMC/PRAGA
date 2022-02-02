@@ -1767,7 +1767,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     if (interpolationSettings.getUseTD())
     {
         logInfoGUI("Loading topographic distance maps...");
-        if (! loadTopographicDistanceMaps(false))
+        if (! loadTopographicDistanceMaps(true, false))
             return false;
     }
 
