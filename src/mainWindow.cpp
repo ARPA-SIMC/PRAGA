@@ -1874,7 +1874,13 @@ void MainWindow::on_actionTopographicDistanceMapsSave_triggered()
 
 void MainWindow::on_actionTopographicDistanceMapsLoad_triggered()
 {
-    myProject.loadTopographicDistanceMaps(true);
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Create topographic distance maps", "Only for stations with data?",
+            QMessageBox::Yes|QMessageBox::No);
+
+    bool onlyWithData = (reply == QMessageBox::Yes);
+
+    myProject.loadTopographicDistanceMaps(onlyWithData, true);
 }
 
 void MainWindow::on_meteoPoints_clicked()
