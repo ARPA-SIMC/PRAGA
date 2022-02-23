@@ -2611,3 +2611,26 @@ bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int
     }
     return res;
 }
+
+bool PragaProject::exportMeteoGridToESRI(QString fileName)
+{
+    if (fileName != "")
+    {
+        gis::Crit3DRasterGrid myGrid = meteoGridDbHandler->meteoGrid()->dataMeteoGrid;
+        if (!meteoGridDbHandler->gridStructure().isUTM())
+        {
+            // lat lon grid
+            myGrid.header->convertFromLatLon(meteoGridDbHandler->gridStructure().header());
+        }
+        std::string myError = errorString.toStdString();
+        QString fileWithoutExtension = QFileInfo(fileName).absolutePath() + QDir::separator() + QFileInfo(fileName).baseName();
+        if (!gis::writeEsriGrid(fileWithoutExtension.toStdString(), &myGrid, &myError))
+        {
+            errorString = QString::fromStdString(myError);
+            return false;
+        }
+        return true;
+
+    }
+    return false;
+}

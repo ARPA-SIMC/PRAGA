@@ -2934,6 +2934,7 @@
      <addaction name="actionFileMeteogridClose"/>
      <addaction name="actionNewMeteoGrid"/>
      <addaction name="actionFileMeteogridExportNetcdf"/>
+     <addaction name="actionFileMeteogridExportRaster"/>
      <addaction name="actionImport_data_XML_grid"/>
     </widget>
     <widget class="QMenu" name="menuFileMeteopoint">
@@ -3694,6 +3695,11 @@
   <action name="actionNewMeteoGrid">
    <property name="text">
     <string>New</string>
+   </property>
+  </action>
+  <action name="actionFileMeteogridExportRaster">
+   <property name="text">
+    <string>Export current data to raster</string>
    </property>
   </action>
  </widget>
