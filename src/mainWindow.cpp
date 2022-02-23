@@ -3392,6 +3392,7 @@ void MainWindow::on_actionNewMeteoGrid_triggered()
     return;
 }
 
+
 void MainWindow::on_actionFileMeteogridExportRaster_triggered()
 {
     if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr)
@@ -3412,3 +3413,4 @@ void MainWindow::on_actionFileMeteogridExportRaster_triggered()
     }
     return;
 }
+

@@ -1279,7 +1279,19 @@ bool PragaProject::downloadDailyDataArkimet(QList<QString> variables, bool prec0
         else
         {
             arkIdVar.append(myDownload->getDbArkimet()->getId(variables[i]));
+            if (myDownload->getDbArkimet()->error != "")
+            {
+                logError(myDownload->getDbArkimet()->error);
+                myDownload->getDbArkimet()->error.clear();
+            }
         }
+    }
+
+    if (arkIdVar.size() == 0)
+    {
+        logError("No variables to download");
+        delete myDownload;
+        return false;
     }
 
     int index, nrPoints = 0;
