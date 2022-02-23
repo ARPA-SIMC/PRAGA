@@ -3391,3 +3391,4 @@ void MainWindow::on_actionNewMeteoGrid_triggered()
     }
     return;
 }
+
