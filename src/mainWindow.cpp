@@ -3392,3 +3392,25 @@ void MainWindow::on_actionNewMeteoGrid_triggered()
     return;
 }
 
+
+void MainWindow::on_actionFileMeteogridExportRaster_triggered()
+{
+    if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr)
+    {
+        myProject.logError("Open meteo grid before.");
+        return;
+    }
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save current data of meteo grid"), "", tr("ESRI grid files (*.flt)"));
+
+    if (fileName != "")
+    {
+        if (!myProject.exportMeteoGridToESRI(fileName))
+        {
+            myProject.logError(myProject.errorString);
+            return;
+        }
+    }
+    return;
+}
+

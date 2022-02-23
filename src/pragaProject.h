@@ -105,6 +105,7 @@
         bool loadXMLImportData(QString fileName);
         bool monthlyVariablesGrid(QDate first, QDate last, QList <meteoVariable> variables);
         bool computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, QDate date, int timescale, meteoVariable myVar);
+        bool exportMeteoGridToESRI(QString fileName);
 
         #ifdef NETCDF
                 bool exportMeteoGridToNetCDF(QString fileName, QString title, QString variableName, std::string variableUnit, Crit3DDate myDate, int nDays, int refYearStart, int refYearEnd);

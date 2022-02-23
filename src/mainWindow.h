@@ -177,6 +177,8 @@
 
         void on_actionNewMeteoGrid_triggered();
 
+        void on_actionFileMeteogridExportRaster_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
