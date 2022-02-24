@@ -2628,19 +2628,35 @@ bool PragaProject::exportMeteoGridToESRI(QString fileName)
 {
     if (fileName != "")
     {
-        gis::Crit3DRasterGrid myGrid = meteoGridDbHandler->meteoGrid()->dataMeteoGrid;
+        gis::Crit3DRasterGrid* myGrid = new gis::Crit3DRasterGrid();
+        myGrid->copyGrid(meteoGridDbHandler->meteoGrid()->dataMeteoGrid);
+
         if (!meteoGridDbHandler->gridStructure().isUTM())
         {
             // lat lon grid
-            myGrid.header->convertFromLatLon(meteoGridDbHandler->gridStructure().header());
+            myGrid->header->convertFromLatLon(meteoGridDbHandler->gridStructure().header());
         }
+        /*
+        for (int row = 0; row < myGrid->header->nrRows; row++)
+        {
+            for (int col = 0; col < myGrid->header->nrCols; col++)
+            {
+                qDebug() << "row: " << row << "\n";
+                qDebug() << "col: " << col << "\n";
+                qDebug() << "2 myGrid[i][j] " << myGrid->value[row][col]  << "\n";
+            }
+        }
+        */
+
         std::string myError = errorString.toStdString();
         QString fileWithoutExtension = QFileInfo(fileName).absolutePath() + QDir::separator() + QFileInfo(fileName).baseName();
-        if (!gis::writeEsriGrid(fileWithoutExtension.toStdString(), &myGrid, &myError))
+        if (!gis::writeEsriGrid(fileWithoutExtension.toStdString(), myGrid, &myError))
         {
             errorString = QString::fromStdString(myError);
+            delete myGrid;
             return false;
         }
+        delete myGrid;
         return true;
 
     }
