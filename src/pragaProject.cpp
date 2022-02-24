@@ -1279,7 +1279,19 @@ bool PragaProject::downloadDailyDataArkimet(QList<QString> variables, bool prec0
         else
         {
             arkIdVar.append(myDownload->getDbArkimet()->getId(variables[i]));
+            if (myDownload->getDbArkimet()->error != "")
+            {
+                logError(myDownload->getDbArkimet()->error);
+                myDownload->getDbArkimet()->error.clear();
+            }
         }
+    }
+
+    if (arkIdVar.size() == 0)
+    {
+        logError("No variables to download");
+        delete myDownload;
+        return false;
     }
 
     int index, nrPoints = 0;
@@ -2610,4 +2622,43 @@ bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int
         }
     }
     return res;
+}
+
+bool PragaProject::exportMeteoGridToESRI(QString fileName)
+{
+    if (fileName != "")
+    {
+        gis::Crit3DRasterGrid* myGrid = new gis::Crit3DRasterGrid();
+        myGrid->copyGrid(meteoGridDbHandler->meteoGrid()->dataMeteoGrid);
+
+        if (!meteoGridDbHandler->gridStructure().isUTM())
+        {
+            // lat lon grid
+            myGrid->header->convertFromLatLon(meteoGridDbHandler->gridStructure().header());
+        }
+        /*
+        for (int row = 0; row < myGrid->header->nrRows; row++)
+        {
+            for (int col = 0; col < myGrid->header->nrCols; col++)
+            {
+                qDebug() << "row: " << row << "\n";
+                qDebug() << "col: " << col << "\n";
+                qDebug() << "2 myGrid[i][j] " << myGrid->value[row][col]  << "\n";
+            }
+        }
+        */
+
+        std::string myError = errorString.toStdString();
+        QString fileWithoutExtension = QFileInfo(fileName).absolutePath() + QDir::separator() + QFileInfo(fileName).baseName();
+        if (!gis::writeEsriGrid(fileWithoutExtension.toStdString(), myGrid, &myError))
+        {
+            errorString = QString::fromStdString(myError);
+            delete myGrid;
+            return false;
+        }
+        delete myGrid;
+        return true;
+
+    }
+    return false;
 }
