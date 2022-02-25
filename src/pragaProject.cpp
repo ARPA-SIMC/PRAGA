@@ -2662,7 +2662,7 @@ bool PragaProject::exportMeteoGridToESRI(QString fileName, double cellSize)
                     }
                     else
                     {
-                        myValue = meteoGridDbHandler->meteoGrid()->dataMeteoGrid.value[latlonHeader.nrRows-1-dataGridRow][dataGridCol];
+                        myValue = meteoGridDbHandler->meteoGrid()->dataMeteoGrid.value[dataGridRow][dataGridCol];
                     }
                     if (myValue != NO_ACTIVE && myValue != NODATA)
                     {
