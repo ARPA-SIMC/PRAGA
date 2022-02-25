@@ -2634,7 +2634,6 @@ bool PragaProject::exportMeteoGridToESRI(QString fileName)
         if (!meteoGridDbHandler->gridStructure().isUTM())
         {
             // lat lon grid
-            myGrid->header->convertFromLatLon(meteoGridDbHandler->gridStructure().header());
         }
         /*
         for (int row = 0; row < myGrid->header->nrRows; row++)
