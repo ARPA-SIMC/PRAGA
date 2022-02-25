@@ -2624,28 +2624,65 @@ bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int
     return res;
 }
 
-bool PragaProject::exportMeteoGridToESRI(QString fileName)
+bool PragaProject::exportMeteoGridToESRI(QString fileName, double cellSize)
 {
     if (fileName != "")
     {
         gis::Crit3DRasterGrid* myGrid = new gis::Crit3DRasterGrid();
-        myGrid->copyGrid(meteoGridDbHandler->meteoGrid()->dataMeteoGrid);
 
         if (!meteoGridDbHandler->gridStructure().isUTM())
         {
             // lat lon grid
-        }
-        /*
-        for (int row = 0; row < myGrid->header->nrRows; row++)
-        {
-            for (int col = 0; col < myGrid->header->nrCols; col++)
+            gis::Crit3DGridHeader latlonHeader = meteoGridDbHandler->gridStructure().header();
+            gis::getGeoExtentsFromLatLonHeader(gisSettings, cellSize, myGrid->header, &latlonHeader);
+            if (!myGrid->initializeGrid(NODATA))
             {
-                qDebug() << "row: " << row << "\n";
-                qDebug() << "col: " << col << "\n";
-                qDebug() << "2 myGrid[i][j] " << myGrid->value[row][col]  << "\n";
+                errorString = "initializeGrid failed";
+                delete myGrid;
+                return false;
+            }
+            double utmx;
+            double utmy;
+            double lat;
+            double lon;
+            int dataGridRow;
+            int dataGridCol;
+            float myValue;
+
+            for (int row = 0; row < myGrid->header->nrRows; row++)
+            {
+                for (int col = 0; col < myGrid->header->nrCols; col++)
+                {
+                    qDebug() << "row: " << row << "\n";
+                    qDebug() << "col: " << col << "\n";
+                    myGrid->getXY(row,col,&utmx,&utmy);
+                    gis::getLatLonFromUtm(gisSettings,utmx,utmy,&lat,&lon);
+                    gis::getMeteoGridRowColFromXY (latlonHeader, lon, lat, &dataGridRow, &dataGridCol);
+                    if (dataGridRow < 0)
+                    {
+                        dataGridRow = 0;
+                    }
+                    else if (dataGridRow > latlonHeader.nrRows)
+                    {
+                        dataGridRow = latlonHeader.nrRows;
+                    }
+                    if (dataGridCol < 0)
+                    {
+                        dataGridCol = 0;
+                    }
+                    else if (dataGridCol > latlonHeader.nrCols)
+                    {
+                        dataGridCol = latlonHeader.nrCols;
+                    }
+                    myValue = meteoGridDbHandler->meteoGrid()->dataMeteoGrid.value[dataGridRow][dataGridCol];
+                    myGrid->value[row][col] = myValue;
+                }
             }
         }
-        */
+        else
+        {
+            myGrid->copyGrid(meteoGridDbHandler->meteoGrid()->dataMeteoGrid);
+        }
 
         std::string myError = errorString.toStdString();
         QString fileWithoutExtension = QFileInfo(fileName).absolutePath() + QDir::separator() + QFileInfo(fileName).baseName();

@@ -92,6 +92,7 @@ CONFIG(debug, debug|release) {
 
 
 SOURCES += \
+    dialogCellSize.cpp \
     main.cpp \
     mainGUI.cpp \
     mainWindow.cpp \
@@ -110,6 +111,7 @@ SOURCES += \
 
 
 HEADERS  += \
+    dialogCellSize.h \
     mainGUI.h \
     mainWindow.h \
     dialogPragaProject.h \

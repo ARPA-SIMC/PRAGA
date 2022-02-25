@@ -33,6 +33,7 @@
 #include "dialogPointProperties.h"
 #include "dialogPointDeleteData.h"
 #include "dialogSelectionMeteoPoint.h"
+#include "dialogCellSize.h"
 #include "utilities.h"
 #include "basicMath.h"
 #include "meteoWidget.h"
@@ -3405,7 +3406,17 @@ void MainWindow::on_actionFileMeteogridExportRaster_triggered()
 
     if (fileName != "")
     {
-        if (!myProject.exportMeteoGridToESRI(fileName))
+        double cellSizeValue;
+        DialogCellSize cellSizeDialog;
+        if (cellSizeDialog.result() == QDialog::Accepted)
+        {
+            cellSizeValue = cellSizeDialog.getCellSize();
+        }
+        else
+        {
+            return;
+        }
+        if (!myProject.exportMeteoGridToESRI(fileName, cellSizeValue))
         {
             myProject.logError(myProject.errorString);
             return;
