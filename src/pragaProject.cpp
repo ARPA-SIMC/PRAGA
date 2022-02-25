@@ -2656,13 +2656,13 @@ bool PragaProject::exportMeteoGridToESRI(QString fileName, double cellSize)
                     myGrid->getXY(row,col,&utmx,&utmy);
                     gis::getLatLonFromUtm(gisSettings,utmx,utmy,&lat,&lon);
                     gis::getMeteoGridRowColFromXY (latlonHeader, lon, lat, &dataGridRow, &dataGridCol);
-                    if (dataGridRow < 0 || dataGridRow > latlonHeader.nrRows || dataGridCol < 0 || dataGridCol > latlonHeader.nrCols)
+                    if (dataGridRow < 0 || dataGridRow >= latlonHeader.nrRows || dataGridCol < 0 || dataGridCol >= latlonHeader.nrCols)
                     {
                         myValue = NODATA;
                     }
                     else
                     {
-                        myValue = meteoGridDbHandler->meteoGrid()->dataMeteoGrid.value[dataGridRow][dataGridCol];
+                        myValue = meteoGridDbHandler->meteoGrid()->dataMeteoGrid.value[latlonHeader.nrRows-1-dataGridRow][dataGridCol];
                     }
                     if (myValue != NO_ACTIVE && myValue != NODATA)
                     {
