@@ -2653,8 +2653,6 @@ bool PragaProject::exportMeteoGridToESRI(QString fileName, double cellSize)
             {
                 for (int col = 0; col < myGrid->header->nrCols; col++)
                 {
-                    qDebug() << "row: " << row << "\n";
-                    qDebug() << "col: " << col << "\n";
                     myGrid->getXY(row,col,&utmx,&utmy);
                     gis::getLatLonFromUtm(gisSettings,utmx,utmy,&lat,&lon);
                     gis::getMeteoGridRowColFromXY (latlonHeader, lon, lat, &dataGridRow, &dataGridCol);
