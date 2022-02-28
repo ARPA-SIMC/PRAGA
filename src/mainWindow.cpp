@@ -3441,7 +3441,6 @@ void MainWindow::on_actionUpdate_properties_triggered()
         return;
     }
 
-
     Download myDownload(myProject.meteoPointsDbHandler->getDbName());
 
     Crit3DMeteoPoint pointPropFromArkimet;
@@ -3477,33 +3476,33 @@ void MainWindow::on_actionUpdate_properties_triggered()
         {
             changes = true;
             log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"latitude, "+
-                   QString::fromStdString(listMeteoPoints[i].latitude) + ","+ QString::fromStdString(pointPropFromArkimet.latitude) + "\n";
+                   QString::number(listMeteoPoints[i].latitude) + ","+ QString::number(pointPropFromArkimet.latitude) + "\n";
             column << "latitude";
-            values << QString::fromStdString(pointPropFromArkimet.latitude);
+            values << QString::number(pointPropFromArkimet.latitude);
         }
         if (pointPropFromArkimet.longitude != listMeteoPoints[i].longitude)
         {
             changes = true;
             log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"longitude, "+
-                   QString::fromStdString(listMeteoPoints[i].longitude) + ","+ QString::fromStdString(pointPropFromArkimet.longitude) + "\n";
+                   QString::number(listMeteoPoints[i].longitude) + ","+ QString::number(pointPropFromArkimet.longitude) + "\n";
             column << "longitude";
-            values << QString::fromStdString(pointPropFromArkimet.longitude);
+            values << QString::number(pointPropFromArkimet.longitude);
         }
         if (pointPropFromArkimet.latInt != listMeteoPoints[i].latInt)
         {
             changes = true;
             log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"latInt, "+
-                   QString::fromStdString(listMeteoPoints[i].latInt) + ","+ QString::fromStdString(pointPropFromArkimet.latInt) + "\n";
+                   QString::number(listMeteoPoints[i].latInt) + ","+ QString::number(pointPropFromArkimet.latInt) + "\n";
             column << "latInt";
-            values << QString::fromStdString(pointPropFromArkimet.latInt);
+            values << QString::number(pointPropFromArkimet.latInt);
         }
         if (pointPropFromArkimet.lonInt != listMeteoPoints[i].lonInt)
         {
             changes = true;
             log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"lonInt, "+
-                   QString::fromStdString(listMeteoPoints[i].lonInt) + ","+ QString::fromStdString(pointPropFromArkimet.lonInt) + "\n";
+                   QString::number(listMeteoPoints[i].lonInt) + ","+ QString::number(pointPropFromArkimet.lonInt) + "\n";
             column << "lonInt";
-            values << QString::fromStdString(pointPropFromArkimet.lonInt);
+            values << QString::number(pointPropFromArkimet.lonInt);
         }
         // TO DO
         if (changes)
