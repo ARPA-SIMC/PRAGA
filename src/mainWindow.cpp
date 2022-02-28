@@ -3425,3 +3425,98 @@ void MainWindow::on_actionFileMeteogridExportRaster_triggered()
     return;
 }
 
+
+void MainWindow::on_actionUpdate_properties_triggered()
+{
+    if (! myProject.meteoPointsDbHandler)
+    {
+        myProject.logError("Open meteo point db before.");
+        return;
+    }
+    QList<Crit3DMeteoPoint> listMeteoPoints;
+    myProject.errorString = "";
+    if (! myProject.meteoPointsDbHandler->getPropertiesFromDb(listMeteoPoints, myProject.gisSettings, myProject.errorString))
+    {
+        myProject.logError("Error in reading table 'point_properties'\n" + myProject.errorString);
+        return;
+    }
+
+
+    Download myDownload(myProject.meteoPointsDbHandler->getDbName());
+
+    Crit3DMeteoPoint pointPropFromArkimet;
+    QString log;
+    bool changes;
+    QList<QString> column;
+    QList<QString> values;
+    for (int i=0; i<listMeteoPoints.size(); i++)
+    {
+        column.clear();
+        values.clear();
+        changes = false;
+        pointPropFromArkimet.clear();
+        myDownload.getPointPropertiesFromId(QString::fromStdString(listMeteoPoints[i].id), &pointPropFromArkimet);
+        if (pointPropFromArkimet.name != listMeteoPoints[i].name)
+        {
+            changes = true;
+            log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"name, "+
+                   QString::fromStdString(listMeteoPoints[i].name) + ","+ QString::fromStdString(pointPropFromArkimet.name) + "\n";
+            column << "name";
+            values << QString::fromStdString(pointPropFromArkimet.name);
+        }
+        if (pointPropFromArkimet.dataset != listMeteoPoints[i].dataset)
+        {
+            changes = true;
+            log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"dataset, "+
+                   QString::fromStdString(listMeteoPoints[i].dataset) + ","+ QString::fromStdString(pointPropFromArkimet.dataset) + "\n";
+            column << "dataset";
+
+            values << QString::fromStdString(pointPropFromArkimet.dataset);
+        }
+        if (pointPropFromArkimet.latitude != listMeteoPoints[i].latitude)
+        {
+            changes = true;
+            log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"latitude, "+
+                   QString::fromStdString(listMeteoPoints[i].latitude) + ","+ QString::fromStdString(pointPropFromArkimet.latitude) + "\n";
+            column << "latitude";
+            values << QString::fromStdString(pointPropFromArkimet.latitude);
+        }
+        if (pointPropFromArkimet.longitude != listMeteoPoints[i].longitude)
+        {
+            changes = true;
+            log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"longitude, "+
+                   QString::fromStdString(listMeteoPoints[i].longitude) + ","+ QString::fromStdString(pointPropFromArkimet.longitude) + "\n";
+            column << "longitude";
+            values << QString::fromStdString(pointPropFromArkimet.longitude);
+        }
+        if (pointPropFromArkimet.latInt != listMeteoPoints[i].latInt)
+        {
+            changes = true;
+            log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"latInt, "+
+                   QString::fromStdString(listMeteoPoints[i].latInt) + ","+ QString::fromStdString(pointPropFromArkimet.latInt) + "\n";
+            column << "latInt";
+            values << QString::fromStdString(pointPropFromArkimet.latInt);
+        }
+        if (pointPropFromArkimet.lonInt != listMeteoPoints[i].lonInt)
+        {
+            changes = true;
+            log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"lonInt, "+
+                   QString::fromStdString(listMeteoPoints[i].lonInt) + ","+ QString::fromStdString(pointPropFromArkimet.lonInt) + "\n";
+            column << "lonInt";
+            values << QString::fromStdString(pointPropFromArkimet.lonInt);
+        }
+        // TO DO
+        if (changes)
+        {
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(this, "Id: "+QString::fromStdString(listMeteoPoints[i].id) + "Point properties from arkimet are different",
+                                          "Update point properties?",QMessageBox::Yes|QMessageBox::No);
+
+            if (reply == QMessageBox::Yes)
+            {
+                myProject.meteoPointsDbHandler->updatePointProperties(column, values);
+            }
+        }
+    }
+}
+
