@@ -3446,6 +3446,7 @@ void MainWindow::on_actionUpdate_properties_triggered()
     Crit3DMeteoPoint pointPropFromArkimet;
     QString log;
     bool changes;
+    bool latLonChanged;
     QList<QString> column;
     QList<QString> values;
     for (int i=0; i<listMeteoPoints.size(); i++)
@@ -3453,6 +3454,7 @@ void MainWindow::on_actionUpdate_properties_triggered()
         column.clear();
         values.clear();
         changes = false;
+        latLonChanged = false;
         pointPropFromArkimet.clear();
         myDownload.getPointPropertiesFromId(QString::fromStdString(listMeteoPoints[i].id), &pointPropFromArkimet);
         if (pointPropFromArkimet.name != listMeteoPoints[i].name)
@@ -3504,9 +3506,83 @@ void MainWindow::on_actionUpdate_properties_triggered()
             column << "lonInt";
             values << QString::number(pointPropFromArkimet.lonInt);
         }
-        // TO DO
+        if (pointPropFromArkimet.point.z != listMeteoPoints[i].point.z)
+        {
+            changes = true;
+            log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"altitude, "+
+                   QString::number(listMeteoPoints[i].point.z) + ","+ QString::number(pointPropFromArkimet.point.z) + "\n";
+            column << "altitude";
+            values << QString::number(pointPropFromArkimet.point.z);
+        }
+        if (pointPropFromArkimet.state != listMeteoPoints[i].state)
+        {
+            changes = true;
+            log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"state, "+
+                   QString::fromStdString(listMeteoPoints[i].state) + ","+ QString::fromStdString(pointPropFromArkimet.state) + "\n";
+            column << "state";
+            values << QString::fromStdString(pointPropFromArkimet.state);
+        }
+        if (pointPropFromArkimet.region != listMeteoPoints[i].region)
+        {
+            changes = true;
+            log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"region, "+
+                   QString::fromStdString(listMeteoPoints[i].region) + ","+ QString::fromStdString(pointPropFromArkimet.region) + "\n";
+            column << "region";
+            values << QString::fromStdString(pointPropFromArkimet.region);
+        }
+        if (pointPropFromArkimet.province != listMeteoPoints[i].province)
+        {
+            changes = true;
+            log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"province, "+
+                   QString::fromStdString(listMeteoPoints[i].province) + ","+ QString::fromStdString(pointPropFromArkimet.province) + "\n";
+            column << "province";
+            values << QString::fromStdString(pointPropFromArkimet.province);
+        }
+        if (pointPropFromArkimet.municipality != listMeteoPoints[i].municipality)
+        {
+            changes = true;
+            log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"municipality, "+
+                   QString::fromStdString(listMeteoPoints[i].municipality) + ","+ QString::fromStdString(pointPropFromArkimet.municipality) + "\n";
+            column << "municipality";
+            values << QString::fromStdString(pointPropFromArkimet.municipality);
+        }
+        if (pointPropFromArkimet.active != listMeteoPoints[i].active)
+        {
+            changes = true;
+            log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"is_active, "+
+                   QString::number(listMeteoPoints[i].active) + ","+ QString::number(pointPropFromArkimet.active) + "\n";
+            column << "is_active";
+            values << QString::number(pointPropFromArkimet.active);
+        }
+        if (pointPropFromArkimet.isUTC != listMeteoPoints[i].isUTC)
+        {
+            changes = true;
+            log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"is_utc, "+
+                   QString::number(listMeteoPoints[i].isUTC) + ","+ QString::number(pointPropFromArkimet.isUTC) + "\n";
+            column << "is_active";
+            values << QString::number(pointPropFromArkimet.isUTC);
+        }
+        if (pointPropFromArkimet.lapseRateCode != listMeteoPoints[i].lapseRateCode)
+        {
+            changes = true;
+            log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"orog_code, "+
+                   QString::number(listMeteoPoints[i].lapseRateCode) + ","+ QString::number(pointPropFromArkimet.lapseRateCode) + "\n";
+            column << "orog_code";
+            values << QString::number(pointPropFromArkimet.lapseRateCode);
+        }
         if (changes)
         {
+            if (latLonChanged)
+            {
+                double utmx, utmy;
+                gis::latLonToUtmForceZone(myProject.gisSettings.utmZone, pointPropFromArkimet.latitude, pointPropFromArkimet.longitude, &utmx, &utmy);
+                log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"utm_x, "+
+                       QString::number(listMeteoPoints[i].point.utm.x) + ","+ QString::number(utmx) + "\n";
+                log = log + "id: "+QString::fromStdString(listMeteoPoints[i].id)+","+"utm_y, "+
+                       QString::number(listMeteoPoints[i].point.utm.y) + ","+ QString::number(utmy) + "\n";
+                column << "utm_x" << "utm_y";
+                values << QString::number(utmx) << QString::number(utmy);
+            }
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(this, "Id: "+QString::fromStdString(listMeteoPoints[i].id) + "Point properties from arkimet are different",
                                           "Update point properties?",QMessageBox::Yes|QMessageBox::No);
