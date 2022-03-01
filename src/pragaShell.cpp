@@ -259,7 +259,12 @@ int cmdInterpolationGridPeriod(PragaProject* myProject, QList<QString> argumentL
             foreach (var,varString)
             {
                 meteoVar = getMeteoVar(var.toStdString());
-                if (meteoVar != noMeteoVar) variables << meteoVar;
+                if (meteoVar == noMeteoVar) {
+                    myProject->logError("Unknown variable: " + var);
+                    return PRAGA_INVALID_COMMAND;
+                }
+
+                variables << meteoVar;
             }
         }
         else if (argumentList[i].left(3) == "-a:")
@@ -268,7 +273,13 @@ int cmdInterpolationGridPeriod(PragaProject* myProject, QList<QString> argumentL
             foreach (var,varString)
             {
                 meteoVar = getMeteoVar(var.toStdString());
-                if (meteoVar != noMeteoVar) aggrVariables << meteoVar;
+
+                if (meteoVar == noMeteoVar) {
+                    myProject->logError("Unknown variable: " + var);
+                    return PRAGA_INVALID_COMMAND;
+                }
+
+                aggrVariables << meteoVar;
             }
         }
         else if (argumentList.at(i).left(4) == "-d1:")

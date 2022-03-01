@@ -1805,7 +1805,13 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     foreach (myVar, variables)
     {
         freq = getVarFrequency(myVar);
-        if (freq == hourly)
+
+        if (freq == noFrequency)
+        {
+            logError("Unknown variable: " + QString::fromStdString(getMeteoVarName(myVar)));
+            return false;
+        }
+        else if (freq == hourly)
             isHourly = true;
         else if (freq == daily)
             isDaily = true;
