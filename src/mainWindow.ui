@@ -2466,7 +2466,7 @@
      <x>0</x>
      <y>0</y>
      <width>1392</width>
-     <height>25</height>
+     <height>30</height>
     </rect>
    </property>
    <property name="palette">
@@ -2960,6 +2960,9 @@
      <addaction name="actionFileMeteopointClose"/>
      <addaction name="actionFileMeteopointDownload"/>
      <addaction name="menuImport"/>
+     <addaction name="actionUpdate_properties"/>
+     <addaction name="actionUpdate_meteo_points"/>
+     <addaction name="actionUpdate_datasets"/>
     </widget>
     <addaction name="actionFileOpenProject"/>
     <addaction name="actionFileCloseProject"/>
@@ -3700,6 +3703,21 @@
   <action name="actionFileMeteogridExportRaster">
    <property name="text">
     <string>Export current data to raster</string>
+   </property>
+  </action>
+  <action name="actionUpdate_properties">
+   <property name="text">
+    <string>Update properties</string>
+   </property>
+  </action>
+  <action name="actionUpdate_meteo_points">
+   <property name="text">
+    <string>Update meteo points</string>
+   </property>
+  </action>
+  <action name="actionUpdate_datasets">
+   <property name="text">
+    <string>Update datasets</string>
    </property>
   </action>
  </widget>
