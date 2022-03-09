@@ -40,13 +40,11 @@ void DialogSelectDataset::done(bool res)
 {
     if (res) // ok
     {
-        /*
-        if (cellSizeEdit.text().isEmpty())
+        if (getSelectedDatasets().isEmpty())
         {
-            QMessageBox::information(nullptr, "Missing cell size value", "Insert cell size");
+            QMessageBox::information(nullptr, "Missing dataset", "Select a dataset");
             return;
         }
-        */
         QDialog::done(QDialog::Accepted);
         return;
     }
@@ -56,6 +54,21 @@ void DialogSelectDataset::done(bool res)
         return;
     }
 }
+
+QList<QString> DialogSelectDataset::getSelectedDatasets()
+{
+    QList<QString> datasetsSelected;
+    for(int i = 0; i < listDataset->count(); ++i)
+    {
+        if (listDataset->item(i)->isSelected())
+        {
+            QString dataset = listDataset->item(i)->text();
+            datasetsSelected.append(dataset);
+        }
+    }
+    return datasetsSelected;
+}
+
 
 
 

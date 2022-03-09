@@ -3606,6 +3606,8 @@ void MainWindow::on_actionUpdate_meteo_points_triggered()
     DialogSelectDataset selectDialog(datasetsList);
     if (selectDialog.result() == QDialog::Accepted)
     {
+        QList<QString> datasetSelected = selectDialog.getSelectedDatasets();
+        qDebug() << datasetSelected;
         // TO DO
     }
 }

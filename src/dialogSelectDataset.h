@@ -15,6 +15,7 @@ public:
     DialogSelectDataset(QList<QString> activeDataset);
     ~DialogSelectDataset();
     void done(bool res);
+    QList<QString> getSelectedDatasets();
 };
 
 #endif // DIALOGSELECTDATASET_H
