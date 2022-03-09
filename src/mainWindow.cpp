@@ -3608,6 +3608,11 @@ void MainWindow::on_actionUpdate_meteo_points_triggered()
     {
         QList<QString> datasetSelected = selectDialog.getSelectedDatasets();
         qDebug() << datasetSelected;
+        QList<QString> idListFromDB = myProject.meteoPointsDbHandler->getIdListGivenDataset(datasetSelected);
+        qDebug() << "idListFromDB " << idListFromDB;
+        Download myDownload(myProject.meteoPointsDbHandler->getDbName());
+        QList<QString> idListFromArkimet = myDownload.getArmiketIdList(datasetSelected);
+        qDebug() << "idListFromArkimet " << idListFromArkimet;
         // TO DO
     }
 }
