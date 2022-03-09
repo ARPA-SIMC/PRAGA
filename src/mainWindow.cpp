@@ -34,6 +34,7 @@
 #include "dialogPointDeleteData.h"
 #include "dialogSelectionMeteoPoint.h"
 #include "dialogCellSize.h"
+#include "dialogSelectDataset.h"
 #include "utilities.h"
 #include "basicMath.h"
 #include "meteoWidget.h"
@@ -3593,3 +3594,18 @@ void MainWindow::on_actionUpdate_properties_triggered()
 
 }
 
+
+void MainWindow::on_actionUpdate_meteo_points_triggered()
+{
+    if (! myProject.meteoPointsDbHandler)
+    {
+        myProject.logError("Open meteo point db before.");
+        return;
+    }
+    QList<QString> datasetsList = myProject.meteoPointsDbHandler->getDatasetsActive();
+    DialogSelectDataset selectDialog(datasetsList);
+    if (selectDialog.result() == QDialog::Accepted)
+    {
+        // TO DO
+    }
+}

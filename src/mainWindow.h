@@ -181,6 +181,8 @@
 
         void on_actionUpdate_properties_triggered();
 
+        void on_actionUpdate_meteo_points_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
