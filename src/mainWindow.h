@@ -183,6 +183,8 @@
 
         void on_actionUpdate_meteo_points_triggered();
 
+        void on_actionUpdate_datasets_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

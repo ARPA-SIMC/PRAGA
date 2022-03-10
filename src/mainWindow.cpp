@@ -3672,3 +3672,15 @@ void MainWindow::on_actionUpdate_meteo_points_triggered()
     }
     return;
 }
+
+void MainWindow::on_actionUpdate_datasets_triggered()
+{
+    if (! myProject.meteoPointsDbHandler)
+    {
+        myProject.logError("Open meteo point db before.");
+        return;
+    }
+    QList<QString> allDatasetsList = myProject.meteoPointsDbHandler->getAllDatasetsList();
+    QList<QString> dbDatasetsList = myProject.meteoPointsDbHandler->getDatasetList();
+    // TO DO
+}
