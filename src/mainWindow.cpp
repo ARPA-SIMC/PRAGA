@@ -2426,7 +2426,7 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
 
     Download myDownload(dbName);
 
-    QList<QString> dataset = myDownload.getDbArkimet()->getDatasetsList();
+    QList<QString> dataset = myDownload.getDbArkimet()->getAllDatasetsList();
 
     QDialog datasetDialog;
 
