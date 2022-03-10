@@ -92,6 +92,7 @@ CONFIG(debug, debug|release) {
 
 
 SOURCES += \
+    dialogAddMissingStation.cpp \
     dialogCellSize.cpp \
     dialogSelectDataset.cpp \
     main.cpp \
@@ -112,6 +113,7 @@ SOURCES += \
 
 
 HEADERS  += \
+    dialogAddMissingStation.h \
     dialogCellSize.h \
     dialogSelectDataset.h \
     mainGUI.h \

@@ -35,6 +35,7 @@
 #include "dialogSelectionMeteoPoint.h"
 #include "dialogCellSize.h"
 #include "dialogSelectDataset.h"
+#include "dialogAddMissingStation.h"
 #include "utilities.h"
 #include "basicMath.h"
 #include "meteoWidget.h"
@@ -3457,7 +3458,11 @@ void MainWindow::on_actionUpdate_properties_triggered()
         changes = false;
         pointPropFromArkimet.clear();
         QString id = QString::fromStdString(listMeteoPoints[i].id);
-        myDownload.getPointPropertiesFromId(id, &pointPropFromArkimet);
+        if (!myDownload.getPointPropertiesFromId(id, &pointPropFromArkimet))
+        {
+            myProject.logError("Get point properties from id error");
+            return;
+        }
         if (pointPropFromArkimet.name != listMeteoPoints[i].name)
         {
             changes = true;
@@ -3580,7 +3585,11 @@ void MainWindow::on_actionUpdate_properties_triggered()
 
             if (reply == QMessageBox::Yes)
             {
-                myProject.meteoPointsDbHandler->updatePointPropertiesGivenId(id, column, values);
+                if (!myProject.meteoPointsDbHandler->updatePointPropertiesGivenId(id, column, values))
+                {
+                    myProject.logError("Update point properties given id error");
+                    return;
+                }
                 myProject.logInfo(log);
             }
         }
@@ -3607,12 +3616,59 @@ void MainWindow::on_actionUpdate_meteo_points_triggered()
     if (selectDialog.result() == QDialog::Accepted)
     {
         QList<QString> datasetSelected = selectDialog.getSelectedDatasets();
-        qDebug() << datasetSelected;
         QList<QString> idListFromDB = myProject.meteoPointsDbHandler->getIdListGivenDataset(datasetSelected);
-        qDebug() << "idListFromDB " << idListFromDB;
+
         Download myDownload(myProject.meteoPointsDbHandler->getDbName());
-        QList<QString> idListFromArkimet = myDownload.getArmiketIdList(datasetSelected);
-        qDebug() << "idListFromArkimet " << idListFromArkimet;
-        // TO DO
+        QMap<QString,QString> mapFromArkimet = myDownload.getArmiketIdList(datasetSelected);
+        QList<QString> idListFromArkimet = mapFromArkimet.keys();
+        QSet<QString> idMissingInArkimet = idListFromDB.toSet().subtract(idListFromArkimet.toSet());
+
+        if (!idMissingInArkimet.isEmpty())
+        {
+            QString log = "Id stations founded into db and missing in arkimet: ";
+            foreach (const QString &idName, idMissingInArkimet)
+            {
+                log = log + idName + " ";
+            }
+            myProject.logInfo(log);
+        }
+        QSet<QString> idMissingDb = idListFromArkimet.toSet().subtract(idListFromDB.toSet());
+        if (!idMissingDb.isEmpty())
+        {
+            QList<QString> idMissing;
+            QList<QString> nameMissing;
+            foreach (const QString &idName, idMissingDb)
+            {
+                idMissing.append(idName);
+                nameMissing.append(mapFromArkimet.value(idName));
+            }
+
+            DialogAddMissingStation addStationDialog(idMissing, nameMissing);
+            if (addStationDialog.result() == QDialog::Accepted)
+            {
+                QList<QString> stationsSelected = addStationDialog.getSelectedStations();
+                Crit3DMeteoPoint pointPropFromArkimet;
+                QList<QString> column;
+                QList<QString> values;
+                for (int i=0; i<stationsSelected.size(); i++)
+                {
+                    column.clear();
+                    values.clear();
+                    pointPropFromArkimet.clear();
+                    if (!myDownload.getPointPropertiesFromId(stationsSelected[i], &pointPropFromArkimet))
+                    {
+                        myProject.logError("Get point properties from id error");
+                        return;
+                    }
+                    if (!myProject.meteoPointsDbHandler->writePointProperties(&pointPropFromArkimet))
+                    {
+                        myProject.logError("Write point properties error");
+                        return;
+                    }
+                }
+
+            }
+        }
     }
+    return;
 }
