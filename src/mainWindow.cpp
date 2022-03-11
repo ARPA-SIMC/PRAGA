@@ -3592,12 +3592,6 @@ void MainWindow::on_actionUpdate_properties_triggered()
                     myProject.logError("Update point properties given id error");
                     return;
                 }
-                myProject.logInfo(log);
-                myProject.logInfoGUI("Update...");
-                myProject.closeMeteoPointsDB();
-                myProject.loadMeteoPointsDB(dbName);
-                drawMeteoPoints();
-                myProject.closeLogInfo();
             }
         }
     }
@@ -3606,8 +3600,16 @@ void MainWindow::on_actionUpdate_properties_triggered()
         QMessageBox::information(nullptr, "Everything already updated", "Nothing changed");
         return;
     }
-
-
+    else
+    {
+        myProject.logInfo(log);
+        myProject.logInfoGUI("Update...");
+        myProject.closeMeteoPointsDB();
+        myProject.loadMeteoPointsDB(dbName);
+        drawMeteoPoints();
+        myProject.closeLogInfo();
+        return;
+    }
 }
 
 
