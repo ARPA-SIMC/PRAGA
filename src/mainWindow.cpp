@@ -3554,14 +3554,6 @@ void MainWindow::on_actionUpdate_properties_triggered()
             column << "municipality";
             values << QString::fromStdString(pointPropFromArkimet.municipality);
         }
-        if (pointPropFromArkimet.active != listMeteoPoints[i].active)
-        {
-            changes = true;
-            log = log + "id:"+id+","+"is_active,"+
-                   QString::number(listMeteoPoints[i].active) + ","+ QString::number(pointPropFromArkimet.active) + "\n";
-            column << "is_active";
-            values << QString::number(pointPropFromArkimet.active);
-        }
         if (pointPropFromArkimet.isUTC != listMeteoPoints[i].isUTC)
         {
             changes = true;
