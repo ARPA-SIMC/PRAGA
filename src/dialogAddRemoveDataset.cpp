@@ -1,7 +1,7 @@
 #include "dialogAddRemoveDataset.h"
 
-DialogAddRemoveDataset::DialogAddRemoveDataset(QList<QString> allDataset, QList<QString> dbDataset)
-: allDataset(allDataset), dbDataset(dbDataset)
+DialogAddRemoveDataset::DialogAddRemoveDataset(QList<QString> availableDataset, QList<QString> dbDataset)
+: availableDataset(availableDataset), dbDataset(dbDataset)
 {
     setWindowTitle("Add or remove dataset");
     QVBoxLayout *mainLayout = new QVBoxLayout();
@@ -12,10 +12,10 @@ DialogAddRemoveDataset::DialogAddRemoveDataset(QList<QString> allDataset, QList<
     QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
     layoutOk->addWidget(&buttonBox);
-    listAllDataset = new QListWidget;
+    listAvailableDataset = new QListWidget;
     listDbDataset = new QListWidget;
 
-    QLabel *allHeader = new QLabel("All dataset");
+    QLabel *allHeader = new QLabel("Dataset available");
     QLabel *selectedHeader = new QLabel("Db dataset");
     addButton = new QPushButton(tr("➡"));
     deleteButton = new QPushButton(tr("⬅"));
@@ -23,21 +23,21 @@ DialogAddRemoveDataset::DialogAddRemoveDataset(QList<QString> allDataset, QList<
     deleteButton->setEnabled(false);
     arrowLayout->addWidget(addButton);
     arrowLayout->addWidget(deleteButton);
-    listAllDataset->addItems(allDataset);
+    listAvailableDataset->addItems(availableDataset);
     listDbDataset->addItems(dbDataset);
-    datasetLayout->addWidget(listAllDataset);
+    datasetLayout->addWidget(listAvailableDataset);
     datasetLayout->addLayout(arrowLayout);
     datasetLayout->addWidget(listDbDataset);
 
     headerLayout->addWidget(allHeader);
-    headerLayout->addSpacing(listAllDataset->width());
+    headerLayout->addSpacing(listAvailableDataset->width());
     headerLayout->addWidget(selectedHeader);
     mainLayout->addLayout(headerLayout);
     mainLayout->addLayout(datasetLayout);
     mainLayout->addLayout(layoutOk);
     setLayout(mainLayout);
 
-    connect(listAllDataset, &QListWidget::itemClicked, [=](QListWidgetItem* item){ this->datasetAllClicked(item); });
+    connect(listAvailableDataset, &QListWidget::itemClicked, [=](QListWidgetItem* item){ this->datasetAllClicked(item); });
     connect(listDbDataset, &QListWidget::itemClicked, [=](QListWidgetItem* item){ this->datasetDbClicked(item); });
     connect(addButton, &QPushButton::clicked, [=](){ addDataset(); });
     connect(deleteButton, &QPushButton::clicked, [=](){ deleteDataset(); });
@@ -64,14 +64,14 @@ void DialogAddRemoveDataset::datasetDbClicked(QListWidgetItem* item)
 
     addButton->setEnabled(false);
     deleteButton->setEnabled(true);
-    listAllDataset->clearSelection();
+    listAvailableDataset->clearSelection();
 }
 
 void DialogAddRemoveDataset::addDataset()
 {
-    QListWidgetItem *item = listAllDataset->currentItem();
-    int row = listAllDataset->currentRow();
-    listAllDataset->takeItem(row);
+    QListWidgetItem *item = listAvailableDataset->currentItem();
+    int row = listAvailableDataset->currentRow();
+    listAvailableDataset->takeItem(row);
     listDbDataset->addItem(item);
 }
 
@@ -80,7 +80,7 @@ void DialogAddRemoveDataset::deleteDataset()
     QListWidgetItem *item = listDbDataset->currentItem();
     int row = listDbDataset->currentRow();
     listDbDataset->takeItem(row);
-    listAllDataset->addItem(item);
+    listAvailableDataset->addItem(item);
 }
 
 QList<QString> DialogAddRemoveDataset::getDatasetDb()

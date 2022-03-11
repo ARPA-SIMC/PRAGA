@@ -8,15 +8,15 @@ class DialogAddRemoveDataset : public QDialog
     Q_OBJECT
 
 private:
-    QList<QString> allDataset;
+    QList<QString> availableDataset;
     QList<QString> dbDataset;
-    QListWidget* listAllDataset;
+    QListWidget* listAvailableDataset;
     QListWidget* listDbDataset;
     QPushButton *addButton;
     QPushButton *deleteButton;
 
 public:
-    DialogAddRemoveDataset(QList<QString> allDataset, QList<QString> dbDataset);
+    DialogAddRemoveDataset(QList<QString> availableDataset, QList<QString> dbDataset);
     void datasetAllClicked(QListWidgetItem* item);
     void datasetDbClicked(QListWidgetItem* item);
     void addDataset();

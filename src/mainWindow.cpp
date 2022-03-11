@@ -36,6 +36,7 @@
 #include "dialogCellSize.h"
 #include "dialogSelectDataset.h"
 #include "dialogAddMissingStation.h"
+#include "dialogAddRemoveDataset.h"
 #include "utilities.h"
 #include "basicMath.h"
 #include "meteoWidget.h"
@@ -3443,7 +3444,8 @@ void MainWindow::on_actionUpdate_properties_triggered()
         return;
     }
 
-    Download myDownload(myProject.meteoPointsDbHandler->getDbName());
+    QString dbName = myProject.meteoPointsDbHandler->getDbName();
+    Download myDownload(dbName);
 
     Crit3DMeteoPoint pointPropFromArkimet;
     QString log;
@@ -3591,6 +3593,11 @@ void MainWindow::on_actionUpdate_properties_triggered()
                     return;
                 }
                 myProject.logInfo(log);
+                myProject.logInfoGUI("Update...");
+                myProject.closeMeteoPointsDB();
+                myProject.loadMeteoPointsDB(dbName);
+                drawMeteoPoints();
+                myProject.closeLogInfo();
             }
         }
     }
@@ -3611,6 +3618,7 @@ void MainWindow::on_actionUpdate_meteo_points_triggered()
         myProject.logError("Open meteo point db before.");
         return;
     }
+    QString dbName = myProject.meteoPointsDbHandler->getDbName();
     QList<QString> datasetsList = myProject.meteoPointsDbHandler->getDatasetsActive();
     DialogSelectDataset selectDialog(datasetsList);
     if (selectDialog.result() == QDialog::Accepted)
@@ -3618,7 +3626,7 @@ void MainWindow::on_actionUpdate_meteo_points_triggered()
         QList<QString> datasetSelected = selectDialog.getSelectedDatasets();
         QList<QString> idListFromDB = myProject.meteoPointsDbHandler->getIdListGivenDataset(datasetSelected);
 
-        Download myDownload(myProject.meteoPointsDbHandler->getDbName());
+        Download myDownload(dbName);
         QMap<QString,QString> mapFromArkimet = myDownload.getArmiketIdList(datasetSelected);
         QList<QString> idListFromArkimet = mapFromArkimet.keys();
         QSet<QString> idMissingInArkimet = idListFromDB.toSet().subtract(idListFromArkimet.toSet());
@@ -3666,7 +3674,11 @@ void MainWindow::on_actionUpdate_meteo_points_triggered()
                         return;
                     }
                 }
-
+                myProject.logInfoGUI("Update...");
+                myProject.closeMeteoPointsDB();
+                myProject.loadMeteoPointsDB(dbName);
+                drawMeteoPoints();
+                myProject.closeLogInfo();
             }
         }
     }
@@ -3680,7 +3692,40 @@ void MainWindow::on_actionUpdate_datasets_triggered()
         myProject.logError("Open meteo point db before.");
         return;
     }
+    QString dbName = myProject.meteoPointsDbHandler->getDbName();
     QList<QString> allDatasetsList = myProject.meteoPointsDbHandler->getAllDatasetsList();
     QList<QString> dbDatasetsList = myProject.meteoPointsDbHandler->getDatasetList();
-    // TO DO
+    QSet<QString> datasetAvailable = allDatasetsList.toSet().subtract(dbDatasetsList.toSet());
+    DialogAddRemoveDataset addDatasetDialog(datasetAvailable.values(), dbDatasetsList);
+    if (addDatasetDialog.result() == QDialog::Accepted)
+    {
+        QList<QString> datasetSelected = addDatasetDialog.getDatasetDb();
+        qDebug() << "datasetSelected " << datasetSelected;
+        QSet<QString> datasetToDelete = dbDatasetsList.toSet().subtract(datasetSelected.toSet());
+        QSet<QString> datasetToAdd = datasetSelected.toSet().subtract(dbDatasetsList.toSet());
+        if (!datasetToDelete.isEmpty())
+        {
+            if (!myProject.meteoPointsDbHandler->deleteAllPointsFromDataset(datasetToDelete.values()))
+            {
+                myProject.logError("Delete all points error");
+                return;
+            }
+        }
+        if (!datasetToAdd.isEmpty())
+        {
+            Download myDownload(dbName);
+            if (!myDownload.getPointProperties(datasetToAdd.values()))
+            {
+                myProject.logError("Get point properties error");
+                return;
+            }
+        }
+
+        myProject.logInfoGUI("Update...");
+        myProject.closeMeteoPointsDB();
+        myProject.loadMeteoPointsDB(dbName);
+        drawMeteoPoints();
+        myProject.closeLogInfo();
+    }
+    return;
 }
