@@ -3448,7 +3448,7 @@ void MainWindow::on_actionUpdate_properties_triggered()
     Download myDownload(dbName);
 
     Crit3DMeteoPoint pointPropFromArkimet;
-    QString log;
+    QString log = "";
     bool changes;
     bool everythingUpdated = true;
     QList<QString> column;
@@ -3460,12 +3460,12 @@ void MainWindow::on_actionUpdate_properties_triggered()
         changes = false;
         pointPropFromArkimet.clear();
         QString id = QString::fromStdString(listMeteoPoints[i].id);
-        if (!myDownload.getPointPropertiesFromId(id, &pointPropFromArkimet))
+        if (!myDownload.getPointPropertiesFromId(id, &pointPropFromArkimet) || pointPropFromArkimet.id == "")
         {
-            myProject.logError("Get point properties from id error");
-            return;
+            log = log + "Get point properties from id error, check id: "+ id + "\n";
+            continue;
         }
-        if (pointPropFromArkimet.name != listMeteoPoints[i].name)
+        if (QString::fromStdString(pointPropFromArkimet.name).toUpper() != QString::fromStdString(listMeteoPoints[i].name).toUpper())
         {
             changes = true;
             log = log + "id:"+id+","+"name,"+
@@ -3573,6 +3573,7 @@ void MainWindow::on_actionUpdate_properties_triggered()
         if (changes)
         {
             everythingUpdated = false;
+
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(this, "Update point properties?",
                                           "Id:"+id + " Point properties from arkimet are different", QMessageBox::Yes|QMessageBox::No);
@@ -3581,7 +3582,7 @@ void MainWindow::on_actionUpdate_properties_triggered()
             {
                 if (!myProject.meteoPointsDbHandler->updatePointPropertiesGivenId(id, column, values))
                 {
-                    myProject.logError("Update point properties given id error");
+                    myProject.logError("Update point properties given id error "+id);
                     return;
                 }
             }
@@ -3589,8 +3590,16 @@ void MainWindow::on_actionUpdate_properties_triggered()
     }
     if (everythingUpdated)
     {
-        QMessageBox::information(nullptr, "Everything already updated", "Nothing changed");
-        return;
+        if (log == "")
+        {
+            QMessageBox::information(nullptr, "Everything already updated", "Nothing changed");
+            return;
+        }
+        else
+        {
+            log = log + "All other stations are already updated";
+            myProject.logInfo(log);
+        }
     }
     else
     {
