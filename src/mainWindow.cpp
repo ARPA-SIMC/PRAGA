@@ -3453,8 +3453,11 @@ void MainWindow::on_actionUpdate_properties_triggered()
     bool everythingUpdated = true;
     QList<QString> column;
     QList<QString> values;
+    myProject.setProgressBar("Checking properties...", listMeteoPoints.size());
+
     for (int i=0; i<listMeteoPoints.size(); i++)
     {
+        myProject.updateProgressBar(i);
         column.clear();
         values.clear();
         changes = false;
@@ -3588,6 +3591,7 @@ void MainWindow::on_actionUpdate_properties_triggered()
             }
         }
     }
+    myProject.closeProgressBar();
     if (everythingUpdated)
     {
         if (log == "")
