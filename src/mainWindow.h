@@ -187,7 +187,11 @@
 
         void on_actionTest_mark_triggered();
 
-        void on_actionView_text_values_toggled(bool isChecked);
+        void on_actionPointStyleCircle_triggered();
+
+        void on_actionPointStyleText_triggered();
+
+        void on_actionPointStyleText_multicolor_triggered();
 
     protected:
         /*!
@@ -222,7 +226,6 @@
         visualizationType currentPointsVisualization;
         visualizationType currentGridVisualization;
         bool viewNotActivePoints;
-        bool viewMeteoPointValues;
         QActionGroup *showPointsGroup;
         QActionGroup *showGridGroup;
 
@@ -257,7 +260,6 @@
         bool loadMeteoGrid(QString xmlName);
         bool newMeteoGrid(QString xmlName);
         bool openRaster(QString fileName, gis::Crit3DRasterGrid *myRaster);
-        bool openShape(QString fileName);
         void setCurrentRaster(gis::Crit3DRasterGrid *myRaster);
         void interpolateDemGUI();
         void interpolateGridGUI();

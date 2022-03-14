@@ -134,7 +134,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->currentPointsVisualization = notShown;
     this->currentGridVisualization = notShown;
     this->viewNotActivePoints = false;
-    this->viewMeteoPointValues = false;
 
     this->setWindowTitle("PRAGA");
 
@@ -202,6 +201,10 @@ void MainWindow::mouseMove(const QPoint& mapPos)
                 case showCurrentVariable:
                 {
                     value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue;
+                    break;
+                }
+                default:
+                {
                     break;
                 }
             }
@@ -1287,7 +1290,6 @@ void MainWindow::addMeteoPoints()
         point->setMunicipality(myProject.meteoPoints[i].municipality);
         point->setCurrentValue(myProject.meteoPoints[i].currentValue);
         point->setQuality(myProject.meteoPoints[i].quality);
-        point->setShowValue(false);
 
         if (!myProject.meteoPoints[i].active)
         {
@@ -2067,12 +2069,6 @@ bool MainWindow::openRaster(QString fileName, gis::Crit3DRasterGrid *myRaster)
             return (false);
         }
         return true;
-}
-
-bool MainWindow::openShape(QString fileName)
-{
-// TO DO
-    return false;
 }
 
 
@@ -3756,12 +3752,43 @@ void MainWindow::on_actionTest_mark_triggered()
 }
 
 
-void MainWindow::on_actionView_text_values_toggled(bool isChecked)
+void MainWindow::on_actionPointStyleCircle_triggered()
 {
-    viewMeteoPointValues = isChecked;
+    ui->actionPointStyleCircle->setChecked(true);
+    ui->actionPointStyleText->setChecked(false);
+    ui->actionPointStyleText_multicolor->setChecked(false);
+
     for (int i = 0; i < pointList.size(); i++)
     {
-        pointList[i]->setShowValue(this->viewMeteoPointValues);
+        pointList[i]->setShowText(false);
+        pointList[i]->setMultiColorText(false);
+    }
+}
+
+
+void MainWindow::on_actionPointStyleText_triggered()
+{
+    ui->actionPointStyleCircle->setChecked(false);
+    ui->actionPointStyleText->setChecked(true);
+    ui->actionPointStyleText_multicolor->setChecked(false);
+
+    for (int i = 0; i < pointList.size(); i++)
+    {
+        pointList[i]->setShowText(true);
+        pointList[i]->setMultiColorText(false);
+    }
+}
+
+
+void MainWindow::on_actionPointStyleText_multicolor_triggered()
+{
+    ui->actionPointStyleCircle->setChecked(false);
+    ui->actionPointStyleText->setChecked(false);
+    ui->actionPointStyleText_multicolor->setChecked(true);
+
+    for (int i = 0; i < pointList.size(); i++)
+    {
+        pointList[i]->setMultiColorText(true);
     }
 }
 
