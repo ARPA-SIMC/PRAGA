@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1392</width>
-    <height>824</height>
+    <height>829</height>
    </rect>
   </property>
   <property name="palette">
@@ -455,6 +455,7 @@
   <property name="font">
    <font>
     <pointsize>10</pointsize>
+    <weight>50</weight>
     <bold>false</bold>
    </font>
   </property>
@@ -534,6 +535,7 @@
             <property name="font">
              <font>
               <pointsize>10</pointsize>
+              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -595,6 +597,7 @@
              <property name="font">
               <font>
                <pointsize>9</pointsize>
+               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -614,6 +617,7 @@
              <property name="font">
               <font>
                <pointsize>9</pointsize>
+               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -697,6 +701,7 @@
              <property name="font">
               <font>
                <pointsize>9</pointsize>
+               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -769,6 +774,7 @@
              <property name="font">
               <font>
                <pointsize>9</pointsize>
+               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -788,6 +794,7 @@
              <property name="font">
               <font>
                <pointsize>9</pointsize>
+               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -807,6 +814,7 @@
              <property name="font">
               <font>
                <pointsize>9</pointsize>
+               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -877,6 +885,7 @@
              <property name="font">
               <font>
                <pointsize>8</pointsize>
+               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -918,6 +927,7 @@
              <property name="font">
               <font>
                <pointsize>8</pointsize>
+               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -1014,6 +1024,7 @@
              <property name="font">
               <font>
                <pointsize>9</pointsize>
+               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -1482,6 +1493,7 @@
             <property name="font">
              <font>
               <pointsize>10</pointsize>
+              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -1546,6 +1558,7 @@
              <property name="font">
               <font>
                <pointsize>8</pointsize>
+               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -1565,6 +1578,7 @@
              <property name="font">
               <font>
                <pointsize>9</pointsize>
+               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -1621,6 +1635,7 @@
              <property name="font">
               <font>
                <pointsize>9</pointsize>
+               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -1640,6 +1655,7 @@
              <property name="font">
               <font>
                <pointsize>9</pointsize>
+               <weight>50</weight>
                <bold>false</bold>
               </font>
              </property>
@@ -1717,6 +1733,7 @@
                  <property name="font">
                   <font>
                    <pointsize>9</pointsize>
+                   <weight>50</weight>
                    <bold>false</bold>
                   </font>
                  </property>
@@ -1736,6 +1753,7 @@
                  <property name="font">
                   <font>
                    <pointsize>9</pointsize>
+                   <weight>50</weight>
                    <bold>false</bold>
                   </font>
                  </property>
@@ -1755,6 +1773,7 @@
                  <property name="font">
                   <font>
                    <pointsize>9</pointsize>
+                   <weight>50</weight>
                    <bold>false</bold>
                   </font>
                  </property>
@@ -2005,6 +2024,7 @@
         <property name="font">
          <font>
           <pointsize>10</pointsize>
+          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -2023,7 +2043,7 @@
      <x>0</x>
      <y>0</y>
      <width>1392</width>
-     <height>25</height>
+     <height>29</height>
     </rect>
    </property>
    <property name="palette">
@@ -2595,6 +2615,7 @@
     <addaction name="separator"/>
     <addaction name="actionShift_data"/>
     <addaction name="actionMeteopointDataCount"/>
+    <addaction name="actionTest_mark"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
@@ -2682,6 +2703,7 @@
       <addaction name="actionShowPointsAnomalyPerc"/>
      </widget>
      <addaction name="actionView_not_active_points"/>
+     <addaction name="actionView_text_values"/>
      <addaction name="separator"/>
      <addaction name="actionShowPointsHide"/>
      <addaction name="actionShowPointsLocation"/>
@@ -3275,6 +3297,19 @@
   <action name="actionUpdate_datasets">
    <property name="text">
     <string>Update datasets</string>
+   </property>
+  </action>
+  <action name="actionTest_mark">
+   <property name="text">
+    <string>Test mark</string>
+   </property>
+  </action>
+  <action name="actionView_text_values">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>View text values</string>
    </property>
   </action>
  </widget>

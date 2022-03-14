@@ -185,6 +185,10 @@
 
         void on_actionUpdate_datasets_triggered();
 
+        void on_actionTest_mark_triggered();
+
+        void on_actionView_text_values_toggled(bool isChecked);
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -218,6 +222,7 @@
         visualizationType currentPointsVisualization;
         visualizationType currentGridVisualization;
         bool viewNotActivePoints;
+        bool viewMeteoPointValues;
         QActionGroup *showPointsGroup;
         QActionGroup *showGridGroup;
 

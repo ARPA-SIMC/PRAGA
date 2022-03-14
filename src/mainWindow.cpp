@@ -134,6 +134,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->currentPointsVisualization = notShown;
     this->currentGridVisualization = notShown;
     this->viewNotActivePoints = false;
+    this->viewMeteoPointValues = false;
 
     this->setWindowTitle("PRAGA");
 
@@ -3736,3 +3737,31 @@ void MainWindow::on_actionUpdate_datasets_triggered()
     }
     return;
 }
+
+
+
+void MainWindow::on_actionTest_mark_triggered()
+{
+    if (! myProject.meteoPointsDbHandler)
+    {
+        myProject.logError("Open meteo point db before.");
+        return;
+    }
+
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+        if (i % 3 == 0)
+        {
+            pointList[i]->setMarked(true);
+        }
+}
+
+
+void MainWindow::on_actionView_text_values_toggled(bool isChecked)
+{
+    viewMeteoPointValues = isChecked;
+    for (int i = 0; i < pointList.size(); i++)
+    {
+        pointList[i]->setShowValue(this->viewMeteoPointValues);
+    }
+}
+
