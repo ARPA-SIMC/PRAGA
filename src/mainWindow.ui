@@ -2150,10 +2150,18 @@
      <addaction name="actionDeletePoint_notSelected"/>
      <addaction name="actionDeletePoint_notActive"/>
     </widget>
+    <widget class="QMenu" name="menuMark_points">
+     <property name="title">
+      <string>Mark points</string>
+     </property>
+     <addaction name="separator"/>
+     <addaction name="actionTestMark"/>
+     <addaction name="actionUnmark_all_points"/>
+    </widget>
     <addaction name="actionMeteopointQualitySpatial"/>
     <addaction name="actionMeteopointRectangleSelection"/>
     <addaction name="separator"/>
-    <addaction name="actionTest_mark"/>
+    <addaction name="menuMark_points"/>
     <addaction name="menuActive_points"/>
     <addaction name="menuDeactive_points"/>
     <addaction name="menuDelete_points"/>
@@ -2852,11 +2860,6 @@
     <string>Update datasets</string>
    </property>
   </action>
-  <action name="actionTest_mark">
-   <property name="text">
-    <string>Test mark</string>
-   </property>
-  </action>
   <action name="actionPointStyleCircle">
    <property name="checkable">
     <bool>true</bool>
@@ -2882,6 +2885,16 @@
    </property>
    <property name="text">
     <string>Text multicolor</string>
+   </property>
+  </action>
+  <action name="actionTestMark">
+   <property name="text">
+    <string>Test</string>
+   </property>
+  </action>
+  <action name="actionUnmark_all_points">
+   <property name="text">
+    <string>Unmark all</string>
    </property>
   </action>
  </widget>

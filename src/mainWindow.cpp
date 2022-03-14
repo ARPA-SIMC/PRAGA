@@ -3735,23 +3735,6 @@ void MainWindow::on_actionUpdate_datasets_triggered()
 }
 
 
-
-void MainWindow::on_actionTest_mark_triggered()
-{
-    if (! myProject.meteoPointsDbHandler)
-    {
-        myProject.logError("Open meteo point db before.");
-        return;
-    }
-
-    for (int i = 0; i < myProject.nrMeteoPoints; i++)
-        if (i % 3 == 0)
-        {
-            pointList[i]->setMarked(true);
-        }
-}
-
-
 void MainWindow::on_actionPointStyleCircle_triggered()
 {
     ui->actionPointStyleCircle->setChecked(true);
@@ -3790,5 +3773,24 @@ void MainWindow::on_actionPointStyleText_multicolor_triggered()
     {
         pointList[i]->setMultiColorText(true);
     }
+}
+
+
+void MainWindow::on_actionUnmark_all_points_triggered()
+{
+    for (int i = 0; i < pointList.size(); i++)
+    {
+        pointList[i]->setMarked(false);
+    }
+}
+
+
+void MainWindow::on_actionTestMark_triggered()
+{
+    for (int i = 0; i < pointList.size(); i++)
+        if (i % 5 == 0)
+        {
+            pointList[i]->setMarked(true);
+        }
 }
 

@@ -185,13 +185,15 @@
 
         void on_actionUpdate_datasets_triggered();
 
-        void on_actionTest_mark_triggered();
-
         void on_actionPointStyleCircle_triggered();
 
         void on_actionPointStyleText_triggered();
 
         void on_actionPointStyleText_multicolor_triggered();
+
+        void on_actionUnmark_all_points_triggered();
+
+        void on_actionTestMark_triggered();
 
     protected:
         /*!
