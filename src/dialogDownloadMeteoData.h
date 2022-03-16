@@ -5,7 +5,7 @@
 
     class PragaProject;
 
-    class DialogDownloadMeteoData : public QDialog
+    class  : public QDialog
     {
 
         Q_OBJECT
@@ -25,7 +25,7 @@
         QListWidgetItem daily_item8;
         QListWidgetItem daily_item9;
         QListWidgetItem daily_item10;
-        QListWidgetItem daily_item11;
+        QListWidgetItem daily_item11;DialogDownloadMeteoData
 
         QListWidgetItem hourly_item1;
         QListWidgetItem hourly_item2;
