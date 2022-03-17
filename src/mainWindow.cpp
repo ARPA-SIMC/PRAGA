@@ -1308,6 +1308,7 @@ void MainWindow::addMeteoPoints()
         point->setToolTip();
         connect(point, SIGNAL(newStationClicked(std::string, std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, std::string, bool)));
         connect(point, SIGNAL(appendStationClicked(std::string, std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, std::string, bool)));
+        connect(point, SIGNAL(newPointStatisticsClicked(std::string, std::string, bool)), this, SLOT(callNewPointStatisticsWidget(std::string, std::string, bool)));
     }
 }
 
@@ -1335,6 +1336,19 @@ void MainWindow::callAppendMeteoWidget(std::string id, std::string name, bool is
     else
     {
         myProject.showMeteoWidgetPoint(id, name, isAppend);
+    }
+    return;
+}
+
+void MainWindow::callNewPointStatisticsWidget(std::string id, std::string name, bool isGrid)
+{
+    if (isGrid)
+    {
+        myProject.showPointStatisticsWidgetGrid(id);
+    }
+    else
+    {
+        myProject.showPointStatisticsWidgetPoint(id, name);
     }
     return;
 }
