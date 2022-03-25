@@ -2086,96 +2086,7 @@ bool MainWindow::openRaster(QString fileName, gis::Crit3DRasterGrid *myRaster)
         return true;
 }
 
-
-bool MainWindow::on_actionAnalysisAggregateFromGrid_triggered()
-{
-    if (!ui->grid->isChecked())
-    {
-        myProject.errorString = "Load grid";
-        myProject.logError();
-        return false;
-    }
-    if (myProject.aggregationDbHandler == nullptr)
-    {
-        myProject.errorString = "Missing DB: open or create a Aggregation DB";
-        myProject.logError();
-        return false;
-    }
-    QString rasterName;
-    if (!myProject.aggregationDbHandler->getRasterName(&rasterName))
-    {
-        myProject.errorString = "Missing Raster Name inside aggregation db";
-        myProject.logError();
-        return false;
-    }
-
-    QFileInfo rasterFileFltInfo(myProject.aggregationPath+"/"+rasterName+".flt");
-    QFileInfo rasterFileHdrInfo(myProject.aggregationPath+"/"+rasterName+".hdr");
-    if (!rasterFileFltInfo.exists() || !rasterFileHdrInfo.exists())
-    {
-        myProject.errorString = "Raster file does not exist: " + myProject.aggregationPath+"/"+rasterName;
-        myProject.logError();
-        return false;
-    }
-    gis::Crit3DRasterGrid *myRaster;
-    myRaster = new(gis::Crit3DRasterGrid);
-    if (!openRaster(myProject.aggregationPath+"/"+rasterName+".flt", myRaster))
-    {
-        myProject.errorString = "Open raster file failed";
-        myProject.logError();
-        return false;
-    }
-
-    QList<QString> aggregation = myProject.aggregationDbHandler->getAggregations();
-    if (aggregation.isEmpty())
-    {
-        myProject.errorString = "Empty aggregation " + myProject.aggregationDbHandler->error();
-        myProject.logError();
-        return false;
-    }
-
-    DialogSeriesOnZones zoneDialog(myProject.pragaDefaultSettings, aggregation);
-
-    if (zoneDialog.result() != QDialog::Accepted)
-    {
-        if (myRaster != nullptr)
-        {
-            delete myRaster;
-        }
-
-        return false;
-    }
-    else
-    {
-        std::vector<float> outputValues;
-        float threshold = NODATA;
-        meteoComputation elab1MeteoComp = noMeteoComp;
-        QString periodType = "D";
-        int nMissing = 0;
-        if (!myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, nMissing, true))
-        {
-            QMessageBox::information(nullptr, "Error", "Error writing aggregation data");
-            if (myRaster != nullptr)
-            {
-                delete myRaster;
-            }
-            return false;
-        }
-        if (nMissing != 0)
-        {
-            QMessageBox::information(nullptr, "Warning", "Missing values");
-        }
-    }
-    if (myRaster != nullptr)
-    {
-        delete myRaster;
-    }
-
-    return true;
-}
-
-
-void MainWindow::on_actionAnalysisOpenAggregationDB_triggered()
+void MainWindow::on_actionSpatialAggregationOpenDB_triggered()
 {
     QString dbName = QFileDialog::getOpenFileName(this, tr("Open DB meteo points"), "", tr("DB files (*.db)"));
     if (dbName != "")
@@ -2185,7 +2096,7 @@ void MainWindow::on_actionAnalysisOpenAggregationDB_triggered()
 
 }
 
-void MainWindow::on_actionAnalysisNewAggregationDB_triggered()
+void MainWindow::on_actionSpatialAggregationNewDB_triggered()
 {
     QString templateFileName = myProject.getDefaultPath() + PATH_TEMPLATE + "template_meteo_aggregation.db";
 
@@ -3807,5 +3718,110 @@ void MainWindow::on_actionTestMark_triggered()
         {
             pointList[i]->setMarked(true);
         }
+}
+
+bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
+{
+    if (!ui->grid->isChecked())
+        {
+            myProject.errorString = "Load grid";
+            myProject.logError();
+            return false;
+        }
+        if (myProject.aggregationDbHandler == nullptr)
+        {
+            myProject.errorString = "Missing DB: open or create a Aggregation DB";
+            myProject.logError();
+            return false;
+        }
+        QString rasterName;
+        if (!myProject.aggregationDbHandler->getRasterName(&rasterName))
+        {
+            myProject.errorString = "Missing Raster Name inside aggregation db";
+            myProject.logError();
+            return false;
+        }
+
+        QFileInfo rasterFileFltInfo(myProject.aggregationPath+"/"+rasterName+".flt");
+        QFileInfo rasterFileHdrInfo(myProject.aggregationPath+"/"+rasterName+".hdr");
+        if (!rasterFileFltInfo.exists() || !rasterFileHdrInfo.exists())
+        {
+            myProject.errorString = "Raster file does not exist: " + myProject.aggregationPath+"/"+rasterName;
+            myProject.logError();
+            return false;
+        }
+        gis::Crit3DRasterGrid *myRaster;
+        myRaster = new(gis::Crit3DRasterGrid);
+        if (!openRaster(myProject.aggregationPath+"/"+rasterName+".flt", myRaster))
+        {
+            myProject.errorString = "Open raster file failed";
+            myProject.logError();
+            return false;
+        }
+
+        QList<QString> aggregation = myProject.aggregationDbHandler->getAggregations();
+        if (aggregation.isEmpty())
+        {
+            myProject.errorString = "Empty aggregation " + myProject.aggregationDbHandler->error();
+            myProject.logError();
+            return false;
+        }
+
+        DialogSeriesOnZones zoneDialog(myProject.pragaDefaultSettings, aggregation);
+
+        if (zoneDialog.result() != QDialog::Accepted)
+        {
+            if (myRaster != nullptr)
+            {
+                delete myRaster;
+            }
+
+            return false;
+        }
+        else
+        {
+            std::vector<float> outputValues;
+            float threshold = NODATA;
+            meteoComputation elab1MeteoComp = noMeteoComp;
+            QString periodType = "D";
+            int nMissing = 0;
+            if (!myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, nMissing, true))
+            {
+                QMessageBox::information(nullptr, "Error", "Error writing aggregation data");
+                if (myRaster != nullptr)
+                {
+                    delete myRaster;
+                }
+                return false;
+            }
+            if (nMissing != 0)
+            {
+                QMessageBox::information(nullptr, "Warning", "Missing values");
+            }
+        }
+        if (myRaster != nullptr)
+        {
+            delete myRaster;
+        }
+
+        return true;
+}
+
+
+void MainWindow::on_actionInterpolationExportRaster_triggered()
+{
+    if (! myProject.dataRaster.isLoaded)
+        return;
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save interpolated raster"), "", tr("ESRI grid files (*.flt)"));
+
+    if (fileName != "")
+    {
+        std::string myError = myProject.errorString.toStdString();
+        QString fileWithoutExtension = QFileInfo(fileName).absolutePath() + QDir::separator() + QFileInfo(fileName).baseName();
+
+        if (!gis::writeEsriGrid(fileWithoutExtension.toStdString(), &myProject.dataRaster, &myError))
+            myProject.logError(QString::fromStdString(myError));
+    }
 }
 
