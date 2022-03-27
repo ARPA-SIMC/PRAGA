@@ -2629,3 +2629,4 @@ bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int
     }
     return res;
 }
+

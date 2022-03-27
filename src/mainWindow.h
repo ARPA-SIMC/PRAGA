@@ -110,10 +110,6 @@
         void on_actionSettingsMapEsriSatellite_triggered();
         void on_actionSettingsMapStamenTerrain_triggered();
 
-        void on_actionAnalysisOpenAggregationDB_triggered();
-        void on_actionAnalysisNewAggregationDB_triggered();
-        bool on_actionAnalysisAggregateFromGrid_triggered();
-
         void updateMaps();
         void mouseMove(const QPoint& eventPos);
 
@@ -195,6 +191,14 @@
         void on_actionUnmark_all_points_triggered();
 
         void on_actionTestMark_triggered();
+
+        bool on_actionSpatialAggregationFromGrid_triggered();
+
+        void on_actionSpatialAggregationOpenDB_triggered();
+
+        void on_actionSpatialAggregationNewDB_triggered();
+
+        void on_actionInterpolationExportRaster_triggered();
 
     protected:
         /*!
