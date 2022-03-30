@@ -2153,12 +2153,14 @@ void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint, std:
 
     Crit3DMeteoPoint mp;
     meteoPointsDbHandler->getPropertiesGivenId(QString::fromStdString(idMeteoPoint), &mp, gisSettings, errorString);
+    logInfoGUI("Loading daily data...");
     meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), &mp);
+    logInfoGUI("Loading hourly data...");
     meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), &mp);
+    closeLogInfo();
     QList<Crit3DMeteoPoint> meteoPoints;
     meteoPoints.append(mp);
     // TO DO append le varie joint stations ancora non presenti
-    closeLogInfo();
     bool isGrid = false;
     pointStatisticsWidget = new Crit3DPointStatisticsWidget(isGrid, meteoPointsDbHandler, nullptr, meteoPoints, firstDaily, lastDaily, firstHourly, lastHourly,
                                                             meteoSettings, pragaDefaultSettings, &climateParameters, quality);
