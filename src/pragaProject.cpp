@@ -723,19 +723,9 @@ bool PragaProject::elaboration(bool isMeteoGrid, bool isAnomaly, bool saveClima)
                 return true;
             }
         }
-        if (!isAnomaly)
+        if (!elaborationPointsCycleGrid(isAnomaly, true))
         {
-            if (!elaborationPointsCycleGrid(isAnomaly, true))
-            {
-                return false;
-            }
-        }
-        else
-        {
-            if (!elaborationPointsCycleGrid(isAnomaly, true))
-            {
-                return false;
-            }
+            return false;
         }
         meteoGridDbHandler->meteoGrid()->setIsElabValue(true);
     }
@@ -752,20 +742,11 @@ bool PragaProject::elaboration(bool isMeteoGrid, bool isAnomaly, bool saveClima)
                 return true;
             }
         }
-        if (!isAnomaly)
+        if (!elaborationPointsCycle(isAnomaly, true))
         {
-            if (!elaborationPointsCycle(isAnomaly, true))
-            {
-                return false;
-            }
+            return false;
         }
-        else
-        {
-            if (!elaborationPointsCycle(isAnomaly, true))
-            {
-                return false;
-            }
-        }
+
         setIsElabMeteoPointsValue(true);
     }
 
