@@ -2160,7 +2160,8 @@ void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint, std:
     // TO DO append le varie joint stations ancora non presenti
     closeLogInfo();
     bool isGrid = false;
-    pointStatisticsWidget = new Crit3DPointStatisticsWidget(isGrid, meteoPointsDbHandler, nullptr, meteoPoints, firstDaily, lastDaily, firstHourly, lastHourly, meteoSettings, pragaDefaultSettings);
+    pointStatisticsWidget = new Crit3DPointStatisticsWidget(isGrid, meteoPointsDbHandler, nullptr, meteoPoints, firstDaily, lastDaily, firstHourly, lastHourly,
+                                                            meteoSettings, pragaDefaultSettings, &climateParameters, quality);
     QObject::connect(pointStatisticsWidget, SIGNAL(pointStatisticsWidget()), this, SLOT(deletePointStatisticsWidget()));
     return;
 }
