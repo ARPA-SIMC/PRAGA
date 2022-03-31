@@ -2164,7 +2164,7 @@ void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint, std:
     bool isGrid = false;
     pointStatisticsWidget = new Crit3DPointStatisticsWidget(isGrid, meteoPointsDbHandler, nullptr, meteoPoints, firstDaily, lastDaily, firstHourly, lastHourly,
                                                             meteoSettings, pragaDefaultSettings, &climateParameters, quality);
-    QObject::connect(pointStatisticsWidget, SIGNAL(pointStatisticsWidget()), this, SLOT(deletePointStatisticsWidget()));
+    //QObject::connect(pointStatisticsWidget, SIGNAL(closePointStatistics()), this, SLOT(deletePointStatisticsWidget()));
     return;
 }
 

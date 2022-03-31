@@ -112,12 +112,16 @@
         bool computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, QDate date, int timescale, meteoVariable myVar);
         void showPointStatisticsWidgetPoint(std::string idMeteoPoint, std::string namePoint);
         void showPointStatisticsWidgetGrid(std::string id);
-        void deletePointStatisticsWidget();
+
 
         #ifdef NETCDF
                 bool exportMeteoGridToNetCDF(QString fileName, QString title, QString variableName, std::string variableUnit, Crit3DDate myDate, int nDays, int refYearStart, int refYearEnd);
                 bool exportXMLElabGridToNetcdf(QString xmlName);
         #endif
+
+    private slots:
+        void deletePointStatisticsWidget();
+
     };
 
 
