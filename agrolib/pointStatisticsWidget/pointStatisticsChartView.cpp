@@ -73,10 +73,18 @@ void PointStatisticsChartView::drawTrend(std::vector<int> years, std::vector<flo
             }
         }
     }
-    double yRange = maxValue - minValue;
-    double deltaY = yRange/100;
-    axisY->setMax(maxValue+3*deltaY);
-    axisY->setMin(minValue-3*deltaY);
+    if (maxValue != minValue)
+    {
+        double yRange = maxValue - minValue;
+        double deltaY = yRange/100;
+        axisY->setMax(maxValue+3*deltaY);
+        axisY->setMin(minValue-3*deltaY);
+    }
+    else
+    {
+        axisY->setMax(maxValue+3);
+        axisY->setMin(minValue-3);
+    }
     axisXvalue->setRange(years[0], years[years.size()-1]);
     axisXvalue->setTickCount(years.size());
     axisXvalue->setLabelFormat("%d");
@@ -84,29 +92,7 @@ void PointStatisticsChartView::drawTrend(std::vector<int> years, std::vector<flo
     chart()->addSeries(trend);
     trend->attachAxis(axisXvalue);
     trend->attachAxis(axisY);
-    connect(trend, &QScatterSeries::hovered, this, &PointStatisticsChartView::tooltipSeries);
-}
-
-void PointStatisticsChartView::tooltipSeries(QPointF point, bool state)
-{
-
-    auto serie = qobject_cast<QScatterSeries *>(sender());
-    if (state)
-    {
-        double xValue = point.x();
-        double yValue = point.y();
-
-        m_tooltip->setText(QString("%1: %2").arg(xValue).arg(yValue, 0, 'f', 3));
-        m_tooltip->setSeries(serie);
-        m_tooltip->setAnchor(point);
-        m_tooltip->setZValue(11);
-        m_tooltip->updateGeometry();
-        m_tooltip->show();
-    }
-    else
-    {
-        m_tooltip->hide();
-    }
+    connect(trend, &QScatterSeries::hovered, this, &PointStatisticsChartView::tooltipTrendSeries);
 }
 
 void PointStatisticsChartView::cleanClimaSeries()
@@ -195,7 +181,7 @@ void PointStatisticsChartView::drawClima(QList<QPointF> dailyPointList, QList<QP
     axisY->setMax(maxValue);
     axisY->setMin(minValue);
     axisXvalue->setRange(1, 366);
-    axisXvalue->setTickCount(366);
+    axisXvalue->setTickCount(20);
     axisXvalue->setLabelFormat("%d");
     axisY->setLabelFormat("%.3f");
 
@@ -208,6 +194,52 @@ void PointStatisticsChartView::drawClima(QList<QPointF> dailyPointList, QList<QP
     climaDecadal->attachAxis(axisY);
     climaMonthly->attachAxis(axisXvalue);
     climaMonthly->attachAxis(axisY);
-    connect(trend, &QLineSeries::hovered, this, &PointStatisticsChartView::tooltipSeries);
+    connect(climaDaily, &QLineSeries::hovered, this, &PointStatisticsChartView::tooltipClimaSeries);
+    connect(climaDecadal, &QLineSeries::hovered, this, &PointStatisticsChartView::tooltipClimaSeries);
+    connect(climaMonthly, &QLineSeries::hovered, this, &PointStatisticsChartView::tooltipClimaSeries);
+}
+
+void PointStatisticsChartView::tooltipTrendSeries(QPointF point, bool state)
+{
+
+    auto serie = qobject_cast<QScatterSeries *>(sender());
+    if (state)
+    {
+        double xValue = point.x();
+        double yValue = point.y();
+
+        m_tooltip->setText(QString("year %1: %2").arg(xValue).arg(yValue, 0, 'f', 3));
+        m_tooltip->setSeries(serie);
+        m_tooltip->setAnchor(point);
+        m_tooltip->setZValue(11);
+        m_tooltip->updateGeometry();
+        m_tooltip->show();
+    }
+    else
+    {
+        m_tooltip->hide();
+    }
+}
+
+void PointStatisticsChartView::tooltipClimaSeries(QPointF point, bool state)
+{
+
+    auto serie = qobject_cast<QScatterSeries *>(sender());
+    if (state)
+    {
+        int xValue = point.x();
+        double yValue = point.y();
+
+        m_tooltip->setText(QString("dOY %1: %2").arg(xValue).arg(yValue, 0, 'f', 3));
+        m_tooltip->setSeries(serie);
+        m_tooltip->setAnchor(point);
+        m_tooltip->setZValue(11);
+        m_tooltip->updateGeometry();
+        m_tooltip->show();
+    }
+    else
+    {
+        m_tooltip->hide();
+    }
 }
 

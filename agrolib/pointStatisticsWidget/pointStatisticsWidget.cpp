@@ -30,6 +30,7 @@
 #include "basicMath.h"
 #include "climate.h"
 #include "dialogElaboration.h"
+#include "gammaFunction.h"
 #include "formInfo.h"
 
 #include <QLayout>
@@ -197,6 +198,7 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     gridLeftLayout->addWidget(smoothingLabel,0,3,1,1);
     classWidth.setMaximumWidth(60);
     classWidth.setMaximumHeight(30);
+    classWidth.setText("1");
     gridLeftLayout->addWidget(&classWidth,3,0,1,-1);
     valMax.setMaximumWidth(60);
     valMax.setMaximumHeight(30);
@@ -255,7 +257,7 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     QLabel *availabilityLabel = new QLabel(tr("availability [%]"));
     gridRightLayout->addWidget(availabilityLabel,0,0,1,1);
     availability.setEnabled(false);
-    availability.setMaximumWidth(60);
+    availability.setMaximumWidth(80);
     availability.setMaximumHeight(30);
     gridRightLayout->addWidget(&availability,1,0,1,1);
     QLabel *rateLabel = new QLabel(tr("rate"));
@@ -265,15 +267,15 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     QLabel *significanceLabel = new QLabel(tr("significance [MK]"));
     gridRightLayout->addWidget(significanceLabel,2,2,1,1);
     rate.setEnabled(false);
-    rate.setMaximumWidth(60);
+    rate.setMaximumWidth(80);
     rate.setMaximumHeight(30);
     gridRightLayout->addWidget(&rate,3,0,1,1);
     r2.setEnabled(false);
-    r2.setMaximumWidth(60);
+    r2.setMaximumWidth(80);
     r2.setMaximumHeight(30);
     gridRightLayout->addWidget(&r2,3,1,1,1);
     significance.setEnabled(false);
-    significance.setMaximumWidth(60);
+    significance.setMaximumWidth(80);
     significance.setMaximumHeight(30);
     gridRightLayout->addWidget(&significance,3,2,1,1);
     QLabel *averageLabel = new QLabel(tr("average"));
@@ -285,19 +287,19 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     QLabel *sigmaLabel = new QLabel(tr("sigma"));
     gridRightLayout->addWidget(sigmaLabel,4,3,1,1);
     average.setEnabled(false);
-    average.setMaximumWidth(60);
+    average.setMaximumWidth(80);
     average.setMaximumHeight(30);
     gridRightLayout->addWidget(&average,5,0,1,1);
     mode.setEnabled(false);
-    mode.setMaximumWidth(60);
+    mode.setMaximumWidth(80);
     mode.setMaximumHeight(30);
     gridRightLayout->addWidget(&mode,5,1,1,1);
     median.setEnabled(false);
-    median.setMaximumWidth(60);
+    median.setMaximumWidth(80);
     median.setMaximumHeight(30);
     gridRightLayout->addWidget(&median,5,2,1,1);
     sigma.setEnabled(false);
-    sigma.setMaximumWidth(60);
+    sigma.setMaximumWidth(80);
     sigma.setMaximumHeight(30);
     gridRightLayout->addWidget(&sigma,5,3,1,1);
 
@@ -315,7 +317,10 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     connect(&graph, &QComboBox::currentTextChanged, [=](const QString &newGraph){ this->changeGraph(newGraph); });
     connect(&compute, &QPushButton::clicked, [=](){ plot(); });
     connect(&elaboration, &QPushButton::clicked, [=](){ showElaboration(); });
-    connect(&smoothing, &QLineEdit::textChanged, [=](){ changeSmooth(); });
+    connect(&smoothing, &QLineEdit::textChanged, [=](){ updatePlot(); });
+    connect(&valMax, &QLineEdit::textChanged, [=](){ updatePlot(); });
+    connect(&valMin, &QLineEdit::textChanged, [=](){ updatePlot(); });
+    connect(&classWidth, &QLineEdit::textChanged, [=](){ updatePlot(); });
 
     plot();
     show();
@@ -450,11 +455,8 @@ void Crit3DPointStatisticsWidget::plot()
             classWidth.setEnabled(false);
             valMax.setEnabled(false);
             valMin.setEnabled(false);
-            sigma.setEnabled(false);
-            mode.setEnabled(false);
-            median.setEnabled(false);
-
             smoothing.setEnabled(false);
+
             availability.clear();
             significance.clear();
             average.clear();
@@ -530,7 +532,7 @@ void Crit3DPointStatisticsWidget::plot()
             chartView->drawTrend(years, outputValues);
 
             float availab = ((float)validYears/(float)years.size())*100.0;
-            availability.setText(QString::number(availab));
+            availability.setText(QString::number(availab, 'f', 3));
             float mkendall = statisticalElab(mannKendall, NODATA, outputValues, outputValues.size(), meteoSettings->getRainfallThreshold());
             significance.setText(QString::number(mkendall, 'f', 3));
             float averageValue = sum/validYears;
@@ -551,11 +553,8 @@ void Crit3DPointStatisticsWidget::plot()
             classWidth.setEnabled(false);
             valMax.setEnabled(false);
             valMin.setEnabled(false);
-            sigma.setEnabled(false);
-            mode.setEnabled(false);
-            median.setEnabled(false);
-
             smoothing.setEnabled(false);
+
             availability.clear();
             significance.clear();
             average.clear();
@@ -610,19 +609,20 @@ void Crit3DPointStatisticsWidget::plot()
 
             QDate startDate(clima.yearStart(), clima.genericPeriodDateStart().month(), clima.genericPeriodDateStart().day());
             QDate endDate(clima.yearEnd(), clima.genericPeriodDateEnd().month(), clima.genericPeriodDateEnd().day());
-            if ( elaborationOnPoint(&myError, meteoPointsDbHandler, nullptr, &meteoPointTemp, &clima, isGrid, startDate, endDate, isAnomaly, meteoSettings))
+            if (!elaborationOnPoint(&myError, meteoPointsDbHandler, nullptr, &meteoPointTemp, &clima, isGrid, startDate, endDate, isAnomaly, meteoSettings))
             {
                 QMessageBox::information(nullptr, "Error", "Data not available in the reference period");
                 return;
             }
 
-            isAnomaly = true;
             firstYear = analysisYearFrom.currentText().toInt();
             lastYear = analysisYearTo.currentText().toInt();
             clima.setYearStart(firstYear);
             clima.setYearEnd(lastYear);
             clima.setGenericPeriodDateStart(QDate(firstYear, dayFrom.date().month(), dayFrom.date().day()));
             clima.setGenericPeriodDateEnd(QDate(lastYear, dayTo.date().month(), dayTo.date().day()));
+            float elabResult = meteoPointTemp.elaboration;
+
             int validYears = computeAnnualSeriesOnPointFromDaily(&myError, meteoPointsDbHandler, meteoGridDbHandler,
                                                      &meteoPointTemp, &clima, isGrid, isAnomaly, meteoSettings, outputValues);
             if (validYears < 3)
@@ -638,6 +638,7 @@ void Crit3DPointStatisticsWidget::plot()
                 years.push_back(i);
                 if (outputValues[count] != NODATA)
                 {
+                    outputValues[count] = outputValues[count] - elabResult;
                     sum = sum + outputValues[count];
                 }
                 count = count + 1;
@@ -646,7 +647,7 @@ void Crit3DPointStatisticsWidget::plot()
             chartView->drawTrend(years, outputValues);
 
             float availab = ((float)validYears/(float)years.size())*100.0;
-            availability.setText(QString::number(availab));
+            availability.setText(QString::number(availab, 'f', 3));
             float mkendall = statisticalElab(mannKendall, NODATA, outputValues, outputValues.size(), meteoSettings->getRainfallThreshold());
             significance.setText(QString::number(mkendall, 'f', 3));
             float averageValue = sum/validYears;
@@ -661,29 +662,14 @@ void Crit3DPointStatisticsWidget::plot()
                                              &myIntercept, &myCoeff, &myR2);
             r2.setText(QString::number(myR2, 'f', 3));
             rate.setText(QString::number(myCoeff, 'f', 3));
-
-            /*
-            float stdDev = statistics::standardDeviation(outputValues, outputValues.size());
-            sigma.setText(QString::number(stdDev, 'f', 3));
-
-            int nrValues = int(outputValues.size());
-            float percentile = sorting::percentile(outputValues, &nrValues, 50.0, true);
-            median.setText(QString::number(percentile, 'f', 3));
-
-            float modeVal = sorting::mode(outputValues, &nrValues, true);
-            mode.setText(QString::number(modeVal, 'f', 3));
-            */
         }
         else if (graph.currentText() == "Climate")
         {
             classWidth.setEnabled(false);
             valMax.setEnabled(false);
             valMin.setEnabled(false);
-            sigma.setEnabled(false);
-            mode.setEnabled(false);
-            median.setEnabled(false);
-
             smoothing.setEnabled(true);
+
             availability.clear();
             significance.clear();
             average.clear();
@@ -720,8 +706,8 @@ void Crit3DPointStatisticsWidget::plot()
             }
             computeClimateOnDailyData(meteoPoints[0], myVar, startDate, endDate,
                                           smooth, &dataPresence, quality, climateParameters, meteoSettings, dailyClima, decadalClima, monthlyClima);
-            availability.setText(QString::number(dataPresence));
-            int decadeTmp = 0;
+            availability.setText(QString::number(dataPresence, 'f', 3));
+
             QList<QPointF> dailyPointList;
             QList<QPointF> decadalPointList;
             QList<QPointF> monthlyPointList;
@@ -736,15 +722,219 @@ void Crit3DPointStatisticsWidget::plot()
                 intervalDecade(decade, myDate.year(), &dayStart, &dayEnd, &month);
                 if (myDate.day() == (dayStart+dayEnd)/2)
                 {
-                    decadalPointList.append(QPointF(day,decadalClima[day]));
+                    decadalPointList.append(QPointF(day,decadalClima[decade]));
                 }
                 if ( myDate.day() == round(getDaysInMonth(month, myDate.year())/2) )
                 {
-                    monthlyPointList.append(QPointF(day,monthlyClima[day]));
+                    monthlyPointList.append(QPointF(day,monthlyClima[month]));
                 }
             }
             // draw
             chartView->drawClima(dailyPointList, decadalPointList, monthlyPointList);
+        }
+        else if (graph.currentText() == "Distribution")
+        {
+
+            classWidth.setEnabled(true);
+            valMax.setEnabled(true);
+            valMin.setEnabled(true);
+            smoothing.setEnabled(false);
+
+            availability.clear();
+            significance.clear();
+            average.clear();
+            r2.clear();
+            rate.clear();
+            std::vector<float> series;
+
+            bool ok = true;
+            int classWidthValue = classWidth.text().toInt(&ok);
+            if (!ok || classWidthValue <= 0)
+            {
+                QMessageBox::information(nullptr, "Error", "Wrong class Width value");
+                return;
+            }
+            float myMinValue = NODATA;
+            float myMaxValue = NODATA;
+            bool isFirstData = true;
+
+            int firstYear = yearFrom.currentText().toInt();
+            int lastYear = yearTo.currentText().toInt();
+            QDate firstDate(firstYear, dayFrom.date().month(), dayFrom.date().day());
+            QDate lastDate(lastYear, dayTo.date().month(), dayTo.date().day());
+
+            bool insideInterval = true;
+            QDate dateStartPeriod = firstDate;
+            QDate dateEndPeriod = lastDate;
+            if (firstDate.dayOfYear() <= lastDate.dayOfYear())
+            {
+                insideInterval = true;
+                dateEndPeriod.setDate(dateStartPeriod.year(), dateEndPeriod.month(), dateEndPeriod.day());
+            }
+            else
+            {
+                insideInterval = false;
+                dateEndPeriod.setDate(dateStartPeriod.year()+1, dateEndPeriod.month(), dateEndPeriod.day());
+            }
+
+            int totDays = 0;
+            quality::qualityType check;
+            for (QDate myDate = firstDate; myDate <= lastDate; myDate = myDate.addDays(1))
+            {
+                if (myDate >= dateStartPeriod && myDate <= dateEndPeriod)
+                {
+                    totDays = totDays + 1;
+                    if (myDate >= firstDaily && myDate <= lastDaily)
+                    {
+                        int i = firstDaily.daysTo(myDate);
+                        float myDailyValue = meteoPoints[0].getMeteoPointValueD(getCrit3DDate(myDate), myVar, meteoSettings);
+                        if (i<0 || i>meteoPoints[0].nrObsDataDaysD)
+                        {
+                            check = quality::missing_data;
+                        }
+                        else
+                        {
+                            check = quality->checkFastValueDaily_SingleValue(myVar, climateParameters, myDailyValue, myDate.month(), meteoPoints[0].point.z);
+                        }
+                        if (check == quality::accepted)
+                        {
+                            if (myVar = dailyPrecipitation)
+                            {
+                                if (myDailyValue < meteoSettings->getRainfallThreshold())
+                                {
+                                    myDailyValue = 0;
+                                }
+                            }
+                            series.push_back(myDailyValue);
+                            if (isFirstData)
+                            {
+                                myMinValue = myDailyValue;
+                                myMaxValue = myDailyValue;
+                                isFirstData = false;
+                            }
+                            else if (myDailyValue < myMinValue)
+                            {
+                                myMinValue = myDailyValue;
+                            }
+                            else if (myDailyValue > myMaxValue)
+                            {
+                                myMaxValue = myDailyValue;
+                            }
+                        }
+                    }
+                    if (myDate == dateEndPeriod)
+                    {
+                        if (insideInterval)
+                        {
+                            dateStartPeriod.setDate(myDate.year()+1, firstDate.month(), firstDate.day());
+                            dateEndPeriod.setDate(myDate.year()+1, lastDate.month(), lastDate.day());
+                        }
+                        else
+                        {
+                            dateStartPeriod.setDate(myDate.year(), firstDate.month(), firstDate.day());
+                            dateEndPeriod.setDate(myDate.year()+1, lastDate.month(), lastDate.day());
+                        }
+                        myDate = dateStartPeriod.addDays(-1);
+                    }
+                }
+            }
+            if (myMinValue == NODATA || myMaxValue == NODATA)
+            {
+                return; // no data
+            }
+            int minValueInt = myMinValue;
+            int maxValueInt = myMaxValue + 1;
+
+            // init
+            std::vector<float> bucket;
+            for (int i = 0; i<= (maxValueInt - minValueInt)/classWidthValue; i++)
+            {
+                bucket.push_back(0);
+            }
+
+            float dev_std = NODATA;
+            float millile_3Dev = NODATA;
+            float millile3dev = NODATA;
+            float avg = NODATA;
+            float modeVal = NODATA;
+            int nrValues = int(series.size());
+            std::vector<float> sortedSeries = series;
+
+            if (myVar == dailyPrecipitation)
+            {
+                for (int i = 0; i < nrValues; i++)
+                {
+                    if (series[i] > 0)
+                    {
+                        int index = (series[i] - minValueInt)/classWidthValue;
+                        bucket[index] = bucket[index] + 1;
+                    }
+                }
+
+                double beta;
+                double gamma;
+                double pzero;
+                if (!gammaFitting(series, nrValues, &beta, &gamma,  &pzero))
+                {
+                    return;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < nrValues; i++)
+                {
+                    if (series[i] > 0)
+                    {
+                        int index = (series[i] - minValueInt)/classWidthValue;
+                        bucket[index] = bucket[index] + 1;
+                    }
+                }
+                avg = statistics::mean(series, nrValues);
+                dev_std = statistics::standardDeviation(series, nrValues);
+                millile3dev = sorting::percentile(sortedSeries, &nrValues, 99.73, true);
+                millile_3Dev = sorting::percentile(sortedSeries, &nrValues, 0.27, false);
+            }
+            availability.setText(QString::number(nrValues/totDays * 100, 'f', 3));
+            average.setText(QString::number(avg, 'f', 3));
+
+            int numModeData = 0;
+            for (int i = 0; i<bucket.size(); i++)
+            {
+                if (bucket[i] > numModeData)
+                {
+                    numModeData = bucket[i];
+                    modeVal = i;
+                }
+            }
+
+            if (modeVal != NODATA)
+            {
+                mode.setText(QString::number(minValueInt + (modeVal*classWidthValue) + (classWidthValue/2), 'f', 3));
+            }
+            if (dev_std != NODATA)
+            {
+                sigma.setText(QString::number(dev_std, 'f', 3));
+            }
+            median.setText(QString::number(sorting::percentile(sortedSeries, &nrValues, 50, false), 'f', 3));
+
+            valMax.blockSignals(true);
+            valMin.blockSignals(true);
+            int valMaxValue = valMax.text().toInt(&ok);
+            if (!ok || valMax.text().isEmpty() || valMaxValue == NODATA)
+            {
+                valMaxValue = maxValueInt;
+                valMax.setText(QString::number(valMaxValue));
+            }
+            int valMinValue = valMin.text().toInt(&ok);
+            if (!ok || valMin.text().isEmpty() || valMinValue == NODATA)
+            {
+                valMinValue = minValueInt;
+                valMin.setText(QString::number(valMinValue));
+            }
+            valMax.blockSignals(false);
+            valMin.blockSignals(false);
+
+
         }
     }
     else if (currentFrequency == hourly)
@@ -801,6 +991,9 @@ void Crit3DPointStatisticsWidget::showElaboration()
                                                  &meteoPointTemp, &clima, isGrid, isAnomaly, meteoSettings, outputValues);
         if (validYears < 3)
         {
+            //copy to clima original value for next elab
+            clima.setYearStart(firstYear);
+            clima.setYearEnd(lastYear);
             QMessageBox::information(nullptr, "Error", "Number of valid years < 3");
             return;
         }
@@ -820,7 +1013,7 @@ void Crit3DPointStatisticsWidget::showElaboration()
         chartView->drawTrend(years, outputValues);
 
         float availab = ((float)validYears/(float)years.size())*100.0;
-        availability.setText(QString::number(availab));
+        availability.setText(QString::number(availab, 'f', 3));
         float mkendall = statisticalElab(mannKendall, NODATA, outputValues, outputValues.size(), meteoSettings->getRainfallThreshold());
         significance.setText(QString::number(mkendall, 'f', 3));
         float averageValue = sum/validYears;
@@ -835,11 +1028,15 @@ void Crit3DPointStatisticsWidget::showElaboration()
                                          &myIntercept, &myCoeff, &myR2);
         r2.setText(QString::number(myR2, 'f', 3));
         rate.setText(QString::number(myCoeff, 'f', 3));
+
+        //copy to clima original value for next elab
+        clima.setYearStart(firstYear);
+        clima.setYearEnd(lastYear);
     }
     return;
 }
 
-void Crit3DPointStatisticsWidget::changeSmooth()
+void Crit3DPointStatisticsWidget::updatePlot()
 {
     plot();
 }
