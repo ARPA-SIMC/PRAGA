@@ -315,12 +315,12 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     connect(&hourlyButton, &QRadioButton::clicked, [=](){ hourlyVar(); });
     connect(&variable, &QComboBox::currentTextChanged, [=](const QString &newVariable){ this->changeVar(newVariable); });
     connect(&graph, &QComboBox::currentTextChanged, [=](const QString &newGraph){ this->changeGraph(newGraph); });
-    connect(&compute, &QPushButton::clicked, [=](){ plot(); });
+    connect(&compute, &QPushButton::clicked, [=](){ computePlot(); });
     connect(&elaboration, &QPushButton::clicked, [=](){ showElaboration(); });
-    connect(&smoothing, &QLineEdit::textChanged, [=](){ updatePlot(); });
-    connect(&valMax, &QLineEdit::textChanged, [=](){ updatePlot(); });
-    connect(&valMin, &QLineEdit::textChanged, [=](){ updatePlot(); });
-    connect(&classWidth, &QLineEdit::textChanged, [=](){ updatePlot(); });
+    connect(&smoothing, &QLineEdit::editingFinished, [=](){ updatePlot(); });
+    connect(&valMax, &QLineEdit::editingFinished, [=](){ updatePlot(); });
+    connect(&valMin, &QLineEdit::editingFinished, [=](){ updatePlot(); });
+    connect(&classWidth, &QLineEdit::editingFinished, [=](){ updatePlot(); });
 
     plot();
     show();
@@ -443,7 +443,7 @@ void Crit3DPointStatisticsWidget::changeVar(const QString varName)
     {
         myVar = getKeyMeteoVarMeteoMap(MapHourlyMeteoVarToString, varName.toStdString());
     }
-    plot();
+    computePlot();
 }
 
 void Crit3DPointStatisticsWidget::plot()
@@ -798,7 +798,7 @@ void Crit3DPointStatisticsWidget::plot()
                         }
                         if (check == quality::accepted)
                         {
-                            if (myVar = dailyPrecipitation)
+                            if (myVar == dailyPrecipitation)
                             {
                                 if (myDailyValue < meteoSettings->getRainfallThreshold())
                                 {
@@ -1038,5 +1038,12 @@ void Crit3DPointStatisticsWidget::showElaboration()
 
 void Crit3DPointStatisticsWidget::updatePlot()
 {
+    plot();
+}
+
+void Crit3DPointStatisticsWidget::computePlot()
+{
+    valMax.clear();
+    valMin.clear();
     plot();
 }
