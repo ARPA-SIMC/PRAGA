@@ -379,6 +379,8 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                 QMenu menu;
                 QAction *openMeteoWidget = menu.addAction("Open new meteo widget");
                 QAction *appendMeteoWidget = menu.addAction("Append to last meteo widget");
+                QAction *openPointStatisticsWidget = menu.addAction("Open point statistics widget");
+
                 if (myProject.meteoGridDbHandler->meteoGrid()->gridStructure().isEnsemble())
                 {
                     appendMeteoWidget->setEnabled(false);
@@ -399,6 +401,10 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                     if (selection == appendMeteoWidget)
                     {
                         myProject.showMeteoWidgetGrid(id, true);
+                    }
+                    else if (selection == openPointStatisticsWidget)
+                    {
+                        myProject.showPointStatisticsWidgetGrid(id);
                     }
                     // TODO: other actions
 
