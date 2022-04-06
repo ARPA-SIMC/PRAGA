@@ -1,8 +1,7 @@
-#include "pragaProject.h"
 #include "aggregation.h"
 #include "dialogSeriesOnZones.h"
+#include <iostream>
 
-extern PragaProject myProject;
 
 meteoVariable DialogSeriesOnZones::getVariable() const
 {
@@ -24,7 +23,7 @@ QString DialogSeriesOnZones::getSpatialElaboration() const
     return spatialElaboration;
 }
 
-DialogSeriesOnZones::DialogSeriesOnZones(QSettings *settings, QList<QString> aggregations)
+DialogSeriesOnZones::DialogSeriesOnZones(QSettings *settings, QList<QString> aggregations, QDate currentDate)
     : settings(settings), aggregations(aggregations)
 {
 
@@ -51,7 +50,7 @@ DialogSeriesOnZones::DialogSeriesOnZones(QSettings *settings, QList<QString> agg
           item = MapDailyMeteoVarToString.at(var);
         }
         catch (const std::out_of_range& ) {
-           myProject.logError("variable " + QString::fromStdString(variable) + " missing in MapDailyMeteoVar");
+            std::cout << "variable: " + variable + " missing in MapDailyMeteoVar";
            continue;
         }
         variableList.addItem(QString::fromStdString(item));
@@ -63,10 +62,10 @@ DialogSeriesOnZones::DialogSeriesOnZones(QSettings *settings, QList<QString> agg
 
 
     genericStartLabel.setText("Start Date:");
-    genericPeriodStart.setDate(myProject.getCurrentDate());
+    genericPeriodStart.setDate(currentDate);
     genericStartLabel.setBuddy(&genericPeriodStart);
     genericEndLabel.setText("End Date:");
-    genericPeriodEnd.setDate(myProject.getCurrentDate());
+    genericPeriodEnd.setDate(currentDate);
     genericEndLabel.setBuddy(&genericPeriodEnd);
 
 

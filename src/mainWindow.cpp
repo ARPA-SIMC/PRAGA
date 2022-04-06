@@ -3773,7 +3773,7 @@ bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
             return false;
         }
 
-        DialogSeriesOnZones zoneDialog(myProject.pragaDefaultSettings, aggregation);
+        DialogSeriesOnZones zoneDialog(myProject.pragaDefaultSettings, aggregation, myProject.getCurrentDate());
 
         if (zoneDialog.result() != QDialog::Accepted)
         {

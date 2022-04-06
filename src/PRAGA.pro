@@ -12,9 +12,10 @@ TEMPLATE = app
 
 INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/crit3dDate ../agrolib/mathFunctions ../agrolib/phenology ../agrolib/meteo ../agrolib/gis  \
-                ../agrolib/drought ../agrolib/interpolation ../agrolib/solarRadiation ../agrolib/utilities ../agrolib/outputPoints \
-                ../agrolib/dbMeteoPoints ../agrolib/dbMeteoGrid ../agrolib/meteoWidget ../agrolib/proxyWidget ../agrolib/pointStatisticsWidget \
-                 ../agrolib/climate ../agrolib/netcdfHandler  ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/importDataXML ../agrolib/project
+                ../agrolib/drought ../agrolib/interpolation ../agrolib/solarRadiation ../agrolib/utilities  \
+                ../agrolib/outputPoints ../agrolib/dbMeteoPoints ../agrolib/dbMeteoGrid ../agrolib/meteoWidget  \
+                ../agrolib/proxyWidget ../agrolib/pointStatisticsWidget ../agrolib/climate ../agrolib/netcdfHandler  \
+                ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/pragaDialogs ../agrolib/importDataXML ../agrolib/project
 
 CONFIG += debug_and_release
 
@@ -25,6 +26,7 @@ DEFINES += NETCDF
 
 CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/project/debug -lproject
+    LIBS += -L../agrolib/pragaDialogs/debug -lpragaDialogs
     LIBS += -L../agrolib/commonDialogs/debug -lcommonDialogs
     LIBS += -L../agrolib/climate/debug -lclimate
     LIBS += -L../agrolib/phenology/debug -lphenology
@@ -62,6 +64,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/graphics/release -lgraphics
     LIBS += -L../mapGraphics/release -lMapGraphics
     LIBS += -L../agrolib/project/release -lproject
+    LIBS += -L../agrolib/pragaDialogs/release -lpragaDialogs
     LIBS += -L../agrolib/commonDialogs/release -lcommonDialogs
     LIBS += -L../agrolib/climate/release -lclimate
     LIBS += -L../agrolib/phenology/release -lphenology
@@ -94,20 +97,12 @@ CONFIG(debug, debug|release) {
 
 
 SOURCES += \
-    dialogAddMissingStation.cpp \
-    dialogAddRemoveDataset.cpp \
-    dialogCellSize.cpp \
-    dialogSelectDataset.cpp \
     main.cpp \
     mainGUI.cpp \
     mainWindow.cpp \
     dialogPragaProject.cpp \
     dialogMeteoComputation.cpp \
-    dialogDownloadMeteoData.cpp \
-    dialogClimateFields.cpp \
     dialogPragaSettings.cpp \
-    dialogSeriesOnZones.cpp \
-    dialogXMLComputation.cpp \
     dialogAnomaly.cpp \
     pragaMeteoMaps.cpp \
     saveClimaLayout.cpp \
@@ -116,19 +111,11 @@ SOURCES += \
 
 
 HEADERS  += \
-    dialogAddMissingStation.h \
-    dialogAddRemoveDataset.h \
-    dialogCellSize.h \
-    dialogSelectDataset.h \
     mainGUI.h \
     mainWindow.h \
     dialogPragaProject.h \
     dialogMeteoComputation.h \
-    dialogDownloadMeteoData.h \
-    dialogClimateFields.h \
     dialogPragaSettings.h \
-    dialogSeriesOnZones.h \
-    dialogXMLComputation.h \
     dialogAnomaly.h \
     pragaMeteoMaps.h \
     saveClimaLayout.h \

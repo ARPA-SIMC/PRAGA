@@ -30,7 +30,7 @@ class DialogSeriesOnZones: public QDialog
         QString spatialElaboration;
 
     public:
-        DialogSeriesOnZones(QSettings *settings, QList<QString> aggregations);
+        DialogSeriesOnZones(QSettings *settings, QList<QString> aggregations, QDate currentDate);
         void done(bool res);
         bool checkValidData();
 
