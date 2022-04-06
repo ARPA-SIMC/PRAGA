@@ -2164,18 +2164,64 @@ void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint, std:
     bool isGrid = false;
     pointStatisticsWidget = new Crit3DPointStatisticsWidget(isGrid, meteoPointsDbHandler, nullptr, meteoPoints, firstDaily, lastDaily, firstHourly, lastHourly,
                                                             meteoSettings, pragaDefaultSettings, &climateParameters, quality);
-    //QObject::connect(pointStatisticsWidget, SIGNAL(closePointStatistics()), this, SLOT(deletePointStatisticsWidget()));
     return;
-}
-
-void PragaProject::deletePointStatisticsWidget()
-{
-    pointStatisticsWidget = nullptr;
 }
 
 void PragaProject::showPointStatisticsWidgetGrid(std::string id)
 {
-    // TO DO
+    logInfoGUI("Loading data...");
+
+    // check dates
+    QDate firstDaily = meteoGridDbHandler->getFirstDailyDate();
+    QDate lastDaily = meteoGridDbHandler->getLastDailyDate();
+    bool hasDailyData = !(firstDaily.isNull() || lastDaily.isNull());
+
+    QDate firstHourly = meteoGridDbHandler->getFirstHourlyDate();
+    QDate lastHourly = meteoGridDbHandler->getLastHourlyDate();
+    bool hasHourlyData = !(firstHourly.isNull() || lastHourly.isNull());
+
+    if (!hasDailyData && !hasHourlyData)
+    {
+        logInfoGUI("No data.");
+        return;
+    }
+    QDateTime firstDateTime = QDateTime(firstHourly, QTime(1,0), Qt::UTC);
+    QDateTime lastDateTime = QDateTime(lastHourly.addDays(1), QTime(0,0), Qt::UTC);
+
+    if (!meteoGridDbHandler->gridStructure().isFixedFields())
+    {
+        logInfoGUI("Loading daily data...");
+        meteoGridDbHandler->loadGridDailyData(&errorString, QString::fromStdString(id), firstDaily, lastDaily);
+        logInfoGUI("Loading hourly data...");
+        meteoGridDbHandler->loadGridHourlyData(&errorString, QString::fromStdString(id), firstDateTime, lastDateTime);
+    }
+    else
+    {
+        logInfoGUI("Loading daily data...");
+        meteoGridDbHandler->loadGridDailyDataFixedFields(&errorString, QString::fromStdString(id), firstDaily, lastDaily);
+        logInfoGUI("Loading hourly data...");
+        meteoGridDbHandler->loadGridHourlyDataFixedFields(&errorString, QString::fromStdString(id), firstDateTime, lastDateTime);
+    }
+    closeLogInfo();
+
+    unsigned row;
+    unsigned col;
+    Crit3DMeteoPoint mp;
+    if (meteoGridDbHandler->meteoGrid()->findMeteoPointFromId(&row,&col,id))
+    {
+        mp = meteoGridDbHandler->meteoGrid()->meteoPoint(row,col);
+    }
+    else
+    {
+        return;
+    }
+    QList<Crit3DMeteoPoint> meteoPoints;
+    meteoPoints.append(mp);
+    // TO DO append le varie joint stations ancora non presenti
+    bool isGrid = true;
+    pointStatisticsWidget = new Crit3DPointStatisticsWidget(isGrid, nullptr, meteoGridDbHandler, meteoPoints, firstDaily, lastDaily, firstDateTime, lastDateTime,
+                                                            meteoSettings, pragaDefaultSettings, &climateParameters, quality);
+   return;
 }
 
 #ifdef NETCDF

@@ -118,10 +118,6 @@
                 bool exportMeteoGridToNetCDF(QString fileName, QString title, QString variableName, std::string variableUnit, Crit3DDate myDate, int nDays, int refYearStart, int refYearEnd);
                 bool exportXMLElabGridToNetcdf(QString xmlName);
         #endif
-
-    private slots:
-        void deletePointStatisticsWidget();
-
     };
 
 
