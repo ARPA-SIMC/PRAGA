@@ -686,6 +686,41 @@ void MainWindow::interpolateGridGUI()
          myProject.logError();
 }
 
+void MainWindow::interpolateCrossValidationGUI()
+{
+    bool isComputed = false;
+
+    meteoVariable myVar = myProject.getCurrentVariable();
+
+    if (myVar == airRelHumidity && myProject.interpolationSettings.getUseDewPoint())
+    {
+        if (! myProject.interpolationDemMain(airTemperature, myProject.getCrit3DCurrentTime(), myProject.hourlyMeteoMaps->mapHourlyTair)) return;
+
+        if (myProject.interpolationSettings.getUseInterpolatedTForRH())
+            myProject.passInterpolatedTemperatureToHumidityPoints(myProject.getCrit3DCurrentTime(), myProject.meteoSettings);
+
+        if (myProject.interpolationDemMain(airDewTemperature, myProject.getCrit3DCurrentTime(), myProject.hourlyMeteoMaps->mapHourlyTdew))
+        {
+            if (! myProject.dataRaster.initializeGrid(myProject.DEM)) return;
+
+            myProject.hourlyMeteoMaps->computeRelativeHumidityMap(&myProject.dataRaster);
+            isComputed = true;
+        }
+
+    }
+    else {
+        isComputed = myProject.interpolationDemMain(myVar, myProject.getCrit3DCurrentTime(), &(myProject.dataRaster));
+    }
+
+    if (isComputed) {
+        {
+            setColorScale(myVar, myProject.dataRaster.colorScale);
+            setCurrentRaster(&(myProject.dataRaster));
+            ui->labelRasterScale->setText(QString::fromStdString(getVariableString(myVar)));
+        }
+    }
+}
+
 void MainWindow::updateVariable()
 {
     meteoVariable myVar = myProject.getCurrentVariable();
@@ -2321,6 +2356,15 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
     myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables, aggrVariables, false, 1);
 }
 
+
+
+void MainWindow::on_actionInterpolationCrossValidation_triggered()
+{
+    myProject.logInfoGUI("Cross validation...");
+    interpolateDemGUI();
+    myProject.closeLogInfo();
+}
+
 void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
 {
     resetMeteoPointsMarker();
@@ -3830,4 +3874,5 @@ void MainWindow::on_actionInterpolationExportRaster_triggered()
             myProject.logError(QString::fromStdString(myError));
     }
 }
+
 
