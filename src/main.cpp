@@ -91,9 +91,9 @@ int main(int argc, char *argv[])
     QString pragaHome = myEnvironment.value("PRAGA_HOME");
     QString display = myEnvironment.value("DISPLAY");
 
+    // only for Linux headless
     if (QSysInfo::productType() != "windows" && QSysInfo::productType() != "osx")
     {
-        // qDebug() << "LINUX";
         if (myProject.modality == MODE_GUI && display.isEmpty())
         {
             // server headless, switch modality

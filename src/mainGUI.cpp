@@ -30,10 +30,49 @@ bool checkEnvironmentGUI(QString pragaHome)
 }
 
 
+QString searchDefaultPragaPath(QString startPath)
+{
+    QString myRoot = QDir::rootPath();
+    QString pragaPath = startPath;
+
+    // Installation on other volume (for example D:)
+    QString myVolume = pragaPath.left(3);
+
+    bool isFound = false;
+    while (! isFound)
+    {
+        if (QDir(pragaPath + "/DATA").exists())
+        {
+            isFound = true;
+            break;
+        }
+        if (QDir::cleanPath(pragaPath) == myRoot || QDir::cleanPath(pragaPath) == myVolume)
+            break;
+
+        pragaPath = QFileInfo(pragaPath).dir().absolutePath();
+    }
+
+    if (! isFound)
+    {
+        QMessageBox::critical(nullptr, "ERROR", "DATA directory is missing");
+        return "";
+    }
+
+    return QDir::cleanPath(pragaPath);
+}
+
+
 int mainGUI(int argc, char *argv[], QString pragaHome, PragaProject& myProject)
 {
     QApplication myApp(argc, argv);
     QApplication::setOverrideCursor(Qt::ArrowCursor);
+
+    // only for Windows without right to set environment
+    if (QSysInfo::productType() == "windows" && pragaHome == "")
+    {
+        QString appPath = myApp.applicationDirPath();
+        pragaHome = searchDefaultPragaPath(appPath);
+    }
 
     if (!checkEnvironmentGUI(pragaHome))
         return PRAGA_ENV_ERROR;
