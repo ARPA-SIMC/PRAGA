@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1392</width>
+    <width>1399</width>
     <height>830</height>
    </rect>
   </property>
@@ -2036,7 +2036,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1392</width>
+     <width>1399</width>
      <height>23</height>
     </rect>
    </property>
@@ -2225,6 +2225,7 @@
     <addaction name="actionInterpolationDem"/>
     <addaction name="actionInterpolationExportRaster"/>
     <addaction name="menuInterpolationMeteogrid"/>
+    <addaction name="actionInterpolationCrossValidation"/>
     <addaction name="actionInterpolationSettings"/>
     <addaction name="separator"/>
     <addaction name="menuTopographicDistanceMaps"/>
@@ -2912,6 +2913,11 @@
   <action name="actionInterpolationExportRaster">
    <property name="text">
     <string>Export interpolated raster...</string>
+   </property>
+  </action>
+  <action name="actionInterpolationCrossValidation">
+   <property name="text">
+    <string>Cross validation</string>
    </property>
   </action>
  </widget>
