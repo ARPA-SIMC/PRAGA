@@ -15,7 +15,7 @@ INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/drought ../agrolib/interpolation ../agrolib/solarRadiation ../agrolib/utilities  \
                 ../agrolib/outputPoints ../agrolib/dbMeteoPoints ../agrolib/dbMeteoGrid ../agrolib/meteoWidget  \
                 ../agrolib/proxyWidget ../agrolib/pointStatisticsWidget ../agrolib/climate ../agrolib/netcdfHandler  \
-                ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/pragaDialogs ../agrolib/importDataXML ../agrolib/project
+                ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/commonChartElements ../agrolib/pragaDialogs ../agrolib/importDataXML ../agrolib/project
 
 CONFIG += debug_and_release
 
@@ -48,6 +48,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/pointStatisticsWidget/debug -lpointStatisticsWidget
     LIBS += -L../agrolib/proxyWidget/debug -lproxyWidget
     LIBS += -L../agrolib/meteoWidget/debug -lmeteoWidget
+    LIBS += -L../agrolib/commonChartElements/debug -lcommonChartElements
     LIBS += -L../agrolib/dbMeteoGrid/debug -ldbMeteoGrid
     LIBS += -L../agrolib/dbMeteoPoints/debug -ldbMeteoPoints
     LIBS += -L../agrolib/outputPoints/debug -loutputPoints
@@ -82,6 +83,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/pointStatisticsWidget/release -lpointStatisticsWidget
     LIBS += -L../agrolib/proxyWidget/release -lproxyWidget
     LIBS += -L../agrolib/meteoWidget/release -lmeteoWidget
+    LIBS += -L../agrolib/commonChartElements/release -lcommonChartElements
     LIBS += -L../agrolib/dbMeteoGrid/release -ldbMeteoGrid
     LIBS += -L../agrolib/dbMeteoPoints/release -ldbMeteoPoints
     LIBS += -L../agrolib/outputPoints/release -loutputPoints
