@@ -3607,7 +3607,7 @@ void MainWindow::on_actionUpdate_meteo_points_triggered()
         Download myDownload(dbName);
         QMap<QString,QString> mapFromArkimet = myDownload.getArmiketIdList(datasetSelected);
         QList<QString> idListFromArkimet = mapFromArkimet.keys();
-        QSet<QString> idMissingInArkimet = idListFromDB.toSet().subtract(idListFromArkimet.toSet());
+        QList<QString> idMissingInArkimet = removeList(idListFromDB,idListFromArkimet);
 
         if (!idMissingInArkimet.isEmpty())
         {
@@ -3618,7 +3618,7 @@ void MainWindow::on_actionUpdate_meteo_points_triggered()
             }
             myProject.logInfo(log);
         }
-        QSet<QString> idMissingDb = idListFromArkimet.toSet().subtract(idListFromDB.toSet());
+        QList<QString> idMissingDb = removeList(idListFromArkimet,idListFromDB);
         if (!idMissingDb.isEmpty())
         {
             QList<QString> idMissing;
@@ -3673,17 +3673,16 @@ void MainWindow::on_actionUpdate_datasets_triggered()
     QString dbName = myProject.meteoPointsDbHandler->getDbName();
     QList<QString> allDatasetsList = myProject.meteoPointsDbHandler->getAllDatasetsList();
     QList<QString> dbDatasetsList = myProject.meteoPointsDbHandler->getDatasetList();
-    QSet<QString> datasetAvailable = allDatasetsList.toSet().subtract(dbDatasetsList.toSet());
-    DialogAddRemoveDataset addDatasetDialog(datasetAvailable.values(), dbDatasetsList);
+    QList<QString> datasetAvailable = removeList(allDatasetsList,dbDatasetsList);
+    DialogAddRemoveDataset addDatasetDialog(datasetAvailable, dbDatasetsList);
     if (addDatasetDialog.result() == QDialog::Accepted)
     {
         QList<QString> datasetSelected = addDatasetDialog.getDatasetDb();
-        qDebug() << "datasetSelected " << datasetSelected;
-        QSet<QString> datasetToDelete = dbDatasetsList.toSet().subtract(datasetSelected.toSet());
-        QSet<QString> datasetToAdd = datasetSelected.toSet().subtract(dbDatasetsList.toSet());
+        QList<QString> datasetToDelete = removeList(dbDatasetsList, datasetSelected);
+        QList<QString> datasetToAdd = removeList(datasetSelected, dbDatasetsList);
         if (!datasetToDelete.isEmpty())
         {
-            if (!myProject.meteoPointsDbHandler->deleteAllPointsFromDataset(datasetToDelete.values()))
+            if (!myProject.meteoPointsDbHandler->deleteAllPointsFromDataset(datasetToDelete))
             {
                 myProject.logError("Delete all points error");
                 return;
@@ -3692,7 +3691,7 @@ void MainWindow::on_actionUpdate_datasets_triggered()
         if (!datasetToAdd.isEmpty())
         {
             Download myDownload(dbName);
-            if (!myDownload.getPointProperties(datasetToAdd.values()))
+            if (!myDownload.getPointProperties(datasetToAdd))
             {
                 myProject.logError("Get point properties error");
                 return;
