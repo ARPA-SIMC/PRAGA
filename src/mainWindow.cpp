@@ -2338,7 +2338,7 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
         isComputed = true;
     }
     else {
-        isComputed = myProject.interpolationCv(myVar, myProject.getCrit3DCurrentTime(), myStats);
+        isComputed = myProject.interpolationCv(myVar, myProject.getCrit3DCurrentTime(), &myStats);
     }
 
     myProject.closeLogInfo();
@@ -2350,6 +2350,10 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
             cvOutput << "Time: " << myProject.getCrit3DCurrentTime().toString() << std::endl;
             cvOutput << "Variable: " << getVariableString(myVar) << std::endl;
             cvOutput << "MAE: " << myStats.getMeanAbsoluteError() << std::endl;
+            cvOutput << "MBE: " << myStats.getMeanBiasError() << std::endl;
+            cvOutput << "RMSE: " << myStats.getRootMeanSquareError() << std::endl;
+            cvOutput << "CRE: " << myStats.getCompoundRelativeError() << std::endl;
+            cvOutput << "R2: " << myStats.getR2() << std::endl;
 
             QDialog myDialog;
             myDialog.setWindowTitle("Cross validation statistics");
