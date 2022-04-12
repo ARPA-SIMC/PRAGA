@@ -691,32 +691,30 @@ void MainWindow::interpolateCrossValidationGUI()
     bool isComputed = false;
 
     meteoVariable myVar = myProject.getCurrentVariable();
+    crossValidationStatistics myStats;
 
     if (myVar == airRelHumidity && myProject.interpolationSettings.getUseDewPoint())
     {
-        if (! myProject.interpolationDemMain(airTemperature, myProject.getCrit3DCurrentTime(), myProject.hourlyMeteoMaps->mapHourlyTair)) return;
-
-        if (myProject.interpolationSettings.getUseInterpolatedTForRH())
-            myProject.passInterpolatedTemperatureToHumidityPoints(myProject.getCrit3DCurrentTime(), myProject.meteoSettings);
-
-        if (myProject.interpolationDemMain(airDewTemperature, myProject.getCrit3DCurrentTime(), myProject.hourlyMeteoMaps->mapHourlyTdew))
-        {
-            if (! myProject.dataRaster.initializeGrid(myProject.DEM)) return;
-
-            myProject.hourlyMeteoMaps->computeRelativeHumidityMap(&myProject.dataRaster);
-            isComputed = true;
-        }
-
+        isComputed = true;
     }
     else {
-        isComputed = myProject.interpolationDemMain(myVar, myProject.getCrit3DCurrentTime(), &(myProject.dataRaster));
+        isComputed = myProject.interpolationCv(myVar, myProject.getCrit3DCurrentTime(), myStats);
     }
 
     if (isComputed) {
         {
-            setColorScale(myVar, myProject.dataRaster.colorScale);
-            setCurrentRaster(&(myProject.dataRaster));
-            ui->labelRasterScale->setText(QString::fromStdString(getVariableString(myVar)));
+            QDialog myDialog;
+            myDialog.setWindowTitle("Cross validation statistics");
+
+            QTextBrowser textBrowser;
+            textBrowser.setText(QString::fromStdString("test"));
+
+            QVBoxLayout mainLayout;
+            mainLayout.addWidget(&textBrowser);
+
+            myDialog.setLayout(&mainLayout);
+            myDialog.setFixedSize(800,600);
+            myDialog.exec();
         }
     }
 }
@@ -2361,7 +2359,7 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
 void MainWindow::on_actionInterpolationCrossValidation_triggered()
 {
     myProject.logInfoGUI("Cross validation...");
-    interpolateDemGUI();
+    interpolateCrossValidationGUI();
     myProject.closeLogInfo();
 }
 
