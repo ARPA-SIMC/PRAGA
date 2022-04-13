@@ -45,7 +45,6 @@
 extern PragaProject myProject;
 
 #define MAPBORDER 10
-#define TOOLSWIDTH 260
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -230,6 +229,8 @@ void MainWindow::mouseMove(const QPoint& mapPos)
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event)
+
+    ui->widgetMap->setGeometry(ui->widgetMap->x(), 0, this->width() - ui->widgetMap->x(), this->height() - 40);
     mapView->resize(ui->widgetMap->size());
 }
 

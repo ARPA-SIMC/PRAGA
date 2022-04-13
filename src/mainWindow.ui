@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1399</width>
-    <height>830</height>
+    <width>1393</width>
+    <height>815</height>
    </rect>
   </property>
   <property name="palette">
@@ -482,7 +482,7 @@
     </size>
    </property>
    <layout class="QFormLayout" name="formLayout">
-    <item row="0" column="0">
+    <item row="0" column="1">
      <layout class="QFormLayout" name="formLayout_2">
       <item row="0" column="0">
        <widget class="QWidget" name="widget" native="true">
@@ -1029,6 +1029,9 @@
            </item>
            <item>
             <widget class="QGroupBox" name="groupBoxRaster">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
              <property name="minimumSize">
               <size>
                <width>261</width>
@@ -2036,7 +2039,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1399</width>
+     <width>1393</width>
      <height>23</height>
     </rect>
    </property>
