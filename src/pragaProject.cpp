@@ -2698,10 +2698,10 @@ bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int
 
     QDate firstDate(firstYear,1,1);
     QDate lastDate;
-    int maxYear = max(lastYear,date.year());
+    int maxYear = std::max(lastYear,date.year());
     if (maxYear == QDate::currentDate().year())
     {
-        lastDate.setDate(maxYear,QDate::currentDate().month(),1);
+        lastDate.setDate(maxYear, QDate::currentDate().month(),1);
     }
     else
     {
