@@ -45,7 +45,6 @@
 extern PragaProject myProject;
 
 #define MAPBORDER 10
-#define TOOLSWIDTH 260
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -230,6 +229,8 @@ void MainWindow::mouseMove(const QPoint& mapPos)
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event)
+
+    ui->widgetMap->setGeometry(ui->widgetMap->x(), 0, this->width() - ui->widgetMap->x(), this->height() - 40);
     mapView->resize(ui->widgetMap->size());
 }
 
@@ -2333,13 +2334,7 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
     meteoVariable myVar = myProject.getCurrentVariable();
     crossValidationStatistics myStats;
 
-    if (myVar == airRelHumidity && myProject.interpolationSettings.getUseDewPoint())
-    {
-        isComputed = true;
-    }
-    else {
-        isComputed = myProject.interpolationCv(myVar, myProject.getCrit3DCurrentTime(), &myStats);
-    }
+    isComputed = myProject.interpolationCv(myVar, myProject.getCrit3DCurrentTime(), &myStats);
 
     myProject.closeLogInfo();
 
@@ -2355,6 +2350,41 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
             cvOutput << "CRE: " << myStats.getCompoundRelativeError() << std::endl;
             cvOutput << "R2: " << myStats.getR2() << std::endl;
 
+            int i;
+
+            int proxyNr = myProject.interpolationSettings.getProxyNr();
+            if (proxyNr > 0)
+            {
+                cvOutput << std::endl << "Interpolation proxies" << std::endl;
+                Crit3DProxyCombination* proxyCombination = myProject.interpolationSettings.getCurrentCombination();
+                std::string signif;
+                Crit3DProxy* myProxy;
+                for (i=0; i < proxyNr; i++)
+                {
+                    if (proxyCombination->getValue(i))
+                    {
+                        myProxy = myProject.interpolationSettings.getProxy(i);
+                        cvOutput << myProxy->getName() << ": " << (myProxy->getIsSignificant() ? "" : "not " ) << "significant" << std::endl;
+                        if  (myProxy->getIsSignificant())
+                            cvOutput << "R2=" << myProxy->getRegressionR2() << " slope=" <<myProxy->getRegressionSlope();
+                    }
+                }
+            }
+
+            if (myProject.interpolationSettings.getUseTD())
+            {
+                cvOutput << std::endl << std::endl;
+                cvOutput << "Topographic distance coefficient" << std::endl;
+                cvOutput << "Best value: " << myProject.interpolationSettings.getTopoDist_Kh() << std::endl;
+                cvOutput << "Optimization: " << std::endl;
+
+                std::vector <float> khSeries = myProject.interpolationSettings.getKh_series();
+                std::vector <float> khErrors = myProject.interpolationSettings.getKh_error_series();
+
+                for (i=0; i<khSeries.size(); i++)
+                    cvOutput << "Kh=" << khSeries[i] << " error=" << khErrors[i] << std::endl;
+            }
+
             QDialog myDialog;
             myDialog.setWindowTitle("Cross validation statistics");
 
@@ -2365,7 +2395,7 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
             mainLayout.addWidget(&textBrowser);
 
             myDialog.setLayout(&mainLayout);
-            myDialog.setFixedSize(800,600);
+            myDialog.setFixedSize(300,300);
             myDialog.exec();
         }
     }
