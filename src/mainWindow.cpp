@@ -2370,6 +2370,7 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
                 }
             }
 
+            /*
             if (myProject.interpolationSettings.getUseTD())
             {
                 cvOutput << std::endl << std::endl;
@@ -2382,7 +2383,7 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
 
                 for (i=0; i<khSeries.size(); i++)
                     cvOutput << "Kh=" << khSeries[i] << " error=" << khErrors[i] << std::endl;
-            }
+            }*/
 
             QDialog myDialog;
             myDialog.setWindowTitle("Cross validation statistics");
