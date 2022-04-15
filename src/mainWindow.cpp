@@ -3916,3 +3916,37 @@ void MainWindow::on_actionInterpolationExportRaster_triggered()
 }
 
 
+
+void MainWindow::on_actionExport_current_data_triggered()
+{
+    QString csvFileName = QFileDialog::getSaveFileName(this, tr("Save current data"), "", tr("csv files (*.csv)"));
+
+    if (csvFileName != "")
+    {
+        QFile myFile(csvFileName);
+        if (!myFile.open(QIODevice::WriteOnly | QFile::Truncate))
+        {
+            QMessageBox::information(nullptr, "Error", "Open CSV failed: " + csvFileName + "\n ");
+            return;
+        }
+
+        QTextStream myStream (&myFile);
+        myStream.setRealNumberNotation(QTextStream::FixedNotation);
+        myStream.setRealNumberPrecision(3);
+        QString header = "id,name,value";
+        myStream << header << "\n";
+        for (int i = 0; i < myProject.nrMeteoPoints; i++)
+        {
+            if (myProject.meteoPoints[i].currentValue != NODATA)
+            {
+                std::string id = myProject.meteoPoints[i].id;
+                std::string name = myProject.meteoPoints[i].name;
+                float value = myProject.meteoPoints[i].currentValue;
+                myStream << QString::fromStdString(id) << "," << QString::fromStdString(name) << "," << value << "\n";
+            }
+        }
+        myFile.close();
+
+        return;
+    }
+}

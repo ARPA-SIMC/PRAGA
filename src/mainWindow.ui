@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1393</width>
-    <height>815</height>
+    <height>817</height>
    </rect>
   </property>
   <property name="palette">
@@ -2040,7 +2040,7 @@
      <x>0</x>
      <y>0</y>
      <width>1393</width>
-     <height>23</height>
+     <height>30</height>
     </rect>
    </property>
    <property name="palette">
@@ -2102,6 +2102,7 @@
      <addaction name="actionUpdate_properties"/>
      <addaction name="actionUpdate_meteo_points"/>
      <addaction name="actionUpdate_datasets"/>
+     <addaction name="actionExport_current_data"/>
     </widget>
     <addaction name="actionFileOpenProject"/>
     <addaction name="actionFileCloseProject"/>
@@ -2921,6 +2922,11 @@
   <action name="actionInterpolationCrossValidation">
    <property name="text">
     <string>Cross validation</string>
+   </property>
+  </action>
+  <action name="actionExport_current_data">
+   <property name="text">
+    <string>Export current data</string>
    </property>
   </action>
  </widget>

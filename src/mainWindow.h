@@ -202,6 +202,8 @@
 
         void on_actionInterpolationCrossValidation_triggered();
 
+        void on_actionExport_current_data_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
