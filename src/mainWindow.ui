@@ -484,12 +484,6 @@
    <layout class="QFormLayout" name="formLayout">
     <item row="0" column="1">
      <layout class="QFormLayout" name="formLayout_2">
-      <property name="horizontalSpacing">
-       <number>0</number>
-      </property>
-      <property name="verticalSpacing">
-       <number>0</number>
-      </property>
       <item row="0" column="1">
        <widget class="QWidget" name="widgetMap" native="true">
         <property name="minimumSize">
