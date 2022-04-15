@@ -39,6 +39,7 @@
 #include "dialogAddRemoveDataset.h"
 #include "utilities.h"
 #include "basicMath.h"
+#include "interpolation.h"
 #include "meteoWidget.h"
 
 
@@ -2352,21 +2353,24 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
 
             int i;
 
-            int proxyNr = myProject.interpolationSettings.getProxyNr();
-            if (proxyNr > 0)
+            if (getUseDetrendingVar(myVar))
             {
-                cvOutput << std::endl << "Interpolation proxies" << std::endl;
-                Crit3DProxyCombination* proxyCombination = myProject.interpolationSettings.getCurrentCombination();
-                std::string signif;
-                Crit3DProxy* myProxy;
-                for (i=0; i < proxyNr; i++)
+                int proxyNr = myProject.interpolationSettings.getProxyNr();
+                if (proxyNr > 0)
                 {
-                    if (proxyCombination->getValue(i))
+                    cvOutput << std::endl << "Interpolation proxies" << std::endl;
+                    Crit3DProxyCombination* proxyCombination = myProject.interpolationSettings.getCurrentCombination();
+                    std::string signif;
+                    Crit3DProxy* myProxy;
+                    for (i=0; i < proxyNr; i++)
                     {
-                        myProxy = myProject.interpolationSettings.getProxy(i);
-                        cvOutput << myProxy->getName() << ": " << (myProxy->getIsSignificant() ? "" : "not " ) << "significant" << std::endl;
-                        if  (myProxy->getIsSignificant())
-                            cvOutput << "R2=" << myProxy->getRegressionR2() << " slope=" <<myProxy->getRegressionSlope();
+                        if (proxyCombination->getValue(i))
+                        {
+                            myProxy = myProject.interpolationSettings.getProxy(i);
+                            cvOutput << myProxy->getName() << ": " << (myProxy->getIsSignificant() ? "" : "not " ) << "significant" << std::endl;
+                            if  (myProxy->getIsSignificant())
+                                cvOutput << "R2=" << myProxy->getRegressionR2() << " slope=" <<myProxy->getRegressionSlope() << std::endl;
+                        }
                     }
                 }
             }
