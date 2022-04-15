@@ -3934,12 +3934,12 @@ void MainWindow::on_actionExport_current_data_triggered()
 
         QTextStream myStream (&myFile);
         myStream.setRealNumberNotation(QTextStream::FixedNotation);
-        myStream.setRealNumberPrecision(3);
+        myStream.setRealNumberPrecision(1);
         QString header = "id,name,value";
         myStream << header << "\n";
         for (int i = 0; i < myProject.nrMeteoPoints; i++)
         {
-            if (myProject.meteoPoints[i].currentValue != NODATA)
+            if (!isEqual(myProject.meteoPoints[i].currentValue, NODATA))
             {
                 std::string id = myProject.meteoPoints[i].id;
                 std::string name = myProject.meteoPoints[i].name;

@@ -2102,10 +2102,10 @@
      <addaction name="actionFileMeteopointClose"/>
      <addaction name="actionFileMeteopointDownload"/>
      <addaction name="menuImport"/>
+     <addaction name="actionExport_current_data"/>
      <addaction name="actionUpdate_properties"/>
      <addaction name="actionUpdate_meteo_points"/>
      <addaction name="actionUpdate_datasets"/>
-     <addaction name="actionExport_current_data"/>
     </widget>
     <addaction name="actionFileOpenProject"/>
     <addaction name="actionFileCloseProject"/>
