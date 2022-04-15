@@ -138,6 +138,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setWindowTitle("PRAGA");
 
     ui->groupBoxElab->hide();
+    this->showMaximized();
 }
 
 MainWindow::~MainWindow()
@@ -3844,7 +3845,7 @@ bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
         }
         gis::Crit3DRasterGrid *myRaster;
         myRaster = new(gis::Crit3DRasterGrid);
-        if (!openRaster(myProject.aggregationPath+"/"+rasterName+".flt", myRaster))
+        if (!openRaster(myProject.aggregationPath + "/" + rasterName + ".flt", myRaster))
         {
             myProject.errorString = "Open raster file failed";
             myProject.logError();
@@ -3877,9 +3878,9 @@ bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
             meteoComputation elab1MeteoComp = noMeteoComp;
             QString periodType = "D";
             int nMissing = 0;
-            if (!myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, nMissing, true))
+            if ( !myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, nMissing, true))
             {
-                QMessageBox::information(nullptr, "Error", "Error writing aggregation data");
+                myProject.logError();
                 if (myRaster != nullptr)
                 {
                     delete myRaster;
