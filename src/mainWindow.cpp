@@ -2222,6 +2222,8 @@ void MainWindow::on_actionFileCloseProject_triggered()
     on_actionFileMeteopointClose_triggered();
     this->ui->labelFrequency->setText("None");
     this->ui->labelVariable->setText(("None"));
+    currentGridVisualization = showLocation;
+    currentPointsVisualization = showLocation;
 
     clearDEM();
 
