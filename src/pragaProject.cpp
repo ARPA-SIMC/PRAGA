@@ -1444,7 +1444,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
     std::vector <double> latVector;
     std::vector <double> lonVector;
     std::vector <int> count;
-    for (int i = 0; i<zoneGrid->maximum; i++)
+    for (int i = 0; i < int(zoneGrid->maximum); i++)
     {
         utmXvector.push_back(0);
         utmYvector.push_back(0);
@@ -1459,9 +1459,9 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
             double utmx = zoneGrid->utmPoint(zoneRow,zoneCol)->x;
             double utmy = zoneGrid->utmPoint(zoneRow,zoneCol)->y;
 
-            if ( zoneValue != zoneGrid->header->flag)
+            if (! isEqual(zoneValue, zoneGrid->header->flag))
             {
-                zoneIndex = (unsigned int)(zoneValue);
+                zoneIndex = unsigned(zoneValue);
                 if (zoneIndex > 0)
                 {
                     utmXvector[zoneIndex-1] = utmXvector[zoneIndex-1] + utmx;
@@ -1477,17 +1477,15 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
         double lon;
        utmXvector[zonePos] = utmXvector[zonePos]/count[zonePos];
        utmYvector[zonePos] = utmYvector[zonePos]/count[zonePos];
-       gis::getLatLonFromUtm(gisSettings, utmXvector[zonePos], utmYvector[zonePos],
-                               &lat, &lon);
+       gis::getLatLonFromUtm(gisSettings, utmXvector[zonePos], utmYvector[zonePos], &lat, &lon);
        latVector.push_back(lat);
        lonVector.push_back(lon);
     }
 
-    QString infoStr = "Aggregating data...";
     int infoStep = 0;
     if (showInfo)
     {
-        infoStep = setProgressBar(infoStr, this->meteoGridDbHandler->gridStructure().header().nrRows);
+        infoStep = setProgressBar("Aggregating data...", this->meteoGridDbHandler->gridStructure().header().nrRows);
     }
 
     Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
@@ -1503,7 +1501,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
             if (meteoGridDbHandler->meteoGrid()->getMeteoPointActiveId(row, col, &id))
             {
 
-                Crit3DMeteoPoint* meteoPoint = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col);
+                Crit3DMeteoPoint* meteoPoint = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row, col);
 
                 // copy data to MPTemp
                 meteoPointTemp->id = meteoPoint->id;
@@ -1568,7 +1566,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
          {
             std::vector<float> validValues;
             validValues = zoneVector[zonePos];
-            if (threshold != NODATA)
+            if (! isEqual(threshold, NODATA))
             {
                 extractValidValuesWithThreshold(validValues, threshold);
             }
@@ -1599,8 +1597,14 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
                         res = sorting::percentile(validValues, &size, 95.0, true);
                         break;
                     }
+                default:
+                    {
+                        // default: average
+                        res = statistics::mean(validValues, size);
+                        break;
+                    }
             }
-            if (res == NODATA)
+            if (isEqual(res, NODATA))
             {
                 // there are NODATA values
                 nMissing = nMissing + 1;
@@ -1614,12 +1618,17 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
          }
 
      }
+
      // save dailyElabAggregation result into DB
+     if (showInfo) setProgressBar("Save data...", 0);
      if (!aggregationDbHandler->saveAggrData(int(zoneGrid->maximum), aggregationString, periodType, startDate, endDate, variable, dailyElabAggregation, lonVector, latVector))
      {
          errorString = aggregationDbHandler->error();
+         if (showInfo) closeProgressBar();
          return false;
      }
+     if (showInfo) closeProgressBar();
+
      return true;
 
 }

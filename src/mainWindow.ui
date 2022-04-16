@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1393</width>
-    <height>817</height>
+    <height>815</height>
    </rect>
   </property>
   <property name="palette">
@@ -484,6 +484,32 @@
    <layout class="QFormLayout" name="formLayout">
     <item row="0" column="1">
      <layout class="QFormLayout" name="formLayout_2">
+      <item row="0" column="1">
+       <widget class="QWidget" name="widgetMap" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>1100</width>
+          <height>750</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+          <weight>50</weight>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QWidget" name="widget" native="true">
         <property name="minimumSize">
@@ -907,6 +933,9 @@
              </property>
              <property name="title">
               <string>Meteo Grid</string>
+             </property>
+             <property name="flat">
+              <bool>false</bool>
              </property>
              <widget class="QWidget" name="widgetColorLegendGrid" native="true">
               <property name="geometry">
@@ -2004,32 +2033,6 @@
         </layout>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QWidget" name="widgetMap" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>1100</width>
-          <height>750</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>10</pointsize>
-          <weight>50</weight>
-          <bold>false</bold>
-         </font>
-        </property>
-        <property name="mouseTracking">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
      </layout>
     </item>
    </layout>
@@ -2040,7 +2043,7 @@
      <x>0</x>
      <y>0</y>
      <width>1393</width>
-     <height>30</height>
+     <height>23</height>
     </rect>
    </property>
    <property name="palette">
@@ -2099,10 +2102,10 @@
      <addaction name="actionFileMeteopointClose"/>
      <addaction name="actionFileMeteopointDownload"/>
      <addaction name="menuImport"/>
+     <addaction name="actionExport_current_data"/>
      <addaction name="actionUpdate_properties"/>
      <addaction name="actionUpdate_meteo_points"/>
      <addaction name="actionUpdate_datasets"/>
-     <addaction name="actionExport_current_data"/>
     </widget>
     <addaction name="actionFileOpenProject"/>
     <addaction name="actionFileCloseProject"/>
