@@ -2378,9 +2378,9 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
                 }
             }
 
-            if (myProject.interpolationSettings.getUseTD())
+            if (myProject.interpolationSettings.getUseTD() && getUseTdVar(myVar))
             {
-                cvOutput << std::endl << std::endl;
+                cvOutput << std::endl;
                 cvOutput << "Topographic distance coefficient" << std::endl;
                 cvOutput << "Best value: " << myProject.interpolationSettings.getTopoDist_Kh() << std::endl;
                 cvOutput << "Optimization: " << std::endl;
