@@ -723,19 +723,9 @@ bool PragaProject::elaboration(bool isMeteoGrid, bool isAnomaly, bool saveClima)
                 return true;
             }
         }
-        if (!isAnomaly)
+        if (!elaborationPointsCycleGrid(isAnomaly, true))
         {
-            if (!elaborationPointsCycleGrid(isAnomaly, true))
-            {
-                return false;
-            }
-        }
-        else
-        {
-            if (!elaborationPointsCycleGrid(isAnomaly, true))
-            {
-                return false;
-            }
+            return false;
         }
         meteoGridDbHandler->meteoGrid()->setIsElabValue(true);
     }
@@ -752,20 +742,11 @@ bool PragaProject::elaboration(bool isMeteoGrid, bool isAnomaly, bool saveClima)
                 return true;
             }
         }
-        if (!isAnomaly)
+        if (!elaborationPointsCycle(isAnomaly, true))
         {
-            if (!elaborationPointsCycle(isAnomaly, true))
-            {
-                return false;
-            }
+            return false;
         }
-        else
-        {
-            if (!elaborationPointsCycle(isAnomaly, true))
-            {
-                return false;
-            }
-        }
+
         setIsElabMeteoPointsValue(true);
     }
 
@@ -1279,7 +1260,19 @@ bool PragaProject::downloadDailyDataArkimet(QList<QString> variables, bool prec0
         else
         {
             arkIdVar.append(myDownload->getDbArkimet()->getId(variables[i]));
+            if (myDownload->getDbArkimet()->error != "")
+            {
+                logError(myDownload->getDbArkimet()->error);
+                myDownload->getDbArkimet()->error.clear();
+            }
         }
+    }
+
+    if (arkIdVar.size() == 0)
+    {
+        logError("No variables to download");
+        delete myDownload;
+        return false;
     }
 
     int index, nrPoints = 0;
@@ -1446,12 +1439,53 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
 
     gis::updateMinMaxRasterGrid(zoneGrid);
     std::vector <std::vector<float> > zoneVector((unsigned int)(zoneGrid->maximum), std::vector<float>());
+    std::vector <double> utmXvector;
+    std::vector <double> utmYvector;
+    std::vector <double> latVector;
+    std::vector <double> lonVector;
+    std::vector <int> count;
+    for (int i = 0; i < int(zoneGrid->maximum); i++)
+    {
+        utmXvector.push_back(0);
+        utmYvector.push_back(0);
+        count.push_back(0);
+    }
 
-    QString infoStr = "Aggregating data...";
+    for (int zoneRow = 0; zoneRow < zoneGrid->header->nrRows; zoneRow++)
+    {
+        for (int zoneCol = 0; zoneCol < zoneGrid->header->nrCols; zoneCol++)
+        {
+            float zoneValue = zoneGrid->value[zoneRow][zoneCol];
+            double utmx = zoneGrid->utmPoint(zoneRow,zoneCol)->x;
+            double utmy = zoneGrid->utmPoint(zoneRow,zoneCol)->y;
+
+            if (! isEqual(zoneValue, zoneGrid->header->flag))
+            {
+                zoneIndex = unsigned(zoneValue);
+                if (zoneIndex > 0)
+                {
+                    utmXvector[zoneIndex-1] = utmXvector[zoneIndex-1] + utmx;
+                    utmYvector[zoneIndex-1] = utmYvector[zoneIndex-1] + utmy;
+                    count[zoneIndex-1] = count[zoneIndex-1] + 1;
+                }
+            }
+        }
+    }
+    for (unsigned int zonePos = 0; zonePos < zoneVector.size(); zonePos++)
+    {
+        double lat;
+        double lon;
+       utmXvector[zonePos] = utmXvector[zonePos]/count[zonePos];
+       utmYvector[zonePos] = utmYvector[zonePos]/count[zonePos];
+       gis::getLatLonFromUtm(gisSettings, utmXvector[zonePos], utmYvector[zonePos], &lat, &lon);
+       latVector.push_back(lat);
+       lonVector.push_back(lon);
+    }
+
     int infoStep = 0;
     if (showInfo)
     {
-        infoStep = setProgressBar(infoStr, this->meteoGridDbHandler->gridStructure().header().nrRows);
+        infoStep = setProgressBar("Aggregating data...", this->meteoGridDbHandler->gridStructure().header().nrRows);
     }
 
     Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
@@ -1467,7 +1501,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
             if (meteoGridDbHandler->meteoGrid()->getMeteoPointActiveId(row, col, &id))
             {
 
-                Crit3DMeteoPoint* meteoPoint = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col);
+                Crit3DMeteoPoint* meteoPoint = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row, col);
 
                 // copy data to MPTemp
                 meteoPointTemp->id = meteoPoint->id;
@@ -1506,7 +1540,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
                 float zoneValue = zoneGrid->value[zoneRow][zoneCol];
                 if ( zoneValue != zoneGrid->header->flag)
                 {
-                    zoneIndex = (unsigned int)(zoneValue);
+                    zoneIndex = (unsigned int)(zoneValue);                  
                     if (zoneIndex < 1)
                     {
                         errorString = "invalid zone index: " + QString::number(zoneIndex);
@@ -1532,7 +1566,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
          {
             std::vector<float> validValues;
             validValues = zoneVector[zonePos];
-            if (threshold != NODATA)
+            if (! isEqual(threshold, NODATA))
             {
                 extractValidValuesWithThreshold(validValues, threshold);
             }
@@ -1563,8 +1597,14 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
                         res = sorting::percentile(validValues, &size, 95.0, true);
                         break;
                     }
+                default:
+                    {
+                        // default: average
+                        res = statistics::mean(validValues, size);
+                        break;
+                    }
             }
-            if (res == NODATA)
+            if (isEqual(res, NODATA))
             {
                 // there are NODATA values
                 nMissing = nMissing + 1;
@@ -1578,12 +1618,17 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
          }
 
      }
+
      // save dailyElabAggregation result into DB
-     if (!aggregationDbHandler->saveAggrData(int(zoneGrid->maximum), aggregationString, periodType, startDate, endDate, variable, dailyElabAggregation))
+     if (showInfo) setProgressBar("Save data...", 0);
+     if (!aggregationDbHandler->saveAggrData(int(zoneGrid->maximum), aggregationString, periodType, startDate, endDate, variable, dailyElabAggregation, lonVector, latVector))
      {
          errorString = aggregationDbHandler->error();
+         if (showInfo) closeProgressBar();
          return false;
      }
+     if (showInfo) closeProgressBar();
+
      return true;
 
 }
@@ -1793,7 +1838,13 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     foreach (myVar, variables)
     {
         freq = getVarFrequency(myVar);
-        if (freq == hourly)
+
+        if (freq == noFrequency)
+        {
+            logError("Unknown variable: " + QString::fromStdString(getMeteoVarName(myVar)));
+            return false;
+        }
+        else if (freq == hourly)
             isHourly = true;
         else if (freq == daily)
             isDaily = true;
@@ -2131,6 +2182,98 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
     if (modality == MODE_GUI) closeProgressBar();
 
     return true;
+}
+
+void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint, std::string namePoint)
+{
+    logInfoGUI("Loading data...");
+
+    // check dates
+    QDate firstDaily = meteoPointsDbHandler->getFirstDate(daily, idMeteoPoint).date();
+    QDate lastDaily = meteoPointsDbHandler->getLastDate(daily, idMeteoPoint).date();
+    bool hasDailyData = !(firstDaily.isNull() || lastDaily.isNull());
+
+    QDateTime firstHourly = meteoPointsDbHandler->getFirstDate(hourly, idMeteoPoint);
+    QDateTime lastHourly = meteoPointsDbHandler->getLastDate(hourly, idMeteoPoint);
+    bool hasHourlyData = !(firstHourly.isNull() || lastHourly.isNull());
+
+    if (!hasDailyData && !hasHourlyData)
+    {
+        logInfoGUI("No data.");
+        return;
+    }
+
+    Crit3DMeteoPoint mp;
+    meteoPointsDbHandler->getPropertiesGivenId(QString::fromStdString(idMeteoPoint), &mp, gisSettings, errorString);
+    logInfoGUI("Loading daily data...");
+    meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), &mp);
+    logInfoGUI("Loading hourly data...");
+    meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), &mp);
+    closeLogInfo();
+    QList<Crit3DMeteoPoint> meteoPoints;
+    meteoPoints.append(mp);
+    // TO DO append le varie joint stations ancora non presenti
+    bool isGrid = false;
+    pointStatisticsWidget = new Crit3DPointStatisticsWidget(isGrid, meteoPointsDbHandler, nullptr, meteoPoints, firstDaily, lastDaily, firstHourly, lastHourly,
+                                                            meteoSettings, pragaDefaultSettings, &climateParameters, quality);
+    return;
+}
+
+void PragaProject::showPointStatisticsWidgetGrid(std::string id)
+{
+    logInfoGUI("Loading data...");
+
+    // check dates
+    QDate firstDaily = meteoGridDbHandler->getFirstDailyDate();
+    QDate lastDaily = meteoGridDbHandler->getLastDailyDate();
+    bool hasDailyData = !(firstDaily.isNull() || lastDaily.isNull());
+
+    QDate firstHourly = meteoGridDbHandler->getFirstHourlyDate();
+    QDate lastHourly = meteoGridDbHandler->getLastHourlyDate();
+    bool hasHourlyData = !(firstHourly.isNull() || lastHourly.isNull());
+
+    if (!hasDailyData && !hasHourlyData)
+    {
+        logInfoGUI("No data.");
+        return;
+    }
+    QDateTime firstDateTime = QDateTime(firstHourly, QTime(1,0), Qt::UTC);
+    QDateTime lastDateTime = QDateTime(lastHourly.addDays(1), QTime(0,0), Qt::UTC);
+
+    if (!meteoGridDbHandler->gridStructure().isFixedFields())
+    {
+        logInfoGUI("Loading daily data...");
+        meteoGridDbHandler->loadGridDailyData(&errorString, QString::fromStdString(id), firstDaily, lastDaily);
+        logInfoGUI("Loading hourly data...");
+        meteoGridDbHandler->loadGridHourlyData(&errorString, QString::fromStdString(id), firstDateTime, lastDateTime);
+    }
+    else
+    {
+        logInfoGUI("Loading daily data...");
+        meteoGridDbHandler->loadGridDailyDataFixedFields(&errorString, QString::fromStdString(id), firstDaily, lastDaily);
+        logInfoGUI("Loading hourly data...");
+        meteoGridDbHandler->loadGridHourlyDataFixedFields(&errorString, QString::fromStdString(id), firstDateTime, lastDateTime);
+    }
+    closeLogInfo();
+
+    unsigned row;
+    unsigned col;
+    Crit3DMeteoPoint mp;
+    if (meteoGridDbHandler->meteoGrid()->findMeteoPointFromId(&row,&col,id))
+    {
+        mp = meteoGridDbHandler->meteoGrid()->meteoPoint(row,col);
+    }
+    else
+    {
+        return;
+    }
+    QList<Crit3DMeteoPoint> meteoPoints;
+    meteoPoints.append(mp);
+    // TO DO append le varie joint stations ancora non presenti
+    bool isGrid = true;
+    pointStatisticsWidget = new Crit3DPointStatisticsWidget(isGrid, nullptr, meteoGridDbHandler, meteoPoints, firstDaily, lastDaily, firstDateTime, lastDateTime,
+                                                            meteoSettings, pragaDefaultSettings, &climateParameters, quality);
+   return;
 }
 
 #ifdef NETCDF
@@ -2564,10 +2707,10 @@ bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int
 
     QDate firstDate(firstYear,1,1);
     QDate lastDate;
-    int maxYear = max(lastYear,date.year());
+    int maxYear = std::max(lastYear,date.year());
     if (maxYear == QDate::currentDate().year())
     {
-        lastDate.setDate(maxYear,QDate::currentDate().month(),1);
+        lastDate.setDate(maxYear, QDate::currentDate().month(),1);
     }
     else
     {
@@ -2611,3 +2754,4 @@ bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int
     }
     return res;
 }
+

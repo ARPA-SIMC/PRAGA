@@ -6,15 +6,17 @@
 #-----------------------------------------------------
 
 QT       += core gui widgets charts network sql xml
+greaterThan(QT_MAJOR_VERSION, 5): QT += core5compat
 
 TARGET = PRAGA
 TEMPLATE = app
 
 INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/crit3dDate ../agrolib/mathFunctions ../agrolib/phenology ../agrolib/meteo ../agrolib/gis  \
-                ../agrolib/drought ../agrolib/interpolation ../agrolib/solarRadiation ../agrolib/utilities ../agrolib/outputPoints \
-                ../agrolib/dbMeteoPoints ../agrolib/dbMeteoGrid ../agrolib/meteoWidget ../agrolib/proxyWidget ../agrolib/climate \
-                ../agrolib/netcdfHandler  ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/importDataXML ../agrolib/project
+                ../agrolib/drought ../agrolib/interpolation ../agrolib/solarRadiation ../agrolib/utilities  \
+                ../agrolib/outputPoints ../agrolib/dbMeteoPoints ../agrolib/dbMeteoGrid ../agrolib/meteoWidget  \
+                ../agrolib/proxyWidget ../agrolib/pointStatisticsWidget ../agrolib/climate ../agrolib/netcdfHandler  \
+                ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/commonChartElements ../agrolib/pragaDialogs ../agrolib/importDataXML ../agrolib/project
 
 CONFIG += debug_and_release
 
@@ -25,6 +27,7 @@ DEFINES += NETCDF
 
 CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/project/debug -lproject
+    LIBS += -L../agrolib/pragaDialogs/debug -lpragaDialogs
     LIBS += -L../agrolib/commonDialogs/debug -lcommonDialogs
     LIBS += -L../agrolib/climate/debug -lclimate
     LIBS += -L../agrolib/phenology/debug -lphenology
@@ -43,8 +46,10 @@ CONFIG(debug, debug|release) {
         LIBS += -L/usr/local/lib/ -lnetcdf
     }
     LIBS += -L../agrolib/importDataXML/debug -limportDataXML
+    LIBS += -L../agrolib/pointStatisticsWidget/debug -lpointStatisticsWidget
     LIBS += -L../agrolib/proxyWidget/debug -lproxyWidget
     LIBS += -L../agrolib/meteoWidget/debug -lmeteoWidget
+    LIBS += -L../agrolib/commonChartElements/debug -lcommonChartElements
     LIBS += -L../agrolib/dbMeteoGrid/debug -ldbMeteoGrid
     LIBS += -L../agrolib/dbMeteoPoints/debug -ldbMeteoPoints
     LIBS += -L../agrolib/outputPoints/debug -loutputPoints
@@ -61,6 +66,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/graphics/release -lgraphics
     LIBS += -L../mapGraphics/release -lMapGraphics
     LIBS += -L../agrolib/project/release -lproject
+    LIBS += -L../agrolib/pragaDialogs/release -lpragaDialogs
     LIBS += -L../agrolib/commonDialogs/release -lcommonDialogs
     LIBS += -L../agrolib/climate/release -lclimate
     LIBS += -L../agrolib/phenology/release -lphenology
@@ -75,8 +81,10 @@ CONFIG(debug, debug|release) {
         LIBS += -L/usr/local/lib/ -lnetcdf
     }
     LIBS += -L../agrolib/importDataXML/release -limportDataXML
+    LIBS += -L../agrolib/pointStatisticsWidget/release -lpointStatisticsWidget
     LIBS += -L../agrolib/proxyWidget/release -lproxyWidget
     LIBS += -L../agrolib/meteoWidget/release -lmeteoWidget
+    LIBS += -L../agrolib/commonChartElements/release -lcommonChartElements
     LIBS += -L../agrolib/dbMeteoGrid/release -ldbMeteoGrid
     LIBS += -L../agrolib/dbMeteoPoints/release -ldbMeteoPoints
     LIBS += -L../agrolib/outputPoints/release -loutputPoints
@@ -97,11 +105,7 @@ SOURCES += \
     mainWindow.cpp \
     dialogPragaProject.cpp \
     dialogMeteoComputation.cpp \
-    dialogDownloadMeteoData.cpp \
-    dialogClimateFields.cpp \
     dialogPragaSettings.cpp \
-    dialogSeriesOnZones.cpp \
-    dialogXMLComputation.cpp \
     dialogAnomaly.cpp \
     pragaMeteoMaps.cpp \
     saveClimaLayout.cpp \
@@ -114,11 +118,7 @@ HEADERS  += \
     mainWindow.h \
     dialogPragaProject.h \
     dialogMeteoComputation.h \
-    dialogDownloadMeteoData.h \
-    dialogClimateFields.h \
     dialogPragaSettings.h \
-    dialogSeriesOnZones.h \
-    dialogXMLComputation.h \
     dialogAnomaly.h \
     pragaMeteoMaps.h \
     saveClimaLayout.h \

@@ -110,10 +110,6 @@
         void on_actionSettingsMapEsriSatellite_triggered();
         void on_actionSettingsMapStamenTerrain_triggered();
 
-        void on_actionAnalysisOpenAggregationDB_triggered();
-        void on_actionAnalysisNewAggregationDB_triggered();
-        bool on_actionAnalysisAggregateFromGrid_triggered();
-
         void updateMaps();
         void mouseMove(const QPoint& eventPos);
 
@@ -125,6 +121,7 @@
         #endif
         void callNewMeteoWidget(std::string id, std::string name, bool isGrid);
         void callAppendMeteoWidget(std::string id, std::string name, bool isGrid);
+        void callNewPointStatisticsWidget(std::string id, std::string name, bool isGrid);
 
         void on_meteoPoints_clicked();
         void on_grid_clicked();
@@ -176,6 +173,36 @@
         void on_actionPointData_import_triggered();
 
         void on_actionNewMeteoGrid_triggered();
+
+        void on_actionFileMeteogridExportRaster_triggered();
+
+        void on_actionUpdate_properties_triggered();
+
+        void on_actionUpdate_meteo_points_triggered();
+
+        void on_actionUpdate_datasets_triggered();
+
+        void on_actionPointStyleCircle_triggered();
+
+        void on_actionPointStyleText_triggered();
+
+        void on_actionPointStyleText_multicolor_triggered();
+
+        void on_actionUnmark_all_points_triggered();
+
+        void on_actionTestMark_triggered();
+
+        bool on_actionSpatialAggregationFromGrid_triggered();
+
+        void on_actionSpatialAggregationOpenDB_triggered();
+
+        void on_actionSpatialAggregationNewDB_triggered();
+
+        void on_actionInterpolationExportRaster_triggered();
+
+        void on_actionInterpolationCrossValidation_triggered();
+
+        void on_actionExport_current_data_triggered();
 
     protected:
         /*!
@@ -244,10 +271,10 @@
         bool loadMeteoGrid(QString xmlName);
         bool newMeteoGrid(QString xmlName);
         bool openRaster(QString fileName, gis::Crit3DRasterGrid *myRaster);
-        bool openShape(QString fileName);
         void setCurrentRaster(gis::Crit3DRasterGrid *myRaster);
         void interpolateDemGUI();
         void interpolateGridGUI();
+        void interpolateCrossValidationGUI();
         void showElabResult(bool updateColorSCale, bool isMeteoGrid, bool isAnomaly, bool isAnomalyPerc, bool isClima, QString index);
         void closeEvent(QCloseEvent *event);
 

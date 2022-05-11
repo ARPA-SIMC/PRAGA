@@ -29,6 +29,10 @@
         #include "drought.h"
     #endif
 
+    #ifndef POINTSTATISTICSWIDGET_H
+        #include "pointStatisticsWidget.h"
+    #endif
+
     class PragaProject : public Project
     {
     private:
@@ -51,6 +55,7 @@
         std::map<QString, QList<int> > idArkimetHourlyMap;
         std::map<QString, QList<int> > idArkimetDailyMap;
 
+        Crit3DPointStatisticsWidget* pointStatisticsWidget;
         ImportDataXML* importData;
         QString projectPragaFolder;
 
@@ -105,6 +110,9 @@
         bool loadXMLImportData(QString fileName);
         bool monthlyVariablesGrid(QDate first, QDate last, QList <meteoVariable> variables);
         bool computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, QDate date, int timescale, meteoVariable myVar);
+        void showPointStatisticsWidgetPoint(std::string idMeteoPoint, std::string namePoint);
+        void showPointStatisticsWidgetGrid(std::string id);
+
 
         #ifdef NETCDF
                 bool exportMeteoGridToNetCDF(QString fileName, QString title, QString variableName, std::string variableUnit, Crit3DDate myDate, int nDays, int refYearStart, int refYearEnd);

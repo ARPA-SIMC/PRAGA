@@ -33,15 +33,19 @@
 #include "dialogPointProperties.h"
 #include "dialogPointDeleteData.h"
 #include "dialogSelectionMeteoPoint.h"
+#include "dialogCellSize.h"
+#include "dialogSelectDataset.h"
+#include "dialogAddMissingStation.h"
+#include "dialogAddRemoveDataset.h"
 #include "utilities.h"
 #include "basicMath.h"
+#include "interpolation.h"
 #include "meteoWidget.h"
 
 
 extern PragaProject myProject;
 
 #define MAPBORDER 10
-#define TOOLSWIDTH 260
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -134,6 +138,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->setWindowTitle("PRAGA");
 
     ui->groupBoxElab->hide();
+    this->showMaximized();
 }
 
 MainWindow::~MainWindow()
@@ -199,6 +204,10 @@ void MainWindow::mouseMove(const QPoint& mapPos)
                     value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue;
                     break;
                 }
+                default:
+                {
+                    break;
+                }
             }
             std::string valueStr;
             if (value == NODATA)
@@ -222,6 +231,8 @@ void MainWindow::mouseMove(const QPoint& mapPos)
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event)
+
+    ui->widgetMap->setGeometry(ui->widgetMap->x(), 0, this->width() - ui->widgetMap->x(), this->height() - 40);
     mapView->resize(ui->widgetMap->size());
 }
 
@@ -371,6 +382,8 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                 QMenu menu;
                 QAction *openMeteoWidget = menu.addAction("Open new meteo widget");
                 QAction *appendMeteoWidget = menu.addAction("Append to last meteo widget");
+                QAction *openPointStatisticsWidget = menu.addAction("Open point statistics widget");
+
                 if (myProject.meteoGridDbHandler->meteoGrid()->gridStructure().isEnsemble())
                 {
                     appendMeteoWidget->setEnabled(false);
@@ -391,6 +404,10 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                     if (selection == appendMeteoWidget)
                     {
                         myProject.showMeteoWidgetGrid(id, true);
+                    }
+                    else if (selection == openPointStatisticsWidget)
+                    {
+                        myProject.showPointStatisticsWidgetGrid(id);
                     }
                     // TODO: other actions
 
@@ -671,6 +688,7 @@ void MainWindow::interpolateGridGUI()
     else
          myProject.logError();
 }
+
 
 void MainWindow::updateVariable()
 {
@@ -1279,10 +1297,10 @@ void MainWindow::addMeteoPoints()
         point->setName(myProject.meteoPoints[i].name);
         point->setDataset(myProject.meteoPoints[i].dataset);
         point->setAltitude(myProject.meteoPoints[i].point.z);
+        point->setLapseRateCode(myProject.meteoPoints[i].lapseRateCode);
         point->setMunicipality(myProject.meteoPoints[i].municipality);
         point->setCurrentValue(myProject.meteoPoints[i].currentValue);
         point->setQuality(myProject.meteoPoints[i].quality);
-        point->setShowValue(false);
 
         if (!myProject.meteoPoints[i].active)
         {
@@ -1300,6 +1318,7 @@ void MainWindow::addMeteoPoints()
         point->setToolTip();
         connect(point, SIGNAL(newStationClicked(std::string, std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, std::string, bool)));
         connect(point, SIGNAL(appendStationClicked(std::string, std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, std::string, bool)));
+        connect(point, SIGNAL(newPointStatisticsClicked(std::string, std::string, bool)), this, SLOT(callNewPointStatisticsWidget(std::string, std::string, bool)));
     }
 }
 
@@ -1327,6 +1346,19 @@ void MainWindow::callAppendMeteoWidget(std::string id, std::string name, bool is
     else
     {
         myProject.showMeteoWidgetPoint(id, name, isAppend);
+    }
+    return;
+}
+
+void MainWindow::callNewPointStatisticsWidget(std::string id, std::string name, bool isGrid)
+{
+    if (isGrid)
+    {
+        myProject.showPointStatisticsWidgetGrid(id);
+    }
+    else
+    {
+        myProject.showPointStatisticsWidgetPoint(id, name);
     }
     return;
 }
@@ -2064,102 +2096,7 @@ bool MainWindow::openRaster(QString fileName, gis::Crit3DRasterGrid *myRaster)
         return true;
 }
 
-bool MainWindow::openShape(QString fileName)
-{
-// TO DO
-    return false;
-}
-
-
-bool MainWindow::on_actionAnalysisAggregateFromGrid_triggered()
-{
-    if (!ui->grid->isChecked())
-    {
-        myProject.errorString = "Load grid";
-        myProject.logError();
-        return false;
-    }
-    if (myProject.aggregationDbHandler == nullptr)
-    {
-        myProject.errorString = "Missing DB: open or create a Aggregation DB";
-        myProject.logError();
-        return false;
-    }
-    QString rasterName;
-    if (!myProject.aggregationDbHandler->getRasterName(&rasterName))
-    {
-        myProject.errorString = "Missing Raster Name inside aggregation db";
-        myProject.logError();
-        return false;
-    }
-
-    QFileInfo rasterFileFltInfo(myProject.aggregationPath+"/"+rasterName+".flt");
-    QFileInfo rasterFileHdrInfo(myProject.aggregationPath+"/"+rasterName+".hdr");
-    if (!rasterFileFltInfo.exists() || !rasterFileHdrInfo.exists())
-    {
-        myProject.errorString = "Raster file does not exist: " + myProject.aggregationPath+"/"+rasterName;
-        myProject.logError();
-        return false;
-    }
-    gis::Crit3DRasterGrid *myRaster;
-    myRaster = new(gis::Crit3DRasterGrid);
-    if (!openRaster(myProject.aggregationPath+"/"+rasterName+".flt", myRaster))
-    {
-        myProject.errorString = "Open raster file failed";
-        myProject.logError();
-        return false;
-    }
-
-    QList<QString> aggregation = myProject.aggregationDbHandler->getAggregations();
-    if (aggregation.isEmpty())
-    {
-        myProject.errorString = "Empty aggregation " + myProject.aggregationDbHandler->error();
-        myProject.logError();
-        return false;
-    }
-
-    DialogSeriesOnZones zoneDialog(myProject.pragaDefaultSettings, aggregation);
-
-    if (zoneDialog.result() != QDialog::Accepted)
-    {
-        if (myRaster != nullptr)
-        {
-            delete myRaster;
-        }
-
-        return false;
-    }
-    else
-    {
-        std::vector<float> outputValues;
-        float threshold = NODATA;
-        meteoComputation elab1MeteoComp = noMeteoComp;
-        QString periodType = "D";
-        int nMissing = 0;
-        if (!myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, nMissing, true))
-        {
-            QMessageBox::information(nullptr, "Error", "Error writing aggregation data");
-            if (myRaster != nullptr)
-            {
-                delete myRaster;
-            }
-            return false;
-        }
-        if (nMissing != 0)
-        {
-            QMessageBox::information(nullptr, "Warning", "Missing values");
-        }
-    }
-    if (myRaster != nullptr)
-    {
-        delete myRaster;
-    }
-
-    return true;
-}
-
-
-void MainWindow::on_actionAnalysisOpenAggregationDB_triggered()
+void MainWindow::on_actionSpatialAggregationOpenDB_triggered()
 {
     QString dbName = QFileDialog::getOpenFileName(this, tr("Open DB meteo points"), "", tr("DB files (*.db)"));
     if (dbName != "")
@@ -2169,7 +2106,7 @@ void MainWindow::on_actionAnalysisOpenAggregationDB_triggered()
 
 }
 
-void MainWindow::on_actionAnalysisNewAggregationDB_triggered()
+void MainWindow::on_actionSpatialAggregationNewDB_triggered()
 {
     QString templateFileName = myProject.getDefaultPath() + PATH_TEMPLATE + "template_meteo_aggregation.db";
 
@@ -2286,6 +2223,8 @@ void MainWindow::on_actionFileCloseProject_triggered()
     on_actionFileMeteopointClose_triggered();
     this->ui->labelFrequency->setText("None");
     this->ui->labelVariable->setText(("None"));
+    currentGridVisualization = showLocation;
+    currentPointsVisualization = showLocation;
 
     clearDEM();
 
@@ -2388,6 +2327,88 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
     myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables, aggrVariables, false, 1);
 }
 
+
+
+void MainWindow::on_actionInterpolationCrossValidation_triggered()
+{
+    myProject.logInfoGUI("Cross validation...");
+
+    bool isComputed = false;
+
+    meteoVariable myVar = myProject.getCurrentVariable();
+    crossValidationStatistics myStats;
+
+    isComputed = myProject.interpolationCv(myVar, myProject.getCrit3DCurrentTime(), &myStats);
+
+    myProject.closeLogInfo();
+
+    if (isComputed) {
+        {
+            std::stringstream cvOutput;
+
+            cvOutput << "Time: " << myProject.getCrit3DCurrentTime().toString() << std::endl;
+            cvOutput << "Variable: " << getVariableString(myVar) << std::endl;
+            cvOutput << "MAE: " << myStats.getMeanAbsoluteError() << std::endl;
+            cvOutput << "MBE: " << myStats.getMeanBiasError() << std::endl;
+            cvOutput << "RMSE: " << myStats.getRootMeanSquareError() << std::endl;
+            cvOutput << "CRE: " << myStats.getCompoundRelativeError() << std::endl;
+            cvOutput << "R2: " << myStats.getR2() << std::endl;
+
+            int i;
+
+            if (getUseDetrendingVar(myVar))
+            {
+                int proxyNr = myProject.interpolationSettings.getProxyNr();
+                if (proxyNr > 0)
+                {
+                    cvOutput << std::endl << "Interpolation proxies" << std::endl;
+                    Crit3DProxyCombination* proxyCombination = myProject.interpolationSettings.getCurrentCombination();
+                    std::string signif;
+                    Crit3DProxy* myProxy;
+                    for (i=0; i < proxyNr; i++)
+                    {
+                        if (proxyCombination->getValue(i))
+                        {
+                            myProxy = myProject.interpolationSettings.getProxy(i);
+                            cvOutput << myProxy->getName() << ": " << (myProxy->getIsSignificant() ? "" : "not " ) << "significant" << std::endl;
+                            if  (myProxy->getIsSignificant())
+                                cvOutput << "R2=" << myProxy->getRegressionR2() << " slope=" <<myProxy->getRegressionSlope() << std::endl;
+                        }
+                    }
+                }
+            }
+
+            if (myProject.interpolationSettings.getUseTD() && getUseTdVar(myVar))
+            {
+                cvOutput << std::endl;
+                cvOutput << "Topographic distance coefficient" << std::endl;
+                cvOutput << "Best value: " << myProject.interpolationSettings.getTopoDist_Kh() << std::endl;
+                cvOutput << "Optimization: " << std::endl;
+
+                std::vector <float> khSeries = myProject.interpolationSettings.getKh_series();
+                std::vector <float> khErrors = myProject.interpolationSettings.getKh_error_series();
+
+                for (i=0; i<khSeries.size(); i++)
+                    cvOutput << "Kh=" << khSeries[i] << " error=" << khErrors[i] << std::endl;
+            }
+
+            QDialog myDialog;
+            myDialog.setWindowTitle("Cross validation statistics");
+
+            QTextBrowser textBrowser;
+            textBrowser.setText(QString::fromStdString(cvOutput.str()));
+
+            QVBoxLayout mainLayout;
+            mainLayout.addWidget(&textBrowser);
+
+            myDialog.setLayout(&mainLayout);
+            myDialog.setFixedSize(300,300);
+            myDialog.exec();
+        }
+    }
+
+}
+
 void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
 {
     resetMeteoPointsMarker();
@@ -2423,7 +2444,7 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
 
     Download myDownload(dbName);
 
-    QList<QString> dataset = myDownload.getDbArkimet()->getDatasetsList();
+    QList<QString> dataset = myDownload.getDbArkimet()->getAllDatasetsList();
 
     QDialog datasetDialog;
 
@@ -3390,4 +3411,545 @@ void MainWindow::on_actionNewMeteoGrid_triggered()
         }
     }
     return;
+}
+
+
+void MainWindow::on_actionFileMeteogridExportRaster_triggered()
+{
+    if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr)
+    {
+        myProject.logError("Open meteo grid before.");
+        return;
+    }
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save current data of meteo grid"), "", tr("ESRI grid files (*.flt)"));
+
+    if (fileName != "")
+    {
+        double cellSizeValue;
+        DialogCellSize cellSizeDialog;
+        if (cellSizeDialog.result() == QDialog::Accepted)
+        {
+            cellSizeValue = cellSizeDialog.getCellSize();
+        }
+        else
+        {
+            return;
+        }
+        if (!myProject.exportMeteoGridToESRI(fileName, cellSizeValue))
+        {
+            myProject.logError(myProject.errorString);
+            return;
+        }
+    }
+    return;
+}
+
+
+void MainWindow::on_actionUpdate_properties_triggered()
+{
+    if (! myProject.meteoPointsDbHandler)
+    {
+        myProject.logError("Open meteo point db before.");
+        return;
+    }
+    QList<Crit3DMeteoPoint> listMeteoPoints;
+    myProject.errorString = "";
+    if (! myProject.meteoPointsDbHandler->getPropertiesFromDb(listMeteoPoints, myProject.gisSettings, myProject.errorString))
+    {
+        myProject.logError("Error in reading table 'point_properties'\n" + myProject.errorString);
+        return;
+    }
+
+    QString dbName = myProject.meteoPointsDbHandler->getDbName();
+    Download myDownload(dbName);
+
+    Crit3DMeteoPoint pointPropFromArkimet;
+    QString log = "";
+    bool changes;
+    bool everythingUpdated = true;
+    QList<QString> column;
+    QList<QString> values;
+    myProject.setProgressBar("Checking properties...", listMeteoPoints.size());
+
+    for (int i=0; i<listMeteoPoints.size(); i++)
+    {
+        myProject.updateProgressBar(i);
+        column.clear();
+        values.clear();
+        changes = false;
+        pointPropFromArkimet.clear();
+        QString id = QString::fromStdString(listMeteoPoints[i].id);
+        if (!myDownload.getPointPropertiesFromId(id, &pointPropFromArkimet) || pointPropFromArkimet.id == "")
+        {
+            log = log + "Get point properties from id error, check id: "+ id + "\n";
+            continue;
+        }
+        if (QString::fromStdString(pointPropFromArkimet.name).toUpper() != QString::fromStdString(listMeteoPoints[i].name).toUpper())
+        {
+            changes = true;
+            log = log + "id:"+id+","+"name,"+
+                   QString::fromStdString(listMeteoPoints[i].name) + ","+ QString::fromStdString(pointPropFromArkimet.name) + "\n";
+            column << "name";
+            values << QString::fromStdString(pointPropFromArkimet.name);
+        }
+        if (pointPropFromArkimet.dataset != listMeteoPoints[i].dataset)
+        {
+            changes = true;
+            log = log + "id:"+id+","+"dataset,"+
+                   QString::fromStdString(listMeteoPoints[i].dataset) + ","+ QString::fromStdString(pointPropFromArkimet.dataset) + "\n";
+            column << "dataset";
+
+            values << QString::fromStdString(pointPropFromArkimet.dataset);
+        }
+        if (QString::number(pointPropFromArkimet.latitude, 'f', 6) != QString::number(listMeteoPoints[i].latitude, 'f', 6))
+        {
+            changes = true;
+            log = log + "id:"+id+","+"latitude,"+
+                   QString::number(listMeteoPoints[i].latitude, 'f', 6) + ","+ QString::number(pointPropFromArkimet.latitude, 'f', 6) + "\n";
+            column << "latitude";
+            values << QString::number(pointPropFromArkimet.latitude, 'f', 6);
+        }
+        if (QString::number(pointPropFromArkimet.longitude, 'f', 6) != QString::number(listMeteoPoints[i].longitude, 'f', 6))
+        {
+            changes = true;
+            log = log + "id:"+id+","+"longitude,"+
+                   QString::number(listMeteoPoints[i].longitude, 'f', 6) + ","+ QString::number(pointPropFromArkimet.longitude, 'f', 6) + "\n";
+            column << "longitude";
+            values << QString::number(pointPropFromArkimet.longitude, 'f', 6);
+        }
+        if (QString::number(pointPropFromArkimet.point.utm.x) != QString::number(listMeteoPoints[i].point.utm.x))
+        {
+            changes = true;
+            log = log + "id:"+id+","+"utm_x,"+
+                   QString::number(listMeteoPoints[i].point.utm.x) + ","+ QString::number(pointPropFromArkimet.point.utm.x) + "\n";
+            column << "utm_x";
+            values << QString::number(pointPropFromArkimet.point.utm.x);
+        }
+        if (QString::number(pointPropFromArkimet.point.utm.y) != QString::number(listMeteoPoints[i].point.utm.y))
+        {
+            changes = true;
+            log = log + "id:"+id+","+"utm_y,"+
+                   QString::number(listMeteoPoints[i].point.utm.y) + ","+ QString::number(pointPropFromArkimet.point.utm.y) + "\n";
+            column << "utm_y";
+            values << QString::number(pointPropFromArkimet.point.utm.y);
+        }
+        if (pointPropFromArkimet.point.z != listMeteoPoints[i].point.z)
+        {
+            changes = true;
+            log = log + "id:"+id+","+"altitude,"+
+                   QString::number(listMeteoPoints[i].point.z) + ","+ QString::number(pointPropFromArkimet.point.z) + "\n";
+            column << "altitude";
+            values << QString::number(pointPropFromArkimet.point.z);
+        }
+        if (pointPropFromArkimet.state != listMeteoPoints[i].state)
+        {
+            changes = true;
+            log = log + "id:"+id+","+"state,"+
+                   QString::fromStdString(listMeteoPoints[i].state) + ","+ QString::fromStdString(pointPropFromArkimet.state) + "\n";
+            column << "state";
+            values << QString::fromStdString(pointPropFromArkimet.state);
+        }
+        if (pointPropFromArkimet.region != listMeteoPoints[i].region)
+        {
+            changes = true;
+            log = log + "id:"+id+","+"region,"+
+                   QString::fromStdString(listMeteoPoints[i].region) + ","+ QString::fromStdString(pointPropFromArkimet.region) + "\n";
+            column << "region";
+            values << QString::fromStdString(pointPropFromArkimet.region);
+        }
+        if (pointPropFromArkimet.province != listMeteoPoints[i].province)
+        {
+            changes = true;
+            log = log + "id:"+id+","+"province,"+
+                   QString::fromStdString(listMeteoPoints[i].province) + ","+ QString::fromStdString(pointPropFromArkimet.province) + "\n";
+            column << "province";
+            values << QString::fromStdString(pointPropFromArkimet.province);
+        }
+        if (pointPropFromArkimet.municipality != listMeteoPoints[i].municipality)
+        {
+            changes = true;
+            log = log + "id:"+id+","+"municipality,"+
+                   QString::fromStdString(listMeteoPoints[i].municipality) + ","+ QString::fromStdString(pointPropFromArkimet.municipality) + "\n";
+            column << "municipality";
+            values << QString::fromStdString(pointPropFromArkimet.municipality);
+        }
+        if (pointPropFromArkimet.isUTC != listMeteoPoints[i].isUTC)
+        {
+            changes = true;
+            log = log + "id:"+id+","+"is_utc,"+
+                   QString::number(listMeteoPoints[i].isUTC) + ","+ QString::number(pointPropFromArkimet.isUTC) + "\n";
+            column << "is_utc";
+            values << QString::number(pointPropFromArkimet.isUTC);
+        }
+        if (pointPropFromArkimet.lapseRateCode != listMeteoPoints[i].lapseRateCode)
+        {
+            changes = true;
+            log = log + "id:"+id+","+"orog_code,"+
+                   QString::number(listMeteoPoints[i].lapseRateCode) + ","+ QString::number(pointPropFromArkimet.lapseRateCode) + "\n";
+            column << "orog_code";
+            values << QString::number(pointPropFromArkimet.lapseRateCode);
+        }
+        if (changes)
+        {
+            everythingUpdated = false;
+
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(this, "Update point properties?",
+                                          "Id:"+id + " Point properties from arkimet are different", QMessageBox::Yes|QMessageBox::No);
+
+            if (reply == QMessageBox::Yes)
+            {
+                if (!myProject.meteoPointsDbHandler->updatePointPropertiesGivenId(id, column, values))
+                {
+                    myProject.logError("Update point properties given id error "+id);
+                    return;
+                }
+            }
+        }
+    }
+    myProject.closeProgressBar();
+    if (everythingUpdated)
+    {
+        if (log == "")
+        {
+            QMessageBox::information(nullptr, "Everything already updated", "Nothing changed");
+            return;
+        }
+        else
+        {
+            log = log + "All other stations are already updated";
+            myProject.logInfo(log);
+        }
+    }
+    else
+    {
+        myProject.logInfo(log);
+        myProject.logInfoGUI("Update...");
+        myProject.closeMeteoPointsDB();
+        myProject.loadMeteoPointsDB(dbName);
+        drawMeteoPoints();
+        myProject.closeLogInfo();
+        return;
+    }
+}
+
+
+void MainWindow::on_actionUpdate_meteo_points_triggered()
+{
+    if (! myProject.meteoPointsDbHandler)
+    {
+        myProject.logError("Open meteo point db before.");
+        return;
+    }
+    QString dbName = myProject.meteoPointsDbHandler->getDbName();
+    QList<QString> datasetsList = myProject.meteoPointsDbHandler->getDatasetsActive();
+    DialogSelectDataset selectDialog(datasetsList);
+    if (selectDialog.result() == QDialog::Accepted)
+    {
+        QList<QString> datasetSelected = selectDialog.getSelectedDatasets();
+        QList<QString> idListFromDB = myProject.meteoPointsDbHandler->getIdListGivenDataset(datasetSelected);
+
+        Download myDownload(dbName);
+        QMap<QString,QString> mapFromArkimet = myDownload.getArmiketIdList(datasetSelected);
+        QList<QString> idListFromArkimet = mapFromArkimet.keys();
+        QList<QString> idMissingInArkimet = removeList(idListFromDB,idListFromArkimet);
+
+        if (!idMissingInArkimet.isEmpty())
+        {
+            QString log = "Id stations founded into db and missing in arkimet: ";
+            foreach (const QString &idName, idMissingInArkimet)
+            {
+                log = log + idName + " ";
+            }
+            myProject.logInfo(log);
+        }
+        QList<QString> idMissingDb = removeList(idListFromArkimet,idListFromDB);
+        if (!idMissingDb.isEmpty())
+        {
+            QList<QString> idMissing;
+            QList<QString> nameMissing;
+            foreach (const QString &idName, idMissingDb)
+            {
+                idMissing.append(idName);
+                nameMissing.append(mapFromArkimet.value(idName));
+            }
+
+            DialogAddMissingStation addStationDialog(idMissing, nameMissing);
+            if (addStationDialog.result() == QDialog::Accepted)
+            {
+                QList<QString> stationsSelected = addStationDialog.getSelectedStations();
+                Crit3DMeteoPoint pointPropFromArkimet;
+                QList<QString> column;
+                QList<QString> values;
+                for (int i=0; i<stationsSelected.size(); i++)
+                {
+                    column.clear();
+                    values.clear();
+                    pointPropFromArkimet.clear();
+                    if (!myDownload.getPointPropertiesFromId(stationsSelected[i], &pointPropFromArkimet))
+                    {
+                        myProject.logError("Get point properties from id error");
+                        return;
+                    }
+                    if (!myProject.meteoPointsDbHandler->writePointProperties(&pointPropFromArkimet))
+                    {
+                        myProject.logError("Write point properties error");
+                        return;
+                    }
+                }
+                myProject.logInfoGUI("Update...");
+                myProject.closeMeteoPointsDB();
+                myProject.loadMeteoPointsDB(dbName);
+                drawMeteoPoints();
+                myProject.closeLogInfo();
+            }
+        }
+    }
+    return;
+}
+
+void MainWindow::on_actionUpdate_datasets_triggered()
+{
+    if (! myProject.meteoPointsDbHandler)
+    {
+        myProject.logError("Open meteo point db before.");
+        return;
+    }
+    QString dbName = myProject.meteoPointsDbHandler->getDbName();
+    QList<QString> allDatasetsList = myProject.meteoPointsDbHandler->getAllDatasetsList();
+    QList<QString> dbDatasetsList = myProject.meteoPointsDbHandler->getDatasetList();
+    QList<QString> datasetAvailable = removeList(allDatasetsList,dbDatasetsList);
+    DialogAddRemoveDataset addDatasetDialog(datasetAvailable, dbDatasetsList);
+    if (addDatasetDialog.result() == QDialog::Accepted)
+    {
+        QList<QString> datasetSelected = addDatasetDialog.getDatasetDb();
+        QList<QString> datasetToDelete = removeList(dbDatasetsList, datasetSelected);
+        QList<QString> datasetToAdd = removeList(datasetSelected, dbDatasetsList);
+        if (!datasetToDelete.isEmpty())
+        {
+            if (!myProject.meteoPointsDbHandler->deleteAllPointsFromDataset(datasetToDelete))
+            {
+                myProject.logError("Delete all points error");
+                return;
+            }
+        }
+        if (!datasetToAdd.isEmpty())
+        {
+            Download myDownload(dbName);
+            if (!myDownload.getPointProperties(datasetToAdd))
+            {
+                myProject.logError("Get point properties error");
+                return;
+            }
+        }
+
+        myProject.logInfoGUI("Update...");
+        myProject.closeMeteoPointsDB();
+        myProject.loadMeteoPointsDB(dbName);
+        drawMeteoPoints();
+        myProject.closeLogInfo();
+    }
+    return;
+}
+
+
+void MainWindow::on_actionPointStyleCircle_triggered()
+{
+    ui->actionPointStyleCircle->setChecked(true);
+    ui->actionPointStyleText->setChecked(false);
+    ui->actionPointStyleText_multicolor->setChecked(false);
+
+    for (int i = 0; i < pointList.size(); i++)
+    {
+        pointList[i]->setShowText(false);
+        pointList[i]->setMultiColorText(false);
+    }
+}
+
+
+void MainWindow::on_actionPointStyleText_triggered()
+{
+    ui->actionPointStyleCircle->setChecked(false);
+    ui->actionPointStyleText->setChecked(true);
+    ui->actionPointStyleText_multicolor->setChecked(false);
+
+    for (int i = 0; i < pointList.size(); i++)
+    {
+        pointList[i]->setShowText(true);
+        pointList[i]->setMultiColorText(false);
+    }
+}
+
+
+void MainWindow::on_actionPointStyleText_multicolor_triggered()
+{
+    ui->actionPointStyleCircle->setChecked(false);
+    ui->actionPointStyleText->setChecked(false);
+    ui->actionPointStyleText_multicolor->setChecked(true);
+
+    for (int i = 0; i < pointList.size(); i++)
+    {
+        pointList[i]->setMultiColorText(true);
+    }
+}
+
+
+void MainWindow::on_actionUnmark_all_points_triggered()
+{
+    for (int i = 0; i < pointList.size(); i++)
+    {
+        pointList[i]->setMarked(false);
+    }
+}
+
+
+void MainWindow::on_actionTestMark_triggered()
+{
+    for (int i = 0; i < pointList.size(); i++)
+        if (i % 5 == 0)
+        {
+            pointList[i]->setMarked(true);
+        }
+}
+
+bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
+{
+    if (!ui->grid->isChecked())
+        {
+            myProject.errorString = "Load grid";
+            myProject.logError();
+            return false;
+        }
+        if (myProject.aggregationDbHandler == nullptr)
+        {
+            myProject.errorString = "Missing DB: open or create a Aggregation DB";
+            myProject.logError();
+            return false;
+        }
+        QString rasterName;
+        if (!myProject.aggregationDbHandler->getRasterName(&rasterName))
+        {
+            myProject.errorString = "Missing Raster Name inside aggregation db";
+            myProject.logError();
+            return false;
+        }
+
+        QFileInfo rasterFileFltInfo(myProject.aggregationPath+"/"+rasterName+".flt");
+        QFileInfo rasterFileHdrInfo(myProject.aggregationPath+"/"+rasterName+".hdr");
+        if (!rasterFileFltInfo.exists() || !rasterFileHdrInfo.exists())
+        {
+            myProject.errorString = "Raster file does not exist: " + myProject.aggregationPath+"/"+rasterName;
+            myProject.logError();
+            return false;
+        }
+        gis::Crit3DRasterGrid *myRaster;
+        myRaster = new(gis::Crit3DRasterGrid);
+        if (!openRaster(myProject.aggregationPath + "/" + rasterName + ".flt", myRaster))
+        {
+            myProject.errorString = "Open raster file failed";
+            myProject.logError();
+            return false;
+        }
+
+        QList<QString> aggregation = myProject.aggregationDbHandler->getAggregations();
+        if (aggregation.isEmpty())
+        {
+            myProject.errorString = "Empty aggregation " + myProject.aggregationDbHandler->error();
+            myProject.logError();
+            return false;
+        }
+
+        DialogSeriesOnZones zoneDialog(myProject.pragaDefaultSettings, aggregation, myProject.getCurrentDate());
+
+        if (zoneDialog.result() != QDialog::Accepted)
+        {
+            if (myRaster != nullptr)
+            {
+                delete myRaster;
+            }
+
+            return false;
+        }
+        else
+        {
+            std::vector<float> outputValues;
+            float threshold = NODATA;
+            meteoComputation elab1MeteoComp = noMeteoComp;
+            QString periodType = "D";
+            int nMissing = 0;
+            if ( !myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, nMissing, true))
+            {
+                myProject.logError();
+                if (myRaster != nullptr)
+                {
+                    delete myRaster;
+                }
+                return false;
+            }
+            if (nMissing != 0)
+            {
+                QMessageBox::information(nullptr, "Warning", "Missing values");
+            }
+        }
+        if (myRaster != nullptr)
+        {
+            delete myRaster;
+        }
+
+        return true;
+}
+
+
+void MainWindow::on_actionInterpolationExportRaster_triggered()
+{
+    if (! myProject.dataRaster.isLoaded)
+        return;
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save interpolated raster"), "", tr("ESRI grid files (*.flt)"));
+
+    if (fileName != "")
+    {
+        std::string myError = myProject.errorString.toStdString();
+        QString fileWithoutExtension = QFileInfo(fileName).absolutePath() + QDir::separator() + QFileInfo(fileName).baseName();
+
+        if (!gis::writeEsriGrid(fileWithoutExtension.toStdString(), &myProject.dataRaster, &myError))
+            myProject.logError(QString::fromStdString(myError));
+    }
+}
+
+
+
+void MainWindow::on_actionExport_current_data_triggered()
+{
+    QString csvFileName = QFileDialog::getSaveFileName(this, tr("Save current data"), "", tr("csv files (*.csv)"));
+
+    if (csvFileName != "")
+    {
+        QFile myFile(csvFileName);
+        if (!myFile.open(QIODevice::WriteOnly | QFile::Truncate))
+        {
+            QMessageBox::information(nullptr, "Error", "Open CSV failed: " + csvFileName + "\n ");
+            return;
+        }
+
+        QTextStream myStream (&myFile);
+        myStream.setRealNumberNotation(QTextStream::FixedNotation);
+        myStream.setRealNumberPrecision(1);
+        QString header = "id,name,value";
+        myStream << header << "\n";
+        for (int i = 0; i < myProject.nrMeteoPoints; i++)
+        {
+            if (!isEqual(myProject.meteoPoints[i].currentValue, NODATA))
+            {
+                std::string id = myProject.meteoPoints[i].id;
+                std::string name = myProject.meteoPoints[i].name;
+                float value = myProject.meteoPoints[i].currentValue;
+                myStream << QString::fromStdString(id) << "," << QString::fromStdString(name) << "," << value << "\n";
+            }
+        }
+        myFile.close();
+
+        return;
+    }
 }

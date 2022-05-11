@@ -9,7 +9,6 @@
 #include <QRadioButton>
 
 #include "dialogDownloadMeteoData.h"
-#include "pragaProject.h"
 
 
 DialogDownloadMeteoData::DialogDownloadMeteoData()
