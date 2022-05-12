@@ -404,7 +404,7 @@
     Input:     beta, gamma (gamma parameters)
                pzero (probability of zero)
                x (value)
-    Output:    GammaCDF (probability  a<=x)
+    Output:    generalizedGammaCDF (probability  a<=x)
     */
 
     double inverseGammaCumulativeDistributionFunction(double valueProbability, double alpha, double beta, double accuracy)
@@ -444,12 +444,12 @@
        return x;
     }
 
-    float gammaCDF(float x, double beta, double gamma,  double pZero)
+    float generalizedGammaCDF(float x, double beta, double gamma,  double pZero)
     {
 
         float gammaCDF = NODATA;
 
-        if (x == NODATA || beta == NODATA || gamma == NODATA || pZero == NODATA || beta == 0)
+        if (fabs(x - NODATA) < EPSILON || fabs(beta - NODATA)< EPSILON || fabs(gamma - NODATA) < EPSILON || fabs(pZero - NODATA) < EPSILON || beta == 0)
         {
             return gammaCDF;
         }
@@ -460,7 +460,7 @@
         }
         else
         {
-            gammaCDF = pZero + (1 - pZero) * incompleteGamma(gamma, x / beta);
+            gammaCDF = pZero + (1 - pZero) * incompleteGamma(gamma, double(x) / beta);
         }
         return gammaCDF;
 
