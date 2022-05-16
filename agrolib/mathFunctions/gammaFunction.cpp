@@ -328,6 +328,19 @@
         return gammaIncomplete;
     }
 
+    bool getGammaParameters(double mean, double variance, double* alpha, double* beta)
+    {
+        // beta is intended as rate parameter
+        if (variance == 0 || mean == 0)
+        {
+            return false;
+        }
+
+        *alpha = variance/mean;
+        *beta = mean*mean/variance;
+        return true;
+    }
+
     bool gammaFitting(std::vector<float> &series, int n, double *beta, double *gamma,  double *pZero)
     {
         if (n<=0)
@@ -444,10 +457,85 @@
        return x;
     }
 
+    float inverseGeneralizedGammaCDF(double valueProbability, double alpha, double beta, double accuracy,double pZero,double outlierStep)
+    {
+
+       if (valueProbability < 0.995)
+       {
+           float x;
+           float y;
+           float rightBound = 25.0;
+           float leftBound = 0.0;
+           int counter = 0;
+           do {
+               //y = incompleteGamma(alpha,rightBound/beta);
+               y = generalizedGammaCDF(rightBound,beta,alpha,pZero);
+               if (valueProbability>y)
+               {
+                   rightBound *= 2;
+                   counter++;
+                   if (counter == 7) return rightBound;
+               }
+           } while ((valueProbability>y));
+
+           x = (rightBound + leftBound)*0.5;
+           y = generalizedGammaCDF(x,beta,alpha,pZero);
+           while ((fabs(valueProbability - y) > accuracy) && (counter < 200))
+           {
+               if (y > valueProbability)
+               {
+                   rightBound = x;
+               }
+               else
+               {
+                   leftBound = x;
+               }
+               x = (rightBound + leftBound)*0.5;
+               y = generalizedGammaCDF(x,beta,alpha,pZero);
+               ++counter;
+           }
+           x = (rightBound + leftBound)*0.5;
+           return x;
+       }
+       double x,y;
+       y = 0.995 - EPSILON;
+       x = inverseGeneralizedGammaCDF(y, alpha, beta, accuracy, pZero,outlierStep);
+       while (y < valueProbability)
+       {
+           y = generalizedGammaCDF(x,beta,alpha,pZero);
+           x += outlierStep;
+       }
+       x -= outlierStep;
+       return x;
+    }
+
+
     float generalizedGammaCDF(float x, double beta, double gamma,  double pZero)
     {
 
         float gammaCDF = NODATA;
+
+        if (fabs(x - NODATA) < EPSILON || fabs(beta - NODATA)< EPSILON || fabs(gamma - NODATA) < EPSILON || fabs(pZero - NODATA) < EPSILON || beta == 0)
+        {
+            return gammaCDF;
+        }
+
+        if (x <= 0)
+        {
+            gammaCDF = pZero;
+        }
+        else
+        {
+            gammaCDF = pZero + (1 - pZero) * incompleteGamma(gamma, double(x) / beta);
+        }
+        return gammaCDF;
+
+    }
+
+    double generalizedGammaCDF(double x, double beta, double gamma,  double pZero)
+    {
+
+        double gammaCDF = NODATA;
 
         if (fabs(x - NODATA) < EPSILON || fabs(beta - NODATA)< EPSILON || fabs(gamma - NODATA) < EPSILON || fabs(pZero - NODATA) < EPSILON || beta == 0)
         {
