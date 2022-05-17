@@ -1185,13 +1185,16 @@ QList<QString> DialogMeteoComputation::getElabSaveList()
 
 void DialogMeteoComputation::copyDataFromXML()
 {
-    Crit3DElabList *listXMLElab = new Crit3DElabList();
-    Crit3DAnomalyList *listXMLAnomaly = new Crit3DAnomalyList();
+    Crit3DElabList listXMLElab;
+    Crit3DAnomalyList listXMLAnomaly;
+    Crit3DDroughtList listXMLDrought;
+    Crit3DPhenologyList listXMLPhenology;
+
     QString *myError = new QString();
     QString xmlName = QFileDialog::getOpenFileName(this, tr("Open XML"), "", tr("xml files (*.xml)"));
     if (xmlName != "")
     {
-        if (!parseXMLElaboration(listXMLElab, listXMLAnomaly, nullptr, nullptr, xmlName, myError))
+        if (!parseXMLElaboration(&listXMLElab, &listXMLAnomaly, &listXMLDrought, &listXMLPhenology, xmlName, myError))
         {
             QMessageBox::information(nullptr, "XML error", "Check XML");
             return;
@@ -1199,48 +1202,48 @@ void DialogMeteoComputation::copyDataFromXML()
     }
     if (!isAnomaly)
     {
-        if (isMeteoGrid && listXMLElab->isMeteoGrid() == false)
+        if (isMeteoGrid && listXMLElab.isMeteoGrid() == false)
         {
             QMessageBox::information(nullptr, "No elaborations", "There are not Meteo Grid elaborations");
             return;
         }
-        else if (!isMeteoGrid && listXMLElab->isMeteoGrid() == true)
+        else if (!isMeteoGrid && listXMLElab.isMeteoGrid() == true)
         {
             QMessageBox::information(nullptr, "No elaborations", "There are not Meteo Points elaborations");
             return;
         }
         else
         {
-            if (listXMLElab->listAll().isEmpty())
+            if (listXMLElab.listAll().isEmpty())
             {
                 QMessageBox::information(nullptr, "Empty List", "There are not elaborations");
                 return;
             }
             else
             {
-                DialogXMLComputation xmlDialog(isAnomaly, listXMLElab->listAll());
+                DialogXMLComputation xmlDialog(isAnomaly, listXMLElab.listAll());
                 if (xmlDialog.result() == QDialog::Accepted)
                 {
                     unsigned int index = xmlDialog.getIndex();
-                    firstYearEdit.setText(QString::number(listXMLElab->listYearStart()[index]));
-                    lastYearEdit.setText(QString::number(listXMLElab->listYearEnd()[index]));
-                    std::string xmlVariable = MapDailyMeteoVarToString.at(listXMLElab->listVariable()[index]);
+                    firstYearEdit.setText(QString::number(listXMLElab.listYearStart()[index]));
+                    lastYearEdit.setText(QString::number(listXMLElab.listYearEnd()[index]));
+                    std::string xmlVariable = MapDailyMeteoVarToString.at(listXMLElab.listVariable()[index]);
                     variableList.setCurrentText(QString::fromStdString(xmlVariable));
-                    int elabIndex = elaborationList.findText(listXMLElab->listElab1()[index], Qt::MatchFixedString);
+                    int elabIndex = elaborationList.findText(listXMLElab.listElab1()[index], Qt::MatchFixedString);
                     elaborationList.setCurrentIndex(elabIndex);
-                    if ( (listXMLElab->listParam1()[index] != NODATA) && (!listXMLElab->listParam1IsClimate()[index]) )
+                    if ( (listXMLElab.listParam1()[index] != NODATA) && (!listXMLElab.listParam1IsClimate()[index]) )
                     {
                         elab1Parameter.setReadOnly(false);
-                        elab1Parameter.setText(QString::number(listXMLElab->listParam1()[index]));
+                        elab1Parameter.setText(QString::number(listXMLElab.listParam1()[index]));
                     }
-                    else if (listXMLElab->listParam1IsClimate()[index])
+                    else if (listXMLElab.listParam1IsClimate()[index])
                     {
                         elab1Parameter.clear();
                         elab1Parameter.setReadOnly(true);
                         readParam.setChecked(true);
                         climateDbElabList.setVisible(true);
                         adjustSize();
-                        int index = climateDbElabList.findText(listXMLElab->listParam1ClimateField()[index], Qt::MatchFixedString);
+                        int index = climateDbElabList.findText(listXMLElab.listParam1ClimateField()[index], Qt::MatchFixedString);
                         if (index == -1)
                         {
                             QMessageBox::information(nullptr, "climate field not found", "Check param1 climate field");
@@ -1254,26 +1257,26 @@ void DialogMeteoComputation::copyDataFromXML()
                         climateDbElabList.setVisible(false);
                         adjustSize();
                     }
-                    if (listXMLElab->listElab2()[index] != "")
+                    if (listXMLElab.listElab2()[index] != "")
                     {
-                        int elabIndex = secondElabList.findText(listXMLElab->listElab2()[index], Qt::MatchFixedString);
+                        int elabIndex = secondElabList.findText(listXMLElab.listElab2()[index], Qt::MatchFixedString);
                         secondElabList.setCurrentIndex(elabIndex);
-                        if ( listXMLElab->listParam2()[index] != NODATA)
+                        if ( listXMLElab.listParam2()[index] != NODATA)
                         {
-                            elab2Parameter.setText(QString::number(listXMLElab->listParam2()[index]));
+                            elab2Parameter.setText(QString::number(listXMLElab.listParam2()[index]));
                         }
                     }
-                    int periodIndex = periodTypeList.findText(listXMLElab->listPeriodStr()[index], Qt::MatchFixedString);
+                    int periodIndex = periodTypeList.findText(listXMLElab.listPeriodStr()[index], Qt::MatchFixedString);
                     periodTypeList.setCurrentIndex(periodIndex);
-                    if (listXMLElab->listPeriodStr()[index] == "Generic")
+                    if (listXMLElab.listPeriodStr()[index] == "Generic")
                     {
-                        genericPeriodStart.setDate(listXMLElab->listDateStart()[index]);
-                        genericPeriodEnd.setDate(listXMLElab->listDateEnd()[index]);
-                        nrYear.setText(QString::number(listXMLElab->listNYears()[index]));
+                        genericPeriodStart.setDate(listXMLElab.listDateStart()[index]);
+                        genericPeriodEnd.setDate(listXMLElab.listDateEnd()[index]);
+                        nrYear.setText(QString::number(listXMLElab.listNYears()[index]));
                     }
                     else
                     {
-                        currentDay.setDate(listXMLElab->listDateStart()[index]);
+                        currentDay.setDate(listXMLElab.listDateStart()[index]);
                     }
                 }
             }
@@ -1281,43 +1284,43 @@ void DialogMeteoComputation::copyDataFromXML()
     }
     else
     {
-        if (isMeteoGrid && listXMLAnomaly->isMeteoGrid() == false)
+        if (isMeteoGrid && listXMLAnomaly.isMeteoGrid() == false)
         {
             QMessageBox::information(nullptr, "No anomalies", "There are not Meteo Grid anomalies");
             return;
         }
-        else if (!isMeteoGrid && listXMLAnomaly->isMeteoGrid() == true)
+        else if (!isMeteoGrid && listXMLAnomaly.isMeteoGrid() == true)
         {
             QMessageBox::information(nullptr, "No anomalies", "There are not Meteo Points anomalies");
             return;
         }
         else
         {
-            if (listXMLAnomaly->listAll().isEmpty())
+            if (listXMLAnomaly.listAll().isEmpty())
             {
                 QMessageBox::information(nullptr, "Empty List", "There are not anomalies");
                 return;
             }
             else
             {
-                DialogXMLComputation xmlDialog(isAnomaly, listXMLAnomaly->listAll());
+                DialogXMLComputation xmlDialog(isAnomaly, listXMLAnomaly.listAll());
                 if (xmlDialog.result() == QDialog::Accepted)
                 {
                     unsigned int index = xmlDialog.getIndex();
-                    firstYearEdit.setText(QString::number(listXMLAnomaly->listYearStart()[index]));
-                    lastYearEdit.setText(QString::number(listXMLAnomaly->listYearEnd()[index]));
-                    std::string xmlVariable = MapDailyMeteoVarToString.at(listXMLAnomaly->listVariable()[index]);
+                    firstYearEdit.setText(QString::number(listXMLAnomaly.listYearStart()[index]));
+                    lastYearEdit.setText(QString::number(listXMLAnomaly.listYearEnd()[index]));
+                    std::string xmlVariable = MapDailyMeteoVarToString.at(listXMLAnomaly.listVariable()[index]);
                     variableList.setCurrentText(QString::fromStdString(xmlVariable));
 
-                    int elabIndex = elaborationList.findText(listXMLAnomaly->listElab1()[index], Qt::MatchFixedString);
+                    int elabIndex = elaborationList.findText(listXMLAnomaly.listElab1()[index], Qt::MatchFixedString);
                     elaborationList.setCurrentIndex(elabIndex);
 
-                    if ( (listXMLAnomaly->listParam1()[index] != NODATA) && (!listXMLAnomaly->listParam1IsClimate()[index]) )
+                    if ( (listXMLAnomaly.listParam1()[index] != NODATA) && (!listXMLAnomaly.listParam1IsClimate()[index]) )
                     {
                         elab1Parameter.setReadOnly(false);
-                        elab1Parameter.setText(QString::number(listXMLAnomaly->listParam1()[index]));
+                        elab1Parameter.setText(QString::number(listXMLAnomaly.listParam1()[index]));
                     }
-                    else if (listXMLAnomaly->listParam1IsClimate()[index])
+                    else if (listXMLAnomaly.listParam1IsClimate()[index])
                     {
                         elab1Parameter.clear();
                         elab1Parameter.setReadOnly(true);
@@ -1325,7 +1328,7 @@ void DialogMeteoComputation::copyDataFromXML()
                         climateDbElabList.setVisible(true);
                         adjustSize();
 
-                        int index = climateDbElabList.findText(listXMLAnomaly->listParam1ClimateField()[index], Qt::MatchFixedString);
+                        int index = climateDbElabList.findText(listXMLAnomaly.listParam1ClimateField()[index], Qt::MatchFixedString);
                         if (index == -1)
                         {
                             QMessageBox::information(nullptr, "climate field not found", "Check param1 climate field");
@@ -1339,33 +1342,33 @@ void DialogMeteoComputation::copyDataFromXML()
                         climateDbElabList.setVisible(false);
                         adjustSize();
                     }
-                    if (listXMLAnomaly->listElab2()[index] != "")
+                    if (listXMLAnomaly.listElab2()[index] != "")
                     {
-                        int elabIndex = secondElabList.findText(listXMLAnomaly->listElab2()[index], Qt::MatchFixedString);
+                        int elabIndex = secondElabList.findText(listXMLAnomaly.listElab2()[index], Qt::MatchFixedString);
                         secondElabList.setCurrentIndex(elabIndex);
 
-                        if ( listXMLAnomaly->listParam2()[index] != NODATA)
+                        if ( listXMLAnomaly.listParam2()[index] != NODATA)
                         {
-                            elab2Parameter.setText(QString::number(listXMLAnomaly->listParam2()[index]));
+                            elab2Parameter.setText(QString::number(listXMLAnomaly.listParam2()[index]));
                         }
                     }
-                    int periodIndex = periodTypeList.findText(listXMLAnomaly->listPeriodStr()[index], Qt::MatchFixedString);
+                    int periodIndex = periodTypeList.findText(listXMLAnomaly.listPeriodStr()[index], Qt::MatchFixedString);
                     periodTypeList.setCurrentIndex(periodIndex);
-                    if (listXMLAnomaly->listPeriodStr()[index] == "Generic")
+                    if (listXMLAnomaly.listPeriodStr()[index] == "Generic")
                     {
-                        genericPeriodStart.setDate(listXMLAnomaly->listDateStart()[index]);
-                        genericPeriodEnd.setDate(listXMLAnomaly->listDateEnd()[index]);
-                        nrYear.setText(QString::number(listXMLAnomaly->listNYears()[index]));
+                        genericPeriodStart.setDate(listXMLAnomaly.listDateStart()[index]);
+                        genericPeriodEnd.setDate(listXMLAnomaly.listDateEnd()[index]);
+                        nrYear.setText(QString::number(listXMLAnomaly.listNYears()[index]));
                     }
                     else
                     {
-                        currentDay.setDate(listXMLAnomaly->listDateStart()[index]);
+                        currentDay.setDate(listXMLAnomaly.listDateStart()[index]);
                     }
                     // reference clima
-                    if (listXMLAnomaly->isAnomalyFromDb()[index])
+                    if (listXMLAnomaly.isAnomalyFromDb()[index])
                     {
                         anomaly.AnomalyReadReferenceState(1);
-                        if (!anomaly.AnomalySetClimateDb(listXMLAnomaly->listAnomalyClimateField()[index]))
+                        if (!anomaly.AnomalySetClimateDb(listXMLAnomaly.listAnomalyClimateField()[index]))
                         {
                             QMessageBox::information(nullptr, "climate field not found", "Check anomaly climate");
                         }
@@ -1373,21 +1376,21 @@ void DialogMeteoComputation::copyDataFromXML()
                     else
                     {
                         anomaly.AnomalyReadReferenceState(0);
-                        anomaly.AnomalySetYearStart(QString::number(listXMLAnomaly->listRefYearStart()[index]));
-                        anomaly.AnomalySetYearLast(QString::number(listXMLAnomaly->listRefYearEnd()[index]));
-                        if (!anomaly.AnomalySetElaboration(listXMLAnomaly->listRefElab1()[index]))
+                        anomaly.AnomalySetYearStart(QString::number(listXMLAnomaly.listRefYearStart()[index]));
+                        anomaly.AnomalySetYearLast(QString::number(listXMLAnomaly.listRefYearEnd()[index]));
+                        if (!anomaly.AnomalySetElaboration(listXMLAnomaly.listRefElab1()[index]))
                         {
                             QMessageBox::information(nullptr, "ref primary elaboration not found", "Check ref primary elaboration");
                         }
-                        if ( (listXMLAnomaly->listRefParam1()[index] != NODATA) && (!listXMLAnomaly->listRefParam1IsClimate()[index]) )
+                        if ( (listXMLAnomaly.listRefParam1()[index] != NODATA) && (!listXMLAnomaly.listRefParam1IsClimate()[index]) )
                         {
                             anomaly.AnomalySetParam1ReadOnly(false);
-                            anomaly.AnomalySetParam1(QString::number(listXMLAnomaly->listRefParam1()[index]));
+                            anomaly.AnomalySetParam1(QString::number(listXMLAnomaly.listRefParam1()[index]));
                         }
-                        else if (listXMLAnomaly->listRefParam1IsClimate()[index])
+                        else if (listXMLAnomaly.listRefParam1IsClimate()[index])
                         {
                             anomaly.AnomalyReadParameter(1);
-                            int index = climateDbElabList.findText(listXMLAnomaly->listRefParam1ClimateField()[index], Qt::MatchFixedString);
+                            int index = climateDbElabList.findText(listXMLAnomaly.listRefParam1ClimateField()[index], Qt::MatchFixedString);
                             if (index == -1)
                             {
                                 QMessageBox::information(nullptr, "climate field not found", "Check reference param1 climate field");
@@ -1398,36 +1401,33 @@ void DialogMeteoComputation::copyDataFromXML()
                         {
                             anomaly.AnomalyReadParameter(0);
                         }
-                        if (listXMLAnomaly->listRefElab2()[index] != "")
+                        if (listXMLAnomaly.listRefElab2()[index] != "")
                         {
-                            if (!anomaly.AnomalySetSecondElaboration(listXMLAnomaly->listRefElab2()[index]))
+                            if (!anomaly.AnomalySetSecondElaboration(listXMLAnomaly.listRefElab2()[index]))
                             {
                                 QMessageBox::information(nullptr, "ref secondary elaboration not found", "Check ref secondary elaboration");
                             }
-                            if ( listXMLAnomaly->listRefParam2()[index] != NODATA)
+                            if ( listXMLAnomaly.listRefParam2()[index] != NODATA)
                             {
-                                anomaly.AnomalySetParam2(QString::number(listXMLAnomaly->listRefParam2()[index]));
+                                anomaly.AnomalySetParam2(QString::number(listXMLAnomaly.listRefParam2()[index]));
                             }
                         }
-                        anomaly.AnomalySetPeriodTypeList(listXMLAnomaly->listRefPeriodStr()[index]);
-                        if (listXMLAnomaly->listRefPeriodStr()[index] == "Generic")
+                        anomaly.AnomalySetPeriodTypeList(listXMLAnomaly.listRefPeriodStr()[index]);
+                        if (listXMLAnomaly.listRefPeriodStr()[index] == "Generic")
                         {
-                            anomaly.AnomalySetGenericPeriodStart(listXMLAnomaly->listRefDateStart()[index]);
-                            anomaly.AnomalySetGenericPeriodEnd(listXMLAnomaly->listRefDateEnd()[index]);
-                            anomaly.AnomalySetNyears(QString::number(listXMLAnomaly->listRefNYears()[index]));
+                            anomaly.AnomalySetGenericPeriodStart(listXMLAnomaly.listRefDateStart()[index]);
+                            anomaly.AnomalySetGenericPeriodEnd(listXMLAnomaly.listRefDateEnd()[index]);
+                            anomaly.AnomalySetNyears(QString::number(listXMLAnomaly.listRefNYears()[index]));
                         }
                         else
                         {
-                            anomaly.AnomalySetCurrentDay(listXMLAnomaly->listRefDateStart()[index]);
+                            anomaly.AnomalySetCurrentDay(listXMLAnomaly.listRefDateStart()[index]);
                         }
                     }
                 }
             }
         }
     }
-    delete listXMLElab;
-    delete listXMLAnomaly;
-
 }
 
 void DialogMeteoComputation::saveDataToXML()
