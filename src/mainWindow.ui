@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1393</width>
-    <height>815</height>
+    <width>1399</width>
+    <height>818</height>
    </rect>
   </property>
   <property name="palette">
@@ -2042,7 +2042,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1393</width>
+     <width>1399</width>
      <height>23</height>
     </rect>
    </property>
@@ -2107,12 +2107,19 @@
      <addaction name="actionUpdate_meteo_points"/>
      <addaction name="actionUpdate_datasets"/>
     </widget>
+    <widget class="QMenu" name="menuOpen_DEM">
+     <property name="title">
+      <string>DEM</string>
+     </property>
+     <addaction name="actionFileDemOpen"/>
+     <addaction name="actionFileExportInterpolation"/>
+    </widget>
     <addaction name="actionFileOpenProject"/>
     <addaction name="actionFileCloseProject"/>
     <addaction name="actionFileSaveProject"/>
     <addaction name="actionFileSaveProjectAs"/>
     <addaction name="separator"/>
-    <addaction name="actionFileOpenDEM"/>
+    <addaction name="menuOpen_DEM"/>
     <addaction name="separator"/>
     <addaction name="menuFileMeteopoint"/>
     <addaction name="separator"/>
@@ -2230,7 +2237,6 @@
      <addaction name="actionInterpolationMeteogridPeriod"/>
     </widget>
     <addaction name="actionInterpolationDem"/>
-    <addaction name="actionInterpolationExportRaster"/>
     <addaction name="menuInterpolationMeteogrid"/>
     <addaction name="actionInterpolationCrossValidation"/>
     <addaction name="actionInterpolationSettings"/>
@@ -2561,11 +2567,6 @@
    </property>
    <property name="text">
     <string>Location</string>
-   </property>
-  </action>
-  <action name="actionFileOpenDEM">
-   <property name="text">
-    <string>Open DEM...</string>
    </property>
   </action>
   <action name="actionFileOpenProject">
@@ -2930,6 +2931,19 @@
   <action name="actionExport_current_data">
    <property name="text">
     <string>Export current data</string>
+   </property>
+  </action>
+  <action name="actionFileDemOpen">
+   <property name="text">
+    <string>Open...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open DEM</string>
+   </property>
+  </action>
+  <action name="actionFileExportInterpolation">
+   <property name="text">
+    <string>Export interpolation...</string>
    </property>
   </action>
  </widget>
