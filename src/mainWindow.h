@@ -41,7 +41,6 @@
 
         void on_actionFileMeteogridOpen_triggered();
         void on_actionFileMeteogridClose_triggered();
-        void on_actionFileOpenDEM_triggered();
         void on_actionFileOpenProject_triggered();
         void on_actionFileCloseProject_triggered();
         void on_actionFileSaveProjectAs_triggered();
@@ -198,11 +197,13 @@
 
         void on_actionSpatialAggregationNewDB_triggered();
 
-        void on_actionInterpolationExportRaster_triggered();
-
         void on_actionInterpolationCrossValidation_triggered();
 
         void on_actionExport_current_data_triggered();
+
+        void on_actionFileExportInterpolation_triggered();
+
+        void on_actionFileDemOpen_triggered();
 
     protected:
         /*!
