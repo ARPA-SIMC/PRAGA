@@ -478,18 +478,6 @@ void MainWindow::renderDEM()
 }
 
 
-void MainWindow::on_actionFileOpenDEM_triggered()
-{
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open raster Grid"), "", tr("ESRI grid files (*.flt)"));
-
-    if (fileName == "") return;
-
-    if (!myProject.loadDEM(fileName)) return;
-
-    renderDEM();
-
-}
-
 QString MainWindow::selectArkimetDataset(QDialog* datasetDialog) {
 
         datasetDialog->exec();
@@ -948,20 +936,35 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                 if (myProject.meteoPoints[i].selected)
                 {
                     pointList[i]->setFillColor(QColor(Qt::yellow));
+                    pointList[i]->setRadius(5);
                 }
                 else
                 {
                     if (myProject.meteoPoints[i].active)
                     {
-                        pointList[i]->setFillColor(QColor(Qt::white));
+                        if (myProject.meteoPoints[i].lapseRateCode == primary)
+                        {
+                            pointList[i]->setFillColor(QColor(Qt::white));
+                            pointList[i]->setRadius(5);
+                        }
+                        else if (myProject.meteoPoints[i].lapseRateCode == secondary)
+                        {
+                            pointList[i]->setFillColor(QColor(Qt::black));
+                            pointList[i]->setRadius(5);
+                        }
+                        else if (myProject.meteoPoints[i].lapseRateCode == supplemental)
+                        {
+                            pointList[i]->setFillColor(QColor(Qt::gray));
+                            pointList[i]->setRadius(4);
+                        }
                     }
                     else
                     {
                         pointList[i]->setFillColor(QColor(Qt::red));
+                        pointList[i]->setRadius(5);
                     }
                 }
 
-                pointList[i]->setRadius(5);
                 pointList[i]->setCurrentValue(NODATA);
                 pointList[i]->setToolTip();
 
@@ -1306,10 +1309,25 @@ void MainWindow::addMeteoPoints()
         {
             point->setActive(false);
             point->setFillColor(QColor(Qt::red));
+            point->setRadius(5);
             if (viewNotActivePoints)
                 point->setVisible(true);
             else
                 point->setVisible(false);
+        }
+        else
+        {
+            // primary is already white
+            if (myProject.meteoPoints[i].lapseRateCode == secondary)
+            {
+                point->setFillColor(QColor(Qt::black));
+                point->setRadius(5);
+            }
+            else if (myProject.meteoPoints[i].lapseRateCode == supplemental)
+            {
+                point->setFillColor(QColor(Qt::gray));
+                point->setRadius(4);
+            }
         }
 
         this->pointList.append(point);
@@ -3901,25 +3919,6 @@ bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
 }
 
 
-void MainWindow::on_actionInterpolationExportRaster_triggered()
-{
-    if (! myProject.dataRaster.isLoaded)
-        return;
-
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save interpolated raster"), "", tr("ESRI grid files (*.flt)"));
-
-    if (fileName != "")
-    {
-        std::string myError = myProject.errorString.toStdString();
-        QString fileWithoutExtension = QFileInfo(fileName).absolutePath() + QDir::separator() + QFileInfo(fileName).baseName();
-
-        if (!gis::writeEsriGrid(fileWithoutExtension.toStdString(), &myProject.dataRaster, &myError))
-            myProject.logError(QString::fromStdString(myError));
-    }
-}
-
-
-
 void MainWindow::on_actionExport_current_data_triggered()
 {
     QString csvFileName = QFileDialog::getSaveFileName(this, tr("Save current data"), "", tr("csv files (*.csv)"));
@@ -3953,3 +3952,33 @@ void MainWindow::on_actionExport_current_data_triggered()
         return;
     }
 }
+
+void MainWindow::on_actionFileExportInterpolation_triggered()
+{
+    if (! myProject.dataRaster.isLoaded)
+        return;
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save interpolated raster"), "", tr("ESRI grid files (*.flt)"));
+
+    if (fileName != "")
+    {
+        std::string myError = myProject.errorString.toStdString();
+        QString fileWithoutExtension = QFileInfo(fileName).absolutePath() + QDir::separator() + QFileInfo(fileName).baseName();
+
+        if (!gis::writeEsriGrid(fileWithoutExtension.toStdString(), &myProject.dataRaster, &myError))
+            myProject.logError(QString::fromStdString(myError));
+    }
+}
+
+
+void MainWindow::on_actionFileDemOpen_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open raster Grid"), "", tr("ESRI grid files (*.flt)"));
+
+    if (fileName == "") return;
+
+    if (!myProject.loadDEM(fileName)) return;
+
+    renderDEM();
+}
+
