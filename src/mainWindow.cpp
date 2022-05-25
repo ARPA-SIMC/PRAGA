@@ -936,6 +936,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                 if (myProject.meteoPoints[i].selected)
                 {
                     pointList[i]->setFillColor(QColor(Qt::yellow));
+                    pointList[i]->setRadius(5);
                 }
                 else
                 {
@@ -944,23 +945,26 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                         if (myProject.meteoPoints[i].lapseRateCode == primary)
                         {
                             pointList[i]->setFillColor(QColor(Qt::white));
+                            pointList[i]->setRadius(5);
                         }
                         else if (myProject.meteoPoints[i].lapseRateCode == secondary)
                         {
                             pointList[i]->setFillColor(QColor(Qt::black));
+                            pointList[i]->setRadius(5);
                         }
                         else if (myProject.meteoPoints[i].lapseRateCode == supplemental)
                         {
                             pointList[i]->setFillColor(QColor(Qt::gray));
+                            pointList[i]->setRadius(4);
                         }
                     }
                     else
                     {
                         pointList[i]->setFillColor(QColor(Qt::red));
+                        pointList[i]->setRadius(5);
                     }
                 }
 
-                pointList[i]->setRadius(5);
                 pointList[i]->setCurrentValue(NODATA);
                 pointList[i]->setToolTip();
 
@@ -1305,6 +1309,7 @@ void MainWindow::addMeteoPoints()
         {
             point->setActive(false);
             point->setFillColor(QColor(Qt::red));
+            point->setRadius(5);
             if (viewNotActivePoints)
                 point->setVisible(true);
             else
@@ -1316,10 +1321,12 @@ void MainWindow::addMeteoPoints()
             if (myProject.meteoPoints[i].lapseRateCode == secondary)
             {
                 point->setFillColor(QColor(Qt::black));
+                point->setRadius(5);
             }
             else if (myProject.meteoPoints[i].lapseRateCode == supplemental)
             {
                 point->setFillColor(QColor(Qt::gray));
+                point->setRadius(4);
             }
         }
 
