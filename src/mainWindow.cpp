@@ -941,7 +941,18 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                 {
                     if (myProject.meteoPoints[i].active)
                     {
-                        pointList[i]->setFillColor(QColor(Qt::white));
+                        if (myProject.meteoPoints[i].lapseRateCode == primary)
+                        {
+                            pointList[i]->setFillColor(QColor(Qt::white));
+                        }
+                        else if (myProject.meteoPoints[i].lapseRateCode == secondary)
+                        {
+                            pointList[i]->setFillColor(QColor(Qt::black));
+                        }
+                        else if (myProject.meteoPoints[i].lapseRateCode == supplemental)
+                        {
+                            pointList[i]->setFillColor(QColor(Qt::gray));
+                        }
                     }
                     else
                     {
@@ -1298,6 +1309,18 @@ void MainWindow::addMeteoPoints()
                 point->setVisible(true);
             else
                 point->setVisible(false);
+        }
+        else
+        {
+            // primary is already white
+            if (myProject.meteoPoints[i].lapseRateCode == secondary)
+            {
+                point->setFillColor(QColor(Qt::black));
+            }
+            else if (myProject.meteoPoints[i].lapseRateCode == supplemental)
+            {
+                point->setFillColor(QColor(Qt::gray));
+            }
         }
 
         this->pointList.append(point);
