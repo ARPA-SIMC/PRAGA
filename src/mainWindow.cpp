@@ -1337,6 +1337,7 @@ void MainWindow::addMeteoPoints()
         connect(point, SIGNAL(newStationClicked(std::string, std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, std::string, bool)));
         connect(point, SIGNAL(appendStationClicked(std::string, std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, std::string, bool)));
         connect(point, SIGNAL(newPointStatisticsClicked(std::string, std::string, bool)), this, SLOT(callNewPointStatisticsWidget(std::string, std::string, bool)));
+        connect(point, SIGNAL(changeOrogCodeClicked(std::string, int)), this, SLOT(callChangeOrogCode(std::string, int)));
     }
 }
 
@@ -1379,6 +1380,26 @@ void MainWindow::callNewPointStatisticsWidget(std::string id, std::string name, 
         myProject.showPointStatisticsWidgetPoint(id, name);
     }
     return;
+}
+
+void MainWindow::callChangeOrogCode(std::string id, int orogCode)
+{
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        myProject.logError(ERROR_STR_MISSING_DB);
+        return;
+    }
+    if (!myProject.meteoPointsDbHandler->setOrogCode(QString::fromStdString(id), orogCode))
+    {
+        myProject.logError(myProject.meteoPointsDbHandler->error);
+        return;
+    }
+    QString dbName = myProject.meteoPointsDbHandler->getDbName();
+    myProject.logInfoGUI("Update...");
+    myProject.closeMeteoPointsDB();
+    myProject.loadMeteoPointsDB(dbName);
+    drawMeteoPoints();
+    myProject.closeLogInfo();
 }
 
 void MainWindow::on_rasterScaleButton_clicked()
