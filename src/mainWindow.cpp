@@ -1398,7 +1398,7 @@ void MainWindow::callChangeOrogCode(std::string id, int orogCode)
     myProject.logInfoGUI("Update...");
     myProject.closeMeteoPointsDB();
     myProject.loadMeteoPointsDB(dbName);
-    drawMeteoPoints();
+    redrawMeteoPoints(currentPointsVisualization, true);
     myProject.closeLogInfo();
 }
 
