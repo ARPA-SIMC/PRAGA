@@ -887,6 +887,8 @@ void MainWindow::drawMeteoPoints()
     ui->actionShowPointsClimate->setEnabled(false);
 
     ui->actionMeteopointRectangleSelection->setEnabled(true);
+    ui->actionSearch_point->setEnabled(true);
+    ui->menuMark_points->setEnabled(true);
     ui->menuActive_points->setEnabled(true);
     ui->menuDeactive_points->setEnabled(true);
     ui->menuDelete_points->setEnabled(true);
@@ -909,9 +911,13 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
 
     if (pointList.size() == 0) return;
 
-    // hide all meteo points
+    // initialize (hide all meteo points)
     for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
         pointList[i]->setVisible(false);
+        pointList[i]->setMarked(myProject.meteoPoints[i].marked);
+    }
+
 
     meteoPointsLegend->setVisible(true);
 
@@ -3843,15 +3849,6 @@ void MainWindow::on_actionUnmark_all_points_triggered()
 }
 
 
-void MainWindow::on_actionTestMark_triggered()
-{
-    for (int i = 0; i < pointList.size(); i++)
-        if (i % 5 == 0)
-        {
-            pointList[i]->setMarked(true);
-        }
-}
-
 bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
 {
     if (!ui->grid->isChecked())
@@ -4001,5 +3998,21 @@ void MainWindow::on_actionFileDemOpen_triggered()
     if (!myProject.loadDEM(fileName)) return;
 
     renderDEM();
+}
+
+
+void MainWindow::on_actionMark_from_pointlist_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open point list"), "", tr("text files (*.txt)"));
+    if (fileName == "") return;
+
+    if (myProject.setMarkedFromPointList(fileName))
+        redrawMeteoPoints(currentPointsVisualization, true);
+}
+
+
+void MainWindow::on_actionSearch_point_triggered()
+{
+    // TODO
 }
 
