@@ -2856,7 +2856,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
     myProject.closeProgressBar();
     if (!warning.isEmpty())
     {
-        QMessageBox::warning(nullptr, " Not valid values: ", warning);
+        QMessageBox::warning(nullptr, " Not valid or missing values: ", warning);
     }
     QString xmlName = myProject.dbGridXMLFileName;
     closeMeteoGrid();
@@ -2976,7 +2976,7 @@ void MainWindow::on_actionPointData_import_triggered()
     myProject.closeProgressBar();
     if (!warning.isEmpty())
     {
-        QMessageBox::warning(nullptr, " Not valid values: ", warning);
+        QMessageBox::warning(nullptr, " Not valid or missing values: ", warning);
     }
     QString dbName = myProject.meteoPointsDbHandler->getDbName();
     closeMeteoPoints();
