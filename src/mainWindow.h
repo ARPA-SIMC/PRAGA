@@ -190,8 +190,6 @@
 
         void on_actionUnmark_all_points_triggered();
 
-        void on_actionTestMark_triggered();
-
         bool on_actionSpatialAggregationFromGrid_triggered();
 
         void on_actionSpatialAggregationOpenDB_triggered();
@@ -205,6 +203,10 @@
         void on_actionFileExportInterpolation_triggered();
 
         void on_actionFileDemOpen_triggered();
+
+        void on_actionMark_from_pointlist_triggered();
+
+        void on_actionSearch_point_triggered();
 
     protected:
         /*!

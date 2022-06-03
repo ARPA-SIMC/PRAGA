@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1399</width>
-    <height>818</height>
+    <height>829</height>
    </rect>
   </property>
   <property name="palette">
@@ -2043,7 +2043,7 @@
      <x>0</x>
      <y>0</y>
      <width>1399</width>
-     <height>23</height>
+     <height>29</height>
     </rect>
    </property>
    <property name="palette">
@@ -2179,17 +2179,22 @@
      <addaction name="actionDeletePoint_notActive"/>
     </widget>
     <widget class="QMenu" name="menuMark_points">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="title">
       <string>Mark points</string>
      </property>
      <addaction name="separator"/>
-     <addaction name="actionTestMark"/>
+     <addaction name="actionMark_from_pointlist"/>
      <addaction name="actionUnmark_all_points"/>
     </widget>
     <addaction name="actionMeteopointQualitySpatial"/>
     <addaction name="actionMeteopointRectangleSelection"/>
     <addaction name="separator"/>
+    <addaction name="actionSearch_point"/>
     <addaction name="menuMark_points"/>
+    <addaction name="separator"/>
     <addaction name="menuActive_points"/>
     <addaction name="menuDeactive_points"/>
     <addaction name="menuDelete_points"/>
@@ -2197,6 +2202,7 @@
     <addaction name="separator"/>
     <addaction name="actionShift_data"/>
     <addaction name="actionMeteopointDataCount"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
@@ -2893,9 +2899,9 @@
     <string>Text multicolor</string>
    </property>
   </action>
-  <action name="actionTestMark">
+  <action name="actionMark_from_pointlist">
    <property name="text">
-    <string>Test</string>
+    <string>From point list</string>
    </property>
   </action>
   <action name="actionUnmark_all_points">
@@ -2944,6 +2950,14 @@
   <action name="actionFileExportInterpolation">
    <property name="text">
     <string>Export interpolation...</string>
+   </property>
+  </action>
+  <action name="actionSearch_point">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Search point</string>
    </property>
   </action>
  </widget>
