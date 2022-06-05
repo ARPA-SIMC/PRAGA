@@ -2829,7 +2829,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
         {
             if (!myProject.errorString.isEmpty())
             {
-                warning += dateFiles[i] + ": " + myProject.errorString+"\n";
+                warning += dateFiles[i] + "\n" + myProject.errorString + "\n";
             }
         }
         else
@@ -2949,7 +2949,7 @@ void MainWindow::on_actionPointData_import_triggered()
         {
             if (!myProject.errorString.isEmpty())
             {
-                warning += dateFiles[i] + ": " + myProject.errorString+"\n";
+                warning += dateFiles[i] + "\n" + myProject.errorString + "\n";
             }
         }
         else
@@ -2976,7 +2976,7 @@ void MainWindow::on_actionPointData_import_triggered()
     myProject.closeProgressBar();
     if (!warning.isEmpty())
     {
-        QMessageBox::warning(nullptr, " Not valid or missing values: ", warning);
+        QMessageBox::warning(nullptr, "WARNING", warning);
     }
     QString dbName = myProject.meteoPointsDbHandler->getDbName();
     closeMeteoPoints();
