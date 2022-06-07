@@ -208,6 +208,8 @@
 
         void on_actionSearch_point_triggered();
 
+        void on_actionMeteoGrid_Set_color_scale_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
