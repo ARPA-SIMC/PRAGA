@@ -2349,6 +2349,7 @@
      <string>MeteoGrid</string>
     </property>
     <addaction name="actionMeteogridMissingData"/>
+    <addaction name="actionMeteoGrid_Set_color_scale"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuShow"/>
@@ -2958,6 +2959,11 @@
    </property>
    <property name="text">
     <string>Search point</string>
+   </property>
+  </action>
+  <action name="actionMeteoGrid_Set_color_scale">
+   <property name="text">
+    <string>Set color scale...</string>
    </property>
   </action>
  </widget>

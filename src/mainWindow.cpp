@@ -448,12 +448,14 @@ void MainWindow::updateMaps()
 {
     rasterObj->updateCenter();
     meteoGridObj->updateCenter();
+    rasterLegend->update();
 }
 
 void MainWindow::clearDEM()
 {
     this->rasterObj->clear();
     this->rasterObj->redrawRequested();
+    this->rasterLegend->setVisible(false);
     ui->labelRasterScale->setText("");
     this->ui->rasterOpacitySlider->setEnabled(false);
 }
@@ -464,6 +466,7 @@ void MainWindow::renderDEM()
     this->setCurrentRaster(&(myProject.DEM));
     ui->labelRasterScale->setText(QString::fromStdString(getVariableString(noMeteoTerrain)));
     this->ui->rasterOpacitySlider->setEnabled(true);
+    this->rasterLegend->setVisible(true);
 
     // resize map
     double size = double(this->rasterObj->getRasterMaxSize());
@@ -4014,5 +4017,39 @@ void MainWindow::on_actionMark_from_pointlist_triggered()
 void MainWindow::on_actionSearch_point_triggered()
 {
     // TODO
+}
+
+
+void MainWindow::on_actionMeteoGrid_Set_color_scale_triggered()
+{
+    if (! this->meteoGridObj->isLoaded)
+    {
+        QMessageBox::information(nullptr, "No Meteo Grid", "Open meteo grid before.");
+        return;
+    }
+
+    if (this->currentGridVisualization == notShown || this->currentGridVisualization == showLocation)
+    {
+        QMessageBox::information(nullptr, "Wrong visualization", "Show variable or elaboration data before.");
+        return;
+    }
+
+    // choose color scale
+    meteoVariable myVar = chooseColorScale();
+    if (myVar == noMeteoVar)
+        return;
+
+    // choose minimum and maximum
+    float minimum = this->meteoGridObj->getRaster()->colorScale->minimum();
+    float maximum = this->meteoGridObj->getRaster()->colorScale->maximum();
+    QString minValueStr = editValue("Choose minimum value", QString::number(minimum));
+    minimum = minValueStr.toFloat();
+    QString maxValueStr = editValue("Choose maximum value", QString::number(maximum));
+    maximum = maxValueStr.toFloat();
+
+    // set color scale
+    this->meteoGridObj->getRaster()->colorScale->setRange(minimum, maximum);
+    this->meteoGridObj->getRaster()->colorScale->setRangeBlocked(true);
+    setColorScale(myVar, this->meteoGridObj->getRaster()->colorScale);
 }
 
