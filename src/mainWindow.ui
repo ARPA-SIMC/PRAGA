@@ -2349,7 +2349,9 @@
      <string>MeteoGrid</string>
     </property>
     <addaction name="actionMeteogridMissingData"/>
+    <addaction name="separator"/>
     <addaction name="actionMeteoGrid_Set_color_scale"/>
+    <addaction name="actionMeteoGrid_Set_dynamic_color_scale"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuShow"/>
@@ -2963,7 +2965,18 @@
   </action>
   <action name="actionMeteoGrid_Set_color_scale">
    <property name="text">
-    <string>Set color scale...</string>
+    <string>Set fixed color scale range...</string>
+   </property>
+  </action>
+  <action name="actionMeteoGrid_Set_dynamic_color_scale">
+   <property name="checkable">
+    <bool>false</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Set dynamic color scale</string>
    </property>
   </action>
  </widget>
