@@ -449,6 +449,7 @@ void MainWindow::updateMaps()
     rasterObj->updateCenter();
     meteoGridObj->updateCenter();
     rasterLegend->update();
+    meteoGridLegend->update();
 }
 
 void MainWindow::clearDEM()
@@ -4034,22 +4035,30 @@ void MainWindow::on_actionMeteoGrid_Set_color_scale_triggered()
         return;
     }
 
-    // choose color scale
-    meteoVariable myVar = chooseColorScale();
-    if (myVar == noMeteoVar)
-        return;
-
-    // choose minimum and maximum
+    // choose minimum
     float minimum = this->meteoGridObj->getRaster()->colorScale->minimum();
-    float maximum = this->meteoGridObj->getRaster()->colorScale->maximum();
-    QString minValueStr = editValue("Choose minimum value", QString::number(minimum));
-    minimum = minValueStr.toFloat();
-    QString maxValueStr = editValue("Choose maximum value", QString::number(maximum));
-    maximum = maxValueStr.toFloat();
+    QString valueStr = editValue("Choose minimum value", QString::number(minimum));
+    if (valueStr == "") return;
+    minimum = valueStr.toFloat();
 
-    // set color scale
+    // choose maximum
+    float maximum = this->meteoGridObj->getRaster()->colorScale->maximum();
+    valueStr = editValue("Choose maximum value", QString::number(maximum));
+    if (valueStr == "") return;
+    maximum = valueStr.toFloat();
+
+    // set range
     this->meteoGridObj->getRaster()->colorScale->setRange(minimum, maximum);
     this->meteoGridObj->getRaster()->colorScale->setRangeBlocked(true);
-    setColorScale(myVar, this->meteoGridObj->getRaster()->colorScale);
+    emit this->meteoGridObj->redrawRequested();
+}
+
+
+void MainWindow::on_actionMeteoGrid_Set_dynamic_color_scale_triggered()
+{
+    if (! this->meteoGridObj->isLoaded) return;
+
+    this->meteoGridObj->getRaster()->colorScale->setRangeBlocked(false);
+    emit this->meteoGridObj->redrawRequested();
 }
 
