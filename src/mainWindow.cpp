@@ -1137,6 +1137,15 @@ void MainWindow::drawMeteoGrid()
     this->ui->actionShowGridElab->setEnabled(false);
     this->ui->actionShowGridClimate->setEnabled(false);
 
+    // resize map
+    double size = double(this->meteoGridObj->getRasterMaxSize());
+    size = log2(1000 / size);
+    this->mapView->setZoomLevel(quint8(size));
+
+    // center map
+    gis::Crit3DGeoPoint* center = this->meteoGridObj->getRasterCenter();
+    this->mapView->centerOn(qreal(center->longitude), qreal(center->latitude));
+
     if (currentGridVisualization == notShown) currentGridVisualization = showLocation;
     redrawMeteoGrid(currentGridVisualization, false);
 
@@ -1252,7 +1261,7 @@ void MainWindow::redrawMeteoGrid(visualizationType showType, bool showInterpolat
         this->ui->actionShowPointsHide->setChecked(true);
     }*/
 
-    meteoGridObj->redrawRequested();
+    emit meteoGridObj->redrawRequested();
 }
 
 
