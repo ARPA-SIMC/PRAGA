@@ -120,7 +120,7 @@
         #endif
         void callNewMeteoWidget(std::string id, std::string name, bool isGrid);
         void callAppendMeteoWidget(std::string id, std::string name, bool isGrid);
-        void callNewPointStatisticsWidget(std::string id, std::string name, bool isGrid);
+        void callNewPointStatisticsWidget(std::string id, bool isGrid);
         void callChangeOrogCode(std::string id, int orogCode);
 
         void on_meteoPoints_clicked();

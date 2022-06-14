@@ -2183,7 +2183,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
     return true;
 }
 
-void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint, std::string namePoint)
+void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint)
 {
     logInfoGUI("Loading data...");
 
@@ -2209,11 +2209,28 @@ void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint, std:
     logInfoGUI("Loading hourly data...");
     meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), &mp);
     closeLogInfo();
-    QList<Crit3DMeteoPoint> meteoPoints;
-    meteoPoints.append(mp);
-    // TO DO append le varie joint stations ancora non presenti
+    QList<Crit3DMeteoPoint> meteoPointsWidgetList;
+    meteoPointsWidgetList.append(mp);
+    double mpUtmX = mp.point.utm.x;
+    double mpUtmY = mp.point.utm.y;
+    for (int i = 0; i < nrMeteoPoints; i++)
+    {
+        if (meteoPoints[i].id != idMeteoPoint)
+        {
+            if (meteoPoints[i].active && (meteoPoints[i].nrObsDataDaysD != 0 || meteoPoints[i].nrObsDataDaysH != 0))
+            {
+                double utmX = meteoPoints[i].point.utm.x;
+                double utmY = meteoPoints[i].point.utm.y;
+                float currentDist = gis::computeDistance(mpUtmX, mpUtmY, utmX, utmY);
+                if (currentDist < clima->getElabSettings()->getAnomalyPtsMaxDistance())
+                {
+                    meteoPointsWidgetList.append(meteoPoints[i]);
+                }
+            }
+        }
+    }
     bool isGrid = false;
-    pointStatisticsWidget = new Crit3DPointStatisticsWidget(isGrid, meteoPointsDbHandler, nullptr, meteoPoints, firstDaily, lastDaily, firstHourly, lastHourly,
+    pointStatisticsWidget = new Crit3DPointStatisticsWidget(isGrid, meteoPointsDbHandler, nullptr, meteoPointsWidgetList, firstDaily, lastDaily, firstHourly, lastHourly,
                                                             meteoSettings, pragaDefaultSettings, &climateParameters, quality);
     return;
 }
@@ -2266,11 +2283,10 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
     {
         return;
     }
-    QList<Crit3DMeteoPoint> meteoPoints;
-    meteoPoints.append(mp);
-    // TO DO append le varie joint stations ancora non presenti
+    QList<Crit3DMeteoPoint> meteoPointsWidgetList;
+    meteoPointsWidgetList.append(mp);
     bool isGrid = true;
-    pointStatisticsWidget = new Crit3DPointStatisticsWidget(isGrid, nullptr, meteoGridDbHandler, meteoPoints, firstDaily, lastDaily, firstDateTime, lastDateTime,
+    pointStatisticsWidget = new Crit3DPointStatisticsWidget(isGrid, nullptr, meteoGridDbHandler, meteoPointsWidgetList, firstDaily, lastDaily, firstDateTime, lastDateTime,
                                                             meteoSettings, pragaDefaultSettings, &climateParameters, quality);
    return;
 }

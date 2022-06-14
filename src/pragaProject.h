@@ -110,7 +110,7 @@
         bool loadXMLImportData(QString fileName);
         bool monthlyVariablesGrid(QDate first, QDate last, QList <meteoVariable> variables);
         bool computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, QDate date, int timescale, meteoVariable myVar);
-        void showPointStatisticsWidgetPoint(std::string idMeteoPoint, std::string namePoint);
+        void showPointStatisticsWidgetPoint(std::string idMeteoPoint);
         void showPointStatisticsWidgetGrid(std::string id);
 
 

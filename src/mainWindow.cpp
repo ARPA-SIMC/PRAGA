@@ -1355,7 +1355,7 @@ void MainWindow::addMeteoPoints()
         point->setToolTip();
         connect(point, SIGNAL(newStationClicked(std::string, std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, std::string, bool)));
         connect(point, SIGNAL(appendStationClicked(std::string, std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, std::string, bool)));
-        connect(point, SIGNAL(newPointStatisticsClicked(std::string, std::string, bool)), this, SLOT(callNewPointStatisticsWidget(std::string, std::string, bool)));
+        connect(point, SIGNAL(newPointStatisticsClicked(std::string, bool)), this, SLOT(callNewPointStatisticsWidget(std::string, bool)));
         connect(point, SIGNAL(changeOrogCodeClicked(std::string, int)), this, SLOT(callChangeOrogCode(std::string, int)));
     }
 }
@@ -1388,7 +1388,7 @@ void MainWindow::callAppendMeteoWidget(std::string id, std::string name, bool is
     return;
 }
 
-void MainWindow::callNewPointStatisticsWidget(std::string id, std::string name, bool isGrid)
+void MainWindow::callNewPointStatisticsWidget(std::string id, bool isGrid)
 {
     if (isGrid)
     {
@@ -1396,7 +1396,7 @@ void MainWindow::callNewPointStatisticsWidget(std::string id, std::string name, 
     }
     else
     {
-        myProject.showPointStatisticsWidgetPoint(id, name);
+        myProject.showPointStatisticsWidgetPoint(id);
     }
     return;
 }
