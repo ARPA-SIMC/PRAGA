@@ -805,6 +805,7 @@ bool PragaProject::elaborationPointsCycle(bool isAnomaly, bool showInfo)
 //    }
 
     Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
+    bool dataAlreadyLoaded = false;
 
     for (int i = 0; i < nrMeteoPoints; i++)
     {
@@ -837,7 +838,7 @@ bool PragaProject::elaborationPointsCycle(bool isAnomaly, bool showInfo)
             }
             else
             {
-                if ( elaborationOnPoint(&errorString, meteoPointsDbHandler, nullptr, meteoPointTemp, climaUsed, isMeteoGrid, startDate, endDate, isAnomaly, meteoSettings))
+                if ( elaborationOnPoint(&errorString, meteoPointsDbHandler, nullptr, meteoPointTemp, climaUsed, isMeteoGrid, startDate, endDate, isAnomaly, meteoSettings, dataAlreadyLoaded))
                 {
                     validCell = validCell + 1;
                 }
@@ -922,6 +923,7 @@ bool PragaProject::elaborationPointsCycleGrid(bool isAnomaly, bool showInfo)
 
 
      Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
+     bool dataAlreadyLoaded = false;
 
      for (int row = 0; row < meteoGridDbHandler->gridStructure().header().nrRows; row++)
      {
@@ -954,7 +956,7 @@ bool PragaProject::elaborationPointsCycleGrid(bool isAnomaly, bool showInfo)
                 }
                 else
                 {
-                    if  ( elaborationOnPoint(&errorString, nullptr, meteoGridDbHandler, meteoPointTemp, climaUsed, isMeteoGrid, startDate, endDate, isAnomaly, meteoSettings))
+                    if  ( elaborationOnPoint(&errorString, nullptr, meteoGridDbHandler, meteoPointTemp, climaUsed, isMeteoGrid, startDate, endDate, isAnomaly, meteoSettings, dataAlreadyLoaded))
                     {
                         validCell = validCell + 1;
                     }
