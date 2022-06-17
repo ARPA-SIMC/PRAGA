@@ -33,6 +33,10 @@
         #include "pointStatisticsWidget.h"
     #endif
 
+    #ifndef HOMOGENEITYWIDGET_H
+        #include "homogeneityWidget.h"
+    #endif
+
     class PragaProject : public Project
     {
     private:
@@ -56,6 +60,7 @@
         std::map<QString, QList<int> > idArkimetDailyMap;
 
         Crit3DPointStatisticsWidget* pointStatisticsWidget;
+        Crit3DHomogeneityWidget* homogeneityWidget;
         ImportDataXML* importData;
         QString projectPragaFolder;
 
@@ -111,6 +116,7 @@
         bool monthlyVariablesGrid(QDate first, QDate last, QList <meteoVariable> variables);
         bool computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, QDate date, int timescale, meteoVariable myVar);
         void showPointStatisticsWidgetPoint(std::string idMeteoPoint);
+        void showHomogeneityTestWidgetPoint(std::string idMeteoPoint);
         void showPointStatisticsWidgetGrid(std::string id);
 
 

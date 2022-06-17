@@ -1356,6 +1356,7 @@ void MainWindow::addMeteoPoints()
         connect(point, SIGNAL(newStationClicked(std::string, std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, std::string, bool)));
         connect(point, SIGNAL(appendStationClicked(std::string, std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, std::string, bool)));
         connect(point, SIGNAL(newPointStatisticsClicked(std::string, bool)), this, SLOT(callNewPointStatisticsWidget(std::string, bool)));
+        connect(point, SIGNAL(newHomogeneityTestClicked(std::string)), this, SLOT(callNewHomogeneityTestWidget(std::string)));
         connect(point, SIGNAL(changeOrogCodeClicked(std::string, int)), this, SLOT(callChangeOrogCode(std::string, int)));
     }
 }
@@ -1398,6 +1399,12 @@ void MainWindow::callNewPointStatisticsWidget(std::string id, bool isGrid)
     {
         myProject.showPointStatisticsWidgetPoint(id);
     }
+    return;
+}
+
+void MainWindow::callNewHomogeneityTestWidget(std::string id)
+{
+    myProject.showHomogeneityTestWidgetPoint(id);
     return;
 }
 

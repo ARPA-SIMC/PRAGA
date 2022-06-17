@@ -15,7 +15,7 @@ INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/crit3dDate ../agrolib/mathFunctions ../agrolib/phenology ../agrolib/meteo ../agrolib/gis  \
                 ../agrolib/drought ../agrolib/interpolation ../agrolib/solarRadiation ../agrolib/utilities  \
                 ../agrolib/outputPoints ../agrolib/dbMeteoPoints ../agrolib/dbMeteoGrid ../agrolib/meteoWidget  \
-                ../agrolib/proxyWidget ../agrolib/pointStatisticsWidget ../agrolib/climate ../agrolib/netcdfHandler  \
+                ../agrolib/proxyWidget ../agrolib/pointStatisticsWidget ../agrolib/homogeneityWidget ../agrolib/climate ../agrolib/netcdfHandler  \
                 ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/commonChartElements ../agrolib/pragaDialogs ../agrolib/importDataXML ../agrolib/project
 
 CONFIG += debug_and_release
@@ -46,6 +46,7 @@ CONFIG(debug, debug|release) {
         LIBS += -L/usr/local/lib/ -lnetcdf
     }
     LIBS += -L../agrolib/importDataXML/debug -limportDataXML
+    LIBS += -L../agrolib/homogeneityWidget/debug -lhomogeneityWidget
     LIBS += -L../agrolib/pointStatisticsWidget/debug -lpointStatisticsWidget
     LIBS += -L../agrolib/proxyWidget/debug -lproxyWidget
     LIBS += -L../agrolib/meteoWidget/debug -lmeteoWidget
@@ -81,6 +82,7 @@ CONFIG(debug, debug|release) {
         LIBS += -L/usr/local/lib/ -lnetcdf
     }
     LIBS += -L../agrolib/importDataXML/release -limportDataXML
+    LIBS += -L../agrolib/homogeneityWidget/release -lhomogeneityWidget
     LIBS += -L../agrolib/pointStatisticsWidget/release -lpointStatisticsWidget
     LIBS += -L../agrolib/proxyWidget/release -lproxyWidget
     LIBS += -L../agrolib/meteoWidget/release -lmeteoWidget
