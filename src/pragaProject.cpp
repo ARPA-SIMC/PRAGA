@@ -2263,8 +2263,27 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
     logInfoGUI("Loading hourly data...");
     meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), &mp);
     closeLogInfo();
-    // test
-    homogeneityWidget = new Crit3DHomogeneityWidget(meteoPointsDbHandler, mp, firstDaily, lastDaily,
+    QList<Crit3DMeteoPoint> meteoPointsWidgetList;
+    meteoPointsWidgetList.append(mp);
+    double mpUtmX = mp.point.utm.x;
+    double mpUtmY = mp.point.utm.y;
+    for (int i = 0; i < nrMeteoPoints; i++)
+    {
+        if (meteoPoints[i].id != idMeteoPoint)
+        {
+            if (meteoPoints[i].active && (meteoPoints[i].nrObsDataDaysD != 0 || meteoPoints[i].nrObsDataDaysH != 0))
+            {
+                double utmX = meteoPoints[i].point.utm.x;
+                double utmY = meteoPoints[i].point.utm.y;
+                float currentDist = gis::computeDistance(mpUtmX, mpUtmY, utmX, utmY);
+                if (currentDist < clima->getElabSettings()->getAnomalyPtsMaxDistance())
+                {
+                    meteoPointsWidgetList.append(meteoPoints[i]);
+                }
+            }
+        }
+    }
+    homogeneityWidget = new Crit3DHomogeneityWidget(meteoPointsDbHandler, meteoPointsWidgetList, firstDaily, lastDaily,
                                                             meteoSettings, pragaDefaultSettings, &climateParameters, quality);
     return;
 }
