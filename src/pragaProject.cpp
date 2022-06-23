@@ -2263,11 +2263,11 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
     logInfoGUI("Loading hourly data...");
     meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), &mp);
     closeLogInfo();
-    QList<Crit3DMeteoPoint> meteoPointsWidgetList;
+    QList<Crit3DMeteoPoint> meteoPointsNearDistanceList;
     std::vector<float> myDistances;
     std::vector<int> myIndeces;
     QList<std::string> myId;
-    meteoPointsWidgetList.append(mp);
+    meteoPointsNearDistanceList.append(mp);
     double mpUtmX = mp.point.utm.x;
     double mpUtmY = mp.point.utm.y;
     for (int i = 0; i < nrMeteoPoints; i++)
@@ -2281,7 +2281,7 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
                 float currentDist = gis::computeDistance(mpUtmX, mpUtmY, utmX, utmY);
                 if (currentDist < clima->getElabSettings()->getAnomalyPtsMaxDistance())
                 {
-                    meteoPointsWidgetList.append(meteoPoints[i]);
+                    meteoPointsNearDistanceList.append(meteoPoints[i]);
                 }
                 if (meteoPoints[i].lapseRateCode != supplemental)
                 {
@@ -2296,7 +2296,7 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
     {
         myId << meteoPoints[myIndeces[i]].id;
     }
-    homogeneityWidget = new Crit3DHomogeneityWidget(meteoPointsDbHandler, meteoPointsWidgetList, myId, myDistances, firstDaily, lastDaily,
+    homogeneityWidget = new Crit3DHomogeneityWidget(meteoPointsDbHandler, meteoPointsNearDistanceList, myId, myDistances, firstDaily, lastDaily,
                                                             meteoSettings, pragaDefaultSettings, &climateParameters, quality);
     return;
 }
