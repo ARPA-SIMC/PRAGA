@@ -3973,16 +3973,24 @@ void MainWindow::on_actionExport_current_data_triggered()
         QTextStream myStream (&myFile);
         myStream.setRealNumberNotation(QTextStream::FixedNotation);
         myStream.setRealNumberPrecision(1);
-        QString header = "id,name,value";
+        QString header = "id,name,dataset,state,region,province,municipality,lapse_rate_code,lat,lon,altitude,value";
         myStream << header << "\n";
         for (int i = 0; i < myProject.nrMeteoPoints; i++)
         {
             if (!isEqual(myProject.meteoPoints[i].currentValue, NODATA))
             {
-                std::string id = myProject.meteoPoints[i].id;
-                std::string name = myProject.meteoPoints[i].name;
-                float value = myProject.meteoPoints[i].currentValue;
-                myStream << QString::fromStdString(id) << "," << QString::fromStdString(name) << "," << value << "\n";
+                myStream << QString::fromStdString(myProject.meteoPoints[i].id)
+                         << "," << QString::fromStdString(myProject.meteoPoints[i].name)
+                         << "," << QString::fromStdString(myProject.meteoPoints[i].dataset)
+                         << "," << QString::fromStdString(myProject.meteoPoints[i].state)
+                         << "," << QString::fromStdString(myProject.meteoPoints[i].region)
+                         << "," << QString::fromStdString(myProject.meteoPoints[i].province)
+                         << "," << QString::fromStdString(myProject.meteoPoints[i].municipality)
+                         << "," << QString::number(myProject.meteoPoints[i].lapseRateCode)
+                         << "," << QString::number(myProject.meteoPoints[i].latitude)
+                         << "," << QString::number(myProject.meteoPoints[i].longitude)
+                         << "," << QString::number(myProject.meteoPoints[i].point.z)
+                         << "," << QString::number(myProject.meteoPoints[i].currentValue) << "\n";
             }
         }
         myFile.close();
