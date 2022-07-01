@@ -4086,3 +4086,23 @@ void MainWindow::on_actionMeteoGrid_Set_dynamic_color_scale_triggered()
     emit this->meteoGridObj->redrawRequested();
 }
 
+
+void MainWindow::on_actionFileMeteogridDelete_triggered()
+{
+    if (myProject.meteoGridDbHandler == nullptr)
+    {
+        QMessageBox::information(nullptr, "Meteo Grid not open", "Open the meteo grid to be deleted");
+        return;
+    }
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Are you sure?" ,
+                                  "Meteo grid will be deleted",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes)
+    {
+        if (myProject.deleteMeteoGridDB())
+        {
+            closeMeteoGrid();
+        }
+    }
+}

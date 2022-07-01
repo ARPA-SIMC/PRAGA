@@ -213,6 +213,8 @@
 
         void on_actionMeteoGrid_Set_dynamic_color_scale_triggered();
 
+        void on_actionFileMeteogridDelete_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

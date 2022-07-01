@@ -2043,7 +2043,7 @@
      <x>0</x>
      <y>0</y>
      <width>1399</width>
-     <height>29</height>
+     <height>30</height>
     </rect>
    </property>
    <property name="palette">
@@ -2075,6 +2075,7 @@
      <addaction name="actionFileMeteogridOpen"/>
      <addaction name="actionFileMeteogridClose"/>
      <addaction name="actionNewMeteoGrid"/>
+     <addaction name="actionFileMeteogridDelete"/>
      <addaction name="actionFileMeteogridExportNetcdf"/>
      <addaction name="actionFileMeteogridExportRaster"/>
      <addaction name="actionImport_data_XML_grid"/>
@@ -2977,6 +2978,11 @@
    </property>
    <property name="text">
     <string>Set dynamic color scale</string>
+   </property>
+  </action>
+  <action name="actionFileMeteogridDelete">
+   <property name="text">
+    <string>Delete</string>
    </property>
   </action>
  </widget>
