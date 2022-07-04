@@ -2291,6 +2291,11 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
             }
         }
     }
+    if (myIndeces.empty())
+    {
+        logInfoGUI("There are no meteo points as reference...");
+        return;
+    }
     sorting::quicksortAscendingIntegerWithParameters(myIndeces, myDistances, 0, myIndeces.size()-1);
     for (int i = 0; i < myIndeces.size(); i++)
     {
