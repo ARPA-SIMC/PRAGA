@@ -879,11 +879,11 @@ bool PragaProject::elaborationPointsCycleGrid(bool isAnomaly, bool showInfo)
 {
 
     bool isMeteoGrid = true; // grid
-    int validCell = 0;
 
     std::string id;
+    int validCell = 0;
 
-    int infoStep;
+    int infoStep = 1;
     QString infoStr;
 
     errorString.clear();
@@ -951,14 +951,14 @@ bool PragaProject::elaborationPointsCycleGrid(bool isAnomaly, bool showInfo)
                 {
                     if ( passingClimateToAnomalyGrid(&errorString, meteoPointTemp, climaUsed))
                     {
-                        validCell = validCell + 1;
+                        validCell += 1;
                     }
                 }
                 else
                 {
                     if  ( elaborationOnPoint(&errorString, nullptr, meteoGridDbHandler, meteoPointTemp, climaUsed, isMeteoGrid, startDate, endDate, isAnomaly, meteoSettings, dataAlreadyLoaded))
                     {
-                        validCell = validCell + 1;
+                        validCell += 1;
                     }
                 }
 
@@ -992,6 +992,7 @@ bool PragaProject::elaborationPointsCycleGrid(bool isAnomaly, bool showInfo)
     }
 
 }
+
 
 bool PragaProject::climatePointsCycle(bool showInfo)
 {
