@@ -2043,7 +2043,7 @@
      <x>0</x>
      <y>0</y>
      <width>1399</width>
-     <height>30</height>
+     <height>29</height>
     </rect>
    </property>
    <property name="palette">
@@ -2353,6 +2353,7 @@
     <addaction name="separator"/>
     <addaction name="actionMeteoGrid_Set_color_scale"/>
     <addaction name="actionMeteoGrid_Set_dynamic_color_scale"/>
+    <addaction name="actionMeteoGrid_Reverse_color_scale"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuShow"/>
@@ -2983,6 +2984,11 @@
   <action name="actionFileMeteogridDelete">
    <property name="text">
     <string>Delete</string>
+   </property>
+  </action>
+  <action name="actionMeteoGrid_Reverse_color_scale">
+   <property name="text">
+    <string>Reverse color scale</string>
    </property>
   </action>
  </widget>

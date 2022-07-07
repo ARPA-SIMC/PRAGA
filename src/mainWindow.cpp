@@ -4091,12 +4091,12 @@ void MainWindow::on_actionFileMeteogridDelete_triggered()
 {
     if (myProject.meteoGridDbHandler == nullptr)
     {
-        QMessageBox::information(nullptr, "Meteo Grid not open", "Open the meteo grid to be deleted");
+        myProject.logInfoGUI("Open meteo grid before.");
         return;
     }
     QMessageBox::StandardButton reply;
-    reply = QMessageBox::question(this, "Are you sure?" ,
-                                  "Meteo grid will be deleted",
+    reply = QMessageBox::question(this, "WARNING" ,
+                                  "Meteo grid will be deleted! Are you sure?",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes)
     {
@@ -4106,3 +4106,16 @@ void MainWindow::on_actionFileMeteogridDelete_triggered()
         }
     }
 }
+
+void MainWindow::on_actionMeteoGrid_Reverse_color_scale_triggered()
+{
+    if (myProject.meteoGridDbHandler == nullptr)
+    {
+        myProject.logInfoGUI("Open meteo grid before.");
+        return;
+    }
+
+    reverseColorScale(this->meteoGridObj->getRaster()->colorScale);
+    emit this->meteoGridObj->redrawRequested();
+}
+
