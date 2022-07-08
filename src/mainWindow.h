@@ -217,6 +217,8 @@
 
         void on_actionMeteoGrid_Reverse_color_scale_triggered();
 
+        void on_actioFileMeteogrid_Load_current_data_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

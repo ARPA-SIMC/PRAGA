@@ -2066,19 +2066,29 @@
      </property>
      <addaction name="actionNetCDF_Open"/>
      <addaction name="actionNetCDF_Close"/>
+     <addaction name="separator"/>
      <addaction name="actionNetCDF_ShowMetadata"/>
     </widget>
     <widget class="QMenu" name="menuMeteogrid">
      <property name="title">
       <string>Meteo grid</string>
      </property>
+     <widget class="QMenu" name="menuExport">
+      <property name="title">
+       <string>Export current data</string>
+      </property>
+      <addaction name="actionFileMeteogridExportRaster"/>
+      <addaction name="actionFileMeteogridExportNetcdf"/>
+     </widget>
      <addaction name="actionFileMeteogridOpen"/>
      <addaction name="actionFileMeteogridClose"/>
+     <addaction name="separator"/>
      <addaction name="actionNewMeteoGrid"/>
      <addaction name="actionFileMeteogridDelete"/>
-     <addaction name="actionFileMeteogridExportNetcdf"/>
-     <addaction name="actionFileMeteogridExportRaster"/>
+     <addaction name="separator"/>
+     <addaction name="actioFileMeteogrid_Load_current_data"/>
      <addaction name="actionImport_data_XML_grid"/>
+     <addaction name="menuExport"/>
     </widget>
     <widget class="QMenu" name="menuFileMeteopoint">
      <property name="title">
@@ -2093,20 +2103,27 @@
      </widget>
      <widget class="QMenu" name="menuImport">
       <property name="title">
-       <string>Import</string>
+       <string>CSV data</string>
       </property>
       <addaction name="actionPointProperties_import"/>
       <addaction name="actionPointData_import"/>
      </widget>
+     <widget class="QMenu" name="menuArkimet">
+      <property name="title">
+       <string>Arkimet data</string>
+      </property>
+      <addaction name="actionFileMeteopointDownload"/>
+      <addaction name="actionUpdate_meteo_points"/>
+      <addaction name="actionUpdate_properties"/>
+      <addaction name="actionUpdate_datasets"/>
+     </widget>
      <addaction name="menuFileMeteopointNew"/>
      <addaction name="actionFileMeteopointOpen"/>
      <addaction name="actionFileMeteopointClose"/>
-     <addaction name="actionFileMeteopointDownload"/>
+     <addaction name="separator"/>
+     <addaction name="menuArkimet"/>
      <addaction name="menuImport"/>
      <addaction name="actionExport_current_data"/>
-     <addaction name="actionUpdate_properties"/>
-     <addaction name="actionUpdate_meteo_points"/>
-     <addaction name="actionUpdate_datasets"/>
     </widget>
     <widget class="QMenu" name="menuOpen_DEM">
      <property name="title">
@@ -2115,10 +2132,17 @@
      <addaction name="actionFileDemOpen"/>
      <addaction name="actionFileExportInterpolation"/>
     </widget>
-    <addaction name="actionFileOpenProject"/>
-    <addaction name="actionFileCloseProject"/>
-    <addaction name="actionFileSaveProject"/>
-    <addaction name="actionFileSaveProjectAs"/>
+    <widget class="QMenu" name="menuProject">
+     <property name="title">
+      <string>Project</string>
+     </property>
+     <addaction name="actionFileOpenProject"/>
+     <addaction name="actionFileCloseProject"/>
+     <addaction name="separator"/>
+     <addaction name="actionFileSaveProjectAs"/>
+     <addaction name="actionFileSaveProject"/>
+    </widget>
+    <addaction name="menuProject"/>
     <addaction name="separator"/>
     <addaction name="menuOpen_DEM"/>
     <addaction name="separator"/>
@@ -2582,17 +2606,17 @@
   </action>
   <action name="actionFileOpenProject">
    <property name="text">
-    <string>Open project..</string>
+    <string>Open...</string>
    </property>
   </action>
   <action name="actionFileCloseProject">
    <property name="text">
-    <string>Close project</string>
+    <string>Close</string>
    </property>
   </action>
   <action name="actionFileSaveProjectAs">
    <property name="text">
-    <string>Save project as...</string>
+    <string>New...</string>
    </property>
   </action>
   <action name="actionFileSaveProject">
@@ -2600,7 +2624,7 @@
     <bool>false</bool>
    </property>
    <property name="text">
-    <string>Save project</string>
+    <string>Save</string>
    </property>
   </action>
   <action name="actionRadiationSettings">
@@ -2625,7 +2649,7 @@
   </action>
   <action name="actionNetCDF_Open">
    <property name="text">
-    <string>Open</string>
+    <string>Open...</string>
    </property>
   </action>
   <action name="actionNetCDF_Close">
@@ -2635,12 +2659,12 @@
   </action>
   <action name="actionNetCDF_ShowMetadata">
    <property name="text">
-    <string>Show metadata</string>
+    <string>Show metadata...</string>
    </property>
   </action>
   <action name="actionFileMeteogridOpen">
    <property name="text">
-    <string>Open</string>
+    <string>Open...</string>
    </property>
   </action>
   <action name="actionFileMeteogridClose">
@@ -2650,12 +2674,12 @@
   </action>
   <action name="actionFileMeteogridExportNetcdf">
    <property name="text">
-    <string>Export current data to NetCDF</string>
+    <string>to NetCDF...</string>
    </property>
   </action>
   <action name="actionFileMeteopointOpen">
    <property name="text">
-    <string>Open</string>
+    <string>Open...</string>
    </property>
   </action>
   <action name="actionFileMeteopointClose">
@@ -2665,7 +2689,7 @@
   </action>
   <action name="actionFileMeteopointDownload">
    <property name="text">
-    <string>Download data</string>
+    <string>Download...</string>
    </property>
   </action>
   <action name="actionFileMeteopointNewArkimet">
@@ -2725,22 +2749,22 @@
   </action>
   <action name="actionImport_data_XML_grid">
    <property name="text">
-    <string>Import data XML</string>
+    <string>Import data with XML...</string>
    </property>
   </action>
   <action name="actionFileMeteopointNewCsv">
    <property name="text">
-    <string>From CSV</string>
+    <string>From CSV...</string>
    </property>
   </action>
   <action name="actionPointProperties_import">
    <property name="text">
-    <string>Properties</string>
+    <string>Import properties...</string>
    </property>
   </action>
   <action name="actionPointData_import">
    <property name="text">
-    <string>Data</string>
+    <string>Import data with XML...</string>
    </property>
   </action>
   <action name="actionAll_active">
@@ -2854,27 +2878,27 @@
   </action>
   <action name="actionNewMeteoGrid">
    <property name="text">
-    <string>New</string>
+    <string>New...</string>
    </property>
   </action>
   <action name="actionFileMeteogridExportRaster">
    <property name="text">
-    <string>Export current data to raster</string>
+    <string>to Raster...</string>
    </property>
   </action>
   <action name="actionUpdate_properties">
    <property name="text">
-    <string>Update properties</string>
+    <string>Update properties...</string>
    </property>
   </action>
   <action name="actionUpdate_meteo_points">
    <property name="text">
-    <string>Update meteo points</string>
+    <string>Update meteo points...</string>
    </property>
   </action>
   <action name="actionUpdate_datasets">
    <property name="text">
-    <string>Update datasets</string>
+    <string>Update datasets...</string>
    </property>
   </action>
   <action name="actionPointStyleCircle">
@@ -2941,7 +2965,7 @@
   </action>
   <action name="actionExport_current_data">
    <property name="text">
-    <string>Export current data</string>
+    <string>Export current data...</string>
    </property>
   </action>
   <action name="actionFileDemOpen">
@@ -2989,6 +3013,16 @@
   <action name="actionMeteoGrid_Reverse_color_scale">
    <property name="text">
     <string>Reverse color scale</string>
+   </property>
+  </action>
+  <action name="actioFileMeteogrid_Load_current_data">
+   <property name="text">
+    <string>Load current data</string>
+   </property>
+  </action>
+  <action name="actionruuu">
+   <property name="text">
+    <string>ruuu</string>
    </property>
   </action>
  </widget>

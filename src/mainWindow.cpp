@@ -194,14 +194,24 @@ void MainWindow::mouseMove(const QPoint& mapPos)
             float value = NODATA;
             switch(currentGridVisualization)
             {
+                case showCurrentVariable:
+                {
+                    value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue;
+                    break;
+                }
                 case showElaboration:
                 {
                     value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->elaboration;
                     break;
                 }
-                case showCurrentVariable:
+                case showAnomalyAbsolute:
                 {
-                    value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue;
+                    value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->anomaly;
+                    break;
+                }
+                case showAnomalyPercentage:
+                {
+                    value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->anomalyPercentage;
                     break;
                 }
                 default:
@@ -817,7 +827,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
     {
         if (! myProject.netCDF.isLoaded())
         {
-            myProject.logError("Open NetCDF grid before.");
+            QMessageBox::information(nullptr, "No NetCDF file", "Open a NetCDF grid before.");
             return;
         }
 
@@ -2816,7 +2826,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
     // check meteo grid
     if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr)
     {
-        myProject.logError("Open a meteo grid DB before");
+        QMessageBox::information(nullptr, "No Meteo Grid", "Open meteo grid before.");
         return;
     }
 
@@ -2940,7 +2950,7 @@ void MainWindow::on_actionPointData_import_triggered()
     }
 
     bool isGrid = false;
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("xml files (*.xml)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open XML file"), "", tr("xml files (*.xml)"));
     if (fileName.isEmpty())
         return;
 
@@ -3483,7 +3493,7 @@ void MainWindow::on_actionFileMeteogridExportRaster_triggered()
 {
     if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr)
     {
-        myProject.logError("Open meteo grid before.");
+        QMessageBox::information(nullptr, "No Meteo Grid", "Open meteo grid before.");
         return;
     }
 
@@ -4091,7 +4101,7 @@ void MainWindow::on_actionFileMeteogridDelete_triggered()
 {
     if (myProject.meteoGridDbHandler == nullptr)
     {
-        myProject.logInfoGUI("Open meteo grid before.");
+        QMessageBox::information(nullptr, "No Meteo Grid", "Open meteo grid before.");
         return;
     }
     QMessageBox::StandardButton reply;
@@ -4111,11 +4121,26 @@ void MainWindow::on_actionMeteoGrid_Reverse_color_scale_triggered()
 {
     if (myProject.meteoGridDbHandler == nullptr)
     {
-        myProject.logInfoGUI("Open meteo grid before.");
+        QMessageBox::information(nullptr, "No Meteo Grid", "Open meteo grid before.");
         return;
     }
 
     reverseColorScale(this->meteoGridObj->getRaster()->colorScale);
     emit this->meteoGridObj->redrawRequested();
+}
+
+
+void MainWindow::on_actioFileMeteogrid_Load_current_data_triggered()
+{
+    if (myProject.meteoGridDbHandler == nullptr)
+    {
+        QMessageBox::information(nullptr, "No Meteo Grid", "Open meteo grid before.");
+        return;
+    }
+
+    QDate date =myProject.getCurrentDate();
+    myProject.loadMeteoGridData(date, date, true);
+
+    redrawMeteoGrid(currentGridVisualization, false);
 }
 
