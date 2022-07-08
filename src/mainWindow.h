@@ -35,7 +35,7 @@
     public:
 
         explicit MainWindow( QWidget *parent = nullptr);
-        ~MainWindow();
+        ~MainWindow() override;
 
     private slots:
 
@@ -71,8 +71,6 @@
         void on_rasterOpacitySlider_sliderMoved(int position);
         void on_meteoGridOpacitySlider_sliderMoved(int position);
 
-        void on_dateChanged();
-        void on_rasterScaleButton_clicked();
         void on_variableButton_clicked();
         void on_frequencyButton_clicked();
 
@@ -80,7 +78,8 @@
         void disableAllButton(bool toggled);
 
         void on_actionMeteopointQualitySpatial_triggered();
-        void on_rasterRestoreButton_clicked();
+
+        void on_dateChanged();
         void on_timeEdit_valueChanged(int myHour);
         void on_dateEdit_dateChanged(const QDate &date);
 
@@ -118,6 +117,7 @@
             void on_actionNetCDF_ShowMetadata_triggered();
             void on_actionFileMeteogridExportNetcdf_triggered();
         #endif
+
         void callNewMeteoWidget(std::string id, std::string name, bool isGrid);
         void callAppendMeteoWidget(std::string id, std::string name, bool isGrid);
         void callNewPointStatisticsWidget(std::string id, bool isGrid);
@@ -209,32 +209,34 @@
 
         void on_actionSearch_point_triggered();
 
-        void on_actionMeteoGrid_Set_color_scale_triggered();
-
-        void on_actionMeteoGrid_Set_dynamic_color_scale_triggered();
-
         void on_actionFileMeteogridDelete_triggered();
+
+        void on_actioFileMeteogrid_Load_current_data_triggered();
+
+        void on_actionMeteoGrid_Set_color_scale_triggered();
 
         void on_actionMeteoGrid_Reverse_color_scale_triggered();
 
-        void on_actioFileMeteogrid_Load_current_data_triggered();
+        void on_flagMeteoGrid_Dynamic_color_scale_triggered(bool isChecked);
+
+        void on_flagMeteoGrid_Fixed_color_scale_triggered(bool isChecked);
 
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
          * \param event
          */
-        void mouseReleaseEvent(QMouseEvent *event);
+        void mouseReleaseEvent(QMouseEvent *event) override;
 
         /*!
          * \brief mouseDoubleClickEvent implements zoom In and zoom Out
          * \param event
          */
-        void mouseDoubleClickEvent(QMouseEvent * event);
+        void mouseDoubleClickEvent(QMouseEvent * event) override;
 
-        void mousePressEvent(QMouseEvent *event);
+        void mousePressEvent(QMouseEvent *event) override;
 
-        void resizeEvent(QResizeEvent * event);
+        void resizeEvent(QResizeEvent * event) override;
 
     private:
         Ui::MainWindow* ui;
@@ -282,6 +284,9 @@
         void closeMeteoPoints();
         void closeMeteoGrid();
 
+        bool checkMeteoGridColorScale();
+        void setColorScaleRange(bool isFixed);
+
         bool loadMeteoPoints(QString dbName);
         bool loadMeteoGrid(QString xmlName);
         bool newMeteoGrid(QString xmlName);
@@ -291,7 +296,7 @@
         void interpolateGridGUI();
         void interpolateCrossValidationGUI();
         void showElabResult(bool updateColorSCale, bool isMeteoGrid, bool isAnomaly, bool isAnomalyPerc, bool isClima, QString index);
-        void closeEvent(QCloseEvent *event);
+        void closeEvent(QCloseEvent *event) override;
 
         #ifdef NETCDF
             void netCDF_exportDataSeries(gis::Crit3DGeoPoint geoPoint);

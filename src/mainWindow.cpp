@@ -932,7 +932,6 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         pointList[i]->setMarked(myProject.meteoPoints[i].marked);
     }
 
-
     meteoPointsLegend->setVisible(true);
 
     switch(currentPointsVisualization)
@@ -1438,21 +1437,6 @@ void MainWindow::callChangeOrogCode(std::string id, int orogCode)
     myProject.closeLogInfo();
 }
 
-void MainWindow::on_rasterScaleButton_clicked()
-{
-    if (this->rasterObj->getRaster() == nullptr)
-    {
-        QMessageBox::information(nullptr, "No Raster", "Load raster before");
-        return;
-    }
-
-    meteoVariable myVar = chooseColorScale();
-    if (myVar != noMeteoVar)
-    {
-        setColorScale(myVar, this->rasterObj->getRaster()->colorScale);
-        ui->labelRasterScale->setText(QString::fromStdString(getVariableString(myVar)));
-    }
-}
 
 void MainWindow::on_variableButton_clicked()
 {
@@ -1488,19 +1472,6 @@ void MainWindow::on_frequencyButton_clicked()
            redrawMeteoGrid(showCurrentVariable, false);
        }
    }
-}
-
-void MainWindow::on_rasterRestoreButton_clicked()
-{
-    if (this->rasterObj->getRaster() == nullptr)
-    {
-        QMessageBox::information(nullptr, "No Raster", "Load raster before");
-        return;
-    }
-
-    setDefaultDEMScale(myProject.DEM.colorScale);
-    this->setCurrentRaster(&(myProject.DEM));
-    ui->labelRasterScale->setText(QString::fromStdString(getVariableString(noMeteoTerrain)));
 }
 
 
@@ -4049,54 +4020,6 @@ void MainWindow::on_actionMark_from_pointlist_triggered()
 }
 
 
-void MainWindow::on_actionSearch_point_triggered()
-{
-    // TODO
-}
-
-
-void MainWindow::on_actionMeteoGrid_Set_color_scale_triggered()
-{
-    if (! this->meteoGridObj->isLoaded)
-    {
-        QMessageBox::information(nullptr, "No Meteo Grid", "Open meteo grid before.");
-        return;
-    }
-
-    if (this->currentGridVisualization == notShown || this->currentGridVisualization == showLocation)
-    {
-        QMessageBox::information(nullptr, "Wrong visualization", "Show variable or elaboration data before.");
-        return;
-    }
-
-    // choose minimum
-    float minimum = this->meteoGridObj->getRaster()->colorScale->minimum();
-    QString valueStr = editValue("Choose minimum value", QString::number(minimum));
-    if (valueStr == "") return;
-    minimum = valueStr.toFloat();
-
-    // choose maximum
-    float maximum = this->meteoGridObj->getRaster()->colorScale->maximum();
-    valueStr = editValue("Choose maximum value", QString::number(maximum));
-    if (valueStr == "") return;
-    maximum = valueStr.toFloat();
-
-    // set range
-    this->meteoGridObj->getRaster()->colorScale->setRange(minimum, maximum);
-    this->meteoGridObj->getRaster()->colorScale->setRangeBlocked(true);
-    emit this->meteoGridObj->redrawRequested();
-}
-
-
-void MainWindow::on_actionMeteoGrid_Set_dynamic_color_scale_triggered()
-{
-    if (! this->meteoGridObj->isLoaded) return;
-
-    this->meteoGridObj->getRaster()->colorScale->setRangeBlocked(false);
-    emit this->meteoGridObj->redrawRequested();
-}
-
-
 void MainWindow::on_actionFileMeteogridDelete_triggered()
 {
     if (myProject.meteoGridDbHandler == nullptr)
@@ -4117,18 +4040,6 @@ void MainWindow::on_actionFileMeteogridDelete_triggered()
     }
 }
 
-void MainWindow::on_actionMeteoGrid_Reverse_color_scale_triggered()
-{
-    if (myProject.meteoGridDbHandler == nullptr)
-    {
-        QMessageBox::information(nullptr, "No Meteo Grid", "Open meteo grid before.");
-        return;
-    }
-
-    reverseColorScale(this->meteoGridObj->getRaster()->colorScale);
-    emit this->meteoGridObj->redrawRequested();
-}
-
 
 void MainWindow::on_actioFileMeteogrid_Load_current_data_triggered()
 {
@@ -4138,9 +4049,105 @@ void MainWindow::on_actioFileMeteogrid_Load_current_data_triggered()
         return;
     }
 
-    QDate date =myProject.getCurrentDate();
+    QDate date = myProject.getCurrentDate();
     myProject.loadMeteoGridData(date, date, true);
 
     redrawMeteoGrid(currentGridVisualization, false);
 }
+
+
+bool MainWindow::checkMeteoGridColorScale()
+{
+    if (! this->meteoGridObj->isLoaded)
+    {
+        QMessageBox::information(nullptr, "No Meteo Grid", "Open meteo grid before.");
+        return false;
+    }
+
+    if (this->currentGridVisualization == notShown || this->currentGridVisualization == showLocation)
+    {
+        QMessageBox::information(nullptr, "Wrong visualization", "Show variable or elaboration data before.");
+        return false;
+    }
+
+    return true;
+}
+
+
+void MainWindow::on_actionMeteoGrid_Set_color_scale_triggered()
+{
+    if (! checkMeteoGridColorScale()) return;
+
+    // choose color scale
+    meteoVariable myVar = chooseColorScale();
+    if (myVar != noMeteoVar)
+    {
+        setColorScale(myVar, this->meteoGridObj->getRaster()->colorScale);
+    }
+
+    emit this->meteoGridObj->redrawRequested();
+}
+
+
+void MainWindow::on_actionMeteoGrid_Reverse_color_scale_triggered()
+{
+    if (! checkMeteoGridColorScale()) return;
+
+    reverseColorScale(this->meteoGridObj->getRaster()->colorScale);
+    emit this->meteoGridObj->redrawRequested();
+}
+
+
+void MainWindow::setColorScaleRange(bool isFixed)
+{
+    if (! checkMeteoGridColorScale()) return;
+
+    if (isFixed)
+    {
+        // choose minimum
+        float minimum = this->meteoGridObj->getRaster()->colorScale->minimum();
+        QString valueStr = editValue("Choose minimum value", QString::number(minimum));
+        if (valueStr == "") return;
+        minimum = valueStr.toFloat();
+
+        // choose maximum
+        float maximum = this->meteoGridObj->getRaster()->colorScale->maximum();
+        valueStr = editValue("Choose maximum value", QString::number(maximum));
+        if (valueStr == "") return;
+        maximum = valueStr.toFloat();
+
+        // set range
+        this->meteoGridObj->getRaster()->colorScale->setRange(minimum, maximum);
+        this->meteoGridObj->getRaster()->colorScale->setRangeBlocked(true);
+    }
+    else
+    {
+        this->meteoGridObj->getRaster()->colorScale->setRangeBlocked(false);
+    }
+
+    emit this->meteoGridObj->redrawRequested();
+}
+
+
+void MainWindow::on_flagMeteoGrid_Dynamic_color_scale_triggered(bool isChecked)
+{
+    ui->flagMeteoGrid_Fixed_color_scale->setChecked(! isChecked);
+    setColorScaleRange(! isChecked);
+}
+
+
+void MainWindow::on_flagMeteoGrid_Fixed_color_scale_triggered(bool isChecked)
+{
+    ui->flagMeteoGrid_Dynamic_color_scale->setChecked(! isChecked);
+    setColorScaleRange(isChecked);
+}
+
+
+void MainWindow::on_actionSearch_point_triggered()
+{
+    // TODO
+}
+
+
+
 
