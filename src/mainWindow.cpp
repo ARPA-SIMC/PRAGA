@@ -3472,7 +3472,7 @@ void MainWindow::on_actionFileMeteogridExportRaster_triggered()
 
     if (fileName != "")
     {
-        int defaultCellSize = myProject.computeCellSize();
+        int defaultCellSize = myProject.computeCellSizeFromMeteoGrid();
         double cellSizeValue;
         DialogCellSize cellSizeDialog(defaultCellSize);
         if (cellSizeDialog.result() == QDialog::Accepted)
