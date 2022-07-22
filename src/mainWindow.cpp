@@ -176,22 +176,20 @@ void MainWindow::mouseMove(const QPoint& mapPos)
     }
 
     Position geoPos = this->mapView->mapToScene(mapPos);
-    QString status = QString::number(geoPos.latitude()) + " " + QString::number(geoPos.longitude());
+    QString status = "Lat:" + QString::number(geoPos.latitude())
+                   + " Lon:" + QString::number(geoPos.longitude());
 
-    // meteo grid
-    if (meteoGridObj->isLoaded && !meteoGridObj->isNetCDF())
+    float value = NODATA;
+    if (meteoGridObj->isLoaded && currentGridVisualization != notShown && !meteoGridObj->isNetCDF())
     {
         int row, col;
         gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
 
-        if (! meteoGridObj->getRowCol(geoPoint, &row, &col))
-            return;
-
-        if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
+        if (meteoGridObj->getRowCol(geoPoint, &row, &col) &&
+            myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
         {
             std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
             std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
-            float value = NODATA;
             switch(currentGridVisualization)
             {
                 case showCurrentVariable:
@@ -219,20 +217,25 @@ void MainWindow::mouseMove(const QPoint& mapPos)
                     break;
                 }
             }
-            std::string valueStr;
-            if (value == NODATA)
-            {
-                valueStr = "NODATA";
-            }
-            else
+
+            status += " Grid cell:" + QString::fromStdString(id + " " + name);
+            if (!isEqual(value, NODATA))
             {
                 std::stringstream stream;
                 stream << std::fixed << std::setprecision(2) << value;
-                valueStr = stream.str();
+                status += " Value:" + QString::fromStdString(stream.str());
             }
-            status += " Grid: " + QString::fromStdString(id + " " + name + " Value: " + valueStr);
         }
-     }
+    }
+    else
+    {
+        if (rasterObj->isLoaded && rasterObj->visible())
+        {
+            value = rasterObj->getValue(geoPos);
+            if (!isEqual(value, NODATA))
+                status += " Raster:" + QString::number(double(value));
+        }
+    }
 
     this->ui->statusBar->showMessage(status);
 }
