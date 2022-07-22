@@ -37,6 +37,10 @@
         #include "homogeneityWidget.h"
     #endif
 
+    #ifndef SYNCHRONICITYWIDGET_H
+        #include "synchronicityWidget.h"
+    #endif
+
     class PragaProject : public Project
     {
     private:
@@ -61,6 +65,7 @@
 
         Crit3DPointStatisticsWidget* pointStatisticsWidget;
         Crit3DHomogeneityWidget* homogeneityWidget;
+        Crit3DSynchronicityWidget* synchronicityWidget;
         ImportDataXML* importData;
         QString projectPragaFolder;
 
@@ -117,6 +122,8 @@
         bool computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, QDate date, int timescale, meteoVariable myVar);
         void showPointStatisticsWidgetPoint(std::string idMeteoPoint);
         void showHomogeneityTestWidgetPoint(std::string idMeteoPoint);
+        void showSynchronicityTestWidgetPoint(std::string idMeteoPoint);
+        void setSynchronicityReferencePoint(std::string idMeteoPoint);
         void showPointStatisticsWidgetGrid(std::string id);
 
 
