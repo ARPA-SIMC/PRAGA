@@ -2307,6 +2307,16 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
     return;
 }
 
+void PragaProject::showSynchronicityTestWidgetPoint(std::string idMeteoPoint)
+{
+    // TO DO
+}
+
+void PragaProject::setSynchronicityReferencePoint(std::string idMeteoPoint)
+{
+    // TO DO
+}
+
 void PragaProject::showPointStatisticsWidgetGrid(std::string id)
 {
     logInfoGUI("Loading data...");

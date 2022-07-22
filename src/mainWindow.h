@@ -122,6 +122,8 @@
         void callAppendMeteoWidget(std::string id, std::string name, bool isGrid);
         void callNewPointStatisticsWidget(std::string id, bool isGrid);
         void callNewHomogeneityTestWidget(std::string id);
+        void callNewSynchronicityTestWidget(std::string id);
+        void callSetSynchronicityReference(std::string id);
         void callChangeOrogCode(std::string id, int orogCode);
 
         void on_meteoPoints_clicked();
