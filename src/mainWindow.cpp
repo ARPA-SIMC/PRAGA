@@ -645,9 +645,33 @@ void MainWindow::on_actionMeteopointQualitySpatial_triggered()
 
 void MainWindow::interpolateDemGUI()
 {
-    bool isComputed = false;
+    meteoVariable myVar;
+    switch(currentPointsVisualization)
+    {
+        case showCurrentVariable:
+        {
+            myVar = myProject.getCurrentVariable();
+            break;
+        }
+        case showElaboration:
+        {
+            myVar = elaboration;
+            break;
+        }
+        case showAnomalyAbsolute:
+        {
+            myVar = anomaly;
+            break;
+        }
+        default:
+        {
+            myProject.logError("No variable to interpolate.");
+            return;
+        }
+    }
 
-    meteoVariable myVar = myProject.getCurrentVariable();
+    myProject.logInfoGUI("Interpolating on DEM...");
+    bool isComputed = false;
 
     if (myVar == airRelHumidity && myProject.interpolationSettings.getUseDewPoint())
     {
@@ -663,20 +687,24 @@ void MainWindow::interpolateDemGUI()
             myProject.hourlyMeteoMaps->computeRelativeHumidityMap(&myProject.dataRaster);
             isComputed = true;
         }
-
     }
-    else {
+    else
+    {
         isComputed = myProject.interpolationDemMain(myVar, myProject.getCrit3DCurrentTime(), &(myProject.dataRaster));
     }
 
-    if (isComputed) {
-        {
+    if (isComputed)
+    {
+        if (myVar == elaboration)
+            setColorScale(myProject.clima->variable(), myProject.dataRaster.colorScale);
+        else
             setColorScale(myVar, myProject.dataRaster.colorScale);
-            setCurrentRaster(&(myProject.dataRaster));
-            ui->labelRasterScale->setText(QString::fromStdString(getVariableString(myVar)));
-        }
+        setCurrentRaster(&(myProject.dataRaster));
+        ui->labelRasterScale->setText(QString::fromStdString(getVariableString(myVar)));
     }
+    myProject.closeLogInfo();
 }
+
 
 void MainWindow::interpolateGridGUI()
 {
@@ -2322,9 +2350,7 @@ void MainWindow::checkSaveProject()
 
 void MainWindow::on_actionInterpolationDem_triggered()
 {
-    myProject.logInfoGUI("Interpolating on DEM...");
     interpolateDemGUI();
-    myProject.closeLogInfo();
 }
 
 

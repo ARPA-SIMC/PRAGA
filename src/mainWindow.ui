@@ -1814,6 +1814,13 @@
                 <height>20</height>
                </size>
               </property>
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
+               </font>
+              </property>
               <property name="text">
                <string>elab 1:</string>
               </property>
@@ -1838,6 +1845,13 @@
                 <width>50</width>
                 <height>20</height>
                </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
+               </font>
               </property>
               <property name="text">
                <string>elab 2:</string>
@@ -1864,6 +1878,13 @@
                 <height>20</height>
                </size>
               </property>
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
+               </font>
+              </property>
               <property name="text">
                <string>variable:</string>
               </property>
@@ -1888,6 +1909,13 @@
                 <width>50</width>
                 <height>20</height>
                </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>9</pointsize>
+                <weight>50</weight>
+                <bold>false</bold>
+               </font>
               </property>
               <property name="text">
                <string>period:</string>

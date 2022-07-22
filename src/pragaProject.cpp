@@ -753,13 +753,18 @@ bool PragaProject::elaboration(bool isMeteoGrid, bool isAnomaly, bool saveClima)
     return true;
 }
 
+
 bool PragaProject::elaborationPointsCycle(bool isAnomaly, bool showInfo)
 {
+    // initialize
+    for (int i = 0; i < nrMeteoPoints; i++)
+    {
+        meteoPoints[i].elaboration = NODATA;
+        meteoPoints[i].anomaly = NODATA;
+        meteoPoints[i].anomalyPercentage = NODATA;
+    }
 
-    bool isMeteoGrid = 0; // meteoPoint
-    int validCell = 0;
-
-    int infoStep;
+    int infoStep = 0;
     QString infoStr;
 
     errorString.clear();
@@ -785,7 +790,6 @@ bool PragaProject::elaborationPointsCycle(bool isAnomaly, bool showInfo)
         }
     }
 
-
     QDate startDate(climaUsed->yearStart(), climaUsed->genericPeriodDateStart().month(), climaUsed->genericPeriodDateStart().day());
     QDate endDate(climaUsed->yearEnd(), climaUsed->genericPeriodDateEnd().month(), climaUsed->genericPeriodDateEnd().day());
 
@@ -804,15 +808,15 @@ bool PragaProject::elaborationPointsCycle(bool isAnomaly, bool showInfo)
 //        Then currentPheno.setPhenoPoint i;  // TODO
 //    }
 
+    int validPoints = 0;
+
     Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
     bool dataAlreadyLoaded = false;
 
     for (int i = 0; i < nrMeteoPoints; i++)
     {
-
         if (meteoPoints[i].active)
         {
-
             // copy data to MPTemp
             meteoPointTemp->id = meteoPoints[i].id;
             meteoPointTemp->point.utm.x = meteoPoints[i].point.utm.x;  // LC to compute distance in passingClimateToAnomaly
@@ -828,49 +832,44 @@ bool PragaProject::elaborationPointsCycle(bool isAnomaly, bool showInfo)
             if (showInfo && (i % infoStep) == 0)
                         updateProgressBar(i);
 
-
             if (isAnomaly && climaUsed->getIsClimateAnomalyFromDb())
             {
                 if ( passingClimateToAnomaly(&errorString, meteoPointTemp, climaUsed, meteoPoints, nrMeteoPoints, clima->getElabSettings()) )
                 {
-                    validCell = validCell + 1;
+                    validPoints++;
                 }
             }
             else
             {
+                bool isMeteoGrid = false;
                 if ( elaborationOnPoint(&errorString, meteoPointsDbHandler, nullptr, meteoPointTemp, climaUsed, isMeteoGrid, startDate, endDate, isAnomaly, meteoSettings, dataAlreadyLoaded))
                 {
-                    validCell = validCell + 1;
+                    validPoints++;
                 }
             }
-
 
             // save result to MP
             meteoPoints[i].elaboration = meteoPointTemp->elaboration;
             meteoPoints[i].anomaly = meteoPointTemp->anomaly;
             meteoPoints[i].anomalyPercentage = meteoPointTemp->anomalyPercentage;
-
         }
 
     } // end for
     if (showInfo) closeProgressBar();
 
-    if (validCell == 0)
+    delete meteoPointTemp;
+    delete climaUsed;
+
+    if (validPoints == 0)
     {
         if (errorString.isEmpty())
         {
-            errorString = "no valid cells available";
+            errorString = "No valid points available:";
+            errorString += "\ncheck Settings->Parameters->Meteo->minimum percentage of valid data [%]";
         }
-        delete meteoPointTemp;
-        delete climaUsed;
         return false;
     }
-    else
-    {
-        delete meteoPointTemp;
-        delete climaUsed;
-        return true;
-    }
+    else return true;
 
 }
 
