@@ -2,7 +2,6 @@
 
 ElaborationTab::ElaborationTab(Crit3DElaborationSettings *elabSettings)
 {
-
     QLabel *anomalyPtsMaxDis = new QLabel(tr("maximum distance between points for anomaly [m]:"));
     QDoubleValidator *doubleValAnomalyDis = new QDoubleValidator();
     doubleValAnomalyDis->setBottom(0);
