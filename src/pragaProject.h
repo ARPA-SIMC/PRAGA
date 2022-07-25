@@ -66,6 +66,7 @@
         Crit3DPointStatisticsWidget* pointStatisticsWidget;
         Crit3DHomogeneityWidget* homogeneityWidget;
         Crit3DSynchronicityWidget* synchronicityWidget;
+        std::string synchReferencePoint;
         ImportDataXML* importData;
         QString projectPragaFolder;
 

@@ -35,6 +35,8 @@ void PragaProject::initializePragaProject()
     clima = new Crit3DClimate();
     climaFromDb = nullptr;
     referenceClima = nullptr;
+    synchronicityWidget = nullptr;
+    synchReferencePoint = "";
     pragaDefaultSettings = nullptr;
     pragaDailyMaps = nullptr;
 }
@@ -2308,12 +2310,46 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
 
 void PragaProject::showSynchronicityTestWidgetPoint(std::string idMeteoPoint)
 {
-    // TO DO
+    logInfoGUI("Loading data...");
+
+    // check dates
+    QDate firstDaily = meteoPointsDbHandler->getFirstDate(daily, idMeteoPoint).date();
+    QDate lastDaily = meteoPointsDbHandler->getLastDate(daily, idMeteoPoint).date();
+    bool hasDailyData = !(firstDaily.isNull() || lastDaily.isNull());
+
+    QDateTime firstHourly = meteoPointsDbHandler->getFirstDate(hourly, idMeteoPoint);
+    QDateTime lastHourly = meteoPointsDbHandler->getLastDate(hourly, idMeteoPoint);
+    bool hasHourlyData = !(firstHourly.isNull() || lastHourly.isNull());
+
+    if (!hasDailyData && !hasHourlyData)
+    {
+        logInfoGUI("No data.");
+        return;
+    }
+
+    Crit3DMeteoPoint mp;
+    meteoPointsDbHandler->getPropertiesGivenId(QString::fromStdString(idMeteoPoint), &mp, gisSettings, errorString);
+    logInfoGUI("Loading daily data...");
+    meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), &mp);
+    logInfoGUI("Loading hourly data...");
+    meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), &mp);
+    closeLogInfo();
+    synchronicityWidget = new Crit3DSynchronicityWidget(meteoPointsDbHandler, &mp, firstDaily, lastDaily,
+                                                            meteoSettings, pragaDefaultSettings, &climateParameters, quality);
+    if (synchReferencePoint != "")
+    {
+        synchronicityWidget->setReferencePointId(synchReferencePoint);
+    }
+    return;
 }
 
 void PragaProject::setSynchronicityReferencePoint(std::string idMeteoPoint)
 {
-    // TO DO
+    synchReferencePoint = idMeteoPoint;
+    if (synchronicityWidget != nullptr)
+    {
+        synchronicityWidget->setReferencePointId(synchReferencePoint);
+    }
 }
 
 void PragaProject::showPointStatisticsWidgetGrid(std::string id)
