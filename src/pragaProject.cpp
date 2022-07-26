@@ -2317,13 +2317,9 @@ void PragaProject::showSynchronicityTestWidgetPoint(std::string idMeteoPoint)
     QDate lastDaily = meteoPointsDbHandler->getLastDate(daily, idMeteoPoint).date();
     bool hasDailyData = !(firstDaily.isNull() || lastDaily.isNull());
 
-    QDateTime firstHourly = meteoPointsDbHandler->getFirstDate(hourly, idMeteoPoint);
-    QDateTime lastHourly = meteoPointsDbHandler->getLastDate(hourly, idMeteoPoint);
-    bool hasHourlyData = !(firstHourly.isNull() || lastHourly.isNull());
-
-    if (!hasDailyData && !hasHourlyData)
+    if (!hasDailyData)
     {
-        logInfoGUI("No data.");
+        logInfoGUI("No daily data.");
         return;
     }
 
@@ -2331,8 +2327,6 @@ void PragaProject::showSynchronicityTestWidgetPoint(std::string idMeteoPoint)
     meteoPointsDbHandler->getPropertiesGivenId(QString::fromStdString(idMeteoPoint), &mp, gisSettings, errorString);
     logInfoGUI("Loading daily data...");
     meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), &mp);
-    logInfoGUI("Loading hourly data...");
-    meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), &mp);
     closeLogInfo();
     synchronicityWidget = new Crit3DSynchronicityWidget(meteoPointsDbHandler, &mp, firstDaily, lastDaily,
                                                             meteoSettings, pragaDefaultSettings, &climateParameters, quality);
@@ -2345,6 +2339,16 @@ void PragaProject::showSynchronicityTestWidgetPoint(std::string idMeteoPoint)
 
 void PragaProject::setSynchronicityReferencePoint(std::string idMeteoPoint)
 {
+    // check dates
+    QDate firstDaily = meteoPointsDbHandler->getFirstDate(daily, idMeteoPoint).date();
+    QDate lastDaily = meteoPointsDbHandler->getLastDate(daily, idMeteoPoint).date();
+    bool hasDailyData = !(firstDaily.isNull() || lastDaily.isNull());
+
+    if (!hasDailyData)
+    {
+        logInfoGUI("No daily data.");
+        return;
+    }
     synchReferencePoint = idMeteoPoint;
     if (synchronicityWidget != nullptr)
     {
