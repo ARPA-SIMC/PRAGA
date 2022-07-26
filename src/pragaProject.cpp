@@ -2328,7 +2328,7 @@ void PragaProject::showSynchronicityTestWidgetPoint(std::string idMeteoPoint)
     logInfoGUI("Loading daily data...");
     meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), &mp);
     closeLogInfo();
-    synchronicityWidget = new Crit3DSynchronicityWidget(meteoPointsDbHandler, &mp, firstDaily, lastDaily,
+    synchronicityWidget = new Crit3DSynchronicityWidget(meteoPointsDbHandler, mp, gisSettings, firstDaily, lastDaily,
                                                             meteoSettings, pragaDefaultSettings, &climateParameters, quality);
     if (synchReferencePoint != "")
     {
