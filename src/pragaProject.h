@@ -45,6 +45,9 @@
     {
     private:
 
+    private slots:
+            void deleteSynchWidget();
+
     public:
         gis::Crit3DRasterGrid dataRaster;
         Crit3DDailyMeteoMaps* pragaDailyMaps;
