@@ -2198,6 +2198,9 @@
      <addaction name="actionUnmark_all_points"/>
     </widget>
     <widget class="QMenu" name="menuShift_data">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="title">
       <string>Shift data</string>
      </property>
