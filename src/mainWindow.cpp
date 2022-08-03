@@ -37,6 +37,7 @@
 #include "dialogSelectDataset.h"
 #include "dialogAddMissingStation.h"
 #include "dialogAddRemoveDataset.h"
+#include "dialogShiftData.h"
 #include "utilities.h"
 #include "basicMath.h"
 #include "interpolation.h"
@@ -938,7 +939,8 @@ void MainWindow::drawMeteoPoints()
     ui->menuDeactive_points->setEnabled(true);
     ui->menuDelete_points->setEnabled(true);
     ui->menuDelete_data->setEnabled(true);
-    ui->actionShift_data->setEnabled(true);
+    ui->actionShiftDataAll->setEnabled(true);
+    ui->actionShiftDataSelected->setEnabled(true);
     ui->actionMeteopointDataCount->setEnabled(true);
 
     ui->grid->setChecked(false);
@@ -2627,7 +2629,8 @@ void MainWindow::closeMeteoPoints()
         ui->menuDeactive_points->setEnabled(false);
         ui->menuDelete_points->setEnabled(false);
         ui->menuDelete_data->setEnabled(false);
-        ui->actionShift_data->setEnabled(false);
+        ui->actionShiftDataAll->setEnabled(false);
+        ui->actionShiftDataSelected->setEnabled(false);
         ui->actionMeteopointDataCount->setEnabled(false);
 
         showPointsGroup->setEnabled(false);
@@ -4192,13 +4195,60 @@ void MainWindow::on_actionSearch_point_triggered()
     // TODO
 }
 
-
-void MainWindow::on_actionShift_data_triggered()
+void MainWindow::on_actionMeteoGridActive_cells_with_DEM_triggered()
 {
     // TODO
 }
 
-void MainWindow::on_actionMeteoGridActive_cells_with_DEM_triggered()
+void MainWindow::on_actionShiftDataAll_triggered()
 {
-    // TODO
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        myProject.logError(ERROR_STR_MISSING_DB);
+        return;
+    }
+
+    DialogShiftData shiftDialog(myProject.getCurrentDate());
+    if (shiftDialog.result() == QDialog::Accepted)
+    {
+        // TO DO
+    }
+    else
+    {
+        return;
+    }
+}
+
+void MainWindow::on_actionShiftDataSelected_triggered()
+{
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        myProject.logError(ERROR_STR_MISSING_DB);
+        return;
+    }
+
+    QList<QString> pointList;
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        if (myProject.meteoPoints[i].selected)
+        {
+            pointList << QString::fromStdString(myProject.meteoPoints[i].id);
+        }
+    }
+
+    if (pointList.isEmpty())
+    {
+        myProject.logError("No meteo points selected.");
+        return;
+    }
+
+    DialogShiftData shiftDialog(myProject.getCurrentDate());
+    if (shiftDialog.result() == QDialog::Accepted)
+    {
+        // TO DO
+    }
+    else
+    {
+        return;
+    }
 }
