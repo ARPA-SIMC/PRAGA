@@ -2026,7 +2026,7 @@
      <x>0</x>
      <y>0</y>
      <width>1123</width>
-     <height>29</height>
+     <height>30</height>
     </rect>
    </property>
    <property name="palette">
@@ -2374,6 +2374,7 @@
     <addaction name="menuColor_scale"/>
     <addaction name="separator"/>
     <addaction name="actionMeteogridMissingData"/>
+    <addaction name="actionMeteoGridActive_cells_with_DEM"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuShow"/>
@@ -3002,6 +3003,11 @@
   <action name="actionMeteoGrid_Set_color_scale">
    <property name="text">
     <string>Set...</string>
+   </property>
+  </action>
+  <action name="actionMeteoGridActive_cells_with_DEM">
+   <property name="text">
+    <string>Active cells with DEM</string>
    </property>
   </action>
  </widget>

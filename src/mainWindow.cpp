@@ -4193,5 +4193,12 @@ void MainWindow::on_actionSearch_point_triggered()
 }
 
 
+void MainWindow::on_actionShift_data_triggered()
+{
+    // TODO
+}
 
-
+void MainWindow::on_actionMeteoGridActive_cells_with_DEM_triggered()
+{
+    // TODO
+}
