@@ -939,8 +939,7 @@ void MainWindow::drawMeteoPoints()
     ui->menuDeactive_points->setEnabled(true);
     ui->menuDelete_points->setEnabled(true);
     ui->menuDelete_data->setEnabled(true);
-    ui->actionShiftDataAll->setEnabled(true);
-    ui->actionShiftDataSelected->setEnabled(true);
+    ui->menuShift_data->setEnabled(true);
     ui->actionMeteopointDataCount->setEnabled(true);
 
     ui->grid->setChecked(false);
@@ -2629,8 +2628,7 @@ void MainWindow::closeMeteoPoints()
         ui->menuDeactive_points->setEnabled(false);
         ui->menuDelete_points->setEnabled(false);
         ui->menuDelete_data->setEnabled(false);
-        ui->actionShiftDataAll->setEnabled(false);
-        ui->actionShiftDataSelected->setEnabled(false);
+        ui->menuShift_data->setEnabled(false);
         ui->actionMeteopointDataCount->setEnabled(false);
 
         showPointsGroup->setEnabled(false);
