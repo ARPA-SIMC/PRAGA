@@ -4206,10 +4206,23 @@ void MainWindow::on_actionShiftDataAll_triggered()
         return;
     }
 
-    DialogShiftData shiftDialog(myProject.getCurrentDate());
+    bool allPoints = true;
+
+    DialogShiftData shiftDialog(myProject.getCurrentDate(), allPoints);
     if (shiftDialog.result() == QDialog::Accepted)
     {
-        // TO DO
+        int shift = shiftDialog.getShift();
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Are you sure?" ,
+                                      QString::number(myProject.nrMeteoPoints) + " points will be" + QString::number(shift) +" days shifted",
+                                      QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::Yes)
+        {
+            meteoVariable varToShifted = shiftDialog.getVariable();
+            QDate dateFrom = shiftDialog.getDateFrom();
+            QDate dateTo = shiftDialog.getDateTo();
+            // TO DO
+        }
     }
     else
     {
@@ -4240,10 +4253,23 @@ void MainWindow::on_actionShiftDataSelected_triggered()
         return;
     }
 
-    DialogShiftData shiftDialog(myProject.getCurrentDate());
+    bool allPoints = false;
+
+    DialogShiftData shiftDialog(myProject.getCurrentDate(), allPoints);
     if (shiftDialog.result() == QDialog::Accepted)
     {
-        // TO DO
+        int shift = shiftDialog.getShift();
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Are you sure?" ,
+                                      QString::number(pointList.size()) + " selected points will be" + QString::number(shift) +" days shifted",
+                                      QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::Yes)
+        {
+            meteoVariable varToShifted = shiftDialog.getVariable();
+            QDate dateFrom = shiftDialog.getDateFrom();
+            QDate dateTo = shiftDialog.getDateTo();
+            // TO DO
+        }
     }
     else
     {
