@@ -1167,6 +1167,7 @@ void MainWindow::drawMeteoGrid()
     this->ui->grid->setEnabled(true);
     this->ui->grid->setChecked(true);
     showGridGroup->setEnabled(true);
+    this->ui->menuActive_cells->setEnabled(true);
     if (myProject.getCurrentVariable() != noMeteoVar && myProject.getCurrentFrequency() != noFrequency)
     {
         this->ui->actionShowGridCurrent->setEnabled(true);
@@ -2671,6 +2672,7 @@ void MainWindow::closeMeteoGrid()
             this->ui->grid->setEnabled(false);
 
             showGridGroup->setEnabled(false);
+            this->ui->menuActive_cells->setEnabled(false);
             this->ui->menuShowGridAnomaly->setEnabled(false);
 
             if (myProject.meteoPointsDbHandler != nullptr)
@@ -4193,10 +4195,6 @@ void MainWindow::on_actionSearch_point_triggered()
     // TODO
 }
 
-void MainWindow::on_actionMeteoGridActive_cells_with_DEM_triggered()
-{
-    // TODO
-}
 
 void MainWindow::on_actionShiftDataAll_triggered()
 {
@@ -4410,4 +4408,53 @@ void MainWindow::on_actionShiftDataSelected_triggered()
     QDate currentDate = myProject.getCurrentDate();
     myProject.loadMeteoPointsData(currentDate, currentDate, true, true, true);
     redrawMeteoPoints(currentPointsVisualization, true);
+}
+
+void MainWindow::on_actionMeteoGridActiveAll_triggered()
+{
+    if (myProject.meteoGridDbHandler == nullptr)
+    {
+        myProject.logError(ERROR_STR_MISSING_GRID);
+        return;
+    }
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Are you sure?" ,
+                                  "All meteo grid cells will be activated",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes)
+    {
+        if (!myProject.meteoGridDbHandler->activeAllCells(&myProject.errorString))
+        {
+            myProject.logError("Failed to active all cells "+myProject.errorString);
+            return;
+        }
+        QString xmlName = myProject.dbGridXMLFileName;
+        closeMeteoGrid();
+        loadMeteoGrid(xmlName);
+    }
+
+}
+
+void MainWindow::on_actionMeteoGridActiveWith_DEM_triggered()
+{
+    if (myProject.meteoGridDbHandler == nullptr)
+    {
+        myProject.logError(ERROR_STR_MISSING_GRID);
+        return;
+    }
+
+    if (!myProject.DEM.isLoaded)
+    {
+        myProject.logError(ERROR_STR_MISSING_DEM);
+        return;
+    }
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Are you sure?" ,
+                                  "All meteo grid cells inside actuale DEM will be activated",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes)
+    {
+        // TO DO
+    }
 }
