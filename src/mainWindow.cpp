@@ -4455,19 +4455,13 @@ void MainWindow::on_actionMeteoGridActiveWith_DEM_triggered()
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes)
     {
-        // TO DO
-        /* test
-        QList<QString> idList;
-        idList.append("000007");
-        idList.append("000008");
-        if (!myProject.meteoGridDbHandler->activeCellsInList(&myProject.errorString, idList))
+        if (!myProject.activeMeteoGridCellsWithDEM())
         {
-            myProject.logError("Failed to active all cells "+myProject.errorString);
+            myProject.logError("Failed to active cells inside actuale DEM "+myProject.errorString);
             return;
         }
         QString xmlName = myProject.dbGridXMLFileName;
         closeMeteoGrid();
         loadMeteoGrid(xmlName);
-        */
     }
 }

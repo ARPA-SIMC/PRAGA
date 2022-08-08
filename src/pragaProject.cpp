@@ -2908,3 +2908,64 @@ bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int
     return res;
 }
 
+bool PragaProject::activeMeteoGridCellsWithDEM()
+{
+
+    if (modality == MODE_GUI)
+        setProgressBar("Active cells... ", meteoGridDbHandler->gridStructure().header().nrRows);
+
+    int infoStep = 1;
+    bool excludeNoData;
+    QList<QString> idActiveList;
+    QList<QString> idNotActiveList;
+    float minCoverage = clima->getElabSettings()->getGridMinCoverage();
+
+    for (int row = 0; row < this->meteoGridDbHandler->gridStructure().header().nrRows; row++)
+    {
+        if (modality == MODE_GUI && (row % infoStep) == 0) updateProgressBar(row);
+
+        for (int col = 0; col < this->meteoGridDbHandler->gridStructure().header().nrCols; col++)
+        {
+            meteoGridDbHandler->meteoGrid()->assignCellAggregationPoints(row, col, &DEM, excludeNoData);
+            if (meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->aggregationPointsMaxNr == 0)
+            {
+                idNotActiveList.append(QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id));
+                meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active = false;
+            }
+            else
+            {
+                qDebug() << "meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->aggregationPoints.size() " << QString::number(meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->aggregationPoints.size());
+                qDebug() << "meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->aggregationPointsMaxNr " << QString::number(meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->aggregationPointsMaxNr);
+                qDebug() << "minCoverage " << QString::number(minCoverage);
+                if ((float)meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->aggregationPoints.size() / (float)meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->aggregationPointsMaxNr > minCoverage/100.0)
+                {
+                    idActiveList.append(QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id));
+                    meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active = true;
+                }
+                else
+                {
+                    idNotActiveList.append(QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id));
+                    meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active = false;
+                }
+            }
+        }
+    }
+
+    if (modality == MODE_GUI) closeProgressBar();
+
+    logInfoGUI("Update meteo grid db");
+
+    bool ok = true;
+
+    if (!meteoGridDbHandler->setActiveStateCellsInList(&errorString, idActiveList, true))
+    {
+        ok = false;
+    }
+    if (!meteoGridDbHandler->setActiveStateCellsInList(&errorString, idNotActiveList, false))
+    {
+        ok = false;
+    }
+
+    return ok;
+}
+
