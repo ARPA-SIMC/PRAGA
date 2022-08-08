@@ -4456,5 +4456,18 @@ void MainWindow::on_actionMeteoGridActiveWith_DEM_triggered()
     if (reply == QMessageBox::Yes)
     {
         // TO DO
+        /* test
+        QList<QString> idList;
+        idList.append("000007");
+        idList.append("000008");
+        if (!myProject.meteoGridDbHandler->activeCellsInList(&myProject.errorString, idList))
+        {
+            myProject.logError("Failed to active all cells "+myProject.errorString);
+            return;
+        }
+        QString xmlName = myProject.dbGridXMLFileName;
+        closeMeteoGrid();
+        loadMeteoGrid(xmlName);
+        */
     }
 }
