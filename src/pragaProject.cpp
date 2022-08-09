@@ -2915,7 +2915,7 @@ bool PragaProject::activeMeteoGridCellsWithDEM()
         setProgressBar("Active cells... ", meteoGridDbHandler->gridStructure().header().nrRows);
 
     int infoStep = 1;
-    bool excludeNoData;
+    bool excludeNoData = true;
     QList<QString> idActiveList;
     QList<QString> idNotActiveList;
     float minCoverage = clima->getElabSettings()->getGridMinCoverage();
@@ -2934,9 +2934,6 @@ bool PragaProject::activeMeteoGridCellsWithDEM()
             }
             else
             {
-                qDebug() << "meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->aggregationPoints.size() " << QString::number(meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->aggregationPoints.size());
-                qDebug() << "meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->aggregationPointsMaxNr " << QString::number(meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->aggregationPointsMaxNr);
-                qDebug() << "minCoverage " << QString::number(minCoverage);
                 if ((float)meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->aggregationPoints.size() / (float)meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->aggregationPointsMaxNr > minCoverage/100.0)
                 {
                     idActiveList.append(QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id));
