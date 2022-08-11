@@ -2248,13 +2248,9 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
     QDate lastDaily = meteoPointsDbHandler->getLastDate(daily, idMeteoPoint).date();
     bool hasDailyData = !(firstDaily.isNull() || lastDaily.isNull());
 
-    QDateTime firstHourly = meteoPointsDbHandler->getFirstDate(hourly, idMeteoPoint);
-    QDateTime lastHourly = meteoPointsDbHandler->getLastDate(hourly, idMeteoPoint);
-    bool hasHourlyData = !(firstHourly.isNull() || lastHourly.isNull());
-
-    if (!hasDailyData && !hasHourlyData)
+    if (!hasDailyData)
     {
-        logInfoGUI("No data.");
+        logInfoGUI("No daily data.");
         return;
     }
 
@@ -2262,8 +2258,15 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
     meteoPointsDbHandler->getPropertiesGivenId(QString::fromStdString(idMeteoPoint), &mp, gisSettings, errorString);
     logInfoGUI("Loading daily data...");
     meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), &mp);
-    logInfoGUI("Loading hourly data...");
-    meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), &mp);
+    QList<QString> jointStationsMyMp = meteoPointsDbHandler->getJointStations(QString::fromStdString(idMeteoPoint));
+    for (int j = 0; j<jointStationsMyMp.size(); j++)
+    {
+        QDate lastDateNew = meteoPointsDbHandler->getLastDate(daily, jointStationsMyMp[j].toStdString()).date();
+        if (lastDateNew > lastDaily)
+        {
+            lastDaily = lastDateNew;
+        }
+    }
     closeLogInfo();
     QList<Crit3DMeteoPoint> meteoPointsNearDistanceList;
     std::vector<float> myDistances;
