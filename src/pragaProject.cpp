@@ -2259,6 +2259,8 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
     logInfoGUI("Loading daily data...");
     meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), &mp);
     QList<QString> jointStationsMyMp = meteoPointsDbHandler->getJointStations(QString::fromStdString(idMeteoPoint));
+    /*
+     * // TO DO
     for (int j = 0; j<jointStationsMyMp.size(); j++)
     {
         QDate lastDateNew = meteoPointsDbHandler->getLastDate(daily, jointStationsMyMp[j].toStdString()).date();
@@ -2267,6 +2269,7 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
             lastDaily = lastDateNew;
         }
     }
+    */
     closeLogInfo();
     QList<Crit3DMeteoPoint> meteoPointsNearDistanceList;
     std::vector<float> myDistances;
