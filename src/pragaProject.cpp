@@ -2259,8 +2259,6 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
     logInfoGUI("Loading daily data...");
     meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), &mp);
     QList<QString> jointStationsMyMp = meteoPointsDbHandler->getJointStations(QString::fromStdString(idMeteoPoint));
-    /*
-     * // TO DO
     for (int j = 0; j<jointStationsMyMp.size(); j++)
     {
         QDate lastDateNew = meteoPointsDbHandler->getLastDate(daily, jointStationsMyMp[j].toStdString()).date();
@@ -2269,7 +2267,6 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
             lastDaily = lastDateNew;
         }
     }
-    */
     closeLogInfo();
     QList<Crit3DMeteoPoint> meteoPointsNearDistanceList;
     std::vector<float> myDistances;
@@ -2287,7 +2284,7 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
                 double utmX = meteoPoints[i].point.utm.x;
                 double utmY = meteoPoints[i].point.utm.y;
                 float currentDist = gis::computeDistance(mpUtmX, mpUtmY, utmX, utmY);
-                if (currentDist < clima->getElabSettings()->getAnomalyPtsMaxDistance())
+                if (currentDist < clima->getElabSettings()->getAnomalyPtsMaxDistance() || jointStationsMyMp.contains(QString::fromStdString(meteoPoints[i].id)))
                 {
                     meteoPointsNearDistanceList.append(meteoPoints[i]);
                 }
@@ -2309,7 +2306,7 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
     {
         myId << meteoPoints[myIndeces[i]].id;
     }
-    homogeneityWidget = new Crit3DHomogeneityWidget(meteoPointsDbHandler, meteoPointsNearDistanceList, myId, myDistances, firstDaily, lastDaily,
+    homogeneityWidget = new Crit3DHomogeneityWidget(meteoPointsDbHandler, meteoPointsNearDistanceList, myId, myDistances, jointStationsMyMp, firstDaily, lastDaily,
                                                             meteoSettings, pragaDefaultSettings, &climateParameters, quality);
     return;
 }
