@@ -2248,13 +2248,9 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
     QDate lastDaily = meteoPointsDbHandler->getLastDate(daily, idMeteoPoint).date();
     bool hasDailyData = !(firstDaily.isNull() || lastDaily.isNull());
 
-    QDateTime firstHourly = meteoPointsDbHandler->getFirstDate(hourly, idMeteoPoint);
-    QDateTime lastHourly = meteoPointsDbHandler->getLastDate(hourly, idMeteoPoint);
-    bool hasHourlyData = !(firstHourly.isNull() || lastHourly.isNull());
-
-    if (!hasDailyData && !hasHourlyData)
+    if (!hasDailyData)
     {
-        logInfoGUI("No data.");
+        logInfoGUI("No daily data.");
         return;
     }
 
@@ -2262,8 +2258,15 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
     meteoPointsDbHandler->getPropertiesGivenId(QString::fromStdString(idMeteoPoint), &mp, gisSettings, errorString);
     logInfoGUI("Loading daily data...");
     meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), &mp);
-    logInfoGUI("Loading hourly data...");
-    meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), &mp);
+    QList<QString> jointStationsMyMp = meteoPointsDbHandler->getJointStations(QString::fromStdString(idMeteoPoint));
+    for (int j = 0; j<jointStationsMyMp.size(); j++)
+    {
+        QDate lastDateNew = meteoPointsDbHandler->getLastDate(daily, jointStationsMyMp[j].toStdString()).date();
+        if (lastDateNew > lastDaily)
+        {
+            lastDaily = lastDateNew;
+        }
+    }
     closeLogInfo();
     QList<Crit3DMeteoPoint> meteoPointsNearDistanceList;
     std::vector<float> myDistances;
@@ -2281,7 +2284,7 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
                 double utmX = meteoPoints[i].point.utm.x;
                 double utmY = meteoPoints[i].point.utm.y;
                 float currentDist = gis::computeDistance(mpUtmX, mpUtmY, utmX, utmY);
-                if (currentDist < clima->getElabSettings()->getAnomalyPtsMaxDistance())
+                if (currentDist < clima->getElabSettings()->getAnomalyPtsMaxDistance() || jointStationsMyMp.contains(QString::fromStdString(meteoPoints[i].id)))
                 {
                     meteoPointsNearDistanceList.append(meteoPoints[i]);
                 }
@@ -2303,7 +2306,7 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
     {
         myId << meteoPoints[myIndeces[i]].id;
     }
-    homogeneityWidget = new Crit3DHomogeneityWidget(meteoPointsDbHandler, meteoPointsNearDistanceList, myId, myDistances, firstDaily, lastDaily,
+    homogeneityWidget = new Crit3DHomogeneityWidget(meteoPointsDbHandler, meteoPointsNearDistanceList, myId, myDistances, jointStationsMyMp, firstDaily, lastDaily,
                                                             meteoSettings, pragaDefaultSettings, &climateParameters, quality);
     return;
 }
@@ -2906,5 +2909,63 @@ bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int
         }
     }
     return res;
+}
+
+bool PragaProject::activeMeteoGridCellsWithDEM()
+{
+
+    if (modality == MODE_GUI)
+        setProgressBar("Active cells... ", meteoGridDbHandler->gridStructure().header().nrRows);
+
+    int infoStep = 1;
+    bool excludeNoData = true;
+    QList<QString> idActiveList;
+    QList<QString> idNotActiveList;
+    float minCoverage = clima->getElabSettings()->getGridMinCoverage();
+
+    for (int row = 0; row < this->meteoGridDbHandler->gridStructure().header().nrRows; row++)
+    {
+        if (modality == MODE_GUI && (row % infoStep) == 0) updateProgressBar(row);
+
+        for (int col = 0; col < this->meteoGridDbHandler->gridStructure().header().nrCols; col++)
+        {
+            meteoGridDbHandler->meteoGrid()->assignCellAggregationPoints(row, col, &DEM, excludeNoData);
+            if (meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->aggregationPointsMaxNr == 0)
+            {
+                idNotActiveList.append(QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id));
+                meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active = false;
+            }
+            else
+            {
+                if ((float)meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->aggregationPoints.size() / (float)meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->aggregationPointsMaxNr > minCoverage/100.0)
+                {
+                    idActiveList.append(QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id));
+                    meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active = true;
+                }
+                else
+                {
+                    idNotActiveList.append(QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id));
+                    meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active = false;
+                }
+            }
+        }
+    }
+
+    if (modality == MODE_GUI) closeProgressBar();
+
+    logInfoGUI("Update meteo grid db");
+
+    bool ok = true;
+
+    if (!meteoGridDbHandler->setActiveStateCellsInList(&errorString, idActiveList, true))
+    {
+        ok = false;
+    }
+    if (!meteoGridDbHandler->setActiveStateCellsInList(&errorString, idNotActiveList, false))
+    {
+        ok = false;
+    }
+
+    return ok;
 }
 

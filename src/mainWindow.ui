@@ -2381,10 +2381,20 @@
      <addaction name="menuRange"/>
      <addaction name="actionMeteoGrid_Reverse_color_scale"/>
     </widget>
+    <widget class="QMenu" name="menuActive_cells">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Active cells</string>
+     </property>
+     <addaction name="actionMeteoGridActiveAll"/>
+     <addaction name="actionMeteoGridActiveWith_DEM"/>
+    </widget>
     <addaction name="menuColor_scale"/>
     <addaction name="separator"/>
     <addaction name="actionMeteogridMissingData"/>
-    <addaction name="actionMeteoGridActive_cells_with_DEM"/>
+    <addaction name="menuActive_cells"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuShow"/>
@@ -3007,11 +3017,6 @@
     <string>Set...</string>
    </property>
   </action>
-  <action name="actionMeteoGridActive_cells_with_DEM">
-   <property name="text">
-    <string>Active cells with DEM</string>
-   </property>
-  </action>
   <action name="actionShiftDataAll">
    <property name="text">
     <string>All</string>
@@ -3020,6 +3025,16 @@
   <action name="actionShiftDataSelected">
    <property name="text">
     <string>Selected</string>
+   </property>
+  </action>
+  <action name="actionMeteoGridActiveAll">
+   <property name="text">
+    <string>All</string>
+   </property>
+  </action>
+  <action name="actionMeteoGridActiveWith_DEM">
+   <property name="text">
+    <string>With DEM</string>
    </property>
   </action>
  </widget>

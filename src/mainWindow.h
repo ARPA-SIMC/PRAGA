@@ -223,11 +223,13 @@
 
         void on_flagMeteoGrid_Fixed_color_scale_triggered(bool isChecked);
 
-        void on_actionMeteoGridActive_cells_with_DEM_triggered();
-
         void on_actionShiftDataAll_triggered();
 
         void on_actionShiftDataSelected_triggered();
+
+        void on_actionMeteoGridActiveAll_triggered();
+
+        void on_actionMeteoGridActiveWith_DEM_triggered();
 
     protected:
         /*!

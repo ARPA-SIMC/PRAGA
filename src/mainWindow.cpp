@@ -1167,6 +1167,7 @@ void MainWindow::drawMeteoGrid()
     this->ui->grid->setEnabled(true);
     this->ui->grid->setChecked(true);
     showGridGroup->setEnabled(true);
+    this->ui->menuActive_cells->setEnabled(true);
     if (myProject.getCurrentVariable() != noMeteoVar && myProject.getCurrentFrequency() != noFrequency)
     {
         this->ui->actionShowGridCurrent->setEnabled(true);
@@ -2671,6 +2672,7 @@ void MainWindow::closeMeteoGrid()
             this->ui->grid->setEnabled(false);
 
             showGridGroup->setEnabled(false);
+            this->ui->menuActive_cells->setEnabled(false);
             this->ui->menuShowGridAnomaly->setEnabled(false);
 
             if (myProject.meteoPointsDbHandler != nullptr)
@@ -4193,10 +4195,6 @@ void MainWindow::on_actionSearch_point_triggered()
     // TODO
 }
 
-void MainWindow::on_actionMeteoGridActive_cells_with_DEM_triggered()
-{
-    // TODO
-}
 
 void MainWindow::on_actionShiftDataAll_triggered()
 {
@@ -4206,15 +4204,96 @@ void MainWindow::on_actionShiftDataAll_triggered()
         return;
     }
 
-    DialogShiftData shiftDialog(myProject.getCurrentDate());
+    bool allPoints = true;
+
+    DialogShiftData shiftDialog(myProject.getCurrentDate(), allPoints);
     if (shiftDialog.result() == QDialog::Accepted)
     {
-        // TO DO
+        int shift = shiftDialog.getShift();
+        if (shift == 0)
+        {
+            myProject.logInfo("Shift is equal 0, data are not shifted");
+            return;
+        }
+
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Are you sure?" ,
+                                      QString::number(myProject.nrMeteoPoints) + " points will be " + QString::number(shift) +" days shifted",
+                                      QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::Yes)
+        {
+            meteoVariable varToShifted = shiftDialog.getVariable();
+            QList<meteoVariable> varList;
+            varList.push_back(varToShifted);
+            int varId = myProject.meteoPointsDbHandler->getIdfromMeteoVar(varToShifted);
+            QDate dateFrom = shiftDialog.getDateFrom();
+            QDate dateTo = shiftDialog.getDateTo();
+            QDate firstDateDB;
+            Crit3DMeteoPoint meteoPoint;
+            QList<QString> listEntries;
+
+            for (int i = 0; i < myProject.nrMeteoPoints; i++)
+            {
+                std::string myId = myProject.meteoPoints[i].id;
+                meteoPoint.setId(myId);
+                std::vector<float> dailyData = myProject.meteoPointsDbHandler->loadDailyVar(&myProject.errorString, varToShifted,
+                                                                                            getCrit3DDate(dateFrom), getCrit3DDate(dateTo), &firstDateDB, &meteoPoint);
+                if (!myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myId), daily, varList, dateFrom, dateTo))
+                {
+                    myProject.logError("Failed to delete data id point "+QString::fromStdString(myId));
+                }
+                listEntries.clear();
+
+                QDate dateFromShifted;
+                QDate dateToShifted;
+
+                if (dateFrom.addDays(shift) > dateFrom)
+                {
+                    dateFromShifted = dateFrom.addDays(shift);
+                }
+                else
+                {
+                    dateFromShifted = dateFrom;
+                }
+
+                if (dateTo.addDays(shift) < dateTo)
+                {
+                    dateToShifted = dateTo.addDays(shift);
+                }
+                else
+                {
+                    dateToShifted = dateTo;
+                }
+
+                int index;
+                if (shift>0)
+                {
+                    index = 0;
+                }
+                else
+                {
+                    index = -shift;
+                }
+                while (dateFromShifted <= dateToShifted)
+                {
+                    listEntries.push_back(QString("('%1',%2,%3)").arg(dateFromShifted.toString("yyyy-MM-dd")).arg(varId).arg(dailyData[index]));
+                    dateFromShifted = dateFromShifted.addDays(1);
+                    index = index + 1;
+                }
+                if (!myProject.meteoPointsDbHandler->writeDailyDataList(QString::fromStdString(myId), listEntries, &myProject.errorString))
+                {
+                    myProject.logError("Failed to shift id point "+QString::fromStdString(myId));
+                }
+            }
+        }
     }
     else
     {
         return;
     }
+    QDate currentDate = myProject.getCurrentDate();
+    myProject.loadMeteoPointsData(currentDate, currentDate, true, true, true);
+    redrawMeteoPoints(currentPointsVisualization, true);
 }
 
 void MainWindow::on_actionShiftDataSelected_triggered()
@@ -4225,12 +4304,12 @@ void MainWindow::on_actionShiftDataSelected_triggered()
         return;
     }
 
-    QList<QString> pointList;
+    QList<std::string> pointList;
     for (int i = 0; i < myProject.nrMeteoPoints; i++)
     {
         if (myProject.meteoPoints[i].selected)
         {
-            pointList << QString::fromStdString(myProject.meteoPoints[i].id);
+            pointList << myProject.meteoPoints[i].id;
         }
     }
 
@@ -4240,13 +4319,149 @@ void MainWindow::on_actionShiftDataSelected_triggered()
         return;
     }
 
-    DialogShiftData shiftDialog(myProject.getCurrentDate());
+    bool allPoints = false;
+
+    DialogShiftData shiftDialog(myProject.getCurrentDate(), allPoints);
     if (shiftDialog.result() == QDialog::Accepted)
     {
-        // TO DO
+        int shift = shiftDialog.getShift();
+
+        if (shift == 0)
+        {
+            myProject.logInfo("Shift is equal 0, data are not shifted");
+            return;
+        }
+        QMessageBox::StandardButton reply;
+        reply = QMessageBox::question(this, "Are you sure?" ,
+                                      QString::number(pointList.size()) + " selected points will be " + QString::number(shift) +" days shifted",
+                                      QMessageBox::Yes|QMessageBox::No);
+        if (reply == QMessageBox::Yes)
+        {
+            meteoVariable varToShifted = shiftDialog.getVariable();
+            QList<meteoVariable> varList;
+            varList.push_back(varToShifted);
+            int varId = myProject.meteoPointsDbHandler->getIdfromMeteoVar(varToShifted);
+            QDate dateFrom = shiftDialog.getDateFrom();
+            QDate dateTo = shiftDialog.getDateTo();
+            QDate firstDateDB;
+            Crit3DMeteoPoint meteoPoint;
+            QList<QString> listEntries;
+
+            for (int i = 0; i < pointList.size(); i++)
+            {
+                meteoPoint.setId(pointList[i]);
+                std::vector<float> dailyData = myProject.meteoPointsDbHandler->loadDailyVar(&myProject.errorString, varToShifted,
+                                                                                            getCrit3DDate(dateFrom), getCrit3DDate(dateTo), &firstDateDB, &meteoPoint);
+                if (!myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(pointList[i]), daily, varList, dateFrom, dateTo))
+                {
+                    myProject.logError("Failed to delete data id point "+QString::fromStdString(pointList[i]));
+                }
+                listEntries.clear();
+
+                QDate dateFromShifted;
+                QDate dateToShifted;
+
+                if (dateFrom.addDays(shift) > dateFrom)
+                {
+                    dateFromShifted = dateFrom.addDays(shift);
+                }
+                else
+                {
+                    dateFromShifted = dateFrom;
+                }
+
+                if (dateTo.addDays(shift) < dateTo)
+                {
+                    dateToShifted = dateTo.addDays(shift);
+                }
+                else
+                {
+                    dateToShifted = dateTo;
+                }
+
+                int index;
+                if (shift>0)
+                {
+                    index = 0;
+                }
+                else
+                {
+                    index = -shift;
+                }
+                while (dateFromShifted <= dateToShifted)
+                {
+                    listEntries.push_back(QString("('%1',%2,%3)").arg(dateFromShifted.toString("yyyy-MM-dd")).arg(varId).arg(dailyData[index]));
+                    dateFromShifted = dateFromShifted.addDays(1);
+                    index = index + 1;
+                }
+                if (!myProject.meteoPointsDbHandler->writeDailyDataList(QString::fromStdString(pointList[i]), listEntries, &myProject.errorString))
+                {
+                    myProject.logError("Failed to shift id point "+QString::fromStdString(pointList[i]));
+                }
+            }
+        }
     }
     else
     {
         return;
+    }
+    QDate currentDate = myProject.getCurrentDate();
+    myProject.loadMeteoPointsData(currentDate, currentDate, true, true, true);
+    redrawMeteoPoints(currentPointsVisualization, true);
+}
+
+void MainWindow::on_actionMeteoGridActiveAll_triggered()
+{
+    if (myProject.meteoGridDbHandler == nullptr)
+    {
+        myProject.logError(ERROR_STR_MISSING_GRID);
+        return;
+    }
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Are you sure?" ,
+                                  "All meteo grid cells will be activated",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes)
+    {
+        if (!myProject.meteoGridDbHandler->activeAllCells(&myProject.errorString))
+        {
+            myProject.logError("Failed to active all cells "+myProject.errorString);
+            return;
+        }
+        QString xmlName = myProject.dbGridXMLFileName;
+        closeMeteoGrid();
+        loadMeteoGrid(xmlName);
+    }
+
+}
+
+void MainWindow::on_actionMeteoGridActiveWith_DEM_triggered()
+{
+    if (myProject.meteoGridDbHandler == nullptr)
+    {
+        myProject.logError(ERROR_STR_MISSING_GRID);
+        return;
+    }
+
+    if (!myProject.DEM.isLoaded)
+    {
+        myProject.logError(ERROR_STR_MISSING_DEM);
+        return;
+    }
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Are you sure?" ,
+                                  "All meteo grid cells inside actuale DEM will be activated",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply == QMessageBox::Yes)
+    {
+        if (!myProject.activeMeteoGridCellsWithDEM())
+        {
+            myProject.logError("Failed to active cells inside actuale DEM "+myProject.errorString);
+            return;
+        }
+        QString xmlName = myProject.dbGridXMLFileName;
+        closeMeteoGrid();
+        loadMeteoGrid(xmlName);
     }
 }

@@ -129,6 +129,7 @@
         void showSynchronicityTestWidgetPoint(std::string idMeteoPoint);
         void setSynchronicityReferencePoint(std::string idMeteoPoint);
         void showPointStatisticsWidgetGrid(std::string id);
+        bool activeMeteoGridCellsWithDEM();
 
 
         #ifdef NETCDF
