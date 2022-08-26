@@ -2325,14 +2325,11 @@ void PragaProject::showSynchronicityTestWidgetPoint(std::string idMeteoPoint)
         logInfoGUI("No daily data.");
         return;
     }
-
-    Crit3DMeteoPoint mp;
-    meteoPointsDbHandler->getPropertiesGivenId(QString::fromStdString(idMeteoPoint), &mp, gisSettings, errorString);
-    logInfoGUI("Loading daily data...");
-    meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), &mp);
     closeLogInfo();
+
     Crit3DMeteoPoint* otherMeteoPoints = new Crit3DMeteoPoint[unsigned(nrMeteoPoints-1)];
     int j = 0;
+    int indexMp = 0;
     for (int i=0; i < nrMeteoPoints; i++)
     {
         if (meteoPoints[i].id != idMeteoPoint)
@@ -2340,9 +2337,13 @@ void PragaProject::showSynchronicityTestWidgetPoint(std::string idMeteoPoint)
             otherMeteoPoints[j] = meteoPoints[i];
             j = j + 1;
         }
+        else
+        {
+            indexMp = i;
+        }
     }
 
-    synchronicityWidget = new Crit3DSynchronicityWidget(meteoPointsDbHandler, mp, gisSettings, firstDaily, lastDaily, meteoSettings, pragaDefaultSettings,
+    synchronicityWidget = new Crit3DSynchronicityWidget(meteoPointsDbHandler, meteoPoints[indexMp], gisSettings, firstDaily, lastDaily, meteoSettings, pragaDefaultSettings,
                                                         &climateParameters, quality, interpolationSettings, qualityInterpolationSettings, checkSpatialQuality, otherMeteoPoints, nrMeteoPoints-1);
     connect(synchronicityWidget, &Crit3DSynchronicityWidget::closeSynchWidget,[=]() { this->deleteSynchWidget(); });
     if (synchReferencePoint != "")
