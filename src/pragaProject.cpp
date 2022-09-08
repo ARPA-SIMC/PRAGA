@@ -39,11 +39,14 @@ void PragaProject::initializePragaProject()
     synchReferencePoint = "";
     pragaDefaultSettings = nullptr;
     pragaDailyMaps = nullptr;
+    users.clear();
 }
 
 void PragaProject::clearPragaProject()
 {
     if (isProjectLoaded) clearProject();
+
+    users.clear();
 
     dataRaster.clear();
 
@@ -133,6 +136,20 @@ bool PragaProject::loadPragaSettings()
             if (parameters->contains("merge_joint_stations") && !parameters->value("merge_joint_stations").toString().isEmpty())
             {
                 elabSettings->setMergeJointStations(parameters->value("merge_joint_stations").toBool());
+            }
+
+            parameters->endGroup();
+
+        }
+        if (group == "quality")
+        {
+            parameters->beginGroup(group);
+
+            if (parameters->contains("users")) // && !parameters->value("users").toString().isEmpty())
+            {
+                QStringList myList = parameters->value("users").toStringList();
+                for (int i=0; i < myList.size(); i++)
+                    users.push_back(myList[i]);
             }
 
             parameters->endGroup();

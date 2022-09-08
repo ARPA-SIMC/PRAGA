@@ -49,6 +49,7 @@
             void deleteSynchWidget();
 
     public:
+        std::vector <QString> users;
         gis::Crit3DRasterGrid dataRaster;
         Crit3DDailyMeteoMaps* pragaDailyMaps;
         PragaHourlyMeteoMaps* pragaHourlyMaps;
