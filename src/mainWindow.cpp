@@ -14,6 +14,8 @@
 #include <iomanip>      // std::setprecision
 
 #include "formTimePeriod.h"
+#include "formSelection.h"
+#include "formText.h"
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
 #include "dbMeteoPointsHandler.h"
@@ -38,7 +40,6 @@
 #include "dialogAddMissingStation.h"
 #include "dialogAddRemoveDataset.h"
 #include "dialogShiftData.h"
-#include "formSelection.h"
 #include "utilities.h"
 #include "basicMath.h"
 #include "interpolation.h"
@@ -4486,9 +4487,16 @@ void MainWindow::on_actionFileMeteogridPlanGriddingPeriod_triggered()
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
 
+    QString user, notes;
     FormSelection selectUser(myProject.users);
     if (selectUser.result() == QDialog::Accepted)
-        QString user = selectUser.getSelection();
+        user = selectUser.getSelection();
 
+    FormText formNotes("Insert notes");
+    if (formNotes.result() == QDialog::Accepted)
+        notes = formNotes.getText();
+
+    if (! myProject.planGriddingPeriod(myFirstTime.date(), myLastTime.date(), user, notes))
+        myProject.logError("Failed to write planning info... " + myProject.errorString);
 }
 

@@ -13,7 +13,7 @@
 #include <qdebug.h>
 #include <QFile>
 #include <QDir>
-
+#include <QSqlQuery>
 
 PragaProject::PragaProject()
 {
@@ -2984,3 +2984,21 @@ bool PragaProject::activeMeteoGridCellsWithDEM()
 
     return ok;
 }
+
+bool PragaProject::planGriddingPeriod(QDate dateIni, QDate dateFin, QString user, QString notes)
+{
+    QSqlQuery qry(meteoGridDbHandler->db());
+    QString table = "regridding_period";
+    QString statement = "CREATE TABLE if not exists `%1` (created DATETIME NOT NULL DEFAULT NOW(), start_date DATE NOT NULL, end_date DATE NOT NULL";
+
+    /*
+    if( !qry.exec(statement) )
+    {
+        errorString = qry.lastError();
+        return false;
+    }*/
+
+    return true;
+
+}
+
