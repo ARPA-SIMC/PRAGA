@@ -504,7 +504,7 @@ bool PragaProject::elaborationCheck(bool isMeteoGrid, bool isAnomaly)
         {
             if (this->clima == nullptr)
             {
-                this->clima = new Crit3DClimate(); 
+                this->clima = new Crit3DClimate();
             }
             clima->setDb(this->meteoGridDbHandler->db());
         }
@@ -1558,7 +1558,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
                 float zoneValue = zoneGrid->value[zoneRow][zoneCol];
                 if ( zoneValue != zoneGrid->header->flag)
                 {
-                    zoneIndex = (unsigned int)(zoneValue);                  
+                    zoneIndex = (unsigned int)(zoneValue);
                     if (zoneIndex < 1)
                     {
                         errorString = "invalid zone index: " + QString::number(zoneIndex);
@@ -2675,7 +2675,7 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
             elaborationPointsCycleGrid(true, false);
             if (!listXMLAnomaly->isPercentage()[i])
             {
-                meteoGridDbHandler->meteoGrid()->fillMeteoRasterAnomalyValue();   
+                meteoGridDbHandler->meteoGrid()->fillMeteoRasterAnomalyValue();
             }
             else
             {
@@ -2984,4 +2984,3 @@ bool PragaProject::activeMeteoGridCellsWithDEM()
 
     return ok;
 }
-
