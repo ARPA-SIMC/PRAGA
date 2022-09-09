@@ -38,6 +38,7 @@
 #include "dialogAddMissingStation.h"
 #include "dialogAddRemoveDataset.h"
 #include "dialogShiftData.h"
+#include "formSelection.h"
 #include "utilities.h"
 #include "basicMath.h"
 #include "interpolation.h"
@@ -4465,3 +4466,29 @@ void MainWindow::on_actionMeteoGridActiveWith_DEM_triggered()
         loadMeteoGrid(xmlName);
     }
 }
+
+void MainWindow::on_actionFileMeteogridPlanGriddingPeriod_triggered()
+{
+    if (myProject.meteoGridDbHandler == nullptr)
+    {
+        myProject.logError(ERROR_STR_MISSING_GRID);
+        return;
+    }
+
+    QDate myFirstDate = myProject.meteoGridDbHandler->firstDate();
+    QDate myLastDate = myProject.meteoGridDbHandler->lastDate();
+    if (myLastDate.isNull()) myLastDate = myProject.getCurrentDate();
+    if (myFirstDate.isNull()) myFirstDate = myLastDate;
+    QDateTime myFirstTime(myFirstDate, QTime(1,0,0), Qt::UTC);
+    QDateTime myLastTime(myLastDate.addDays(1), QTime(0,0,0), Qt::UTC);
+
+    FormTimePeriod myForm(&myFirstTime, &myLastTime);
+    myForm.show();
+    if (myForm.exec() == QDialog::Rejected) return;
+
+    FormSelection selectUser(myProject.users);
+    if (selectUser.result() == QDialog::Accepted)
+        QString user = selectUser.getSelection();
+
+}
+

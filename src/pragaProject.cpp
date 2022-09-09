@@ -145,11 +145,9 @@ bool PragaProject::loadPragaSettings()
         {
             parameters->beginGroup(group);
 
-            if (parameters->contains("users")) // && !parameters->value("users").toString().isEmpty())
+            if (parameters->contains("users"))
             {
-                QStringList myList = parameters->value("users").toStringList();
-                for (int i=0; i < myList.size(); i++)
-                    users.push_back(myList[i]);
+                users = parameters->value("users").toStringList();
             }
 
             parameters->endGroup();

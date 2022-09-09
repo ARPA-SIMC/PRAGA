@@ -231,6 +231,8 @@
 
         void on_actionMeteoGridActiveWith_DEM_triggered();
 
+        void on_actionFileMeteogridPlanGriddingPeriod_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

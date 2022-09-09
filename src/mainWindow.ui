@@ -2026,7 +2026,7 @@
      <x>0</x>
      <y>0</y>
      <width>1123</width>
-     <height>30</height>
+     <height>23</height>
     </rect>
    </property>
    <property name="palette">
@@ -2072,6 +2072,8 @@
      <addaction name="actioFileMeteogrid_Load_current_data"/>
      <addaction name="actionImport_data_XML_grid"/>
      <addaction name="menuExport"/>
+     <addaction name="separator"/>
+     <addaction name="actionFileMeteogridPlanGriddingPeriod"/>
     </widget>
     <widget class="QMenu" name="menuFileMeteopoint">
      <property name="title">
@@ -3035,6 +3037,11 @@
   <action name="actionMeteoGridActiveWith_DEM">
    <property name="text">
     <string>With DEM</string>
+   </property>
+  </action>
+  <action name="actionFileMeteogridPlanGriddingPeriod">
+   <property name="text">
+    <string>Plan gridding period...</string>
    </property>
   </action>
  </widget>
