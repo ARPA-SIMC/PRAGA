@@ -4489,12 +4489,12 @@ void MainWindow::on_actionFileMeteogridPlanGriddingPeriod_triggered()
 
     QString user, notes;
     FormSelection selectUser(myProject.users);
-    if (selectUser.result() == QDialog::Accepted)
-        user = selectUser.getSelection();
+    if (selectUser.result() == QDialog::Rejected) return;
+    user = selectUser.getSelection();
 
     FormText formNotes("Insert notes");
-    if (formNotes.result() == QDialog::Accepted)
-        notes = formNotes.getText();
+    if (formNotes.result() == QDialog::Rejected) return;
+    notes = formNotes.getText();
 
     if (! myProject.planGriddingPeriod(myFirstTime.date(), myLastTime.date(), user, notes))
         myProject.logError("Failed to write planning info... " + myProject.errorString);

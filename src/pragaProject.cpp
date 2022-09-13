@@ -13,7 +13,7 @@
 #include <qdebug.h>
 #include <QFile>
 #include <QDir>
-#include <QSqlQuery>
+#include <QtSql>
 
 PragaProject::PragaProject()
 {
@@ -2989,14 +2989,27 @@ bool PragaProject::planGriddingPeriod(QDate dateIni, QDate dateFin, QString user
 {
     QSqlQuery qry(meteoGridDbHandler->db());
     QString table = "regridding_period";
-    QString statement = "CREATE TABLE if not exists `%1` (created DATETIME NOT NULL DEFAULT NOW(), start_date DATE NOT NULL, end_date DATE NOT NULL";
+    QString statement = QString("CREATE TABLE IF NOT EXISTS `%1` (praga_user TEXT NOT NULL, date_creation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, date_start DATE NOT NULL, date_end DATE NOT NULL, notes TEXT)").arg(table);
 
-    /*
     if( !qry.exec(statement) )
     {
-        errorString = qry.lastError();
+        errorString = qry.lastError().text();
         return false;
-    }*/
+    }
+
+    QString myQuery = QString("REPLACE INTO `%1` (`praga_user`,`date_start`,`date_end`,`notes`) VALUES ('%2','%3','%4','%5')").arg(table).arg(user).arg(dateIni.toString("yyyy-MM-dd")).arg(dateFin.toString("yyyy-MM-dd")).arg(notes);
+
+    if( !qry.exec(myQuery))
+    {
+        errorString = qry.lastError().text();
+        myQuery.clear();
+        return false;
+    }
+    else
+    {
+        myQuery.clear();
+        return true;
+    }
 
     return true;
 
