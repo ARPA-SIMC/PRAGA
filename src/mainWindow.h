@@ -231,7 +231,9 @@
 
         void on_actionMeteoGridActiveWith_DEM_triggered();
 
-        void on_actionFileMeteogridPlanGriddingPeriod_triggered();
+        void on_actionInterpolationMeteogridGriddingTaskAdd_triggered();
+
+        void on_actionInterpolationMeteogridGriddingTaskRemove_triggered();
 
     protected:
         /*!

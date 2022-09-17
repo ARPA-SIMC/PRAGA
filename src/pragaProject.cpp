@@ -2985,8 +2985,14 @@ bool PragaProject::activeMeteoGridCellsWithDEM()
     return ok;
 }
 
-bool PragaProject::planGriddingPeriod(QDate dateIni, QDate dateFin, QString user, QString notes)
+bool PragaProject::planGriddingTask(QDate dateIni, QDate dateFin, QString user, QString notes)
 {
+    if (meteoGridDbHandler == nullptr)
+    {
+        logError(ERROR_STR_MISSING_GRID);
+        return false;
+    }
+
     QSqlQuery qry(meteoGridDbHandler->db());
     QString table = "regridding_period";
     QString statement = QString("CREATE TABLE IF NOT EXISTS `%1` (praga_user TEXT NOT NULL, date_creation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, date_start DATE NOT NULL, date_end DATE NOT NULL, notes TEXT)").arg(table);
@@ -3015,3 +3021,76 @@ bool PragaProject::planGriddingPeriod(QDate dateIni, QDate dateFin, QString user
 
 }
 
+
+bool PragaProject::getGriddingTasks(std::vector <QDateTime> &timeCreation, std::vector <QDate> &dateStart, std::vector <QDate> &dateEnd,
+                                           std::vector <QString> &users, std::vector <QString> &notes)
+{
+    if (meteoGridDbHandler == nullptr)
+    {
+        logError(ERROR_STR_MISSING_GRID);
+        return false;
+    }
+
+    QSqlQuery qry(meteoGridDbHandler->db());
+    QString table = "regridding_period";
+    QString myQuery = QString("SELECT * FROM `%1` ORDER BY `date_creation`,`praga_user`,`date_start`,`date_end`").arg(table);
+
+    QDateTime myTime;
+    QDate myDateStart, myDateEnd;
+    QString user, note;
+
+    if( !qry.exec(myQuery))
+    {
+        errorString = qry.lastError().text();
+        myQuery.clear();
+        return false;
+    }
+    else
+    {
+        while (qry.next())
+        {
+            if (getValue(qry.value("praga_user"), &user) && getValue(qry.value("date_creation"), &myTime)
+                    && getValue(qry.value("date_start"), &myDateStart) && getValue(qry.value("date_end"), &myDateEnd))
+            {
+                timeCreation.push_back(myTime);
+                dateStart.push_back(myDateStart);
+                dateEnd.push_back(myDateEnd);
+                users.push_back(user);
+
+                note = "";
+                getValue(qry.value("notes"), &note);
+                notes.push_back(note);
+            }
+            else
+            {
+                errorString = "Error reading table " + table ;
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+bool PragaProject::removeGriddingTask(QDateTime dateCreation, QString user, QDate dateStart, QDate dateEnd)
+{
+    if (meteoGridDbHandler == nullptr)
+    {
+        logError(ERROR_STR_MISSING_GRID);
+        return false;
+    }
+
+    QSqlQuery qry(meteoGridDbHandler->db());
+    QString table = "regridding_period";
+    QString myQuery = QString("DELETE FROM `%1` WHERE `date_creation`='%2' AND `praga_user`='%3' AND `date_start`='%4' AND `date_end`='%5'")
+            .arg(table).arg(dateCreation.toString("yyyy-MM-dd hh:mm:ss")).arg(user).arg(dateStart.toString("yyyy-MM-dd")).arg(dateEnd.toString("yyyy-MM-dd"));
+
+    if( !qry.exec(myQuery))
+    {
+        errorString = qry.lastError().text();
+        myQuery.clear();
+        return false;
+    }
+
+    return true;
+}

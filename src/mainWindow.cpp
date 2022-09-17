@@ -4468,7 +4468,8 @@ void MainWindow::on_actionMeteoGridActiveWith_DEM_triggered()
     }
 }
 
-void MainWindow::on_actionFileMeteogridPlanGriddingPeriod_triggered()
+
+void MainWindow::on_actionInterpolationMeteogridGriddingTaskAdd_triggered()
 {
     if (myProject.meteoGridDbHandler == nullptr)
     {
@@ -4496,7 +4497,63 @@ void MainWindow::on_actionFileMeteogridPlanGriddingPeriod_triggered()
     if (formNotes.result() == QDialog::Rejected) return;
     notes = formNotes.getText();
 
-    if (! myProject.planGriddingPeriod(myFirstTime.date(), myLastTime.date(), user, notes))
-        myProject.logError("Failed to write planning info... " + myProject.errorString);
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "The following information will be saved for gridding. Proceed?\n" ,
+                                  "praga_user: " + user + "\n" +
+                                  "date_creation: " + QDateTime::currentDateTimeUtc().toString() + "\n" +
+                                  "date_start: " + myFirstTime.date().toString() + "\n" +
+                                  "date_end: " + myLastTime.date().toString() + "\n" +
+                                  "notes: " + notes,
+                                  QMessageBox::Yes|QMessageBox::No);
+
+    if (reply == QMessageBox::Yes)
+        if (! myProject.planGriddingTask(myFirstTime.date(), myLastTime.date(), user, notes))
+            myProject.logError("Failed to write planning info... " + myProject.errorString);
+}
+
+
+void MainWindow::on_actionInterpolationMeteogridGriddingTaskRemove_triggered()
+{
+    if (myProject.meteoGridDbHandler == nullptr)
+    {
+        myProject.logError(ERROR_STR_MISSING_GRID);
+        return;
+    }
+
+
+    std::vector <QString> users, notes;
+    std::vector <QDate> dateStart, dateEnd;
+    std::vector <QDateTime> dateCreation;
+    QStringList taskList;
+
+    if (! myProject.getGriddingTasks(dateCreation, dateStart, dateEnd, users, notes)) return;
+
+    for (int i=0; i < dateCreation.size(); i++)
+        taskList.push_back("Created " + dateCreation[i].toString() + " by " + users[i]
+                           + ", from " + dateStart[i].toString() + " to " + dateEnd[i].toString()
+                           + " notes: " + notes[i]);
+
+    if (taskList.size() == 0)
+    {
+        QMessageBox::information(nullptr, "Gridding task", "No gridding task in DB Grid");
+        return;
+    }
+
+    FormSelection selectTask(taskList);
+    if (selectTask.result() == QDialog::Rejected) return;
+    int taskId = selectTask.getSelectionId();
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "The following task will be removed. Proceed?\n" ,
+                                  "praga_user: " + users[taskId] + "\n" +
+                                  "date_creation: " + dateCreation[taskId].toString() + "\n" +
+                                  "date_start: " + dateStart[taskId].toString() + "\n" +
+                                  "date_end: " + dateEnd[taskId].toString() + "\n" +
+                                  "notes: " + notes[taskId],
+                                  QMessageBox::Yes|QMessageBox::No);
+
+    if (reply == QMessageBox::Yes)
+        if (! myProject.removeGriddingTask(dateCreation[taskId], users[taskId], dateStart[taskId], dateEnd[taskId]))
+            myProject.logError("Failed to remove planning task... " + myProject.errorString);
 }
 

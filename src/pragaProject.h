@@ -131,7 +131,10 @@
         void setSynchronicityReferencePoint(std::string idMeteoPoint);
         void showPointStatisticsWidgetGrid(std::string id);
         bool activeMeteoGridCellsWithDEM();
-        bool planGriddingPeriod(QDate dateIni, QDate dateFin, QString user, QString notes);
+        bool planGriddingTask(QDate dateIni, QDate dateFin, QString user, QString notes);
+        bool getGriddingTasks(std::vector<QDateTime> &timeCreation, std::vector<QDate> &dateStart, std::vector<QDate> &dateEnd,
+                                                        std::vector<QString> &users, std::vector<QString> &notes);
+        bool removeGriddingTask(QDateTime dateCreation, QString user, QDate dateStart, QDate dateEnd);
 
         #ifdef NETCDF
                 bool exportMeteoGridToNetCDF(QString fileName, QString title, QString variableName, std::string variableUnit, Crit3DDate myDate, int nDays, int refYearStart, int refYearEnd);

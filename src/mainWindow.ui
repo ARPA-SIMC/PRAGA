@@ -2073,7 +2073,6 @@
      <addaction name="actionImport_data_XML_grid"/>
      <addaction name="menuExport"/>
      <addaction name="separator"/>
-     <addaction name="actionFileMeteogridPlanGriddingPeriod"/>
     </widget>
     <widget class="QMenu" name="menuFileMeteopoint">
      <property name="title">
@@ -2258,9 +2257,18 @@
      <property name="title">
       <string>Interpolation to meteo grid</string>
      </property>
+     <widget class="QMenu" name="menuInterpolationMeteogridGriddingTask">
+      <property name="title">
+       <string>Gridding task</string>
+      </property>
+      <addaction name="actionInterpolationMeteogridGriddingTaskAdd"/>
+      <addaction name="actionInterpolationMeteogridGriddingTaskRemove"/>
+     </widget>
      <addaction name="actionInterpolationMeteogridCurrentTime"/>
      <addaction name="actionInterpolationMeteogridSaveCurrentData"/>
      <addaction name="actionInterpolationMeteogridPeriod"/>
+     <addaction name="separator"/>
+     <addaction name="menuInterpolationMeteogridGriddingTask"/>
     </widget>
     <addaction name="actionInterpolationDem"/>
     <addaction name="menuInterpolationMeteogrid"/>
@@ -3042,6 +3050,16 @@
   <action name="actionFileMeteogridPlanGriddingPeriod">
    <property name="text">
     <string>Plan gridding period...</string>
+   </property>
+  </action>
+  <action name="actionInterpolationMeteogridGriddingTaskAdd">
+   <property name="text">
+    <string>Add...</string>
+   </property>
+  </action>
+  <action name="actionInterpolationMeteogridGriddingTaskRemove">
+   <property name="text">
+    <string>Remove...</string>
    </property>
   </action>
  </widget>
