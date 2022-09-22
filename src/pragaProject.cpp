@@ -1260,6 +1260,13 @@ bool PragaProject::climatePointsCycleGrid(bool showInfo)
 
 bool PragaProject::downloadDailyDataArkimet(QList<QString> variables, bool prec0024, QDate startDate, QDate endDate, bool showInfo)
 {
+    // check meteo point
+    if (! meteoPointsLoaded || nrMeteoPoints == 0)
+    {
+        logError("No meteo points");
+        return false;
+    }
+
     const int MAXDAYS = 30;
 
     QString id, dataset;
