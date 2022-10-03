@@ -3892,10 +3892,12 @@ void MainWindow::on_actionPointStyleText_multicolor_triggered()
 
 void MainWindow::on_actionUnmark_all_points_triggered()
 {
-    for (int i = 0; i < pointList.size(); i++)
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
     {
-        pointList[i]->setMarked(false);
+        myProject.meteoPoints[i].marked = false;
     }
+
+    redrawMeteoPoints(currentPointsVisualization, true);
 }
 
 
@@ -4194,7 +4196,33 @@ void MainWindow::on_flagMeteoGrid_Fixed_color_scale_triggered(bool isChecked)
 
 void MainWindow::on_actionSearch_point_triggered()
 {
-    // TODO
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        myProject.logError(ERROR_STR_MISSING_DB);
+        return;
+    }
+
+    FormText formSearch("Search");
+    if (formSearch.result() == QDialog::Rejected) return;
+    QString searchString = formSearch.getText();
+
+    // initialize
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        myProject.meteoPoints[i].marked = false;
+    }
+
+    // mark
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        QString name = QString::fromStdString(myProject.meteoPoints[i].name);
+        if (name.contains(searchString))
+        {
+            myProject.meteoPoints[i].marked = true;
+        }
+    }
+
+    redrawMeteoPoints(currentPointsVisualization, true);
 }
 
 
