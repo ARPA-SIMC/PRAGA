@@ -943,7 +943,7 @@ void MainWindow::drawMeteoPoints()
     ui->actionShowPointsClimate->setEnabled(false);
 
     ui->actionMeteopointRectangleSelection->setEnabled(true);
-    ui->actionSearch_point->setEnabled(true);
+    ui->menuSearch_points->setEnabled(true);
     ui->menuMark_points->setEnabled(true);
     ui->menuActive_points->setEnabled(true);
     ui->menuDeactive_points->setEnabled(true);
@@ -2455,8 +2455,6 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
             cvOutput << "CRE: " << myStats.getCompoundRelativeError() << std::endl;
             cvOutput << "R2: " << myStats.getR2() << std::endl;
 
-            int i;
-
             if (getUseDetrendingVar(myVar))
             {
                 int proxyNr = myProject.interpolationSettings.getProxyNr();
@@ -2466,7 +2464,7 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
                     Crit3DProxyCombination* proxyCombination = myProject.interpolationSettings.getCurrentCombination();
                     std::string signif;
                     Crit3DProxy* myProxy;
-                    for (i=0; i < proxyNr; i++)
+                    for (int i=0; i < proxyNr; i++)
                     {
                         if (proxyCombination->getValue(i))
                         {
@@ -2489,7 +2487,7 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
                 std::vector <float> khSeries = myProject.interpolationSettings.getKh_series();
                 std::vector <float> khErrors = myProject.interpolationSettings.getKh_error_series();
 
-                for (i=0; i<khSeries.size(); i++)
+                for (unsigned int i=0; i < khSeries.size(); i++)
                     cvOutput << "Kh=" << khSeries[i] << " error=" << khErrors[i] << std::endl;
             }
 
@@ -4202,38 +4200,6 @@ void MainWindow::on_flagMeteoGrid_Fixed_color_scale_triggered(bool isChecked)
 }
 
 
-void MainWindow::on_actionSearch_point_triggered()
-{
-    if (myProject.meteoPointsDbHandler == nullptr)
-    {
-        myProject.logError(ERROR_STR_MISSING_DB);
-        return;
-    }
-
-    FormText formSearch("Search");
-    if (formSearch.result() == QDialog::Rejected) return;
-    QString searchString = formSearch.getText();
-
-    // initialize
-    for (int i = 0; i < myProject.nrMeteoPoints; i++)
-    {
-        myProject.meteoPoints[i].marked = false;
-    }
-
-    // mark
-    for (int i = 0; i < myProject.nrMeteoPoints; i++)
-    {
-        QString name = QString::fromStdString(myProject.meteoPoints[i].name);
-        if (name.contains(searchString))
-        {
-            myProject.meteoPoints[i].marked = true;
-        }
-    }
-
-    redrawMeteoPoints(currentPointsVisualization, true);
-}
-
-
 void MainWindow::on_actionShiftDataAll_triggered()
 {
     if (myProject.meteoPointsDbHandler == nullptr)
@@ -4564,7 +4530,7 @@ void MainWindow::on_actionInterpolationMeteogridGriddingTaskRemove_triggered()
 
     if (! myProject.getGriddingTasks(dateCreation, dateStart, dateEnd, users, notes)) return;
 
-    for (int i=0; i < dateCreation.size(); i++)
+    for (unsigned int i=0; i < dateCreation.size(); i++)
         taskList.push_back("Created " + dateCreation[i].toString() + " by " + users[i]
                            + ", from " + dateStart[i].toString() + " to " + dateEnd[i].toString()
                            + " notes: " + notes[i]);
@@ -4601,6 +4567,73 @@ void MainWindow::on_actionFileDemRestore_triggered()
         setCurrentRaster(&(myProject.DEM));
         ui->labelRasterScale->setText(QString::fromStdString(getVariableString(noMeteoTerrain)));
         updateMaps();
+    }
+}
+
+
+void MainWindow::on_actionSearchPointName_triggered()
+{
+    bool isName = true;
+    searchMeteoPoint(isName);
+}
+
+
+void MainWindow::on_actionSearchPointId_triggered()
+{
+    bool isName = false;
+    searchMeteoPoint(isName);
+}
+
+
+void MainWindow::searchMeteoPoint(bool isName)
+{
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        myProject.logError(ERROR_STR_MISSING_DB);
+        return;
+    }
+
+    QString title = "Search ";
+    if (isName)
+        title += "name";
+    else
+        title += "id";
+
+    FormText formSearch(title);
+    if (formSearch.result() == QDialog::Rejected) return;
+    QString searchString = formSearch.getText();
+
+    // initialize
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        myProject.meteoPoints[i].marked = false;
+    }
+
+    // mark
+    int nrFound = 0;
+    QString refString = "";
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        if (isName)
+        {
+            refString = QString::fromStdString(myProject.meteoPoints[i].name);
+        }
+        else
+        {
+            refString = QString::fromStdString(myProject.meteoPoints[i].id);
+        }
+
+        if (refString.contains(searchString, Qt::CaseInsensitive))
+        {
+            myProject.meteoPoints[i].marked = true;
+            nrFound++;
+        }
+    }
+
+    redrawMeteoPoints(currentPointsVisualization, true);
+    if (nrFound == 0)
+    {
+        myProject.logError("No meteo points found with: " + searchString);
     }
 }
 

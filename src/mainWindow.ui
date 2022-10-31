@@ -2187,10 +2187,20 @@
      <addaction name="actionShiftDataAll"/>
      <addaction name="actionShiftDataSelected"/>
     </widget>
+    <widget class="QMenu" name="menuSearch_points">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Search points</string>
+     </property>
+     <addaction name="actionSearchPointName"/>
+     <addaction name="actionSearchPointId"/>
+    </widget>
     <addaction name="actionMeteopointQualitySpatial"/>
     <addaction name="actionMeteopointRectangleSelection"/>
     <addaction name="separator"/>
-    <addaction name="actionSearch_point"/>
+    <addaction name="menuSearch_points"/>
     <addaction name="menuMark_points"/>
     <addaction name="separator"/>
     <addaction name="menuActive_points"/>
@@ -2959,14 +2969,6 @@
     <string>Export interpolation...</string>
    </property>
   </action>
-  <action name="actionSearch_point">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Search point</string>
-   </property>
-  </action>
   <action name="flagMeteoGrid_Fixed_color_scale">
    <property name="checkable">
     <bool>true</bool>
@@ -3044,6 +3046,16 @@
   <action name="actionFileDemRestore">
    <property name="text">
     <string>Restore</string>
+   </property>
+  </action>
+  <action name="actionSearchPointName">
+   <property name="text">
+    <string>Name</string>
+   </property>
+  </action>
+  <action name="actionSearchPointId">
+   <property name="text">
+    <string>Id</string>
    </property>
   </action>
  </widget>
