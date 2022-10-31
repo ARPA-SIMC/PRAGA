@@ -462,10 +462,18 @@ void MainWindow::on_actionMeteopointRectangleSelection_triggered()
 
 void MainWindow::updateMaps()
 {
-    rasterObj->updateCenter();
-    meteoGridObj->updateCenter();
-    rasterLegend->update();
-    meteoGridLegend->update();
+    try
+    {
+        rasterObj->updateCenter();
+        meteoGridObj->updateCenter();
+        rasterLegend->update();
+        meteoGridLegend->update();
+    }
+
+    catch (std::invalid_argument& e)
+    {
+        QMessageBox::information(nullptr, "ERROR", QString::fromStdString(e.what()));
+    }
 }
 
 void MainWindow::clearDEM()
