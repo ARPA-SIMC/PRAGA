@@ -235,6 +235,8 @@
 
         void on_actionInterpolationMeteogridGriddingTaskRemove_triggered();
 
+        void on_actionFileDemRestore_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

@@ -236,7 +236,7 @@ void MainWindow::mouseMove(const QPoint& mapPos)
         {
             value = rasterObj->getValue(geoPos);
             if (!isEqual(value, NODATA))
-                status += " Raster:" + QString::number(double(value));
+                status += " Raster:" + QString::number(double(value),'f',1);
         }
     }
 
@@ -4591,5 +4591,16 @@ void MainWindow::on_actionInterpolationMeteogridGriddingTaskRemove_triggered()
     if (reply == QMessageBox::Yes)
         if (! myProject.removeGriddingTask(dateCreation[taskId], users[taskId], dateStart[taskId], dateEnd[taskId]))
             myProject.logError("Failed to remove planning task... " + myProject.errorString);
+}
+
+
+void MainWindow::on_actionFileDemRestore_triggered()
+{
+    if (myProject.DEM.isLoaded)
+    {
+        setCurrentRaster(&(myProject.DEM));
+        ui->labelRasterScale->setText(QString::fromStdString(getVariableString(noMeteoTerrain)));
+        updateMaps();
+    }
 }
 
