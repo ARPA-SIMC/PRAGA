@@ -1362,7 +1362,7 @@ void MainWindow::addMeteoPoints()
 
     for (int i = 0; i < myProject.nrMeteoPoints; i++)
     {
-        StationMarker* point = new StationMarker(5.0, true, QColor((Qt::white)), this->mapView);
+        StationMarker* point = new StationMarker(5.0, true, QColor(Qt::white));
 
         point->setFlag(MapGraphicsObject::ObjectIsMovable, false);
         point->setLatitude(myProject.meteoPoints[i].latitude);
@@ -1373,7 +1373,7 @@ void MainWindow::addMeteoPoints()
         point->setAltitude(myProject.meteoPoints[i].point.z);
         point->setLapseRateCode(myProject.meteoPoints[i].lapseRateCode);
         point->setMunicipality(myProject.meteoPoints[i].municipality);
-        point->setCurrentValue(myProject.meteoPoints[i].currentValue);
+        point->setCurrentValue(qreal(myProject.meteoPoints[i].currentValue));
         point->setQuality(myProject.meteoPoints[i].quality);
 
         if (!myProject.meteoPoints[i].active)
