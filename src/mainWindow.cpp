@@ -248,7 +248,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event)
 
-    ui->widgetMap->setGeometry(ui->widgetMap->x(), 0, this->width() - ui->widgetMap->x(), this->height() - 40);
+    ui->widgetMap->setGeometry(ui->widgetMap->x(), 0, this->width() - ui->widgetMap->x(), this->height() - 42);
     mapView->resize(ui->widgetMap->size());
 }
 
