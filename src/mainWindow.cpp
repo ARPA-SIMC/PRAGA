@@ -446,6 +446,13 @@ void MainWindow::on_meteoGridOpacitySlider_sliderMoved(int position)
 }
 
 
+void MainWindow::on_actionMeteoPointsClear_selection_triggered()
+{
+    myProject.clearSelectedPoints();
+    redrawMeteoPoints(currentPointsVisualization, false);
+}
+
+
 void MainWindow::on_actionMeteopointRectangleSelection_triggered()
 {
     if (rubberBand != nullptr)
@@ -943,6 +950,7 @@ void MainWindow::drawMeteoPoints()
     ui->actionShowPointsClimate->setEnabled(false);
 
     ui->actionMeteopointRectangleSelection->setEnabled(true);
+    ui->actionMeteoPointsClear_selection->setEnabled(true);
     ui->menuSearch_points->setEnabled(true);
     ui->menuMark_points->setEnabled(true);
     ui->menuActive_points->setEnabled(true);
@@ -4636,4 +4644,5 @@ void MainWindow::searchMeteoPoint(bool isName)
         myProject.logError("No meteo points found with: " + searchString);
     }
 }
+
 

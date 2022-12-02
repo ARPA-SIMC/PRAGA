@@ -239,6 +239,8 @@
 
         void on_actionSearchPointId_triggered();
 
+        void on_actionMeteoPointsClear_selection_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
