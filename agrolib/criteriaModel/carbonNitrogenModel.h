@@ -6,14 +6,18 @@
 #include "soil.h"
 #include "criteria1DCase.h"
 
+class Crit3DCarbonNitrogenSettings
+{
+    // TODO inserire i valori iniziali
+    // spostare i tassi default
+};
+
 
 class Crit3DCarbonNitrogenProfile
 {
 
 public:
     Crit3DCarbonNitrogenProfile();
-
-
 
     //rates ------------------------------------------------------------------------------------------------
     // tabulated values
@@ -25,7 +29,7 @@ public:
     double limRatio_nitr;                // [] limiting NO3/NH4 ratio in solution for nitrification
     double rate_N_denitrification;       // [d-1] denitrifition rate
     double max_afp_denitr;               // [] maximum air filled porosity fraction for denitrification onset
-    double constant_sat_denitr;                  // [mg l-1] semisaturation constant for denitrification
+    double constant_sat_denitr;          // [mg l-1] semisaturation constant for denitrification
     double Kd_NH4;                       // [l kg-1] partition coefficient for ammonium
     double FE;                           // [] synthesis efficiency factor
     double FH;                           // [] humification factor
@@ -42,14 +46,12 @@ public:
     double actualRate_N_litterImm;       // [] rate of N immobilization in litter
     double actualRate_N_nitrification;   //
     double actualRate_N_denitrification; //
-    double actualRateUreaHydr;         //
+    double actualRateUreaHydr;           //
 
     // fix variables --------------------------------------------------------------------------------------------
     double ratio_CN_humus;               //[] rapporto C/N pool humus
     double ratio_CN_biomass;             //[] rapporto C/N pool biomass
 
-
-public:
     double litterIniC;                   //[kg ha-1] initial litter carbon
     double LITTERINI_C_DEFAULT = 1200;   //[kg ha-1] initial litter carbon (default)
     double litterIniN;                   //[kg ha-1] initial litter nitrogen
@@ -66,7 +68,6 @@ public:
     // daily values---------------------------------------------------------------------------------
     // Nitrogen in soil
     // contents
-public:
     double N_humusGG;                //[g m-2] Nitrogen within humus
     double N_litterGG;               //[g m-2] Nitrogen within litter
     double N_NH4_adsorbedGG;         //[g m-2] adsorbed Ammonium in the current day
@@ -81,6 +82,7 @@ public:
     double N_NO3_fertGG;             //[g m-2] NO3 from fertilization
     double N_NH4_fertGG;             //[g m-2] NH4 from fertilization
     double N_min_litterGG;           //[g m-2] mineralized Nitrogen from litter
+
 private:
     double N_imm_l_NH4GG;            //[g m-2] NH4 immobilized in litter
     double N_imm_l_NO3GG;            //[g m-2] NO3 immobilized in litter
@@ -90,8 +92,8 @@ public:
     double N_NH4_volGG;              //[g m-2] Volatilized NH4 in the whole profile
     double N_nitrifGG;               //[g m-2] Nitrogen from NH4 to NO3
     double N_urea_hydrGG;            //[g m-2] Hydrolyzed urea urea to NH4
-    double Flux_NO3GG;               //[g m-2] NO3 leaching flux
-    double Flux_NH4GG;               //[g m-2] NH4 leaching flux
+    double flux_NO3GG;               //[g m-2] NO3 leaching flux
+    double flux_NH4GG;               //[g m-2] NH4 leaching flux
     double N_NO3_runoff0GG;          //[g m-2] NO3 lost through surface run off
     double N_NH4_runoff0GG;          //[g m-2] NH4 lost through surface run off
     double N_NO3_runoffGG;           //[g m-2] NO3 lost through subsurface run off
@@ -146,7 +148,7 @@ private:
     double convertToGramsPerKg(double myQuantity, soil::Crit3DLayer &soilLayer);
     void N_InitializeLayers();
     void humusIni();
-    void updateTotalOfPartitioned(double* mySoluteSum, double* mySoluteAds,double* mySoluteSol);
+    double updateTotalOfPartitioned(double mySoluteAds,double mySoluteSol);
     void partitioning(Crit1DCase &myCase);
     void litterIni();
     void chemicalTransformations(Crit1DCase &myCase);
@@ -158,9 +160,9 @@ private:
     double CNRatio(double c,double n,int flagOrganicMatter);
     double computeWaterCorrectionFactor(int l,Crit1DCase &myCase);
     double computeTemperatureCorrectionFactor(bool flag, int l, double layerSoilTemperature, double baseTemperature);
-    void computeLayerRates(int l,Crit1DCase &myCase);
+    void computeLayerRates(unsigned l,Crit1DCase &myCase);
     void N_Uptake(Crit1DCase &myCase);
-    void N_SurfaceRunoff();
+    void N_SurfaceRunoff(Crit1DCase &myCase);
     void N_SubSurfaceRunoff();
     void N_Uptake_Potential(Crit1DCase &myCase);
     void N_Uptake_Max();
@@ -168,17 +170,34 @@ private:
     double findPistonDepth();
     void soluteFluxesPiston(double* mySolute, double PistonDepth,double* leached);
     void soluteFluxesPiston_old(double* mySolute, double* leached, double* CoeffPiston);
-    // sbagliata verificare void soluteFluxes(double* mySolute(),bool flagRisalita, double pistonDepth,double* );
-    void leachingWaterTable(double* mySolute, double* leached);
-    void NH4_Balance();
-    void NO3_Balance();
+    void soluteFluxes(double* mySolute,bool flagRisalita, double pistonDepth,double* leached,Crit1DCase &myCase);
+    void leachingWaterTable(double* mySolute, double* leached, Crit1DCase &myCase);
+    void NH4_Balance(Crit1DCase &myCase);
+    void NO3_Balance(Crit1DCase &myCase);
     void N_initializeCrop(bool noReset);
     void N_harvest(Crit1DCase &myCase);
-    void updateNCrop();
+    void updateNCrop(Crit3DCrop crop);
     void N_plough(Crit1DCase &myCase);
     void NFromCropSenescence(double myDays,double coeffB);
 
 };
 
+/* parametri da leggere da database da inserire in una classe settings
+ * miner_h 0.000005
+ * miner_l 0.01
+ * Vol_NH4 0.4
+ * denitrif 0.001
+ * max_AFP_denitrif 0.1
+ * Csat_denitr 10
+ * urea_hydr 0.43
+ * nitrif 0.0018
+ * limRatio_nit 8
+ * Fe 0.5
+ * Fh 0.2
+ * Q10 2.3
+ * Tbase 20
+ * Cn_h 7
+ * Kd_NH4 4
+ * */
 
 #endif // CARBONNITROGENMODEL_H

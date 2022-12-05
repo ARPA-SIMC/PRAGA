@@ -209,8 +209,6 @@
 
         void on_actionMark_from_pointlist_triggered();
 
-        void on_actionSearch_point_triggered();
-
         void on_actionFileMeteogridDelete_triggered();
 
         void on_actioFileMeteogrid_Load_current_data_triggered();
@@ -234,6 +232,14 @@
         void on_actionInterpolationMeteogridGriddingTaskAdd_triggered();
 
         void on_actionInterpolationMeteogridGriddingTaskRemove_triggered();
+
+        void on_actionFileDemRestore_triggered();
+
+        void on_actionSearchPointName_triggered();
+
+        void on_actionSearchPointId_triggered();
+
+        void on_actionMeteoPointsClear_selection_triggered();
 
     protected:
         /*!
@@ -310,6 +316,7 @@
         void interpolateGridGUI();
         void interpolateCrossValidationGUI();
         void showElabResult(bool updateColorSCale, bool isMeteoGrid, bool isAnomaly, bool isAnomalyPerc, bool isClima, QString index);
+        void searchMeteoPoint(bool isName);
         void closeEvent(QCloseEvent *event) override;
 
         #ifdef NETCDF

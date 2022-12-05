@@ -2026,7 +2026,7 @@
      <x>0</x>
      <y>0</y>
      <width>1123</width>
-     <height>23</height>
+     <height>29</height>
     </rect>
    </property>
    <property name="palette">
@@ -2115,6 +2115,7 @@
      </property>
      <addaction name="actionFileDemOpen"/>
      <addaction name="actionFileExportInterpolation"/>
+     <addaction name="actionFileDemRestore"/>
     </widget>
     <widget class="QMenu" name="menuProject">
      <property name="title">
@@ -2208,10 +2209,21 @@
      <addaction name="actionShiftDataAll"/>
      <addaction name="actionShiftDataSelected"/>
     </widget>
+    <widget class="QMenu" name="menuSearch_points">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Search points</string>
+     </property>
+     <addaction name="actionSearchPointName"/>
+     <addaction name="actionSearchPointId"/>
+    </widget>
     <addaction name="actionMeteopointQualitySpatial"/>
     <addaction name="actionMeteopointRectangleSelection"/>
+    <addaction name="actionMeteoPointsClear_selection"/>
     <addaction name="separator"/>
-    <addaction name="actionSearch_point"/>
+    <addaction name="menuSearch_points"/>
     <addaction name="menuMark_points"/>
     <addaction name="separator"/>
     <addaction name="menuActive_points"/>
@@ -2980,14 +2992,6 @@
     <string>Export interpolation...</string>
    </property>
   </action>
-  <action name="actionSearch_point">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>Search point</string>
-   </property>
-  </action>
   <action name="flagMeteoGrid_Fixed_color_scale">
    <property name="checkable">
     <bool>true</bool>
@@ -3060,6 +3064,29 @@
   <action name="actionInterpolationMeteogridGriddingTaskRemove">
    <property name="text">
     <string>Remove...</string>
+   </property>
+  </action>
+  <action name="actionFileDemRestore">
+   <property name="text">
+    <string>Restore</string>
+   </property>
+  </action>
+  <action name="actionSearchPointName">
+   <property name="text">
+    <string>Name</string>
+   </property>
+  </action>
+  <action name="actionSearchPointId">
+   <property name="text">
+    <string>Id</string>
+   </property>
+  </action>
+  <action name="actionMeteoPointsClear_selection">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Clear selection</string>
    </property>
   </action>
  </widget>
