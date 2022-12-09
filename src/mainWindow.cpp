@@ -656,6 +656,18 @@ void MainWindow::resetMeteoPointsMarker()
 }
 
 
+void MainWindow::clearWindVectorObjects()
+{
+    for (int i = 0; i < windVectorList.size(); i++)
+    {
+        mapView->scene()->removeObject(windVectorList[i]);
+        delete windVectorList[i];
+    }
+
+    windVectorList.clear();
+}
+
+
 void MainWindow::on_actionMeteopointQualitySpatial_triggered()
 {
     myProject.checkSpatialQuality = ui->actionMeteopointQualitySpatial->isChecked();
@@ -937,6 +949,8 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 void MainWindow::drawMeteoPoints()
 {
     resetMeteoPointsMarker();
+    clearWindVectorObjects();
+
     if (! myProject.meteoPointsLoaded || myProject.nrMeteoPoints == 0) return;
     addMeteoPoints();
 
@@ -968,6 +982,25 @@ void MainWindow::drawMeteoPoints()
     updateDateTime();
 }
 
+
+void MainWindow::drawWindVector(int i)
+{
+    float dx = myProject.meteoPoints[i].getMeteoPointValue(myProject.getCrit3DCurrentTime(),
+                                                           windVectorX,  myProject.meteoSettings);
+    float dy = myProject.meteoPoints[i].getMeteoPointValue(myProject.getCrit3DCurrentTime(),
+                                                           windVectorY,  myProject.meteoSettings);
+    if (isEqual(dx, NODATA) || isEqual(dy, NODATA))
+        return;
+
+    ArrowObject* arrow = new ArrowObject(qreal(dx * 10), qreal(dy * 10), QColor(Qt::black));
+    arrow->setLatitude(myProject.meteoPoints[i].latitude);
+    arrow->setLongitude(myProject.meteoPoints[i].longitude);
+    windVectorList.append(arrow);
+
+    mapView->scene()->addObject(windVectorList.last());
+}
+
+
 void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorScale)
 {
     currentPointsVisualization = showType;
@@ -981,6 +1014,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
         pointList[i]->setVisible(false);
         pointList[i]->setMarked(myProject.meteoPoints[i].marked);
     }
+    clearWindVectorObjects();
 
     meteoPointsLegend->setVisible(true);
 
@@ -1067,6 +1101,8 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
 
             roundColorScale(myProject.meteoPointsColorScale, 4, true);
             setColorScale(myProject.getCurrentVariable(), myProject.meteoPointsColorScale);
+            bool isWindVector = (myProject.getCurrentVariable() == windVectorIntensity
+                                 || myProject.getCurrentVariable() == windVectorDirection);
 
             Crit3DColor *myColor;
             for (int i = 0; i < myProject.nrMeteoPoints; i++)
@@ -1079,6 +1115,8 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                         myColor = myProject.meteoPointsColorScale->getColor(myProject.meteoPoints[i].currentValue);
                         pointList[i]->setFillColor(QColor(myColor->red, myColor->green, myColor->blue));
                         pointList[i]->setOpacity(1.0);
+                        if (isWindVector)
+                            drawWindVector(i);
                     }
                     else
                     {
@@ -2631,6 +2669,7 @@ void MainWindow::closeMeteoPoints()
     if (myProject.meteoPointsDbHandler != nullptr)
     {
         resetMeteoPointsMarker();
+        clearWindVectorObjects();
         meteoPointsLegend->setVisible(false);
 
         myProject.closeMeteoPointsDB();
@@ -3297,7 +3336,9 @@ void MainWindow::on_actionDeleteData_Active_triggered()
 
     QDate currentDate = myProject.getCurrentDate();
     myProject.loadMeteoPointsData(currentDate, currentDate, true, true, true);
+    redrawMeteoPoints(currentPointsVisualization, true);
 }
+
 
 void MainWindow::on_actionDeleteData_notActive_triggered()
 {
@@ -3329,7 +3370,9 @@ void MainWindow::on_actionDeleteData_notActive_triggered()
 
     QDate currentDate = myProject.getCurrentDate();
     myProject.loadMeteoPointsData(currentDate, currentDate, true, true, true);
+    redrawMeteoPoints(currentPointsVisualization, true);
 }
+
 
 void MainWindow::on_actionDeleteData_selected_triggered()
 {
@@ -3361,7 +3404,9 @@ void MainWindow::on_actionDeleteData_selected_triggered()
 
     QDate currentDate = myProject.getCurrentDate();
     myProject.loadMeteoPointsData(currentDate, currentDate, true, true, true);
+    redrawMeteoPoints(currentPointsVisualization, true);
 }
+
 
 void MainWindow::on_actionWith_Criteria_active_triggered()
 {
