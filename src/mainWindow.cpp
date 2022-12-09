@@ -1172,17 +1172,8 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
             break;
         }
     }
-
-    /*
-    if (myProject.meteoGridDbHandler!= nullptr)
-    {
-        this->ui->actionShowGridHide->setChecked(true);
-        myProject.meteoGridDbHandler->meteoGrid()->fillMeteoRasterNoData();
-        meteoGridObj->setDrawBorders(false);
-        meteoGridLegend->setVisible(false);
-        meteoGridObj->redrawRequested();
-    }*/
 }
+
 
 bool MainWindow::loadMeteoPoints(QString dbName)
 {
