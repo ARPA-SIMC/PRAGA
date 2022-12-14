@@ -3579,6 +3579,9 @@ void MainWindow::on_actionUpdate_properties_triggered()
     bool everythingUpdated = true;
     QList<QString> column;
     QList<QString> values;
+    QString infoPoint;
+    bool update = false, updateAll = false;
+
     myProject.setProgressBar("Checking properties...", listMeteoPoints.size());
 
     for (int i=0; i<listMeteoPoints.size(); i++)
@@ -3587,6 +3590,7 @@ void MainWindow::on_actionUpdate_properties_triggered()
         column.clear();
         values.clear();
         changes = false;
+        update = false;
         pointPropFromArkimet.clear();
         QString id = QString::fromStdString(listMeteoPoints[i].id);
         if (!myDownload.getPointPropertiesFromId(id, &pointPropFromArkimet) || pointPropFromArkimet.id == "")
@@ -3683,41 +3687,49 @@ void MainWindow::on_actionUpdate_properties_triggered()
             column << "municipality";
             values << QString::fromStdString(pointPropFromArkimet.municipality);
         }
-        if (pointPropFromArkimet.isUTC != listMeteoPoints[i].isUTC)
-        {
-            changes = true;
-            log = log + "id:"+id+","+"is_utc,"+
-                   QString::number(listMeteoPoints[i].isUTC) + ","+ QString::number(pointPropFromArkimet.isUTC) + "\n";
-            column << "is_utc";
-            values << QString::number(pointPropFromArkimet.isUTC);
-        }
-        if (pointPropFromArkimet.lapseRateCode != listMeteoPoints[i].lapseRateCode)
-        {
-            changes = true;
-            log = log + "id:"+id+","+"orog_code,"+
-                   QString::number(listMeteoPoints[i].lapseRateCode) + ","+ QString::number(pointPropFromArkimet.lapseRateCode) + "\n";
-            column << "orog_code";
-            values << QString::number(pointPropFromArkimet.lapseRateCode);
-        }
+
         if (changes)
         {
             everythingUpdated = false;
 
-            QMessageBox::StandardButton reply;
-            reply = QMessageBox::question(this, "Update point properties?",
-                                          "Id:"+id + " Point properties from arkimet are different", QMessageBox::Yes|QMessageBox::No);
-
-            if (reply == QMessageBox::Yes)
+            if (! updateAll)
             {
-                if (!myProject.meteoPointsDbHandler->updatePointPropertiesGivenId(id, column, values))
+                QMessageBox::StandardButton reply;
+
+                reply = QMessageBox::question(this, "Update point properties?",
+                                          "Id:" + id + " point properties from arkimet are different. "
+"                                           \n Columns: " + column.join(","), QMessageBox::Yes|QMessageBox::No|QMessageBox::YesToAll|QMessageBox::Cancel);
+
+                if (reply == QMessageBox::YesToAll)
                 {
-                    myProject.logError("Update point properties given id error "+id);
-                    return;
+                    updateAll = true;
+                    update = true;
                 }
+                else if (reply == QMessageBox::Yes)
+                {
+                    update = true;
+                }
+                else if (reply == QMessageBox::Cancel)
+                    break;
+            }
+            else
+                update = true;
+
+        }
+
+        if (update)
+        {
+            if (!myProject.meteoPointsDbHandler->updatePointPropertiesGivenId(id, column, values))
+            {
+                myProject.logError("Update point properties given id error "+id);
+                return;
             }
         }
+
     }
+
     myProject.closeProgressBar();
+
     if (everythingUpdated)
     {
         if (log == "")
