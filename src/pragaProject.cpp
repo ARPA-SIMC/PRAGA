@@ -3001,8 +3001,8 @@ bool PragaProject::planGriddingTask(QDate dateIni, QDate dateFin, QString user, 
     }
 
     QSqlQuery qry(meteoGridDbHandler->db());
-    QString table = "regridding_period";
-    QString statement = QString("CREATE TABLE IF NOT EXISTS `%1` (praga_user TEXT NOT NULL, date_creation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, date_start DATE NOT NULL, date_end DATE NOT NULL, notes TEXT)").arg(table);
+    QString table = "gridding_tasks";
+    QString statement = QString("CREATE TABLE IF NOT EXISTS `%1` (date_creation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, date_start DATE NOT NULL, date_end DATE NOT NULL, praga_user TEXT NOT NULL, notes TEXT, ts_end TIMESTAMP, ts_start TIMESTAMP)").arg(table);
 
     if( !qry.exec(statement) )
     {
@@ -3039,7 +3039,7 @@ bool PragaProject::getGriddingTasks(std::vector <QDateTime> &timeCreation, std::
     }
 
     QSqlQuery qry(meteoGridDbHandler->db());
-    QString table = "regridding_period";
+    QString table = "gridding_tasks";
     QString myQuery = QString("SELECT * FROM `%1` ORDER BY `date_creation`,`praga_user`,`date_start`,`date_end`").arg(table);
 
     QDateTime myTime;
@@ -3088,7 +3088,7 @@ bool PragaProject::removeGriddingTask(QDateTime dateCreation, QString user, QDat
     }
 
     QSqlQuery qry(meteoGridDbHandler->db());
-    QString table = "regridding_period";
+    QString table = "gridding_tasks";
     QString myQuery = QString("DELETE FROM `%1` WHERE `date_creation`='%2' AND `praga_user`='%3' AND `date_start`='%4' AND `date_end`='%5'")
             .arg(table).arg(dateCreation.toString("yyyy-MM-dd hh:mm:ss")).arg(user).arg(dateStart.toString("yyyy-MM-dd")).arg(dateEnd.toString("yyyy-MM-dd"));
 
