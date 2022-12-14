@@ -31,6 +31,13 @@ public:
     double FH;                           // [] humification factor
     double Q10;                          //[] temperature rate correction: increase factor every 10 °C
     double baseTemperature;
+    double CN_RATIO_NOTHARVESTED;
+    double LITTERINI_C_DEFAULT;
+    double LITTERINI_N_DEFAULT;
+    double LITTERINI_PROF_DEFAULT;
+    double ratioHumusCN;
+    double ratioLitterCN;
+    double ratioBiomassCN;
 
     /* parametri da leggere da database da inserire in una classe settings
      * miner_h 0.000005
@@ -77,12 +84,9 @@ public:
     double ratio_CN_humus;               //[] rapporto C/N pool humus
     double ratio_CN_biomass;             //[] rapporto C/N pool biomass
 
-    double litterIniC;                   //[kg ha-1] initial litter carbon
-    double LITTERINI_C_DEFAULT = 1200;   //[kg ha-1] initial litter carbon (default)
-    double litterIniN;                   //[kg ha-1] initial litter nitrogen
-    double LITTERINI_N_DEFAULT = 40;     //[kg ha-1] initial litter nitrogen (default)
-    double litterIniProf ;               //[cm] initial litter depth
-    double LITTERINI_PROF_DEFAULT = 30;  //[cm] initial litter depth (default)
+    //double litterIniC;                   //[kg ha-1] initial litter carbon
+    //double litterIniN;                   //[kg ha-1] initial litter nitrogen
+    //double litterIniProf ;               //[cm] initial litter depth
 
     // flags -------------------------------------------------------------------------------------------------
     int flagSOM;                         // 1: computes SO; 0: SO set at the default value
@@ -131,7 +135,7 @@ public:
     double N_uptakable;              //[g m-2] assorbimento massimo della coltura per ciclo colturale
 private:
     double maxRate_LAI_Ndemand;      //[g m-2 d-1 LAI-1] maximum demand for unit LAI increment
-    double CN_RATIO_NOTHARVESTED=30; //[] C/N ratio in not harvested crop
+    //double CN_RATIO_NOTHARVESTED=30; //[] C/N ratio in not harvested crop
 
 
 public:
@@ -149,16 +153,16 @@ public:
     double N_dailyDemandMaxCover;    //[g m-2] potential Nitrogen at max cover day (LAI_MAX)
     double N_uptakeMax;              //[g m-2] Max Nitrogen uptake
     double N_uptakeDeficit;          //[g m-2] Nitrogen deficit: not absorbed Nitrogen with respect to Nitrogen demand
-    double* N_deficit_daily;         //[g m-2] array of deficit in the last days (defined by N_deficit_max_days)
+    //double* N_deficit_daily;         //[g m-2] array of deficit in the last days (defined by N_deficit_max_days)
     int N_deficit_max_days;         //[d] nr days with available deficit
     double N_NH4_uptakeGG;           //[g m-2] NH4 absorbed by the crop
     double N_NO3_uptakeGG;           //[g m-2] NO3 absorbed by the crop
     double N_denitrGG;               //[g m-2] Lost Nitrogen by denitrification
         //carbon
-        //contents
+    // content
     double C_humusGG;                //[g m-2] C in humus
     double C_litterGG;               //[g m-2] C in litter
-        //flussi
+    // flux
     double C_litter_humusGG;         //[g m-2] C from litter to humus
     double C_litter_litterGG;        //[g m-2] C recycled within litter
     double C_min_humusGG;            //[g m-2] C lost as CO2 by humus mineralization
@@ -175,10 +179,10 @@ private:
     double convertToGramsPerLiter(double myQuantity, soil::Crit3DLayer &soilLayer);
     double convertToGramsPerKg(double myQuantity, soil::Crit3DLayer &soilLayer);
     void N_InitializeLayers();
-    void humusIni();
+    void humusIni(Crit1DCase &myCase);
     double updateTotalOfPartitioned(double mySoluteAds,double mySoluteSol);
     void partitioning(Crit1DCase &myCase);
-    void litterIni();
+    void litterIni(Crit1DCase &myCase);
     void chemicalTransformations(Crit1DCase &myCase);
     void N_Initialize();
     void N_Fertilization();
@@ -195,18 +199,18 @@ private:
     void N_Uptake_Potential(Crit1DCase &myCase);
     void N_Uptake_Max();
     void N_Reset();
-    double findPistonDepth();
+    double findPistonDepth(Crit1DCase &myCase);
     void soluteFluxesPiston(double* mySolute, double PistonDepth,double* leached);
     void soluteFluxesPiston_old(double* mySolute, double* leached, double* CoeffPiston);
-    void soluteFluxes(double* mySolute,bool flagRisalita, double pistonDepth,double* leached,Crit1DCase &myCase);
-    void leachingWaterTable(double* mySolute, double* leached, Crit1DCase &myCase);
+    void soluteFluxes(std::vector<double> &mySolute, bool flagRisalita, double pistonDepth, double* leached, Crit1DCase &myCase);
+    void leachingWaterTable(std::vector<double> &mySolute, double* leached, Crit1DCase &myCase);
     void NH4_Balance(Crit1DCase &myCase);
     void NO3_Balance(Crit1DCase &myCase);
-    void N_initializeCrop(bool noReset);
+    void N_initializeCrop(bool noReset,Crit1DCase &myCase);
     void N_harvest(Crit1DCase &myCase);
     void updateNCrop(Crit3DCrop crop);
     void N_plough(Crit1DCase &myCase);
-    void NFromCropSenescence(double myDays,double coeffB);
+    void NFromCropSenescence(double myDays,double coeffB,Crit1DCase &myCase);
 
 };
 

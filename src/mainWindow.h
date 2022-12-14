@@ -17,6 +17,7 @@
     #include "colorLegend.h"
     #include "dbArkimet.h"
     #include "pragaProject.h"
+    #include "ArrowObject.h"
 
     enum visualizationType {notShown, showLocation, showCurrentVariable, showElaboration, showAnomalyAbsolute, showAnomalyPercentage, showClimate};
 
@@ -269,7 +270,10 @@
         ColorLegend *rasterLegend;
         ColorLegend *meteoPointsLegend;
         ColorLegend *meteoGridLegend;
+
         QList<StationMarker*> pointList;
+        QList<ArrowObject*> windVectorList;
+
         RubberBand *rubberBand;
         visualizationType currentPointsVisualization;
         visualizationType currentGridVisualization;
@@ -292,8 +296,10 @@
         void updateVariable();
         void updateDateTime();
         void resetMeteoPointsMarker();
+        void clearWindVectorObjects();
         void addMeteoPoints();
         void drawMeteoPoints();
+        void drawWindVector(int i);
         void redrawMeteoPoints(visualizationType showType, bool updateColorScale);
         void drawMeteoGrid();
         void redrawMeteoGrid(visualizationType showType, bool showInterpolationResult);
