@@ -3002,7 +3002,7 @@ bool PragaProject::planGriddingTask(QDate dateIni, QDate dateFin, QString user, 
 
     QSqlQuery qry(meteoGridDbHandler->db());
     QString table = "gridding_tasks";
-    QString statement = QString("CREATE TABLE IF NOT EXISTS `%1` (date_creation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, date_start DATE NOT NULL, date_end DATE NOT NULL, praga_user TEXT NOT NULL, notes TEXT, ts_end TIMESTAMP, ts_start TIMESTAMP)").arg(table);
+    QString statement = QString("CREATE TABLE IF NOT EXISTS `%1` (date_creation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, date_start DATE NOT NULL, date_end DATE NOT NULL, praga_user TEXT NOT NULL, notes TEXT, ts_end DATETIME, ts_start DATETIME)").arg(table);
 
     if( !qry.exec(statement) )
     {
