@@ -4579,7 +4579,7 @@ void MainWindow::on_actionInterpolationMeteogridGriddingTaskRemove_triggered()
     std::vector <QString> users, notes;
     std::vector <QDate> dateStart, dateEnd;
     std::vector <QDateTime> dateCreation;
-    QStringList taskList;
+    QList<QString> taskList;
 
     if (! myProject.getGriddingTasks(dateCreation, dateStart, dateEnd, users, notes)) return;
 
