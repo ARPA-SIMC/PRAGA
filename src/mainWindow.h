@@ -15,8 +15,6 @@
     #include "mapGraphicsRasterObject.h"
     #include "stationMarker.h"
     #include "colorLegend.h"
-    #include "dbArkimet.h"
-    #include "pragaProject.h"
     #include "ArrowObject.h"
 
     enum visualizationType {notShown, showLocation, showCurrentVariable, showElaboration, showAnomalyAbsolute, showAnomalyPercentage, showClimate};

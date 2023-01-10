@@ -1,27 +1,20 @@
-#include <QGridLayout>
-#include <QFileDialog>
-#include <QtDebug>
-#include <QMessageBox>
-#include <QDialogButtonBox>
-#include <QPushButton>
-#include <QListWidget>
-#include <QRadioButton>
-#include <QTextBrowser>
-#include <QIODevice>
-
 #include <sstream>
 #include <iostream>
 #include <iomanip>      // std::setprecision
 
+#include "mainWindow.h"
+#include "ui_mainWindow.h"
+
+#include "basicMath.h"
+#include "spatialControl.h"
+#include "utilities.h"
+#include "interpolation.h"
+
 #include "formTimePeriod.h"
 #include "formSelection.h"
 #include "formText.h"
-#include "mainWindow.h"
-#include "ui_mainWindow.h"
 #include "dbMeteoPointsHandler.h"
-#include "dbArkimet.h"
 #include "download.h"
-#include "commonConstants.h"
 #include "dialogSelection.h"
 #include "dialogDownloadMeteoData.h"
 #include "dialogMeteoComputation.h"
@@ -30,7 +23,6 @@
 #include "dialogInterpolation.h"
 #include "dialogRadiation.h"
 #include "dialogPragaSettings.h"
-#include "spatialControl.h"
 #include "dialogPragaProject.h"
 #include "dialogPointProperties.h"
 #include "dialogPointDeleteData.h"
@@ -40,9 +32,6 @@
 #include "dialogAddMissingStation.h"
 #include "dialogAddRemoveDataset.h"
 #include "dialogShiftData.h"
-#include "utilities.h"
-#include "basicMath.h"
-#include "interpolation.h"
 #include "meteoWidget.h"
 
 
@@ -845,7 +834,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
     void MainWindow::on_actionNetCDF_Open_triggered()
     {
-        QString fileName = QFileDialog::getOpenFileName(this, tr("Open NetCDF data"), "", tr("NetCDF files (*.nc)"));
+        QString fileName = QFileDialog::getOpenFileName(this, "Open NetCDF data", "", "NetCDF files (*.nc)");
         if (fileName == "") return;
 
         myProject.netCDF.initialize(myProject.gisSettings.utmZone);
@@ -862,6 +851,14 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         }
 
         meteoGridObj->setNetCDF(true);
+
+        // resize map
+        double size = log2(1000 / double(meteoGridObj->getRasterMaxSize()));
+        this->mapView->setZoomLevel(quint8(size));
+
+        // center map
+        gis::Crit3DGeoPoint* center = meteoGridObj->getRasterCenter();
+        this->mapView->centerOn(qreal(center->longitude), qreal(center->latitude));
 
         myProject.netCDF.dataGrid.setConstantValue(0);
 
@@ -4582,7 +4579,7 @@ void MainWindow::on_actionInterpolationMeteogridGriddingTaskRemove_triggered()
     std::vector <QString> users, notes;
     std::vector <QDate> dateStart, dateEnd;
     std::vector <QDateTime> dateCreation;
-    QStringList taskList;
+    QList<QString> taskList;
 
     if (! myProject.getGriddingTasks(dateCreation, dateStart, dateEnd, users, notes)) return;
 

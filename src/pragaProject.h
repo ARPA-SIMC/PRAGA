@@ -49,7 +49,7 @@
             void deleteSynchWidget();
 
     public:
-        QStringList users;
+        QList<QString> users;
         gis::Crit3DRasterGrid dataRaster;
         Crit3DDailyMeteoMaps* pragaDailyMaps;
         PragaHourlyMeteoMaps* pragaHourlyMaps;
