@@ -4024,8 +4024,7 @@ bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
             float threshold = NODATA;
             meteoComputation elab1MeteoComp = noMeteoComp;
             QString periodType = "D";
-            int nMissing = 0;
-            if ( !myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, nMissing, true))
+            if ( !myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, true))
             {
                 myProject.logError();
                 if (myRaster != nullptr)
@@ -4033,10 +4032,6 @@ bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
                     delete myRaster;
                 }
                 return false;
-            }
-            if (nMissing != 0)
-            {
-                QMessageBox::information(nullptr, "Warning", "Missing values");
             }
         }
         if (myRaster != nullptr)
