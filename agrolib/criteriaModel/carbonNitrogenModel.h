@@ -45,7 +45,7 @@ public:
     double CN_RATIO_NOTHARVESTED;
     double LITTERINI_C_DEFAULT;
     double LITTERINI_N_DEFAULT;
-    double LITTERINI_PROF_DEFAULT;
+    double LITTERINI_DEPTH_DEFAULT;
     double ratioHumusCN;
     double ratioLitterCN;
     double ratioBiomassCN;
@@ -95,9 +95,9 @@ public:
     double ratio_CN_humus;               //[] rapporto C/N pool humus
     double ratio_CN_biomass;             //[] rapporto C/N pool biomass
 
-    //double litterIniC;                   //[kg ha-1] initial litter carbon
-    //double litterIniN;                   //[kg ha-1] initial litter nitrogen
-    //double litterIniProf ;               //[cm] initial litter depth
+    double litterIniC;                   //[kg ha-1] initial litter carbon
+    double litterIniN;                   //[kg ha-1] initial litter nitrogen
+    double litterIniDepth ;               //[cm] initial litter depth
 
     // flags -------------------------------------------------------------------------------------------------
     int flagSOM;                         // 1: computes SO; 0: SO set at the default value
@@ -200,9 +200,9 @@ private:
     void N_InitializeVariables(Crit1DCase &myCase);
     //void ApriTabellaUsciteAzoto(tbname_azoto As String);
     void N_Output();
-    double CNRatio(double c,double n,int flagOrganicMatter);
+    double CNRatio(double C, double N, int flagOrganicMatter);
     double computeWaterCorrectionFactor(int l,Crit1DCase &myCase);
-    double computeTemperatureCorrectionFactor(bool flag, int l, double layerSoilTemperature, double baseTemperature);
+    double computeTemperatureCorrectionFactor(bool flag, double layerSoilTemperature, double baseTemperature);
     void computeLayerRates(unsigned l,Crit1DCase &myCase);
     void N_Uptake(Crit1DCase &myCase);
     void N_SurfaceRunoff(Crit1DCase &myCase);

@@ -1444,7 +1444,7 @@ bool PragaProject::downloadHourlyDataArkimet(QList<QString> variables, QDate sta
 }
 
 
-bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoComputation elab1MeteoComp, QString aggregationString, float threshold, gis::Crit3DRasterGrid* zoneGrid, QDate startDate, QDate endDate, QString periodType, std::vector<float> &outputValues, int &nMissing, bool showInfo)
+bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoComputation elab1MeteoComp, QString aggregationString, float threshold, gis::Crit3DRasterGrid* zoneGrid, QDate startDate, QDate endDate, QString periodType, std::vector<float> &outputValues, bool showInfo)
 {
 
     aggregationMethod spatialElab = getAggregationMethod(aggregationString.toStdString());
@@ -1629,11 +1629,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
                         break;
                     }
             }
-            if (isEqual(res, NODATA))
-            {
-                // there are NODATA values
-                nMissing = nMissing + 1;
-            }
+
             dailyElabAggregation[unsigned(day)][zonePos] = res;
          }
          // clear zoneVector
