@@ -4691,3 +4691,47 @@ void MainWindow::searchMeteoPoint(bool isName)
 }
 
 
+
+void MainWindow::on_actionShow_InfoProject_triggered()
+{
+    QDialog myDialog;
+    myDialog.setWindowTitle("Project info");
+
+    QTextBrowser textBrowser;
+
+    textBrowser.setText(QString("Project: " + myProject.projectName));
+    textBrowser.append(QString("File Log: " + myProject.logFileName));
+    textBrowser.append(QString("Digital Elevation Model: " + myProject.demFileName));
+    textBrowser.append(QString("Parameters: " + myProject.parametersFileName));
+
+    if (myProject.meteoPointsLoaded)
+    {
+       textBrowser.append(QString("MeteoPoints DB: " + myProject.dbPointsFileName));
+    }
+    else
+    {
+        textBrowser.append(QString("MeteoPoints Db: No meteo points loaded"));
+    }
+
+    if (myProject.meteoGridLoaded && myProject.dbGridXMLFileName != "") // Questo controlla che il grid esista, per evitare che si blocchi Praga coi commandi successivi.
+    {
+        textBrowser.append(QString("MeteoGrid XML: ") + QString(myProject.dbGridXMLFileName));
+        textBrowser.append(QString("MeteoGrid name: " + myProject.meteoGridDbHandler->connection().name));
+        textBrowser.append(QString("MeteoGrid server: " + myProject.meteoGridDbHandler->connection().server));
+    }
+    else
+    {
+        textBrowser.append(QString("MeteoGrid XML: No grid loaded"));
+    }
+
+
+    QVBoxLayout mainLayout;
+    mainLayout.addWidget(&textBrowser);
+
+    myDialog.setLayout(&mainLayout);
+    myDialog.setFixedSize(400,300);
+    myDialog.exec();
+}
+
+//meteo points
+//estrarre percorso assoluto

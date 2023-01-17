@@ -2126,6 +2126,8 @@
      <addaction name="separator"/>
      <addaction name="actionFileSaveProjectAs"/>
      <addaction name="actionFileSaveProject"/>
+     <addaction name="separator"/>
+     <addaction name="actionShow_InfoProject"/>
     </widget>
     <addaction name="menuProject"/>
     <addaction name="separator"/>
@@ -3087,6 +3089,11 @@
    </property>
    <property name="text">
     <string>Clear selection</string>
+   </property>
+  </action>
+  <action name="actionShow_InfoProject">
+   <property name="text">
+    <string>Show Info...</string>
    </property>
   </action>
  </widget>
