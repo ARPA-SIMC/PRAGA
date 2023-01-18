@@ -114,7 +114,7 @@
         bool averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoComputation elab1MeteoComp,
                                            QString aggregationString, float threshold, gis::Crit3DRasterGrid* zoneGrid,
                                            QDate startDate, QDate endDate, QString periodType,
-                                           std::vector<float> &outputValues, int &nMissing, bool showInfo);
+                                           std::vector<float> &outputValues, bool showInfo);
         bool getIsElabMeteoPointsValue() const;
         void setIsElabMeteoPointsValue(bool value);
         bool dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QString dataset, std::vector<int> &myCounter);

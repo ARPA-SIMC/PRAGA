@@ -204,6 +204,11 @@ int cmdDownload(PragaProject* myProject, QList<QString> argumentList)
             dateIni = QDate::currentDate().addDays(-1);
             dateFin = dateIni;
         }
+        else if (argumentList.at(i).left(10) == "-lastweek")
+        {
+            dateFin = QDate::currentDate().addDays(-1);
+            dateIni = dateFin.addDays(-6);
+        }
         else if (argumentList.at(i).left(3) == "-p9")
             prec0024 = false;
         else if (argumentList.at(i).left(5) == "-show")
@@ -611,13 +616,12 @@ int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentLi
         return PRAGA_ERROR;
     }
 
-    int nMissing = 0;
     for (int i = 0; i<variables.size(); i++)
     {
         for (int j = 0; j < aggregationList.size(); j++)
         {
             myProject->logInfo("Computing variable number: "+QString::number(i) + ", aggregation number: "+QString::number(j));
-            if (!myProject->averageSeriesOnZonesMeteoGrid(variables[i], elab1MeteoComp, aggregationList[j], threshold, myRaster, first, last, periodType, outputValues, nMissing, false))
+            if (!myProject->averageSeriesOnZonesMeteoGrid(variables[i], elab1MeteoComp, aggregationList[j], threshold, myRaster, first, last, periodType, outputValues, false))
             {
                 delete myRaster;
                 return PRAGA_ERROR;
@@ -625,10 +629,7 @@ int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentLi
         }
     }
     delete myRaster;
-    if (nMissing != 0)
-    {
-        myProject->logInfo("Missing values existing");
-    }
+
     return PRAGA_OK;
 }
 
