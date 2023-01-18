@@ -1104,7 +1104,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
             Crit3DColor *myColor;
             for (int i = 0; i < myProject.nrMeteoPoints; i++)
             {
-                if (int(myProject.meteoPoints[i].currentValue) != NODATA)
+                if (int(myProject.meteoPoints[i].currentValue) != NODATA || myProject.meteoPoints[i].marked)
                 {
                     if (myProject.meteoPoints[i].quality == quality::accepted)
                     {
@@ -1115,7 +1115,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                         if (isWindVector)
                             drawWindVector(i);
                     }
-                    else
+                    else if (! myProject.meteoPoints[i].marked)
                     {
                         // Wrong data
                         pointList[i]->setRadius(10);
@@ -1128,7 +1128,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                     pointList[i]->setToolTip();
 
                     // hide not active points
-                    bool isVisible = (myProject.meteoPoints[i].active || viewNotActivePoints);
+                    bool isVisible = (myProject.meteoPoints[i].active || viewNotActivePoints || myProject.meteoPoints[i].marked);
                     pointList[i]->setVisible(isVisible);
                 }
             }
