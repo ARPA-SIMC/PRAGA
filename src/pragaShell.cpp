@@ -204,6 +204,11 @@ int cmdDownload(PragaProject* myProject, QList<QString> argumentList)
             dateIni = QDate::currentDate().addDays(-1);
             dateFin = dateIni;
         }
+        else if (argumentList.at(i).left(10) == "-lastweek")
+        {
+            dateFin = QDate::currentDate().addDays(-1);
+            dateIni = dateFin.addDays(-6);
+        }
         else if (argumentList.at(i).left(3) == "-p9")
             prec0024 = false;
         else if (argumentList.at(i).left(5) == "-show")

@@ -4728,5 +4728,5 @@ void MainWindow::on_actionShow_InfoProject_triggered()
     myDialog.exec();
 }
 
-//meteo points
-//estrarre percorso assoluto
+//risolvere le questioni di autenticazione per il push, guardando anche sui settings di github.
+//estrarre percorso assoluto degli archivi
