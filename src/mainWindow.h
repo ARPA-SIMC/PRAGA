@@ -240,6 +240,8 @@
 
         void on_actionMeteoPointsClear_selection_triggered();
 
+        void on_actionShow_InfoProject_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
