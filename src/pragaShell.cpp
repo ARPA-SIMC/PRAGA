@@ -19,7 +19,7 @@ QList<QString> getPragaCommandList()
     //cmdList.append("LoadForecast | LoadForecastData");
     cmdList.append("GridAggr     | GridAggregation");
     cmdList.append("GridDerVar   | GridDerivedVariables");
-    cmdList.append("MonthlyVar   | GridMonthlyVariables");
+    cmdList.append("GridMonthlyInt  | GridMonthlyIntegrationVariables");
     cmdList.append("AggrOnZones  | GridAggregationOnZones");
 
     return cmdList;
@@ -78,10 +78,10 @@ int PragaProject::executePragaCommand(QList<QString> argumentList, bool* isComma
         *isCommandFound = true;
         return cmdHourlyDerivedVariablesGrid(this, argumentList);
     }
-    else if (command == "GRIDMONTHLYVARIABLES" || command == "MONTHLYVAR")
+    else if (command == "GRIDMONTHLYINTEGRATIONVARIABLES" || command == "GRIDMONTHLYINT")
     {
         *isCommandFound = true;
-        return cmdMonthlyVariablesGrid(this, argumentList);
+        return cmdMonthlyIntegrationVariablesGrid(this, argumentList);
     }
     else if (command == "DROUGHTINDEX" || command == "DROUGHT")
     {
@@ -426,7 +426,7 @@ int cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QList<QString> argume
     return PRAGA_OK;
 }
 
-int cmdMonthlyVariablesGrid(PragaProject* myProject, QList<QString> argumentList)
+int cmdMonthlyIntegrationVariablesGrid(PragaProject* myProject, QList<QString> argumentList)
 {
 
     // default date
