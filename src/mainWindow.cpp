@@ -32,6 +32,7 @@
 #include "dialogAddMissingStation.h"
 #include "dialogAddRemoveDataset.h"
 #include "dialogShiftData.h"
+#include "dialogComputeData.h"
 #include "meteoWidget.h"
 
 
@@ -1212,6 +1213,7 @@ void MainWindow::drawMeteoGrid()
     this->ui->grid->setChecked(true);
     showGridGroup->setEnabled(true);
     this->ui->menuActive_cells->setEnabled(true);
+    this->ui->actionCompute_monthly_data_from_daily->setEnabled(true);
     if (myProject.getCurrentVariable() != noMeteoVar && myProject.getCurrentFrequency() != noFrequency)
     {
         this->ui->actionShowGridCurrent->setEnabled(true);
@@ -2716,6 +2718,7 @@ void MainWindow::closeMeteoGrid()
 
             showGridGroup->setEnabled(false);
             this->ui->menuActive_cells->setEnabled(false);
+            this->ui->actionCompute_monthly_data_from_daily->setEnabled(false);
             this->ui->menuShowGridAnomaly->setEnabled(false);
 
             if (myProject.meteoPointsDbHandler != nullptr)
@@ -4730,3 +4733,62 @@ void MainWindow::on_actionShow_InfoProject_triggered()
 
 //risolvere le questioni di autenticazione per il push, guardando anche sui settings di github.
 //estrarre percorso assoluto degli archivi
+
+void MainWindow::on_actionCompute_monthly_data_from_daily_triggered()
+{
+    if (myProject.meteoGridDbHandler == nullptr)
+    {
+        myProject.logError(ERROR_STR_MISSING_GRID);
+        return;
+    }
+
+    bool allPoints = true;
+    bool isGrid = true;
+    QDate myDateFrom = myProject.meteoGridDbHandler->firstDate();
+    QDate myDateTo = myProject.meteoGridDbHandler->lastDate();
+
+    DialogComputeData computeMonthlyDialog(myDateFrom, myDateTo, isGrid, allPoints);
+    if (computeMonthlyDialog.result() == QDialog::Accepted)
+    {
+        QList <meteoVariable> varToCompute = computeMonthlyDialog.getVariables();
+        QDate firstDate = computeMonthlyDialog.getDateFrom();
+        QDate lastDate = computeMonthlyDialog.getDateTo();
+        for (int i = 0; i < varToCompute.size(); i++)
+        {
+            qDebug() << "var: " << QString::fromStdString(getKeyStringMeteoMap(MapMonthlyMeteoVar, varToCompute[i]));
+        }
+        qDebug() << "getFirsMonthlytDate: " << myProject.meteoGridDbHandler->getFirsMonthlytDate().toString();
+        qDebug() << "getLastMonthlyDate: " << myProject.meteoGridDbHandler->getLastMonthlyDate().toString();
+        if (myProject.meteoGridDbHandler->getFirsMonthlytDate().isValid() && myProject.meteoGridDbHandler->getLastMonthlyDate().isValid())
+        {
+            qDebug() << "valid data";
+            qDebug() << "firstDate: " << firstDate.toString();
+            qDebug() << "lastDate: " << lastDate.toString();
+            if (firstDate >= myProject.meteoGridDbHandler->getFirsMonthlytDate() || lastDate <= myProject.meteoGridDbHandler->getLastMonthlyDate())
+            {
+                QMessageBox::StandardButton reply;
+                reply = QMessageBox::question(this, "Are you sure?" ,
+                                              " monthly data will be overwritten ",
+                                              QMessageBox::Yes|QMessageBox::No);
+                if (reply == QMessageBox::No)
+                {
+                    return;
+                }
+            }
+        }
+        if (! myProject.monthlyVariablesGrid(firstDate, lastDate, varToCompute))
+        {
+                myProject.logError("Failed to compute monthly data");
+        }
+    }
+    else
+    {
+        return;
+    }
+    /*
+    QDate currentDate = myProject.getCurrentDate();
+    myProject.loadMeteoPointsData(currentDate, currentDate, true, true, true);
+    redrawMeteoPoints(currentPointsVisualization, true);
+    */
+}
+

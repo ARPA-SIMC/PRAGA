@@ -458,7 +458,6 @@
   <property name="font">
    <font>
     <pointsize>10</pointsize>
-    <weight>50</weight>
     <bold>false</bold>
    </font>
   </property>
@@ -502,7 +501,6 @@
       <property name="font">
        <font>
         <pointsize>10</pointsize>
-        <weight>50</weight>
         <bold>false</bold>
        </font>
       </property>
@@ -547,7 +545,6 @@
          <property name="font">
           <font>
            <pointsize>10</pointsize>
-           <weight>50</weight>
            <bold>false</bold>
           </font>
          </property>
@@ -609,7 +606,6 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
-            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -629,7 +625,6 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
-            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -713,7 +708,6 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
-            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -747,7 +741,7 @@
             <second>0</second>
             <year>1752</year>
             <month>10</month>
-            <day>14</day>
+            <day>13</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -786,7 +780,6 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
-            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -806,7 +799,6 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
-            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -826,7 +818,6 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
-            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -903,7 +894,6 @@
           <property name="font">
            <font>
             <pointsize>8</pointsize>
-            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -948,7 +938,6 @@
           <property name="font">
            <font>
             <pointsize>8</pointsize>
-            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -1045,7 +1034,6 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
-            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -1517,7 +1505,6 @@
          <property name="font">
           <font>
            <pointsize>10</pointsize>
-           <weight>50</weight>
            <bold>false</bold>
           </font>
          </property>
@@ -1582,7 +1569,6 @@
           <property name="font">
            <font>
             <pointsize>8</pointsize>
-            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -1639,7 +1625,6 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
-            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -1717,7 +1702,6 @@
               <property name="font">
                <font>
                 <pointsize>9</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -1737,7 +1721,6 @@
               <property name="font">
                <font>
                 <pointsize>9</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -1757,7 +1740,6 @@
               <property name="font">
                <font>
                 <pointsize>9</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -1817,7 +1799,6 @@
               <property name="font">
                <font>
                 <pointsize>9</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -1849,7 +1830,6 @@
               <property name="font">
                <font>
                 <pointsize>9</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -1881,7 +1861,6 @@
               <property name="font">
                <font>
                 <pointsize>9</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -1913,7 +1892,6 @@
               <property name="font">
                <font>
                 <pointsize>9</pointsize>
-                <weight>50</weight>
                 <bold>false</bold>
                </font>
               </property>
@@ -2221,6 +2199,16 @@
      <addaction name="actionSearchPointName"/>
      <addaction name="actionSearchPointId"/>
     </widget>
+    <widget class="QMenu" name="menuCompute_daily_data_from_hourly">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Compute daily data from hourly</string>
+     </property>
+     <addaction name="actionAll"/>
+     <addaction name="actionSelected"/>
+    </widget>
     <addaction name="actionMeteopointQualitySpatial"/>
     <addaction name="actionMeteopointRectangleSelection"/>
     <addaction name="actionMeteoPointsClear_selection"/>
@@ -2236,6 +2224,7 @@
     <addaction name="menuShift_data"/>
     <addaction name="actionMeteopointDataCount"/>
     <addaction name="separator"/>
+    <addaction name="menuCompute_daily_data_from_hourly"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
@@ -2419,6 +2408,7 @@
     <addaction name="separator"/>
     <addaction name="actionMeteogridMissingData"/>
     <addaction name="menuActive_cells"/>
+    <addaction name="actionCompute_monthly_data_from_daily"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuShow"/>
@@ -3094,6 +3084,24 @@
   <action name="actionShow_InfoProject">
    <property name="text">
     <string>Show Info...</string>
+   </property>
+  </action>
+  <action name="actionAll">
+   <property name="text">
+    <string>All</string>
+   </property>
+  </action>
+  <action name="actionSelected">
+   <property name="text">
+    <string>Selected</string>
+   </property>
+  </action>
+  <action name="actionCompute_monthly_data_from_daily">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Compute monthly data from daily</string>
    </property>
   </action>
  </widget>

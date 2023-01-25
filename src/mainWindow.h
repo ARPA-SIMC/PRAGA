@@ -242,6 +242,8 @@
 
         void on_actionShow_InfoProject_triggered();
 
+        void on_actionCompute_monthly_data_from_daily_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
