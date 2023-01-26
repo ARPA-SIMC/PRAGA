@@ -741,7 +741,7 @@
             <second>0</second>
             <year>1752</year>
             <month>10</month>
-            <day>13</day>
+            <day>12</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -2206,8 +2206,8 @@
      <property name="title">
       <string>Compute daily data from hourly</string>
      </property>
-     <addaction name="actionAll"/>
-     <addaction name="actionSelected"/>
+     <addaction name="actionCompute_daily_from_Hourly_all"/>
+     <addaction name="actionCompute_daily_from_Hourly_selected"/>
     </widget>
     <addaction name="actionMeteopointQualitySpatial"/>
     <addaction name="actionMeteopointRectangleSelection"/>
@@ -3086,14 +3086,20 @@
     <string>Show Info...</string>
    </property>
   </action>
-  <action name="actionAll">
+  <action name="actionCompute_daily_from_Hourly_all">
    <property name="text">
     <string>All</string>
    </property>
+   <property name="toolTip">
+    <string>Compute daily from Hourly All</string>
+   </property>
   </action>
-  <action name="actionSelected">
+  <action name="actionCompute_daily_from_Hourly_selected">
    <property name="text">
     <string>Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>Compute daily from Hourly Selected</string>
    </property>
   </action>
   <action name="actionCompute_monthly_data_from_daily">
