@@ -4753,17 +4753,8 @@ void MainWindow::on_actionCompute_monthly_data_from_daily_triggered()
         QList <meteoVariable> varToCompute = computeMonthlyDialog.getVariables();
         QDate firstDate = computeMonthlyDialog.getDateFrom();
         QDate lastDate = computeMonthlyDialog.getDateTo();
-        for (int i = 0; i < varToCompute.size(); i++)
-        {
-            qDebug() << "var: " << QString::fromStdString(getKeyStringMeteoMap(MapMonthlyMeteoVar, varToCompute[i]));
-        }
-        qDebug() << "getFirsMonthlytDate: " << myProject.meteoGridDbHandler->getFirsMonthlytDate().toString();
-        qDebug() << "getLastMonthlyDate: " << myProject.meteoGridDbHandler->getLastMonthlyDate().toString();
         if (myProject.meteoGridDbHandler->getFirsMonthlytDate().isValid() && myProject.meteoGridDbHandler->getLastMonthlyDate().isValid())
         {
-            qDebug() << "valid data";
-            qDebug() << "firstDate: " << firstDate.toString();
-            qDebug() << "lastDate: " << lastDate.toString();
             if (firstDate >= myProject.meteoGridDbHandler->getFirsMonthlytDate() || lastDate <= myProject.meteoGridDbHandler->getLastMonthlyDate())
             {
                 QMessageBox::StandardButton reply;
@@ -4785,10 +4776,9 @@ void MainWindow::on_actionCompute_monthly_data_from_daily_triggered()
     {
         return;
     }
-    /*
-    QDate currentDate = myProject.getCurrentDate();
-    myProject.loadMeteoPointsData(currentDate, currentDate, true, true, true);
-    redrawMeteoPoints(currentPointsVisualization, true);
-    */
+    QDate date = myProject.getCurrentDate();
+    myProject.loadMeteoGridData(date, date, true);
+
+    redrawMeteoGrid(currentGridVisualization, false);
 }
 
