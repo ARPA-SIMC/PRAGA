@@ -971,6 +971,7 @@ void MainWindow::drawMeteoPoints()
     ui->menuDelete_data->setEnabled(true);
     ui->menuShift_data->setEnabled(true);
     ui->actionMeteopointDataCount->setEnabled(true);
+    ui->menuCompute_daily_data_from_hourly->setEnabled(true);
 
     ui->grid->setChecked(false);
 
@@ -4753,17 +4754,8 @@ void MainWindow::on_actionCompute_monthly_data_from_daily_triggered()
         QList <meteoVariable> varToCompute = computeMonthlyDialog.getVariables();
         QDate firstDate = computeMonthlyDialog.getDateFrom();
         QDate lastDate = computeMonthlyDialog.getDateTo();
-        for (int i = 0; i < varToCompute.size(); i++)
-        {
-            qDebug() << "var: " << QString::fromStdString(getKeyStringMeteoMap(MapMonthlyMeteoVar, varToCompute[i]));
-        }
-        qDebug() << "getFirsMonthlytDate: " << myProject.meteoGridDbHandler->getFirsMonthlytDate().toString();
-        qDebug() << "getLastMonthlyDate: " << myProject.meteoGridDbHandler->getLastMonthlyDate().toString();
         if (myProject.meteoGridDbHandler->getFirsMonthlytDate().isValid() && myProject.meteoGridDbHandler->getLastMonthlyDate().isValid())
         {
-            qDebug() << "valid data";
-            qDebug() << "firstDate: " << firstDate.toString();
-            qDebug() << "lastDate: " << lastDate.toString();
             if (firstDate >= myProject.meteoGridDbHandler->getFirsMonthlytDate() || lastDate <= myProject.meteoGridDbHandler->getLastMonthlyDate())
             {
                 QMessageBox::StandardButton reply;
@@ -4785,10 +4777,46 @@ void MainWindow::on_actionCompute_monthly_data_from_daily_triggered()
     {
         return;
     }
-    /*
-    QDate currentDate = myProject.getCurrentDate();
-    myProject.loadMeteoPointsData(currentDate, currentDate, true, true, true);
-    redrawMeteoPoints(currentPointsVisualization, true);
-    */
+    QDate date = myProject.getCurrentDate();
+    myProject.loadMeteoGridData(date, date, true);
+
+    redrawMeteoGrid(currentGridVisualization, false);
+}
+
+
+
+void MainWindow::on_actionCompute_daily_from_Hourly_all_triggered()
+{
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        myProject.logError(ERROR_STR_MISSING_DB);
+        return;
+    }
+
+    bool allPoints = true;
+    bool isGrid = false;
+    QDate myDateFrom = myProject.meteoPointsDbHandler->getFirstDate(hourly).date();
+    QDate myDateTo = myProject.meteoPointsDbHandler->getLastDate(hourly).date();
+
+    DialogComputeData computeDailyDialog(myDateFrom, myDateTo, isGrid, allPoints);
+    // TO DO
+}
+
+
+void MainWindow::on_actionCompute_daily_from_Hourly_selected_triggered()
+{
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        myProject.logError(ERROR_STR_MISSING_DB);
+        return;
+    }
+
+    bool allPoints = false;
+    bool isGrid = false;
+    QDate myDateFrom = myProject.meteoPointsDbHandler->getFirstDate(hourly).date();
+    QDate myDateTo = myProject.meteoPointsDbHandler->getLastDate(hourly).date();
+
+    DialogComputeData computeDailyDialog(myDateFrom, myDateTo, isGrid, allPoints);
+    // TO DO
 }
 
