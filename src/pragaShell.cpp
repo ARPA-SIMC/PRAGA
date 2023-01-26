@@ -13,6 +13,7 @@ QList<QString> getPragaCommandList()
     // praga commands
     cmdList.append("List         | ListCommands");
     cmdList.append("Proj         | OpenProject");
+    cmdList.append("Point        | OpenDbPoint");
     cmdList.append("Download     | Download");
     cmdList.append("Netcdf       | ExportNetcdf");
     cmdList.append("XMLToNetcdf  | ExportXMLElaborationsToNetcdf");
@@ -57,6 +58,11 @@ int PragaProject::executePragaCommand(QList<QString> argumentList, bool* isComma
     {
         *isCommandFound = true;
         return cmdOpenPragaProject(this, argumentList);
+    }
+    else if (command == "POINT" || command == "OPENDBPOINT")
+    {
+        *isCommandFound = true;
+        return cmdOpenDbPoint(this, argumentList);
     }
     else if (command == "DOWNLOAD")
     {
@@ -146,6 +152,25 @@ int cmdOpenPragaProject(PragaProject* myProject, QList<QString> argumentList)
     {
         myProject->logError();
         return PRAGA_ERROR;
+    }
+
+    return PRAGA_OK;
+}
+
+int cmdOpenDbPoint(PragaProject* myProject, QList<QString> argumentList)
+{
+    if (argumentList.size() < 2)
+    {
+        myProject->logError("Missing db point name");
+        return PRAGA_INVALID_COMMAND;
+    }
+
+    QString filename = argumentList.at(1);
+
+    if (! myProject->loadMeteoPointsDB(filename))
+    {
+        myProject->logError();
+        return ERROR_DBPOINT;
     }
 
     return PRAGA_OK;
