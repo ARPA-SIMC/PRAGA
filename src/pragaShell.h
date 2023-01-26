@@ -13,7 +13,6 @@
     int pragaBatch(PragaProject* myProject, QString batchFileName);
 
     int cmdOpenPragaProject(PragaProject* myProject, QList<QString> argumentList);
-    int cmdOpenDbPoint(PragaProject* myProject, QList<QString> argumentList);
     int cmdDownload(PragaProject* myProject, QList<QString> argumentList);
     int cmdInterpolationGridPeriod(PragaProject* myProject, QList<QString> argumentList);
     int cmdAggregationGridPeriod(PragaProject* myProject, QList<QString> argumentList);
