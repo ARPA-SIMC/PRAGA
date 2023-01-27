@@ -4812,7 +4812,7 @@ void MainWindow::on_actionCompute_daily_from_Hourly_all_triggered()
             {
                 QMessageBox::StandardButton reply;
                 reply = QMessageBox::question(this, "Are you sure?" ,
-                                              " daily data of " + QString::number(myProject.nrMeteoPoints) + "will be overwritten ",
+                                              " daily data of " + QString::number(myProject.nrMeteoPoints) + " will be overwritten ",
                                               QMessageBox::Yes|QMessageBox::No);
                 if (reply == QMessageBox::No)
                 {
@@ -4825,6 +4825,7 @@ void MainWindow::on_actionCompute_daily_from_Hourly_all_triggered()
             Crit3DMeteoPoint meteoPoint;
             std::string myId = myProject.meteoPoints[i].id;
             meteoPoint.setId(myId);
+            myProject.meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstDate), getCrit3DDate(lastDate), &meteoPoint);
             if (!myProject.dailyVariablesPoint(&meteoPoint, firstDate, lastDate, varToCompute))
             {
                 error = error + 1;
@@ -4888,7 +4889,7 @@ void MainWindow::on_actionCompute_daily_from_Hourly_selected_triggered()
             {
                 QMessageBox::StandardButton reply;
                 reply = QMessageBox::question(this, "Are you sure?" ,
-                                              " daily data of " + QString::number(myProject.nrMeteoPoints) + "will be overwritten ",
+                                              " daily data of " + QString::number(pointList.size()) + " will be overwritten ",
                                               QMessageBox::Yes|QMessageBox::No);
                 if (reply == QMessageBox::No)
                 {
@@ -4901,6 +4902,7 @@ void MainWindow::on_actionCompute_daily_from_Hourly_selected_triggered()
             Crit3DMeteoPoint meteoPoint;
             std::string myId = pointList[i];
             meteoPoint.setId(myId);
+            myProject.meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstDate), getCrit3DDate(lastDate), &meteoPoint);
             if (!myProject.dailyVariablesPoint(&meteoPoint, firstDate, lastDate, varToCompute))
             {
                 error = error + 1;
