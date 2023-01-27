@@ -255,7 +255,9 @@ int cmdInterpolationGridPeriod(PragaProject* myProject, QList<QString> argumentL
     QString var;
     meteoVariable meteoVar;
     int saveInterval = 1;
+    int loadInterval = NODATA;
     bool parseSaveInterval = true;
+    bool parseLoadInterval = true;
 
     for (int i = 1; i < argumentList.size(); i++)
     {
@@ -306,6 +308,8 @@ int cmdInterpolationGridPeriod(PragaProject* myProject, QList<QString> argumentL
             saveRasters = true;
         else if (argumentList.at(i).left(3) == "-s:")
             saveInterval = argumentList[i].right(argumentList[i].length()-3).toInt(&parseSaveInterval);
+        else if (argumentList.at(i).left(3) == "-l:")
+            loadInterval = argumentList[i].right(argumentList[i].length()-3).toInt(&parseLoadInterval);
 
     }
 
@@ -323,11 +327,17 @@ int cmdInterpolationGridPeriod(PragaProject* myProject, QList<QString> argumentL
 
     if (saveInterval == NODATA || ! parseSaveInterval)
     {
-        myProject->logError("Wrong save interval number");
+        myProject->logError("Wrong saving interval number");
         return PRAGA_INVALID_COMMAND;
     }
 
-    if (! myProject->interpolationMeteoGridPeriod(dateIni, dateFin, variables, aggrVariables, saveRasters, saveInterval))
+    if (! parseLoadInterval)
+    {
+        myProject->logError("Wrong loading interval number");
+        return PRAGA_INVALID_COMMAND;
+    }
+
+    if (! myProject->interpolationMeteoGridPeriod(dateIni, dateFin, variables, aggrVariables, saveRasters, loadInterval, saveInterval))
         return PRAGA_ERROR;
 
     return PRAGA_OK;
