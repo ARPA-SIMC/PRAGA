@@ -297,6 +297,11 @@ int cmdInterpolationGridPeriod(PragaProject* myProject, QList<QString> argumentL
             dateIni = QDate::currentDate().addDays(-1);
             dateFin = dateIni;
         }
+        else if (argumentList.at(i).left(10) == "-lastweek")
+        {
+            dateFin = QDate::currentDate().addDays(-1);
+            dateIni = dateFin.addDays(-6);
+        }
         else if (argumentList.at(i).left(2) == "-r")
             saveRasters = true;
         else if (argumentList.at(i).left(3) == "-s:")
