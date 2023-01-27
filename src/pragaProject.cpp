@@ -1706,6 +1706,67 @@ bool PragaProject::timeAggregateGridVarHourlyInDaily(meteoVariable dailyVar, Cri
     return true;
 }
 
+bool PragaProject::dailyVariablesPoint(Crit3DMeteoPoint *meteoPoint, QDate first, QDate last, QList <meteoVariable> variables)
+{
+    // check variables
+    if (variables.size() == 0)
+    {
+        logError("No variable");
+        return false;
+    }
+
+    // check meteo points
+    if (! meteoPointsLoaded)
+    {
+        logError("No meteo points");
+        return false;
+    }
+
+    // check dates
+    if (first.isNull() || last.isNull() || first > last)
+    {
+        logError("Wrong period");
+        return false;
+    }
+    Crit3DDate dateIni(first.day(),first.month(), first.year());
+    Crit3DDate dateFin(last.day(),last.month(), last.year());
+
+    QList<QString> listEntries;
+    QDate firstTmp;
+    QDate lastTmp;
+    int index;
+
+    for (int i = 0; i<variables.size(); i++)
+    {
+        firstTmp = first;
+        lastTmp = last;
+        index = 0;
+
+        int varId = meteoPointsDbHandler->getIdfromMeteoVar(variables[i]);
+        std::vector<float> dailyData = aggregatedHourlyToDaily(variables[i], meteoPoint, dateIni, dateFin);
+        if (!dailyData.empty())
+        {
+            while (firstTmp <= lastTmp)
+            {
+                listEntries.push_back(QString("('%1',%2,%3)").arg(firstTmp.toString("yyyy-MM-dd")).arg(varId).arg(dailyData[index]));
+                firstTmp = firstTmp.addDays(1);
+                index = index + 1;
+            }
+        }
+    }
+    if (listEntries.empty())
+    {
+        logError("Failed to compute daily data id point "+QString::fromStdString(meteoPoint->id));
+        return false;
+    }
+    if (!meteoPointsDbHandler->writeDailyDataList(QString::fromStdString(meteoPoint->id), listEntries, &errorString))
+    {
+        logError("Failed to write daily data id point "+QString::fromStdString(meteoPoint->id));
+        return false;
+    }
+    return true;
+}
+
 bool PragaProject::timeAggregateGrid(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, bool loadData, bool saveData)
 {
     // check variables

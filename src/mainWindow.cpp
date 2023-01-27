@@ -4799,7 +4799,50 @@ void MainWindow::on_actionCompute_daily_from_Hourly_all_triggered()
     QDate myDateTo = myProject.meteoPointsDbHandler->getLastDate(hourly).date();
 
     DialogComputeData computeDailyDialog(myDateFrom, myDateTo, isGrid, allPoints);
-    // TO DO
+    if (computeDailyDialog.result() == QDialog::Accepted)
+    {
+        QList <meteoVariable> varToCompute = computeDailyDialog.getVariables();
+        QDate firstDate = computeDailyDialog.getDateFrom();
+        QDate lastDate = computeDailyDialog.getDateTo();
+        int error = 0;
+        QList <QString> idErrorList;
+        if (myProject.meteoPointsDbHandler->getFirstDate(daily).date().isValid() && myProject.meteoPointsDbHandler->getLastDate(daily).date().isValid())
+        {
+            if (firstDate >= myProject.meteoPointsDbHandler->getFirstDate(daily).date() || lastDate <= myProject.meteoPointsDbHandler->getLastDate(daily).date())
+            {
+                QMessageBox::StandardButton reply;
+                reply = QMessageBox::question(this, "Are you sure?" ,
+                                              " daily data of " + QString::number(myProject.nrMeteoPoints) + "will be overwritten ",
+                                              QMessageBox::Yes|QMessageBox::No);
+                if (reply == QMessageBox::No)
+                {
+                    return;
+                }
+            }
+        }
+        for (int i = 0; i < myProject.nrMeteoPoints; i++)
+        {
+            Crit3DMeteoPoint meteoPoint;
+            std::string myId = myProject.meteoPoints[i].id;
+            meteoPoint.setId(myId);
+            if (!myProject.dailyVariablesPoint(&meteoPoint, firstDate, lastDate, varToCompute))
+            {
+                error = error + 1;
+                idErrorList.append(QString::fromStdString(myId));
+            }
+        }
+        if (error != 0)
+        {
+            myProject.logError("Failed to compute daily data for id: " + idErrorList.join(","));
+        }
+    }
+    else
+    {
+        return;
+    }
+    QDate currentDate = myProject.getCurrentDate();
+    myProject.loadMeteoPointsData(currentDate, currentDate, true, true, true);
+    redrawMeteoPoints(currentPointsVisualization, true);
 }
 
 
@@ -4811,12 +4854,70 @@ void MainWindow::on_actionCompute_daily_from_Hourly_selected_triggered()
         return;
     }
 
+    QList<std::string> pointList;
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        if (myProject.meteoPoints[i].selected)
+        {
+            pointList << myProject.meteoPoints[i].id;
+        }
+    }
+
+    if (pointList.isEmpty())
+    {
+        myProject.logError("No meteo points selected.");
+        return;
+    }
+
     bool allPoints = false;
     bool isGrid = false;
     QDate myDateFrom = myProject.meteoPointsDbHandler->getFirstDate(hourly).date();
     QDate myDateTo = myProject.meteoPointsDbHandler->getLastDate(hourly).date();
 
     DialogComputeData computeDailyDialog(myDateFrom, myDateTo, isGrid, allPoints);
-    // TO DO
+    if (computeDailyDialog.result() == QDialog::Accepted)
+    {
+        QList <meteoVariable> varToCompute = computeDailyDialog.getVariables();
+        QDate firstDate = computeDailyDialog.getDateFrom();
+        QDate lastDate = computeDailyDialog.getDateTo();
+        int error = 0;
+        QList <QString> idErrorList;
+        if (myProject.meteoPointsDbHandler->getFirstDate(daily).date().isValid() && myProject.meteoPointsDbHandler->getLastDate(daily).date().isValid())
+        {
+            if (firstDate >= myProject.meteoPointsDbHandler->getFirstDate(daily).date() || lastDate <= myProject.meteoPointsDbHandler->getLastDate(daily).date())
+            {
+                QMessageBox::StandardButton reply;
+                reply = QMessageBox::question(this, "Are you sure?" ,
+                                              " daily data of " + QString::number(myProject.nrMeteoPoints) + "will be overwritten ",
+                                              QMessageBox::Yes|QMessageBox::No);
+                if (reply == QMessageBox::No)
+                {
+                    return;
+                }
+            }
+        }
+        for (int i = 0; i < pointList.size(); i++)
+        {
+            Crit3DMeteoPoint meteoPoint;
+            std::string myId = pointList[i];
+            meteoPoint.setId(myId);
+            if (!myProject.dailyVariablesPoint(&meteoPoint, firstDate, lastDate, varToCompute))
+            {
+                error = error + 1;
+                idErrorList.append(QString::fromStdString(myId));
+            }
+        }
+        if (error != 0)
+        {
+            myProject.logError("Failed to compute daily data for id: " + idErrorList.join(","));
+        }
+    }
+    else
+    {
+        return;
+    }
+    QDate currentDate = myProject.getCurrentDate();
+    myProject.loadMeteoPointsData(currentDate, currentDate, true, true, true);
+    redrawMeteoPoints(currentPointsVisualization, true);
 }
 
