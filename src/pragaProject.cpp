@@ -1743,14 +1743,17 @@ bool PragaProject::dailyVariablesPoint(Crit3DMeteoPoint *meteoPoint, QDate first
         index = 0;
 
         int varId = meteoPointsDbHandler->getIdfromMeteoVar(variables[i]);
-        std::vector<float> dailyData = aggregatedHourlyToDaily(variables[i], meteoPoint, dateIni, dateFin);
-        if (!dailyData.empty())
+        if (varId != NODATA)
         {
-            while (firstTmp <= lastTmp)
+            std::vector<float> dailyData = aggregatedHourlyToDailyList(variables[i], meteoPoint, dateIni, dateFin, meteoSettings);
+            if (!dailyData.empty())
             {
-                listEntries.push_back(QString("('%1',%2,%3)").arg(firstTmp.toString("yyyy-MM-dd")).arg(varId).arg(dailyData[index]));
-                firstTmp = firstTmp.addDays(1);
-                index = index + 1;
+                while (firstTmp <= lastTmp)
+                {
+                    listEntries.push_back(QString("('%1',%2,%3)").arg(firstTmp.toString("yyyy-MM-dd")).arg(varId).arg(dailyData[index]));
+                    firstTmp = firstTmp.addDays(1);
+                    index = index + 1;
+                }
             }
         }
     }
