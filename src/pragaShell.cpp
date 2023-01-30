@@ -84,6 +84,7 @@ int PragaProject::executePragaCommand(QList<QString> argumentList, bool* isComma
         *isCommandFound = true;
         return cmdMonthlyIntegrationVariablesGrid(this, argumentList);
     }
+#ifdef NETCDF
     else if (command == "DROUGHTINDEX" || command == "DROUGHT")
     {
         *isCommandFound = true;
@@ -99,6 +100,7 @@ int PragaProject::executePragaCommand(QList<QString> argumentList, bool* isComma
         *isCommandFound = true;
         return cmdExportXMLElabToNetcdf(this, argumentList);
     }
+#endif
     else if (command == "AGGRONZONES" || command == "GRIDAGGREGATIONONZONES")
     {
         *isCommandFound = true;
@@ -501,22 +503,24 @@ int cmdMonthlyIntegrationVariablesGrid(PragaProject* myProject, QList<QString> a
     return PRAGA_OK;
 }
 
-int cmdDroughtIndexGrid(PragaProject* myProject, QList<QString> argumentList)
-{
-    if (argumentList.size() < 2)
+#ifdef NETCDF
+    int cmdDroughtIndexGrid(PragaProject* myProject, QList<QString> argumentList)
     {
-        myProject->logError("Missing xml name");
-        return PRAGA_INVALID_COMMAND;
-    }
+        if (argumentList.size() < 2)
+        {
+            myProject->logError("Missing xml name");
+            return PRAGA_INVALID_COMMAND;
+        }
 
-    QString xmlName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT);
-    if (!myProject->exportXMLElabGridToNetcdf(xmlName))
-    {
-        return PRAGA_ERROR;
-    }
+        QString xmlName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT);
+        if (!myProject->exportXMLElabGridToNetcdf(xmlName))
+        {
+            return PRAGA_ERROR;
+        }
 
-    return PRAGA_OK;
-}
+        return PRAGA_OK;
+    }
+#endif
 
 int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentList)
 {

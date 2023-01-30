@@ -19,10 +19,10 @@
     int cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QList<QString> argumentList);
     int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentList);
     int cmdMonthlyIntegrationVariablesGrid(PragaProject* myProject, QList<QString> argumentList);
-    int cmdDroughtIndexGrid(PragaProject* myProject, QList<QString> argumentList);
     //bool cmdLoadForecast(PragaProject* myProject, QList<QString> argumentList);
 
     #ifdef NETCDF
+        int cmdDroughtIndexGrid(PragaProject* myProject, QList<QString> argumentList);
         int cmdNetcdfExport(PragaProject* myProject, QList<QString> argumentList);
         int cmdExportXMLElabToNetcdf(PragaProject* myProject, QList<QString> argumentList);
     #endif

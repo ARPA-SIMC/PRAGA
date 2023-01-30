@@ -115,6 +115,7 @@
             void on_actionNetCDF_Close_triggered();
             void on_actionNetCDF_ShowMetadata_triggered();
             void on_actionFileMeteogridExportNetcdf_triggered();
+            void on_buttonNectdfVariable_clicked();
         #endif
 
         void callNewMeteoWidget(std::string id, std::string name, bool isGrid);
@@ -248,6 +249,8 @@
 
         void on_actionCompute_daily_from_Hourly_selected_triggered();
 
+        void on_netcdfOpacitySlider_sliderMoved(int position);
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -271,11 +274,15 @@
         Position* startCenter;
         MapGraphicsScene* mapScene;
         MapGraphicsView* mapView;
+
         RasterObject* rasterObj;
         RasterObject* meteoGridObj;
+        RasterObject* netcdfObj;
+
         ColorLegend *rasterLegend;
         ColorLegend *meteoPointsLegend;
         ColorLegend *meteoGridLegend;
+        ColorLegend *netcdfLegend;
 
         QList<StationMarker*> pointList;
         QList<ArrowObject*> windVectorList;
@@ -283,6 +290,8 @@
         RubberBand *rubberBand;
         visualizationType currentPointsVisualization;
         visualizationType currentGridVisualization;
+        visualizationType currentNetcdfVisualization;
+
         bool viewNotActivePoints;
         QActionGroup *showPointsGroup;
         QActionGroup *showGridGroup;
@@ -332,6 +341,7 @@
         void closeEvent(QCloseEvent *event) override;
 
         #ifdef NETCDF
+            void redrawNetcdf(visualizationType showType);
             void netCDF_exportDataSeries(gis::Crit3DGeoPoint geoPoint);
             void closeNetCDF();
         #endif
