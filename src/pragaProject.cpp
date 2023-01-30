@@ -1706,6 +1706,70 @@ bool PragaProject::timeAggregateGridVarHourlyInDaily(meteoVariable dailyVar, Cri
     return true;
 }
 
+bool PragaProject::dailyVariablesPoint(Crit3DMeteoPoint *meteoPoint, QDate first, QDate last, QList <meteoVariable> variables)
+{
+    // check variables
+    if (variables.size() == 0)
+    {
+        logError("No variable");
+        return false;
+    }
+
+    // check meteo points
+    if (! meteoPointsLoaded)
+    {
+        logError("No meteo points");
+        return false;
+    }
+
+    // check dates
+    if (first.isNull() || last.isNull() || first > last)
+    {
+        logError("Wrong period");
+        return false;
+    }
+    Crit3DDate dateIni(first.day(),first.month(), first.year());
+    Crit3DDate dateFin(last.day(),last.month(), last.year());
+
+    QList<QString> listEntries;
+    QDate firstTmp;
+    QDate lastTmp;
+    int index;
+
+    for (int i = 0; i<variables.size(); i++)
+    {
+        firstTmp = first;
+        lastTmp = last;
+        index = 0;
+
+        int varId = meteoPointsDbHandler->getIdfromMeteoVar(variables[i]);
+        if (varId != NODATA)
+        {
+            std::vector<float> dailyData = aggregatedHourlyToDailyList(variables[i], meteoPoint, dateIni, dateFin, meteoSettings);
+            if (!dailyData.empty())
+            {
+                while (firstTmp <= lastTmp)
+                {
+                    listEntries.push_back(QString("('%1',%2,%3)").arg(firstTmp.toString("yyyy-MM-dd")).arg(varId).arg(dailyData[index]));
+                    firstTmp = firstTmp.addDays(1);
+                    index = index + 1;
+                }
+            }
+        }
+    }
+    if (listEntries.empty())
+    {
+        logError("Failed to compute daily data id point "+QString::fromStdString(meteoPoint->id));
+        return false;
+    }
+    if (!meteoPointsDbHandler->writeDailyDataList(QString::fromStdString(meteoPoint->id), listEntries, &errorString))
+    {
+        logError("Failed to write daily data id point "+QString::fromStdString(meteoPoint->id));
+        return false;
+    }
+    return true;
+}
+
 bool PragaProject::timeAggregateGrid(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, bool loadData, bool saveData)
 {
     // check variables
@@ -1800,7 +1864,7 @@ bool PragaProject::hourlyDerivedVariablesGrid(QDate first, QDate last, bool load
     return true;
 }
 
-bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, QList <meteoVariable> aggrVariables, bool saveRasters, int saveIntervalDays)
+bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, QList <meteoVariable> aggrVariables, bool saveRasters, int nrDaysLoading, int nrDaysSaving)
 {
     // check variables
     if (variables.size() == 0)
@@ -1849,7 +1913,8 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     frequencyType freq;
     bool isDaily = false, isHourly = false;
     QList<meteoVariable> varToSave;
-    int intervalDays = 0;
+    int countDaysSaving = 0;
+    QDate loadDateFin;
     QDate saveDateIni;
 
     if (pragaDailyMaps == nullptr) pragaDailyMaps = new Crit3DDailyMeteoMaps(DEM);
@@ -1885,17 +1950,28 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     int currentYear = NODATA;
     saveDateIni = dateIni;
 
-    logInfoGUI("Loading meteo points data... ");
-    //load also one day in advance (for transmissivity)
-    if (! loadMeteoPointsData(dateIni.addDays(-1), dateFin, isHourly, isDaily, false))
-        return false;
+    if (nrDaysLoading == NODATA)
+        nrDaysLoading = dateIni.daysTo(dateFin)+1;
 
     logInfoGUI("Initializing meteo grid...");
     meteoGridDbHandler->meteoGrid()->initializeData(getCrit3DDate(dateIni), getCrit3DDate(dateFin));
 
     while (myDate <= dateFin)
     {
-        intervalDays++;
+        countDaysSaving++;
+
+        // check if load needed
+        if (myDate == dateIni || myDate > loadDateFin)
+        {
+            loadDateFin = myDate.addDays(nrDaysLoading-1);
+            if (loadDateFin > dateFin) loadDateFin = dateFin;
+
+            logInfoGUI("Loading meteo points data from " + dateIni.addDays(-1).toString("dd/MM/yyyy") + " to " + loadDateFin.toString("dd/MM/yyyy"));
+
+            //load also one day in advance (for transmissivity)
+            if (! loadMeteoPointsData(myDate.addDays(-1), loadDateFin, isHourly, isDaily, false))
+                return false;
+        }
 
         // check proxy grid series
         if (currentYear != myDate.year())
@@ -2012,7 +2088,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
             }
         }
 
-        if (intervalDays == saveIntervalDays || myDate == dateFin)
+        if (countDaysSaving == nrDaysSaving || myDate == dateFin)
         {
             if (aggrVariables.count() > 0)
             {
@@ -2026,7 +2102,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
             meteoGridDbHandler->meteoGrid()->emptyGridData(getCrit3DDate(saveDateIni), getCrit3DDate(myDate));
 
-            intervalDays = 0;
+            countDaysSaving = 0;
             saveDateIni = myDate.addDays(1);
         }
 
@@ -2856,9 +2932,7 @@ bool PragaProject::monthlyVariablesGrid(QDate first, QDate last, QList <meteoVar
             dailyMeteoVar.push_back(dailyVar);
         }
     }
-    monthlyAggregateDataGrid(meteoGridDbHandler, first, last, dailyMeteoVar, meteoSettings, quality, &climateParameters);
-
-    return true;
+    return monthlyAggregateDataGrid(meteoGridDbHandler, first, last, dailyMeteoVar, meteoSettings, quality, &climateParameters);
 }
 
 bool PragaProject::computeDroughtIndexAll(droughtIndex index, int firstYear, int lastYear, QDate date, int timescale, meteoVariable myVar)

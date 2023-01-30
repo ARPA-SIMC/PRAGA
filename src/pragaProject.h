@@ -96,10 +96,11 @@
         bool downloadHourlyDataArkimet(QList<QString> variables, QDate startDate, QDate endDate, bool showInfo);
 
         bool interpolationMeteoGrid(meteoVariable myVar, frequencyType myFrequency, const Crit3DTime& myTime);
-        bool interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, QList<meteoVariable> aggrVariables, bool saveRasters, int saveIntervalDays);
+        bool interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, QList<meteoVariable> aggrVariables, bool saveRasters, int nrDaysLoading, int nrDaysSaving);
         bool saveGrid(meteoVariable myVar, frequencyType myFrequency, const Crit3DTime& myTime, bool showInfo);
         bool timeAggregateGridVarHourlyInDaily(meteoVariable dailyVar, Crit3DDate dateIni, Crit3DDate dateFin);
         bool timeAggregateGrid(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, bool loadData, bool saveData);
+        bool dailyVariablesPoint(Crit3DMeteoPoint *meteoPoint, QDate first, QDate last, QList <meteoVariable> variables);
         bool hourlyDerivedVariablesGrid(QDate first, QDate last, bool loadData, bool saveData);
 
         bool elaborationPointsCycle(bool isAnomaly, bool showInfo);

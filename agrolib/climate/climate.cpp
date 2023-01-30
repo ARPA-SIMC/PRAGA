@@ -1833,6 +1833,7 @@ bool aggregatedHourlyToDaily(meteoVariable myVar, Crit3DMeteoPoint* meteoPoint, 
     meteoVariable hourlyVar = noMeteoVar;
     meteoComputation elab = noMeteoComp;
     float param = NODATA;
+    int nValidValues;
 
     if (meteoPoint->nrObsDataDaysD == 0)
         meteoPoint->initializeObsDataD(dateIni.daysTo(dateFin)+1, dateIni);
@@ -1912,14 +1913,27 @@ bool aggregatedHourlyToDaily(meteoVariable myVar, Crit3DMeteoPoint* meteoPoint, 
         dailyValue = NODATA;
         value = NODATA;
         values.clear();
+        nValidValues = 0;
 
         for (hour = 1; hour <= 24; hour++)
         {
             value = meteoPoint->getMeteoPointValueH(date, hour, 0, hourlyVar);
-            values.push_back(value);
+            if (int(value) != NODATA)
+            {
+                values.push_back(value);
+                nValidValues = nValidValues + 1;
+            }
         }
 
-        dailyValue = statisticalElab(elab, param, values, values.size(), NODATA);
+        float validPercentage = (float(nValidValues) / float(24)) * 100;
+        if (validPercentage < meteoSettings->getMinimumPercentage())
+        {
+            dailyValue = NODATA;
+        }
+        else
+        {
+            dailyValue = statisticalElab(elab, param, values, values.size(), NODATA);
+        }
         meteoPoint->setMeteoPointValueD(date, myVar, dailyValue);
 
         if (myVar == dailyLeafWetness && dailyValue > 24)
@@ -1930,6 +1944,131 @@ bool aggregatedHourlyToDaily(meteoVariable myVar, Crit3DMeteoPoint* meteoPoint, 
     }
 
     return true;
+
+}
+
+std::vector<float> aggregatedHourlyToDailyList(meteoVariable myVar, Crit3DMeteoPoint* meteoPoint, Crit3DDate dateIni, Crit3DDate dateFin, Crit3DMeteoSettings *meteoSettings)
+{
+
+    Crit3DDate date;
+    std::vector <float> values;
+    std::vector<float> dailyData;
+    float value, dailyValue;
+    short hour;
+    meteoVariable hourlyVar = noMeteoVar;
+    meteoComputation elab = noMeteoComp;
+    float param = NODATA;
+    int nValidValues;
+
+    if (meteoPoint->nrObsDataDaysD == 0)
+        meteoPoint->initializeObsDataD(dateIni.daysTo(dateFin)+1, dateIni);
+
+    switch(myVar)
+    {
+        case dailyAirTemperatureAvg:
+            hourlyVar = airTemperature;
+            elab = average;
+            break;
+
+        case dailyAirTemperatureMax:
+            hourlyVar = airTemperature;
+            elab = maxInList;
+            break;
+
+        case dailyAirTemperatureMin:
+            hourlyVar = airTemperature;
+            elab = minInList;
+            break;
+
+        case dailyPrecipitation:
+            hourlyVar = precipitation;
+            elab = sum;
+            break;
+
+        case dailyAirRelHumidityAvg:
+            hourlyVar = airRelHumidity;
+            elab = average;
+            break;
+
+        case dailyAirRelHumidityMax:
+            hourlyVar = airRelHumidity;
+            elab = maxInList;
+            break;
+
+        case dailyAirRelHumidityMin:
+            hourlyVar = airRelHumidity;
+            elab = minInList;
+            break;
+
+        case dailyGlobalRadiation:
+            hourlyVar = globalIrradiance;
+            elab = timeIntegration;
+            param = float(0.003600);
+            break;
+
+        case dailyWindScalarIntensityAvg:
+            hourlyVar = windScalarIntensity;
+            elab = average;
+            break;
+
+        case dailyWindScalarIntensityMax:
+            hourlyVar = windScalarIntensity;
+            elab = maxInList;
+            break;
+
+        case dailyReferenceEvapotranspirationPM:
+            hourlyVar = referenceEvapotranspiration;
+            elab = sum;
+            break;
+
+        case dailyLeafWetness:
+            hourlyVar = leafWetness;
+            elab = sum;
+            break;
+
+        default:
+            hourlyVar = noMeteoVar;
+            break;
+    }
+
+    if (hourlyVar == noMeteoVar || elab == noMeteoComp) return dailyData;
+
+    for (date = dateIni; date <= dateFin; date = date.addDays(1))
+    {
+        dailyValue = NODATA;
+        value = NODATA;
+        values.clear();
+        nValidValues = 0;
+
+        for (hour = 1; hour <= 24; hour++)
+        {
+            value = meteoPoint->getMeteoPointValueH(date, hour, 0, hourlyVar);
+            if (int(value) != NODATA)
+            {
+                values.push_back(value);
+                nValidValues = nValidValues + 1;
+            }
+        }
+
+        float validPercentage = (float(nValidValues) / float(24)) * 100;
+        if (validPercentage < meteoSettings->getMinimumPercentage())
+        {
+            dailyData.push_back(NODATA);
+        }
+        else
+        {
+            dailyValue = statisticalElab(elab, param, values, values.size(), NODATA);
+            dailyData.push_back(dailyValue);
+        }
+
+        if (myVar == dailyLeafWetness && dailyValue > 24)
+        {
+            // todo warning
+        }
+
+    }
+
+    return dailyData;
 
 }
 
@@ -4743,7 +4882,7 @@ bool appendXMLAnomaly(Crit3DAnomalyList *listXMLAnomaly, QString xmlFileName, QS
 
 }
 
-void monthlyAggregateDataGrid(Crit3DMeteoGridDbHandler* meteoGridDbHandler, QDate firstDate, QDate lastDate,
+bool monthlyAggregateDataGrid(Crit3DMeteoGridDbHandler* meteoGridDbHandler, QDate firstDate, QDate lastDate,
                               std::vector<meteoVariable> dailyMeteoVar,
                               Crit3DMeteoSettings* meteoSettings, Crit3DQuality* qualityCheck, Crit3DClimateParameters* climateParam)
 {
@@ -4754,6 +4893,7 @@ void monthlyAggregateDataGrid(Crit3DMeteoGridDbHandler* meteoGridDbHandler, QDat
     float percValue;
     std::vector<float> outputValues;
     QList<meteoVariable> meteoVariableList;
+    bool dataSaved = false;
 
     for (unsigned row = 0; row < unsigned(meteoGridDbHandler->meteoGrid()->gridStructure().header().nrRows); row++)
     {
@@ -4788,12 +4928,16 @@ void monthlyAggregateDataGrid(Crit3DMeteoGridDbHandler* meteoGridDbHandler, QDat
                 meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->obsDataM = meteoPointTemp->obsDataM ;
                 if (!meteoVariableList.isEmpty())
                 {
-                    meteoGridDbHandler->saveCellGridMonthlyData(&myError, QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->id), row, col, firstDate, lastDate, meteoVariableList);
+                    if (meteoGridDbHandler->saveCellGridMonthlyData(&myError, QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->id), row, col, firstDate, lastDate, meteoVariableList))
+                    {
+                        dataSaved = true;
+                    }
                 }
             }
         }
     }
     delete meteoPointTemp;
+    return dataSaved;
 }
 
 int computeAnnualSeriesOnPointFromDaily(QString *myError, Crit3DMeteoPointsDbHandler* meteoPointsDbHandler, Crit3DMeteoGridDbHandler* meteoGridDbHandler,
