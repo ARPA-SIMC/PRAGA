@@ -1954,7 +1954,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
         nrDaysLoading = dateIni.daysTo(dateFin)+1;
 
     logInfoGUI("Initializing meteo grid...");
-    meteoGridDbHandler->meteoGrid()->initializeData(getCrit3DDate(dateIni), getCrit3DDate(dateFin));
+    meteoGridDbHandler->meteoGrid()->initializeData(getCrit3DDate(dateIni), getCrit3DDate(dateFin), isHourly, isDaily, false);
 
     while (myDate <= dateFin)
     {
