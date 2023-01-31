@@ -22,7 +22,7 @@ void DialogPragaProject::accept()
 
 
 #ifdef NETCDF
-    bool chooseNetCDFVariable(NetCDFHandler* netCDF, int* varId, QDateTime* firstDateTime, QDateTime* lastDateTime)
+    bool netCDF_ExportDataSeries(NetCDFHandler* netCDF, int &varId, QDateTime &firstDateTime, QDateTime &lastDateTime)
     {
         // check
         if (! netCDF->isLoaded())
@@ -116,8 +116,8 @@ void DialogPragaProject::accept()
             return false;
 
         // assing values
-        *firstDateTime = firstDateEdit->dateTime();
-        *lastDateTime = lastDateEdit->dateTime();
+        firstDateTime = firstDateEdit->dateTime();
+        lastDateTime = lastDateEdit->dateTime();
 
         bool isVarSelected = false;
         unsigned int i = 0;
@@ -125,10 +125,98 @@ void DialogPragaProject::accept()
         {
             if (buttonVars[i]->isChecked())
             {
-                *varId = netCDF->variables[i].id;
+                varId = netCDF->variables[i].id;
                 isVarSelected = true;
             }
             i++;
+        }
+
+        return isVarSelected;
+    }
+
+
+    bool netCDF_ChooseVariable(NetCDFHandler* netCDF, int &varId, frequencyType currentFrequency)
+    {
+        // check netcdf
+        if (! netCDF->isLoaded())
+        {
+            QMessageBox::information(nullptr, "No data", "Load a NetCDF file before.");
+            return false;
+        }
+        if (! netCDF->isTimeReadable())
+        {
+            QMessageBox::information(nullptr, "Wrong Time", "Wrong Time dimension in the NetCDF file.");
+            return false;
+        }
+
+        // check frequency
+        if (currentFrequency != daily && currentFrequency != hourly)
+        {
+            QMessageBox::information(nullptr, "Wrong frequency", "Choose hourly or daily frequency.");
+            return false;
+        }
+        if (currentFrequency == hourly && !(netCDF->isStandardTime || netCDF->isHourly))
+        {
+            QMessageBox::information(nullptr, "No Variable", "No variable at hourly frequency.");
+            return false;
+        }
+        if (currentFrequency == daily && ! netCDF->isDaily)
+        {
+            QMessageBox::information(nullptr, "No Variable", "No variable at daily frequency.");
+            return false;
+        }
+
+        QDialog myDialog;
+        QVBoxLayout mainLayout;
+        QVBoxLayout layoutVariable;
+        QHBoxLayout layoutOk;
+
+        myDialog.setWindowTitle("Choose NetCDF variable");
+        myDialog.setMinimumWidth(300);
+
+        // Variables
+        QLabel *VariableLabel = new QLabel("<b>Variable:</b>");
+        layoutVariable.addWidget(VariableLabel);
+
+        unsigned int nrVariables = netCDF->getNrVariables();
+        std::vector<QRadioButton*> buttonVars;
+
+        for (unsigned int i = 0; i < nrVariables; i++)
+        {
+            QString varName = QString::fromStdString(netCDF->variables[i].getVarName());
+            buttonVars.push_back(new QRadioButton(varName));
+
+            layoutVariable.addWidget(buttonVars[i]);
+        }
+
+        // void space
+        layoutVariable.addWidget(new QLabel());
+
+        //Ok button
+        QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+        myDialog.connect(&buttonBox, SIGNAL(accepted()), &myDialog, SLOT(accept()));
+        myDialog.connect(&buttonBox, SIGNAL(rejected()), &myDialog, SLOT(reject()));
+        layoutOk.addWidget(&buttonBox);
+
+        // Main layout
+        mainLayout.addLayout(&layoutVariable);
+        mainLayout.addLayout(&layoutOk);
+
+        myDialog.setLayout(&mainLayout);
+        myDialog.exec();
+
+        if (myDialog.result() != QDialog::Accepted)
+            return false;
+
+        bool isVarSelected = false;
+        for (unsigned int i = 0; i < nrVariables; i++)
+        {
+            if (buttonVars[i]->isChecked())
+            {
+                varId = netCDF->variables[i].id;
+                isVarSelected = true;
+                break;
+            }
         }
 
         return isVarSelected;

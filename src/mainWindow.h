@@ -115,7 +115,7 @@
             void on_actionNetCDF_Close_triggered();
             void on_actionNetCDF_ShowMetadata_triggered();
             void on_actionFileMeteogridExportNetcdf_triggered();
-            void on_buttonNectdfVariable_clicked();
+            void on_netCDFButtonVariable_clicked();
         #endif
 
         void callNewMeteoWidget(std::string id, std::string name, bool isGrid);
@@ -338,6 +338,8 @@
         void interpolateCrossValidationGUI();
         void showElabResult(bool updateColorSCale, bool isMeteoGrid, bool isAnomaly, bool isAnomalyPerc, bool isClima, QString index);
         void searchMeteoPoint(bool isName);
+        void computeDailyFromHourly_MeteoPoints(const QList<std::string>& pointList);
+
         void closeEvent(QCloseEvent *event) override;
 
         #ifdef NETCDF

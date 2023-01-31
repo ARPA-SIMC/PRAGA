@@ -1706,7 +1706,7 @@ bool PragaProject::timeAggregateGridVarHourlyInDaily(meteoVariable dailyVar, Cri
     return true;
 }
 
-bool PragaProject::dailyVariablesPoint(Crit3DMeteoPoint *meteoPoint, QDate first, QDate last, QList <meteoVariable> variables)
+bool PragaProject::computeDailyVariablesPoint(Crit3DMeteoPoint *meteoPoint, QDate first, QDate last, QList <meteoVariable> variables)
 {
     // check variables
     if (variables.size() == 0)
@@ -2395,7 +2395,7 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
         logInfoGUI("There are no meteo points as reference...");
         return;
     }
-    sorting::quicksortAscendingIntegerWithParameters(myIndeces, myDistances, 0, myIndeces.size()-1);
+    sorting::quicksortAscendingIntegerWithParameters(myIndeces, myDistances, 0, unsigned(myIndeces.size()-1));
     for (int i = 0; i < myIndeces.size(); i++)
     {
         myId << meteoPoints[myIndeces[i]].id;

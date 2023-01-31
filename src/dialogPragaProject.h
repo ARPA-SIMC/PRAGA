@@ -30,7 +30,8 @@ class DialogPragaProject : public DialogProject
 
 
 #ifdef NETCDF
-    bool chooseNetCDFVariable(NetCDFHandler* netCDF, int *varId, QDateTime *firstDate, QDateTime *lastDate);
+    bool netCDF_ExportDataSeries(NetCDFHandler* netCDF, int& varId, QDateTime& firstDate, QDateTime& lastDate);
+    bool netCDF_ChooseVariable(NetCDFHandler *netCDF, int& varId, frequencyType currentFrequency);
 #endif
 
 
