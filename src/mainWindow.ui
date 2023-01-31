@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1200</width>
-    <height>972</height>
+    <height>860</height>
    </rect>
   </property>
   <property name="palette">
@@ -489,7 +489,7 @@
       <x>270</x>
       <y>0</y>
       <width>921</width>
-      <height>831</height>
+      <height>790</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -523,13 +523,13 @@
       <x>0</x>
       <y>10</y>
       <width>270</width>
-      <height>800</height>
+      <height>780</height>
      </rect>
     </property>
     <property name="maximumSize">
      <size>
       <width>270</width>
-      <height>800</height>
+      <height>780</height>
      </size>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -556,13 +556,13 @@
        <property name="minimumSize">
         <size>
          <width>261</width>
-         <height>120</height>
+         <height>115</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>261</width>
-         <height>120</height>
+         <height>115</height>
         </size>
        </property>
        <property name="palette">
@@ -591,9 +591,9 @@
         <property name="geometry">
          <rect>
           <x>85</x>
-          <y>85</y>
+          <y>80</y>
           <width>171</width>
-          <height>21</height>
+          <height>24</height>
          </rect>
         </property>
         <property name="palette">
@@ -647,9 +647,9 @@
         <property name="geometry">
          <rect>
           <x>110</x>
-          <y>52</y>
+          <y>50</y>
           <width>141</width>
-          <height>21</height>
+          <height>24</height>
          </rect>
         </property>
         <property name="font">
@@ -802,9 +802,9 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>52</y>
+          <y>50</y>
           <width>90</width>
-          <height>25</height>
+          <height>24</height>
          </rect>
         </property>
         <property name="font">
@@ -821,9 +821,9 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>85</y>
+          <y>80</y>
           <width>70</width>
-          <height>25</height>
+          <height>24</height>
          </rect>
         </property>
         <property name="font">
@@ -900,6 +900,12 @@
          <height>81</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <bold>false</bold>
+        </font>
+       </property>
        <property name="autoFillBackground">
         <bool>true</bool>
        </property>
@@ -946,6 +952,12 @@
          <width>261</width>
          <height>120</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <bold>false</bold>
+        </font>
        </property>
        <property name="autoFillBackground">
         <bool>true</bool>
@@ -1681,6 +1693,12 @@
          <height>125</height>
         </size>
        </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <bold>false</bold>
+        </font>
+       </property>
        <property name="autoFillBackground">
         <bool>true</bool>
        </property>
@@ -1758,7 +1776,7 @@
           <x>10</x>
           <y>45</y>
           <width>70</width>
-          <height>25</height>
+          <height>24</height>
          </rect>
         </property>
         <property name="font">
@@ -1776,8 +1794,8 @@
          <rect>
           <x>90</x>
           <y>45</y>
-          <width>171</width>
-          <height>25</height>
+          <width>170</width>
+          <height>24</height>
          </rect>
         </property>
         <property name="palette">
@@ -1837,14 +1855,20 @@
        <property name="minimumSize">
         <size>
          <width>261</width>
-         <height>220</height>
+         <height>215</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>261</width>
-         <height>220</height>
+         <height>215</height>
         </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <bold>false</bold>
+        </font>
        </property>
        <property name="title">
         <string>Elaboration</string>
@@ -1873,13 +1897,13 @@
            <property name="minimumSize">
             <size>
              <width>261</width>
-             <height>40</height>
+             <height>38</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>261</width>
-             <height>40</height>
+             <height>38</height>
             </size>
            </property>
            <property name="title">
