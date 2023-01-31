@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1200</width>
-    <height>860</height>
+    <height>820</height>
    </rect>
   </property>
   <property name="palette">
@@ -489,7 +489,7 @@
       <x>270</x>
       <y>0</y>
       <width>921</width>
-      <height>790</height>
+      <height>750</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -523,13 +523,13 @@
       <x>0</x>
       <y>10</y>
       <width>270</width>
-      <height>780</height>
+      <height>750</height>
      </rect>
     </property>
     <property name="maximumSize">
      <size>
       <width>270</width>
-      <height>780</height>
+      <height>750</height>
      </size>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -891,13 +891,13 @@
        <property name="minimumSize">
         <size>
          <width>261</width>
-         <height>81</height>
+         <height>75</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>261</width>
-         <height>81</height>
+         <height>70</height>
         </size>
        </property>
        <property name="font">
@@ -916,7 +916,7 @@
         <property name="geometry">
          <rect>
           <x>1</x>
-          <y>30</y>
+          <y>25</y>
           <width>259</width>
           <height>40</height>
          </rect>
@@ -1684,13 +1684,13 @@
        <property name="minimumSize">
         <size>
          <width>261</width>
-         <height>125</height>
+         <height>120</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>261</width>
-         <height>125</height>
+         <height>120</height>
         </size>
        </property>
        <property name="font">
@@ -1712,7 +1712,7 @@
         <property name="geometry">
          <rect>
           <x>1</x>
-          <y>75</y>
+          <y>72</y>
           <width>259</width>
           <height>40</height>
          </rect>
@@ -1774,7 +1774,7 @@
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>45</y>
+          <y>44</y>
           <width>70</width>
           <height>24</height>
          </rect>
@@ -1793,7 +1793,7 @@
         <property name="geometry">
          <rect>
           <x>90</x>
-          <y>45</y>
+          <y>44</y>
           <width>170</width>
           <height>24</height>
          </rect>
@@ -1855,13 +1855,13 @@
        <property name="minimumSize">
         <size>
          <width>261</width>
-         <height>215</height>
+         <height>185</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>261</width>
-         <height>215</height>
+         <height>185</height>
         </size>
        </property>
        <property name="font">
@@ -1870,348 +1870,348 @@
          <bold>false</bold>
         </font>
        </property>
+       <property name="autoFillBackground">
+        <bool>true</bool>
+       </property>
        <property name="title">
         <string>Elaboration</string>
        </property>
-       <widget class="QWidget" name="verticalLayoutWidget">
+       <widget class="QGroupBox" name="groupBoxTarget">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>20</y>
-          <width>263</width>
-          <height>221</height>
+          <width>261</width>
+          <height>35</height>
          </rect>
         </property>
-        <layout class="QVBoxLayout" name="vbox">
-         <property name="spacing">
-          <number>0</number>
+        <property name="minimumSize">
+         <size>
+          <width>261</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>261</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="title">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+        <widget class="QRadioButton" name="meteoPoints">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>5</y>
+           <width>115</width>
+           <height>22</height>
+          </rect>
          </property>
-         <property name="sizeConstraint">
-          <enum>QLayout::SetFixedSize</enum>
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+           <bold>false</bold>
+          </font>
          </property>
-         <item alignment="Qt::AlignLeft|Qt::AlignTop">
-          <widget class="QGroupBox" name="groupBoxTarget">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>261</width>
-             <height>38</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>261</width>
-             <height>38</height>
-            </size>
-           </property>
-           <property name="title">
-            <string/>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-           </property>
-           <widget class="QRadioButton" name="meteoPoints">
-            <property name="geometry">
-             <rect>
-              <x>60</x>
-              <y>10</y>
-              <width>121</width>
-              <height>22</height>
-             </rect>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>9</pointsize>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>meteo points</string>
-            </property>
-           </widget>
-           <widget class="QRadioButton" name="grid">
-            <property name="geometry">
-             <rect>
-              <x>190</x>
-              <y>10</y>
-              <width>71</width>
-              <height>22</height>
-             </rect>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>9</pointsize>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>grid</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>10</y>
-              <width>51</width>
-              <height>18</height>
-             </rect>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>9</pointsize>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>target: </string>
-            </property>
-           </widget>
-          </widget>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBoxElab">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>261</width>
-             <height>160</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>261</width>
-             <height>160</height>
-            </size>
-           </property>
-           <property name="title">
-            <string/>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-           </property>
-           <widget class="QLabel" name="label_elab1">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>10</y>
-              <width>50</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>9</pointsize>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>elab 1:</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_elab2">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>40</y>
-              <width>50</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>9</pointsize>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>elab 2:</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_variable">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>70</y>
-              <width>50</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>9</pointsize>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>variable:</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_period">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>100</y>
-              <width>50</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>9</pointsize>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>period:</string>
-            </property>
-           </widget>
-           <widget class="QLineEdit" name="lineEditElab1">
-            <property name="geometry">
-             <rect>
-              <x>70</x>
-              <y>10</y>
-              <width>185</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>185</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>185</width>
-              <height>20</height>
-             </size>
-            </property>
-           </widget>
-           <widget class="QLineEdit" name="lineEditElab2">
-            <property name="geometry">
-             <rect>
-              <x>70</x>
-              <y>40</y>
-              <width>185</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>185</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>185</width>
-              <height>20</height>
-             </size>
-            </property>
-           </widget>
-           <widget class="QLineEdit" name="lineEditVariable">
-            <property name="geometry">
-             <rect>
-              <x>70</x>
-              <y>70</y>
-              <width>185</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>185</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>185</width>
-              <height>20</height>
-             </size>
-            </property>
-           </widget>
-           <widget class="QLineEdit" name="lineEditPeriod">
-            <property name="geometry">
-             <rect>
-              <x>70</x>
-              <y>100</y>
-              <width>185</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>185</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>185</width>
-              <height>20</height>
-             </size>
-            </property>
-           </widget>
-          </widget>
-         </item>
-        </layout>
+         <property name="text">
+          <string>meteo points</string>
+         </property>
+        </widget>
+        <widget class="QRadioButton" name="grid">
+         <property name="geometry">
+          <rect>
+           <x>190</x>
+           <y>5</y>
+           <width>71</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>grid</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>5</y>
+           <width>51</width>
+           <height>18</height>
+          </rect>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>target: </string>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QGroupBox" name="groupBoxElab">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>53</y>
+          <width>261</width>
+          <height>130</height>
+         </rect>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>261</width>
+          <height>126</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>261</width>
+          <height>130</height>
+         </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>true</bool>
+        </property>
+        <property name="title">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+        <widget class="QLabel" name="label_elab1">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>10</y>
+           <width>50</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>50</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>elab 1:</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_elab2">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>40</y>
+           <width>50</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>50</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>elab 2:</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_variable">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>70</y>
+           <width>50</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>50</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>variable:</string>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_period">
+         <property name="geometry">
+          <rect>
+           <x>10</x>
+           <y>100</y>
+           <width>50</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>50</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>50</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>9</pointsize>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>period:</string>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="lineEditElab1">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>10</y>
+           <width>185</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>185</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>185</width>
+           <height>20</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="lineEditElab2">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>40</y>
+           <width>185</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>185</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>185</width>
+           <height>20</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="lineEditVariable">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>70</y>
+           <width>185</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>185</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>185</width>
+           <height>20</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="QLineEdit" name="lineEditPeriod">
+         <property name="geometry">
+          <rect>
+           <x>70</x>
+           <y>100</y>
+           <width>185</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>185</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>185</width>
+           <height>20</height>
+          </size>
+         </property>
+        </widget>
        </widget>
       </widget>
      </item>
