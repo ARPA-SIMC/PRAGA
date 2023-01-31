@@ -82,7 +82,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->netcdfObj = new RasterObject(this->mapView);
     this->netcdfObj->setNetCDF(true);
 
-    // set opacity sliders
+    // set opacity
     this->rasterObj->setOpacity(this->ui->rasterOpacitySlider->value() / 100.0);
     this->meteoGridObj->setOpacity(this->ui->meteoGridOpacitySlider->value() / 100.0);
     this->netcdfObj->setOpacity(this->ui->netcdfOpacitySlider->value() / 100.0);
@@ -92,7 +92,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->meteoGridObj->setColorLegend(this->meteoGridLegend);
     this->netcdfObj->setColorLegend(this->netcdfLegend);
 
-    // add objects
+    // add raster objects
     this->mapView->scene()->addObject(this->rasterObj);
     this->mapView->scene()->addObject(this->meteoGridObj);
     this->mapView->scene()->addObject(this->netcdfObj);
@@ -382,13 +382,13 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         }
 
         // GRID - context menu
-        if (meteoGridObj->isLoaded)
+        if (meteoGridObj->isLoaded && currentGridVisualization != notShown)
         {
             Position geoPos = mapView->mapToScene(mapPos);
             gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
 
             int row, col;
-            if (! meteoGridObj->getRowCol(geoPoint, &row, &col))
+            if (meteoGridObj->getRowCol(geoPoint, &row, &col))
             {
                 std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->id;
                 std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->name;
@@ -431,9 +431,8 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                 }
             }
         }
-
-        #ifdef NETCDF
-        if (myProject.netCDF.isLoaded())
+#ifdef NETCDF
+        else if (myProject.netCDF.isLoaded())
         {
             Position geoPos = mapView->mapToScene(mapPos);
             gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
@@ -441,7 +440,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             netCDF_exportDataSeries(geoPoint);
             return;
         }
-        #endif
+#endif
     }
 }
 
@@ -492,6 +491,7 @@ void MainWindow::updateMaps()
         rasterObj->updateCenter();
         meteoGridObj->updateCenter();
         netcdfObj->updateCenter();
+
         rasterLegend->update();
         meteoGridLegend->update();
         netcdfLegend->update();
@@ -941,7 +941,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         }
 
         // resize map
-        double size = log2(1000 / double(netcdfObj->getRasterMaxSize()));
+        double size = log2(2000 / double(netcdfObj->getRasterMaxSize()));
         this->mapView->setZoomLevel(quint8(size));
 
         // center map
@@ -4285,7 +4285,7 @@ void MainWindow::on_actionMeteoGrid_Reverse_color_scale_triggered()
 }
 
 
-void MainWindow::setColorScaleRange(bool isFixed)
+void MainWindow::setColorScaleRangeMeteoGrid(bool isFixed)
 {
     if (! checkMeteoGridColorScale()) return;
 
@@ -4319,14 +4319,14 @@ void MainWindow::setColorScaleRange(bool isFixed)
 void MainWindow::on_flagMeteoGrid_Dynamic_color_scale_triggered(bool isChecked)
 {
     ui->flagMeteoGrid_Fixed_color_scale->setChecked(! isChecked);
-    setColorScaleRange(! isChecked);
+    setColorScaleRangeMeteoGrid(! isChecked);
 }
 
 
 void MainWindow::on_flagMeteoGrid_Fixed_color_scale_triggered(bool isChecked)
 {
     ui->flagMeteoGrid_Dynamic_color_scale->setChecked(! isChecked);
-    setColorScaleRange(isChecked);
+    setColorScaleRangeMeteoGrid(isChecked);
 }
 
 

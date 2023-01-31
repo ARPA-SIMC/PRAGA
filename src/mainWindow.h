@@ -326,7 +326,7 @@
         void closeMeteoGrid();
 
         bool checkMeteoGridColorScale();
-        void setColorScaleRange(bool isFixed);
+        void setColorScaleRangeMeteoGrid(bool isFixed);
 
         bool loadMeteoPoints(QString dbName);
         bool loadMeteoGrid(QString xmlName);
