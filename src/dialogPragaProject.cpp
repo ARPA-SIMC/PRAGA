@@ -32,7 +32,7 @@ void DialogPragaProject::accept()
         }
         if (! netCDF->isTimeReadable())
         {
-            QMessageBox::information(nullptr, "Wrong time", "Needs POSIX time (seconds since 1970-01-01)");
+            QMessageBox::information(nullptr, "Wrong Time", "Wrong Time dimension in the NetCDF file.");
             return false;
         }
 
@@ -54,7 +54,7 @@ void DialogPragaProject::accept()
 
         for (unsigned int i = 0; i < nrVariables; i++)
         {
-            QString varName = QString::fromStdString(netCDF->variables[i].getVarName());
+            QString varName = QString::fromStdString(netCDF->getVariableFromIndex(i).getVarName());
             buttonVars.push_back(new QRadioButton(varName));
 
             layoutVariable.addWidget(buttonVars[i]);
@@ -82,7 +82,7 @@ void DialogPragaProject::accept()
         firstDateLabel->setBuddy(firstDateEdit);
 
         QDateTimeEdit *lastDateEdit = new QDateTimeEdit;
-        firstDateEdit->setTimeSpec(Qt::UTC);
+        lastDateEdit->setTimeSpec(Qt::UTC);
         lastDateEdit->setDateTimeRange(firstTime, lastTime);
         lastDateEdit->setDateTime(lastTime);
 
@@ -125,7 +125,7 @@ void DialogPragaProject::accept()
         {
             if (buttonVars[i]->isChecked())
             {
-                varId = netCDF->variables[i].id;
+                varId = netCDF->getVariableFromIndex(i).id;
                 isVarSelected = true;
             }
             i++;
@@ -157,12 +157,14 @@ void DialogPragaProject::accept()
         }
         if (currentFrequency == hourly && !(netCDF->isStandardTime || netCDF->isHourly))
         {
-            QMessageBox::information(nullptr, "No Variable", "No variable at hourly frequency.");
+            QString errorMsg = "No data at hourly frequency.\nTime unit: " + QString::fromStdString(netCDF->getTimeUnit());
+            QMessageBox::information(nullptr, "No Variable", errorMsg);
             return false;
         }
         if (currentFrequency == daily && ! netCDF->isDaily)
         {
-            QMessageBox::information(nullptr, "No Variable", "No variable at daily frequency.");
+            QString errorMsg = "No data at daily frequency.\nTime unit: " + QString::fromStdString(netCDF->getTimeUnit());
+            QMessageBox::information(nullptr, "No Variable", errorMsg);
             return false;
         }
 
@@ -183,7 +185,7 @@ void DialogPragaProject::accept()
 
         for (unsigned int i = 0; i < nrVariables; i++)
         {
-            QString varName = QString::fromStdString(netCDF->variables[i].getVarName());
+            QString varName = QString::fromStdString(netCDF->getVariableFromIndex(i).getVarName());
             buttonVars.push_back(new QRadioButton(varName));
 
             layoutVariable.addWidget(buttonVars[i]);
@@ -213,7 +215,7 @@ void DialogPragaProject::accept()
         {
             if (buttonVars[i]->isChecked())
             {
-                varId = netCDF->variables[i].id;
+                varId = netCDF->getVariableFromIndex(i).id;
                 isVarSelected = true;
                 break;
             }
