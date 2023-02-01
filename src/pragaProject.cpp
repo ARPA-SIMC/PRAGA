@@ -9,6 +9,7 @@
 #include "project.h"
 #include "aggregation.h"
 #include "interpolationCmd.h"
+#include "interpolation.h"
 #include "pragaProject.h"
 #include <qdebug.h>
 #include <QFile>
@@ -1943,6 +1944,17 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
             varToSave.push_back(windVectorIntensity);
     }
 
+    // find out if detrending needed
+    bool useProxies = false;
+    foreach (myVar, variables)
+    {
+        if (getUseDetrendingVar(myVar))
+        {
+            useProxies = true;
+            break;
+        }
+    }
+
     // save also time aggregated variables
     foreach (myVar, aggrVariables)
         varToSave.push_back(myVar);
@@ -1974,7 +1986,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
         }
 
         // check proxy grid series
-        if (currentYear != myDate.year())
+        if (useProxies && currentYear != myDate.year())
         {
             logInfoGUI("Interpolating proxy grid series...");
             if (checkProxyGridSeries(&interpolationSettings, DEM, proxyGridSeries, myDate))
