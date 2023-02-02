@@ -512,7 +512,7 @@ void MainWindow::updateMaps()
 void MainWindow::clearDEM()
 {
     this->rasterObj->clear();
-    this->rasterObj->redrawRequested();
+    emit this->rasterObj->redrawRequested();
     this->rasterLegend->setVisible(false);
     ui->labelRasterScale->setText("");
     this->ui->rasterOpacitySlider->setEnabled(false);
@@ -1664,7 +1664,7 @@ void MainWindow::setCurrentRaster(gis::Crit3DRasterGrid *myRaster)
 {
     this->rasterObj->initializeUTM(myRaster, myProject.gisSettings, false);
     this->rasterLegend->colorScale = myRaster->colorScale;
-    this->rasterObj->redrawRequested();
+    emit this->rasterObj->redrawRequested();
 }
 
 
@@ -3703,7 +3703,6 @@ void MainWindow::on_actionUpdate_properties_triggered()
     bool everythingUpdated = true;
     QList<QString> column;
     QList<QString> values;
-    QString infoPoint;
     bool update = false, updateAll = false;
 
     myProject.setProgressBar("Checking properties...", listMeteoPoints.size());
