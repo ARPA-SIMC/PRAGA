@@ -1243,6 +1243,7 @@ void DialogMeteoComputation::copyDataFromXML()
                         readParam.setChecked(true);
                         climateDbElabList.setVisible(true);
                         adjustSize();
+
                         int index = climateDbElabList.findText(listXMLElab.listParam1ClimateField()[index], Qt::MatchFixedString);
                         if (index == -1)
                         {
@@ -1390,6 +1391,7 @@ void DialogMeteoComputation::copyDataFromXML()
                         else if (listXMLAnomaly.listRefParam1IsClimate()[index])
                         {
                             anomaly.AnomalyReadParameter(1);
+
                             int index = climateDbElabList.findText(listXMLAnomaly.listRefParam1ClimateField()[index], Qt::MatchFixedString);
                             if (index == -1)
                             {
