@@ -498,7 +498,7 @@
           <second>0</second>
           <year>1752</year>
           <month>10</month>
-          <day>11</day>
+          <day>10</day>
          </datetime>
         </property>
         <property name="maximumDate">
@@ -1651,7 +1651,7 @@
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>29</height>
+     <height>23</height>
     </rect>
    </property>
    <property name="palette">
