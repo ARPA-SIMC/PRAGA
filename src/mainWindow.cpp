@@ -174,7 +174,29 @@ bool KeyboardFilter::eventFilter(QObject* obj, QEvent* event)
     }
 }
 
+
 // SLOT
+void MainWindow::keyPressEvent(QKeyEvent * event)
+{
+    try
+    {
+        // zoom in/out
+        if( event->key() == Qt::Key_Plus)
+        {
+            this->mapView->zoomIn();
+        }
+        else if( event->key() == Qt::Key_Minus)
+        {
+            this->mapView->zoomOut();
+        }
+    }
+    catch (...)
+    {
+        QMessageBox::information(nullptr, "WARNING", "Exception catch in keyPressEvent.");
+    }
+}
+
+
 void MainWindow::mouseMove(const QPoint& mapPos)
 {
     if (! isInsideMap(mapPos)) return;
@@ -345,14 +367,14 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 }
 
 
-// zoom
+// zoom in/out
 void MainWindow::mouseDoubleClickEvent(QMouseEvent * event)
 {
     QPoint mapPos = getMapPos(event->pos());
-    if (! isInsideMap(mapPos)) return;
+    if (! isInsideMap(mapPos))
+        return;
 
     Position newCenter = this->mapView->mapToScene(mapPos);
-    this->ui->statusBar->showMessage(QString::number(newCenter.latitude()) + " " + QString::number(newCenter.longitude()));
 
     try
     {
@@ -365,7 +387,7 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent * event)
     }
     catch (...)
     {
-        QMessageBox::information(nullptr, "WARNING", "Exception catch in mouseDoubleClickEvent event.");
+        QMessageBox::information(nullptr, "WARNING", "Exception catch in mouseDoubleClickEvent");
     }
 }
 

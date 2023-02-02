@@ -266,6 +266,8 @@
 
         void resizeEvent(QResizeEvent * event) override;
 
+        void keyPressEvent(QKeyEvent * event ) override;
+
     private:
         Ui::MainWindow* ui;
 
