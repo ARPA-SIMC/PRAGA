@@ -2585,12 +2585,11 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
 
             if (getUseDetrendingVar(myVar))
             {
-                int proxyNr = myProject.interpolationSettings.getProxyNr();
+                int proxyNr = int(myProject.interpolationSettings.getProxyNr());
                 if (proxyNr > 0)
                 {
                     cvOutput << std::endl << "Interpolation proxies" << std::endl;
                     Crit3DProxyCombination* proxyCombination = myProject.interpolationSettings.getCurrentCombination();
-                    std::string signif;
                     Crit3DProxy* myProxy;
                     for (int i=0; i < proxyNr; i++)
                     {
