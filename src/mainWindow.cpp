@@ -354,12 +354,19 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent * event)
     Position newCenter = this->mapView->mapToScene(mapPos);
     this->ui->statusBar->showMessage(QString::number(newCenter.latitude()) + " " + QString::number(newCenter.longitude()));
 
-    if (event->button() == Qt::LeftButton)
-        this->mapView->zoomIn();
-    else
-        this->mapView->zoomOut();
+    try
+    {
+        if (event->button() == Qt::LeftButton)
+            this->mapView->zoomIn();
+        else
+            this->mapView->zoomOut();
 
-    this->mapView->centerOn(newCenter.lonLat());
+        this->mapView->centerOn(newCenter.lonLat());
+    }
+    catch (...)
+    {
+        QMessageBox::information(nullptr, "WARNING", "Exception catch in mouseDoubleClickEvent event.");
+    }
 }
 
 
@@ -496,10 +503,9 @@ void MainWindow::updateMaps()
         meteoGridLegend->update();
         netcdfLegend->update();
     }
-
-    catch (std::invalid_argument& e)
+    catch (...)
     {
-        QMessageBox::information(nullptr, "ERROR", QString::fromStdString(e.what()));
+        QMessageBox::information(nullptr, "WARNING", "Exception catch in updateMaps function.");
     }
 }
 
