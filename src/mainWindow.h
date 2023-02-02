@@ -4,10 +4,8 @@
     #include <QMainWindow>
     #include <QList>
     #include <QCheckBox>
-    #include <QGroupBox>
     #include <QActionGroup>
 
-    #include "Position.h"
     #include "rubberBand.h"
     #include "MapGraphicsView.h"
     #include "MapGraphicsScene.h"
