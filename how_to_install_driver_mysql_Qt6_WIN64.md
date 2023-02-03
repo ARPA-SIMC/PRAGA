@@ -1,4 +1,5 @@
-## HOWTO install mySQL (MariaDB) driver for Qt6 - visual studio WIN64
+## HOWTO install Qt6 mySQL (MariaDB) driver 
+WIN64 (Visual Studio)
 
 Qt instructions: https://doc.qt.io/qt-6/sql-driver.html#qmysql
 
