@@ -174,7 +174,29 @@ bool KeyboardFilter::eventFilter(QObject* obj, QEvent* event)
     }
 }
 
+
 // SLOT
+void MainWindow::keyPressEvent(QKeyEvent * event)
+{
+    try
+    {
+        // zoom in/out
+        if( event->key() == Qt::Key_Plus)
+        {
+            this->mapView->zoomIn();
+        }
+        else if( event->key() == Qt::Key_Minus)
+        {
+            this->mapView->zoomOut();
+        }
+    }
+    catch (...)
+    {
+        QMessageBox::information(nullptr, "WARNING", "Exception catch in keyPressEvent.");
+    }
+}
+
+
 void MainWindow::mouseMove(const QPoint& mapPos)
 {
     if (! isInsideMap(mapPos)) return;
@@ -345,21 +367,28 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 }
 
 
-// zoom
+// zoom in/out
 void MainWindow::mouseDoubleClickEvent(QMouseEvent * event)
 {
     QPoint mapPos = getMapPos(event->pos());
-    if (! isInsideMap(mapPos)) return;
+    if (! isInsideMap(mapPos))
+        return;
 
     Position newCenter = this->mapView->mapToScene(mapPos);
-    this->ui->statusBar->showMessage(QString::number(newCenter.latitude()) + " " + QString::number(newCenter.longitude()));
 
-    if (event->button() == Qt::LeftButton)
-        this->mapView->zoomIn();
-    else
-        this->mapView->zoomOut();
+    try
+    {
+        if (event->button() == Qt::LeftButton)
+            this->mapView->zoomIn();
+        else
+            this->mapView->zoomOut();
 
-    this->mapView->centerOn(newCenter.lonLat());
+        this->mapView->centerOn(newCenter.lonLat());
+    }
+    catch (...)
+    {
+        QMessageBox::information(nullptr, "WARNING", "Exception catch in mouseDoubleClickEvent");
+    }
 }
 
 
@@ -496,17 +525,16 @@ void MainWindow::updateMaps()
         meteoGridLegend->update();
         netcdfLegend->update();
     }
-
-    catch (std::invalid_argument& e)
+    catch (...)
     {
-        QMessageBox::information(nullptr, "ERROR", QString::fromStdString(e.what()));
+        QMessageBox::information(nullptr, "WARNING", "Exception catch in updateMaps function.");
     }
 }
 
 void MainWindow::clearDEM()
 {
     this->rasterObj->clear();
-    this->rasterObj->redrawRequested();
+    emit this->rasterObj->redrawRequested();
     this->rasterLegend->setVisible(false);
     ui->labelRasterScale->setText("");
     this->ui->rasterOpacitySlider->setEnabled(false);
@@ -1658,7 +1686,7 @@ void MainWindow::setCurrentRaster(gis::Crit3DRasterGrid *myRaster)
 {
     this->rasterObj->initializeUTM(myRaster, myProject.gisSettings, false);
     this->rasterLegend->colorScale = myRaster->colorScale;
-    this->rasterObj->redrawRequested();
+    emit this->rasterObj->redrawRequested();
 }
 
 
@@ -2579,12 +2607,11 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
 
             if (getUseDetrendingVar(myVar))
             {
-                int proxyNr = myProject.interpolationSettings.getProxyNr();
+                int proxyNr = int(myProject.interpolationSettings.getProxyNr());
                 if (proxyNr > 0)
                 {
                     cvOutput << std::endl << "Interpolation proxies" << std::endl;
                     Crit3DProxyCombination* proxyCombination = myProject.interpolationSettings.getCurrentCombination();
-                    std::string signif;
                     Crit3DProxy* myProxy;
                     for (int i=0; i < proxyNr; i++)
                     {
@@ -3698,7 +3725,6 @@ void MainWindow::on_actionUpdate_properties_triggered()
     bool everythingUpdated = true;
     QList<QString> column;
     QList<QString> values;
-    QString infoPoint;
     bool update = false, updateAll = false;
 
     myProject.setProgressBar("Checking properties...", listMeteoPoints.size());

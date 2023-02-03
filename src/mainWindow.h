@@ -4,10 +4,8 @@
     #include <QMainWindow>
     #include <QList>
     #include <QCheckBox>
-    #include <QGroupBox>
     #include <QActionGroup>
 
-    #include "Position.h"
     #include "rubberBand.h"
     #include "MapGraphicsView.h"
     #include "MapGraphicsScene.h"
@@ -267,6 +265,8 @@
         void mousePressEvent(QMouseEvent *event) override;
 
         void resizeEvent(QResizeEvent * event) override;
+
+        void keyPressEvent(QKeyEvent * event ) override;
 
     private:
         Ui::MainWindow* ui;
