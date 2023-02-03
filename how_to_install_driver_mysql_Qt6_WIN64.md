@@ -2,22 +2,22 @@
 
 Qt instructions: https://doc.qt.io/qt-6/sql-driver.html#qmysql
 
-1) add to the qt installation:
+1) Add to qt installation:
 - Sources
 - CMake
 - Ninja
  
-2) download MariaDB connector for WIN64:  
+2) Download MariaDB connector for WIN64:  
 https://mariadb.com/downloads/connectors/
 
-3) check the path of these files (the path will be used in steps 6 and 7):  
+3) Check the path of these files (the path will be used in steps 6 and 7):  
 "MariaDB Connector path"/lib/libmariadb.lib  
 "MariaDB Connector path"/lib/libmariadb.dll  
 "MariaDB Connector path"/include/mysql.h  
 
-4) open Qt command (from menu start->Qt)  
+4) Open Qt command (menu start->Qt)  
 
-5) run vcvars64.bat to set the VC environment  
+5) Run vcvars64.bat (to set the VC environment)  
 `C:\"Program Files (x86)"\"Microsoft Visual Studio"\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat`  
 
 6) Build the *release* plugin as follows:   
@@ -32,7 +32,7 @@ cmake --install .
 ```
 qt-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release C:\Qt\6.2.4\Src\qtbase\src\plugins\sqldrivers -DCMAKE_INSTALL_PREFIX=C:\Qt\6.2.4\msvc2019_64 -DMySQL_INCLUDE_DIR="C:\Program Files\MariaDB\MariaDB Connector C 64-bit\include" -DMySQL_LIBRARY="C:\Program Files\MariaDB\MariaDB Connector C 64-bit\lib\libmariadb.lib"
 ```  
-7) repeat for the *debug* plugin (in another directory):
+7) Build the *debug* plugin (in another directory):
 ```
 mkdir build_sqldrivers_debug
 cd build_sqldrivers_debug
