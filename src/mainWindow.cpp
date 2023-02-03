@@ -138,6 +138,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->currentGridVisualization = notShown;
     this->currentNetcdfVisualization = notShown;
     this->viewNotActivePoints = false;
+    this->currentNetcdfVariable = NODATA;
 
     ui->groupBoxElab->hide();
     ui->groupBoxNetcdf->hide();
@@ -891,11 +892,11 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
 #ifdef NETCDF
 
-    void MainWindow::redrawNetcdf(visualizationType showType)
+    void MainWindow::redrawNetcdf()
     {
         if (! myProject.netCDF.isLoaded()) return;
 
-        switch(showType)
+        switch(currentNetcdfVisualization)
         {
         case notShown:
         {
@@ -916,32 +917,22 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         case showCurrentVariable:
         {
             netcdfObj->setDrawBorders(false);
-            meteoVariable variable = myProject.getCurrentVariable();
 
-            if (myProject.getCurrentVariable() == noMeteoVar)
+            if (currentNetcdfVariable == NODATA)
             {
                 netcdfLegend->setVisible(false);
                 ui->labelNetcdfVariable->setText("");
                 return;
             }
 
-            Crit3DTime time = myProject.getCrit3DCurrentTime();
-            frequencyType frequency = myProject.getCurrentFrequency();
+            std::string errorStr;
+            if (myProject.netCDF.extractVariableMap(currentNetcdfVariable, myProject.getCrit3DCurrentTime(), errorStr))
+            {
+                gis::updateMinMaxRasterGrid(&(myProject.netCDF.dataGrid));
 
-            if (frequency == daily)
-                myProject.meteoGridDbHandler->meteoGrid()->fillCurrentDailyValue(time.date, variable, myProject.meteoSettings);
-            else if (frequency == hourly)
-                myProject.meteoGridDbHandler->meteoGrid()->fillCurrentHourlyValue(time.date, time.getHour(), time.getMinutes(), variable);
-            else
-                return;
-
-            //myProject.netCDF.dataGrid->fillMeteoRaster();
-
-            netcdfLegend->setVisible(true);
-
-            setColorScale(variable, myProject.netCDF.dataGrid.colorScale);
-
-            netcdfLegend->update();
+                netcdfLegend->setVisible(true);
+                netcdfLegend->update();
+            }
             break;
         }
         default: { }
@@ -949,6 +940,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
         emit netcdfObj->redrawRequested();
     }
+
 
     void MainWindow::on_actionNetCDF_Open_triggered()
     {
@@ -977,6 +969,9 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         this->mapView->centerOn(qreal(center->longitude), qreal(center->latitude));
 
         myProject.netCDF.dataGrid.setConstantValue(NODATA);
+
+        // default colorScale: air temperature
+        setColorScale(airTemperature, myProject.netCDF.dataGrid.colorScale);
         netcdfLegend->colorScale = myProject.netCDF.dataGrid.colorScale;
 
         ui->groupBoxNetcdf->setVisible(true);
@@ -991,9 +986,9 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         if (! myProject.netCDF.isLoaded()) return;
 
         myProject.netCDF.close();
+        currentNetcdfVariable = NODATA;
 
         netcdfObj->clear();
-        //netcdfObj->redrawRequested();
 
         netcdfObj->setVisible(false);
         ui->groupBoxNetcdf->setVisible(false);
@@ -1031,9 +1026,14 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
     void MainWindow::on_netCDFButtonVariable_clicked()
     {
         int idVar;
+        std::string errorStr;
+
         if (netCDF_ChooseVariable(&(myProject.netCDF), idVar, myProject.getCurrentFrequency()))
         {
-            return;
+            currentNetcdfVariable = idVar;
+            currentNetcdfVisualization = showCurrentVariable;
+            ui->labelNetcdfVariable->setText(QString::fromStdString(myProject.netCDF.getVariableFromId(idVar).getVarName()));
+            redrawNetcdf();
         }
     }
 

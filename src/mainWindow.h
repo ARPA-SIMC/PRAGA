@@ -291,6 +291,7 @@
         visualizationType currentPointsVisualization;
         visualizationType currentGridVisualization;
         visualizationType currentNetcdfVisualization;
+        int currentNetcdfVariable;
 
         bool viewNotActivePoints;
         QActionGroup *showPointsGroup;
@@ -343,7 +344,7 @@
         void closeEvent(QCloseEvent *event) override;
 
         #ifdef NETCDF
-            void redrawNetcdf(visualizationType showType);
+            void redrawNetcdf();
             void netCDF_exportDataSeries(gis::Crit3DGeoPoint geoPoint);
             void closeNetCDF();
         #endif
