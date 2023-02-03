@@ -872,6 +872,7 @@ void MainWindow::on_dateChanged()
 
     redrawMeteoPoints(currentPointsVisualization, true);
     redrawMeteoGrid(currentGridVisualization, false);
+    redrawNetcdf();
 }
 
 void MainWindow::on_timeEdit_valueChanged(int myHour)
@@ -886,6 +887,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
     {
         redrawMeteoPoints(currentPointsVisualization, true);
         redrawMeteoGrid(currentGridVisualization, false);
+        redrawNetcdf();
     }
 }
 
@@ -925,8 +927,14 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
                 return;
             }
 
+            Crit3DTime myTime = myProject.getCrit3DCurrentTime();
+            if (myProject.getCurrentFrequency() == daily)
+            {
+                myTime = getCrit3DTime(myProject.getCurrentDate(), 0);
+            }
+
             std::string errorStr;
-            if (myProject.netCDF.extractVariableMap(currentNetcdfVariable, myProject.getCrit3DCurrentTime(), errorStr))
+            if (myProject.netCDF.extractVariableMap(currentNetcdfVariable, myTime, errorStr))
             {
                 gis::updateMinMaxRasterGrid(&(myProject.netCDF.dataGrid));
 
@@ -946,6 +954,8 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
     {
         QString fileName = QFileDialog::getOpenFileName(this, "Open NetCDF data", "", "NetCDF files (*.nc)");
         if (fileName == "") return;
+
+        closeNetCDF();
 
         myProject.netCDF.initialize(myProject.gisSettings.utmZone);
 
@@ -969,6 +979,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         this->mapView->centerOn(qreal(center->longitude), qreal(center->latitude));
 
         myProject.netCDF.dataGrid.setConstantValue(NODATA);
+        currentNetcdfVisualization = showLocation;
 
         // default colorScale: air temperature
         setColorScale(airTemperature, myProject.netCDF.dataGrid.colorScale);
@@ -977,7 +988,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         ui->groupBoxNetcdf->setVisible(true);
         netcdfObj->setVisible(true);
 
-        updateMaps();
+        redrawNetcdf();
     }
 
 
@@ -987,6 +998,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
         myProject.netCDF.close();
         currentNetcdfVariable = NODATA;
+        ui->labelNetcdfVariable->setText("");
 
         netcdfObj->clear();
 
