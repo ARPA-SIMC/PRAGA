@@ -1,6 +1,4 @@
-*****
-***** HOWTO install mySQL (MariaDB) driver for Qt6 - visual studio WIN64
-*****
+## HOWTO install mySQL (MariaDB) driver for Qt6 - visual studio WIN64
 
 Qt instructions (not complete): https://doc.qt.io/qt-6/sql-driver.html#qmysql
 
@@ -20,7 +18,7 @@ https://mariadb.com/downloads/connectors/
 4) open Qt command (from menu start->Qt)
 
 5) run vcvars64.bat to set the VC environment
-# example of command to launch vcvars64.bat:
+* example of command to launch vcvars64.bat:
 C:\"Program Files (x86)"\"Microsoft Visual Studio"\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat
 
 6) Build the RELEASE plugin as follows:
@@ -33,7 +31,7 @@ qt-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release <Qt_installation_path>\Src\qtbase\s
 cmake --build .
 cmake --install .
 
-# example of cmake command:
+* example of cmake command:
 qt-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release C:\Qt\6.2.4\Src\qtbase\src\plugins\sqldrivers -DCMAKE_INSTALL_PREFIX=C:\Qt\6.2.4\msvc2019_64 -DMySQL_INCLUDE_DIR="C:\Program Files\MariaDB\MariaDB Connector C 64-bit\include" -DMySQL_LIBRARY="C:\Program Files\MariaDB\MariaDB Connector C 64-bit\lib\libmariadb.lib"
 
 7) repeat for the DEBUG plugin (in another directory):
