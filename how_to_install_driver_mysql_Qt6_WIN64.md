@@ -7,7 +7,7 @@ Qt instructions: https://doc.qt.io/qt-6/sql-driver.html#qmysql
 - CMake (in Developer and Designer Tools)
 - Ninja (in Developer and Designer Tools)
  
-2) Download MariaDB connector for WIN64:
+2) Download MariaDB C connector for WIN64:
 https://mariadb.com/downloads/connectors/
 
 3) Check the path of these files (the path will be used in steps 6 and 7):  
@@ -17,7 +17,7 @@ https://mariadb.com/downloads/connectors/
 
 4) Open Qt command (menu start->Qt)  
 
-5) Run vcvars64.bat (to set the VC environment)  
+5) Run vcvars64.bat (change the command to your path)  
 `C:\"Program Files (x86)"\"Microsoft Visual Studio"\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat`  
 
 6) Build the *release* plugin as follows: 
@@ -28,7 +28,7 @@ qt-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release <Qt_installation_path>\Src\qtbase\s
 cmake --build .
 cmake --install .
 ```  
-*example of cmake command:*  
+example of real cmake command (for Qt 6.2.4):  
 ```
 qt-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release C:\Qt\6.2.4\Src\qtbase\src\plugins\sqldrivers -DCMAKE_INSTALL_PREFIX=C:\Qt\6.2.4\msvc2019_64 -DMySQL_INCLUDE_DIR="C:\Program Files\MariaDB\MariaDB Connector C 64-bit\include" -DMySQL_LIBRARY="C:\Program Files\MariaDB\MariaDB Connector C 64-bit\lib\libmariadb.lib"
 ```  
