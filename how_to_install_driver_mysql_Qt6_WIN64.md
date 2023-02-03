@@ -34,6 +34,7 @@ qt-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release C:\Qt\6.2.4\Src\qtbase\src\plugins\
 ```  
 7) Build the *debug* plugin (in another directory):
 ```
+cd ..
 mkdir build_sqldrivers_debug
 cd build_sqldrivers_debug
 qt-cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug <Qt_installation_path>\Src\qtbase\src\plugins\sqldrivers -DCMAKE_INSTALL_PREFIX=<Qt_installation_path>\<your platform> -DMySQL_INCLUDE_DIR="<Maria DB connector path>\include" -DMySQL_LIBRARY="<Maria DB connector path>\lib\libmariadb.lib"
