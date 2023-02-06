@@ -134,6 +134,14 @@ MainWindow::MainWindow(QWidget *parent) :
     showGridGroup->setEnabled(false);
     this->ui->menuShowGridAnomaly->setEnabled(false);
 
+    showNetcdfGroup = new QActionGroup(this);
+    showNetcdfGroup->setExclusive(true);
+    showNetcdfGroup->addAction(this->ui->actionShowNetcdfHide);
+    showNetcdfGroup->addAction(this->ui->actionShowNetcdfLocation);
+    showNetcdfGroup->addAction(this->ui->actionShowNetcdfVariable);
+
+    showNetcdfGroup->setEnabled(false);
+
     this->currentPointsVisualization = notShown;
     this->currentGridVisualization = notShown;
     this->currentNetcdfVisualization = notShown;
@@ -896,7 +904,8 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
     void MainWindow::redrawNetcdf()
     {
-        if (! myProject.netCDF.isLoaded()) return;
+        if (! myProject.netCDF.isLoaded())
+            return;
 
         switch(currentNetcdfVisualization)
         {
@@ -934,18 +943,18 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
             }
 
             std::string errorStr;
-            if (myProject.netCDF.extractVariableMap(currentNetcdfVariable, myTime, errorStr))
-            {
-                gis::updateMinMaxRasterGrid(&(myProject.netCDF.dataGrid));
+            myProject.netCDF.extractVariableMap(currentNetcdfVariable, myTime, errorStr);
+            gis::updateMinMaxRasterGrid(&(myProject.netCDF.dataGrid));
 
-                netcdfLegend->setVisible(true);
-                netcdfLegend->update();
-            }
+            netcdfLegend->setVisible(true);
+            netcdfLegend->update();
+
             break;
         }
         default: { }
         }
 
+        netcdfObj->updateCenter();
         emit netcdfObj->redrawRequested();
     }
 
@@ -985,6 +994,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         setColorScale(airTemperature, myProject.netCDF.dataGrid.colorScale);
         netcdfLegend->colorScale = myProject.netCDF.dataGrid.colorScale;
 
+        showNetcdfGroup->setEnabled(true);
         ui->groupBoxNetcdf->setVisible(true);
         netcdfObj->setVisible(true);
 
@@ -1004,6 +1014,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
         netcdfObj->setVisible(false);
         ui->groupBoxNetcdf->setVisible(false);
+        showNetcdfGroup->setEnabled(false);
     }
 
 
@@ -1674,6 +1685,7 @@ void MainWindow::on_variableButton_clicked()
     }
 }
 
+
 void MainWindow::on_frequencyButton_clicked()
 {
    frequencyType myFrequency = chooseFrequency(&myProject);
@@ -1689,6 +1701,7 @@ void MainWindow::on_frequencyButton_clicked()
            this->ui->actionShowGridCurrent->setEnabled(true);
            redrawMeteoPoints(showCurrentVariable, true);
            redrawMeteoGrid(showCurrentVariable, false);
+           redrawNetcdf();
        }
    }
 }
@@ -1708,9 +1721,9 @@ void MainWindow::on_dateEdit_dateChanged(const QDate &date)
     this->on_dateChanged();
 }
 
+
 void MainWindow::on_actionElaboration_triggered()
 {
-
     if (!ui->meteoPoints->isChecked() && !ui->grid->isChecked())
     {
         myProject.errorString = "Load meteo Points or grid";
@@ -5007,5 +5020,109 @@ void MainWindow::computeDailyFromHourly_MeteoPoints(const QList<std::string>& id
     QDate currentDate = myProject.getCurrentDate();
     myProject.loadMeteoPointsData(currentDate, currentDate, true, true, true);
     redrawMeteoPoints(currentPointsVisualization, true);
+}
+
+
+void MainWindow::on_actionShowNetcdfHide_triggered()
+{
+    ui->actionShowNetcdfHide->setChecked(true);
+    currentNetcdfVisualization = notShown;
+    redrawNetcdf();
+}
+
+void MainWindow::on_actionShowNetcdfLocation_triggered()
+{
+    ui->actionShowNetcdfLocation->setChecked(true);
+    currentNetcdfVisualization = showLocation;
+    redrawNetcdf();
+}
+
+void MainWindow::on_actionShowNetcdfVariable_triggered()
+{
+    ui->actionShowNetcdfVariable->setChecked(true);
+    currentNetcdfVisualization = showCurrentVariable;
+    redrawNetcdf();
+}
+
+void MainWindow::on_actionNetcdf_ColorScale_SetType_triggered()
+{
+    if (! myProject.netCDF.isLoaded())
+    {
+        QMessageBox::information(nullptr, "No NetCDF", "Open NetCDF file before.");
+        return;
+    }
+
+    // choose color scale
+    meteoVariable myVar = chooseColorScale();
+    if (myVar != noMeteoVar)
+    {
+        setColorScale(myVar, this->netcdfObj->getRaster()->colorScale);
+    }
+
+    redrawNetcdf();
+}
+
+
+void MainWindow::on_actionNetcdf_ColorScale_Reverse_triggered()
+{
+    if (! myProject.netCDF.isLoaded())
+    {
+        QMessageBox::information(nullptr, "No NetCDF", "Open NetCDF file before.");
+        return;
+    }
+
+    reverseColorScale(this->netcdfObj->getRaster()->colorScale);
+    redrawNetcdf();
+}
+
+
+void MainWindow::setColorScaleRangeNetcdf(bool isFixed)
+{
+    if (! myProject.netCDF.isLoaded())
+    {
+        QMessageBox::information(nullptr, "No NetCDF", "Open NetCDF file before.");
+        return;
+    }
+
+    if (isFixed)
+    {
+        // choose minimum
+        float minimum = this->netcdfObj->getRaster()->colorScale->minimum();
+        QString valueStr = editValue("Choose minimum value", QString::number(minimum));
+        if (valueStr == "") return;
+        minimum = valueStr.toFloat();
+
+        // choose maximum
+        float maximum = this->netcdfObj->getRaster()->colorScale->maximum();
+        valueStr = editValue("Choose maximum value", QString::number(maximum));
+        if (valueStr == "") return;
+        maximum = valueStr.toFloat();
+
+        // set range
+        this->netcdfObj->getRaster()->colorScale->setRange(minimum, maximum);
+        this->netcdfObj->getRaster()->colorScale->setRangeBlocked(true);
+    }
+    else
+    {
+        this->netcdfObj->getRaster()->colorScale->setRangeBlocked(false);
+    }
+
+    redrawNetcdf();
+}
+
+
+void MainWindow::on_actionNetcdf_ColorScale_Fixed_triggered()
+{
+    ui->actionNetcdf_ColorScale_Fixed->setChecked(true);
+    ui->actionNetcdf_ColorScale_RangeVariable->setChecked(false);
+    setColorScaleRangeNetcdf(true);
+}
+
+
+void MainWindow::on_actionNetcdf_ColorScale_RangeVariable_triggered()
+{
+    ui->actionNetcdf_ColorScale_RangeVariable->setChecked(true);
+     ui->actionNetcdf_ColorScale_Fixed->setChecked(false);
+    setColorScaleRangeNetcdf(false);
 }
 

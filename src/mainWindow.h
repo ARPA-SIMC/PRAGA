@@ -249,6 +249,20 @@
 
         void on_netcdfOpacitySlider_sliderMoved(int position);
 
+        void on_actionNetcdf_ColorScale_SetType_triggered();
+
+        void on_actionShowNetcdfHide_triggered();
+
+        void on_actionShowNetcdfLocation_triggered();
+
+        void on_actionShowNetcdfVariable_triggered();
+
+        void on_actionNetcdf_ColorScale_Reverse_triggered();
+
+        void on_actionNetcdf_ColorScale_Fixed_triggered();
+
+        void on_actionNetcdf_ColorScale_RangeVariable_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -296,6 +310,7 @@
         bool viewNotActivePoints;
         QActionGroup *showPointsGroup;
         QActionGroup *showGridGroup;
+        QActionGroup *showNetcdfGroup;
 
         QList<QCheckBox*> datasetCheckbox;
         QCheckBox* all;
@@ -328,6 +343,7 @@
 
         bool checkMeteoGridColorScale();
         void setColorScaleRangeMeteoGrid(bool isFixed);
+        void setColorScaleRangeNetcdf(bool isFixed);
 
         bool loadMeteoPoints(QString dbName);
         bool loadMeteoGrid(QString xmlName);
