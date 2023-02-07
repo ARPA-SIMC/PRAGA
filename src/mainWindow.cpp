@@ -273,9 +273,7 @@ void MainWindow::mouseMove(const QPoint& mapPos)
             status += " - Grid cell:" + QString::fromStdString(id + " " + name);
             if (!isEqual(value, NODATA))
             {
-                std::stringstream stream;
-                stream << std::fixed << std::setprecision(2) << value;
-                status += " Value:" + QString::fromStdString(stream.str());
+                status += " Value: " + QString::number(double(value), 'f', 2);
             }
         }
     }
@@ -285,7 +283,9 @@ void MainWindow::mouseMove(const QPoint& mapPos)
     {
         value = netcdfObj->getValue(geoPoint);
         if (!isEqual(value, NODATA))
-            status += " - NetCDF: " + QString::number(double(value),'f',1);
+        {
+            status += " - NetCDF value: " + QString::number(double(value), 'f', 1);
+        }
     }
 
     this->ui->statusBar->showMessage(status);
