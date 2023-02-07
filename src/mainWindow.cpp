@@ -220,14 +220,23 @@ void MainWindow::mouseMove(const QPoint& mapPos)
 
     Position geoPos = this->mapView->mapToScene(mapPos);
     QString status = "Lat:" + QString::number(geoPos.latitude())
-                   + " Lon:" + QString::number(geoPos.longitude());
+                   + " - Lon:" + QString::number(geoPos.longitude());
 
+    gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
+
+    // raster
     float value = NODATA;
+    if (rasterObj->isLoaded && rasterObj->visible())
+    {
+        value = rasterObj->getValue(geoPoint);
+        if (!isEqual(value, NODATA))
+            status += " - Raster: " + QString::number(double(value),'f',1);
+    }
+
+    // meteoGrid
     if (meteoGridObj->isLoaded && currentGridVisualization != notShown)
     {
         int row, col;
-        gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
-
         if (meteoGridObj->getRowCol(geoPoint, &row, &col) &&
             myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
         {
@@ -261,7 +270,7 @@ void MainWindow::mouseMove(const QPoint& mapPos)
                 }
             }
 
-            status += " Grid cell:" + QString::fromStdString(id + " " + name);
+            status += " - Grid cell:" + QString::fromStdString(id + " " + name);
             if (!isEqual(value, NODATA))
             {
                 std::stringstream stream;
@@ -270,14 +279,13 @@ void MainWindow::mouseMove(const QPoint& mapPos)
             }
         }
     }
-    else
+
+    // netCDF
+    if (myProject.netCDF.isLoaded() && currentNetcdfVisualization == showCurrentVariable)
     {
-        if (rasterObj->isLoaded && rasterObj->visible())
-        {
-            value = rasterObj->getValue(geoPos);
-            if (!isEqual(value, NODATA))
-                status += " Raster:" + QString::number(double(value),'f',1);
-        }
+        value = netcdfObj->getValue(geoPoint);
+        if (!isEqual(value, NODATA))
+            status += " - NetCDF: " + QString::number(double(value),'f',1);
     }
 
     this->ui->statusBar->showMessage(status);
