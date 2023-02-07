@@ -112,8 +112,18 @@
             void on_actionNetCDF_Open_triggered();
             void on_actionNetCDF_Close_triggered();
             void on_actionNetCDF_ShowMetadata_triggered();
-            void on_actionFileMeteogridExportNetcdf_triggered();
+
             void on_netCDFButtonVariable_clicked();
+            void on_actionFileMeteogridExportNetcdf_triggered();
+
+            void on_actionShowNetcdfHide_triggered();
+            void on_actionShowNetcdfLocation_triggered();
+            void on_actionShowNetcdfVariable_triggered();
+
+            void on_actionNetcdf_ColorScale_SetType_triggered();
+            void on_actionNetcdf_ColorScale_Reverse_triggered();
+            void on_actionNetcdf_ColorScale_Fixed_triggered();
+            void on_actionNetcdf_ColorScale_RangeVariable_triggered();
         #endif
 
         void callNewMeteoWidget(std::string id, std::string name, bool isGrid);
@@ -249,20 +259,6 @@
 
         void on_netcdfOpacitySlider_sliderMoved(int position);
 
-        void on_actionNetcdf_ColorScale_SetType_triggered();
-
-        void on_actionShowNetcdfHide_triggered();
-
-        void on_actionShowNetcdfLocation_triggered();
-
-        void on_actionShowNetcdfVariable_triggered();
-
-        void on_actionNetcdf_ColorScale_Reverse_triggered();
-
-        void on_actionNetcdf_ColorScale_Fixed_triggered();
-
-        void on_actionNetcdf_ColorScale_RangeVariable_triggered();
-
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -334,6 +330,7 @@
         void redrawMeteoPoints(visualizationType showType, bool updateColorScale);
         void drawMeteoGrid();
         void redrawMeteoGrid(visualizationType showType, bool showInterpolationResult);
+        void redrawAllData();
         void drawProject();
         void redrawTitle();
 

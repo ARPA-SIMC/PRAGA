@@ -498,7 +498,7 @@
           <second>0</second>
           <year>1752</year>
           <month>10</month>
-          <day>9</day>
+          <day>8</day>
          </datetime>
         </property>
         <property name="maximumDate">
@@ -1668,7 +1668,7 @@
     <property name="title">
      <string>Fi&amp;le</string>
     </property>
-    <widget class="QMenu" name="menuFileNetCDF_grid">
+    <widget class="QMenu" name="menuFileNetCDF">
      <property name="title">
       <string>NetCDF grid</string>
      </property>
@@ -1779,7 +1779,7 @@
     <addaction name="separator"/>
     <addaction name="menuMeteogrid"/>
     <addaction name="separator"/>
-    <addaction name="menuFileNetCDF_grid"/>
+    <addaction name="menuFileNetCDF"/>
    </widget>
    <widget class="QMenu" name="menuMeteopoint">
     <property name="title">
