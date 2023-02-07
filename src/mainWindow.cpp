@@ -2505,16 +2505,17 @@ void MainWindow::on_actionFileCloseProject_triggered()
 {
     if (! myProject.isProjectLoaded) return;
 
-    on_actionFileMeteogridClose_triggered();
-    on_actionFileMeteopointClose_triggered();
-    this->ui->labelFrequency->setText("None");
-    this->ui->labelVariable->setText(("None"));
+    closeMeteoGrid();
+    closeMeteoPoints();
+
+    ui->labelFrequency->setText("None");
+    ui->labelVariable->setText(("None"));
     currentGridVisualization = showLocation;
     currentPointsVisualization = showLocation;
 
     clearDEM();
 
-    this->mapView->centerOn(startCenter->lonLat());
+    mapView->centerOn(startCenter->lonLat());
 
     if (! myProject.loadPragaProject(myProject.getApplicationPath() + "default.ini")) return;
 
@@ -2846,34 +2847,30 @@ void MainWindow::on_actionFileMeteogridOpen_triggered()
 
 void MainWindow::closeMeteoGrid()
 {
-    if (myProject.meteoGridDbHandler != nullptr)
+    if (myProject.meteoGridLoaded)
     {
+        this->meteoGridObj->clear();
+        emit this->meteoGridObj->redrawRequested();
+        this->meteoGridLegend->setVisible(false);
 
-        if (myProject.meteoGridDbHandler != nullptr)
+        myProject.closeMeteoGridDB();
+
+        this->ui->groupBoxElab->hide();
+        this->ui->meteoGridOpacitySlider->setEnabled(false);
+
+        this->ui->grid->setChecked(false);
+        this->ui->grid->setEnabled(false);
+
+        this->showGridGroup->setEnabled(false);
+        this->ui->menuActive_cells->setEnabled(false);
+        this->ui->actionCompute_monthly_data_from_daily->setEnabled(false);
+        this->ui->menuShowGridAnomaly->setEnabled(false);
+
+        if (myProject.meteoPointsLoaded)
         {
-            myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.isLoaded = false;
-            meteoGridObj->clear();
-            emit meteoGridObj->redrawRequested();
-            meteoGridLegend->setVisible(false);
-            myProject.closeMeteoGridDB();
-            ui->groupBoxElab->hide();
-            ui->meteoGridOpacitySlider->setEnabled(false);
-
-            this->ui->grid->setChecked(false);
-            this->ui->grid->setEnabled(false);
-
-            showGridGroup->setEnabled(false);
-            this->ui->menuActive_cells->setEnabled(false);
-            this->ui->actionCompute_monthly_data_from_daily->setEnabled(false);
-            this->ui->menuShowGridAnomaly->setEnabled(false);
-
-            if (myProject.meteoPointsDbHandler != nullptr)
-            {
-                this->ui->meteoPoints->setChecked(true);
-            }
+            this->ui->meteoPoints->setChecked(true);
         }
     }
-
 }
 
 
