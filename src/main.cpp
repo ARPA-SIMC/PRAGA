@@ -10,7 +10,6 @@
 #include <QtNetwork/QNetworkProxy>
 #include <QProcessEnvironment>
 #include <QDir>
-#include <QDebug>
 
 
 PragaProject myProject;

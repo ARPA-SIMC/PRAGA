@@ -2489,8 +2489,8 @@ bool MainWindow::openRaster(QString fileName, gis::Crit3DRasterGrid *myRaster)
 
         if (! gis::readEsriGrid(fnWithoutExt, myRaster, myError))
         {
-            qDebug("Load raster failed!");
-            return (false);
+            myProject.logError("Load raster failed!");
+            return false;
         }
         return true;
 }
@@ -2511,10 +2511,7 @@ void MainWindow::on_actionSpatialAggregationNewDB_triggered()
 
     QString dbName = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("DB files (*.db)"));
     if (dbName == "")
-    {
-        qDebug() << "missing new db file name";
         return;
-    }
 
     QFile dbFile(dbName);
     QFileInfo dbFileInfo(dbFile.fileName());
@@ -2812,10 +2809,7 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
 
     QString dbName = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("DB files (*.db)"));
     if (dbName == "")
-    {
-        qDebug() << "missing new db file name";
         return;
-    }
 
     QFile dbFile(dbName);
     if (dbFile.exists())
@@ -3731,10 +3725,7 @@ void MainWindow::on_actionFileMeteopointNewCsv_triggered()
 
     QString dbName = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("DB files (*.db)"));
     if (dbName == "")
-    {
-        qDebug() << "missing new db file name";
         return;
-    }
 
     QFile dbFile(dbName);
     if (dbFile.exists())
