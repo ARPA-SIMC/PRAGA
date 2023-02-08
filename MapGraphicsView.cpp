@@ -19,9 +19,9 @@
 MapGraphicsView::MapGraphicsView(MapGraphicsScene *scene, QWidget *parent) :
     QWidget(parent)
 {
-    //Setup the given scene and set the default zoomLevel to 3
+    //Setup the given scene and set the default zoomLevel
     this->setScene(scene);
-    _zoomLevel = 2;
+    _zoomLevel = 3;
 
     //The default drag mode allows us to drag the map around to move the view
     this->setDragMode(MapGraphicsView::ScrollHandDrag);
@@ -32,7 +32,8 @@ MapGraphicsView::MapGraphicsView(MapGraphicsScene *scene, QWidget *parent) :
             SIGNAL(timeout()),
             this,
             SLOT(renderTiles()));
-    renderTimer->start(200);
+    renderTimer->start(500);
+
 }
 
 MapGraphicsView::~MapGraphicsView()
@@ -402,103 +403,109 @@ void MapGraphicsView::renderTiles()
         return;
     }
 
-
-    //Layout the tile objects
+    // layout the tile objects
     this->doTileLayout();
 }
+
 
 //protected
 void MapGraphicsView::doTileLayout()
 {
-    //Calculate the center point and polygon of the viewport in QGraphicsScene coordinates
-    const QPointF centerPointQGS = _childView->mapToScene(_childView->width()/2,
-                                                          _childView->height()/2);
-    QPolygon viewportPolygonQGV;
-    viewportPolygonQGV << QPoint(0,0) << QPoint(0,_childView->height()) << QPoint(_childView->width(),_childView->height()) << QPoint(_childView->width(),0);
+    try {
+        //Calculate the center point and polygon of the viewport in QGraphicsScene coordinates
+        const QPointF centerPointQGS = _childView->mapToScene(_childView->width()/2,
+                                                              _childView->height()/2);
+        QPolygon viewportPolygonQGV;
+        viewportPolygonQGV << QPoint(0,0) << QPoint(0,_childView->height()) << QPoint(_childView->width(),_childView->height()) << QPoint(_childView->width(),0);
 
-    const QPolygonF viewportPolygonQGS = _childView->mapToScene(viewportPolygonQGV);
-    const QRectF boundingRect = viewportPolygonQGS.boundingRect();
+        const QPolygonF viewportPolygonQGS = _childView->mapToScene(viewportPolygonQGV);
+        const QRectF boundingRect = viewportPolygonQGS.boundingRect();
 
-    //We exaggerate the bounding rect for some purposes!
-    QRectF exaggeratedBoundingRect = boundingRect;
-    exaggeratedBoundingRect.setSize(boundingRect.size()*2.0);
-    exaggeratedBoundingRect.moveCenter(boundingRect.center());
+        //We exaggerate the bounding rect for some purposes!
+        QRectF exaggeratedBoundingRect = boundingRect;
+        exaggeratedBoundingRect.setSize(boundingRect.size()*1.5);
+        exaggeratedBoundingRect.moveCenter(boundingRect.center());
 
-    //We'll mark tiles that aren't being displayed as free so we can use them
-    QQueue<MapTileGraphicsObject *> freeTiles;
+        //We'll mark tiles that aren't being displayed as free so we can use them
+        QQueue<MapTileGraphicsObject *> freeTiles;
 
-    QSet<QString> placesWhereTilesAre;
-    foreach(MapTileGraphicsObject * tileObject, _tileObjects)
-    {
-        if (!tileObject->isVisible() || !exaggeratedBoundingRect.contains(tileObject->pos()))
+        QSet<QString> placesWhereTilesAre;
+        foreach(MapTileGraphicsObject * tileObject, _tileObjects)
         {
-            freeTiles.enqueue(tileObject);
-            tileObject->setVisible(false);
-        }
-        else
-        {
-            QString pointKey = QString::number(tileObject->pos().x()) % "," % QString::number(tileObject->pos().y());
-            placesWhereTilesAre.insert(pointKey);
-        }
-    }
-
-    const quint16 tileSize = _tileSource->tileSize();
-    const quint32 tilesPerRow = sqrt((long double)_tileSource->tilesOnZoomLevel(this->zoomLevel()));
-    const quint32 tilesPerCol = tilesPerRow;
-
-    const qint32 perSide = qMax(boundingRect.width()/tileSize,
-                       boundingRect.height()/tileSize) + 3;
-    const qint32 xc = qMax((qint32)0,
-                     (qint32)(centerPointQGS.x() / tileSize) - perSide/2);
-    const qint32 yc = qMax((qint32)0,
-                     (qint32)(centerPointQGS.y() / tileSize) - perSide/2);
-    const qint32 xMax = qMin((qint32)tilesPerRow,
-                              xc + perSide);
-    const qint32 yMax = qMin(yc + perSide,
-                              (qint32)tilesPerCol);
-
-    for (qint32 x = xc; x < xMax; x++)
-    {
-        for (qint32 y = yc; y < yMax; y++)
-        {
-            const QPointF scenePos(x*tileSize + tileSize/2,
-                                   y*tileSize + tileSize/2);
-
-
-            bool tileIsThere = false;
-            QString pointKey = QString::number(scenePos.x()) % "," % QString::number(scenePos.y());
-            if (placesWhereTilesAre.contains(pointKey))
-                tileIsThere = true;
-
-            if (tileIsThere)
-                continue;
-
-            //Just in case we're running low on free tiles, add one
-            if (freeTiles.isEmpty())
+            if (!tileObject->isVisible() || !exaggeratedBoundingRect.contains(tileObject->pos()))
             {
-                MapTileGraphicsObject * tileObject = new MapTileGraphicsObject(tileSize);
-                tileObject->setTileSource(_tileSource);
-                _tileObjects.insert(tileObject);
-                _childScene->addItem(tileObject);
                 freeTiles.enqueue(tileObject);
+                tileObject->setVisible(false);
             }
-            //Get the first free tile and make it do its thing
-            MapTileGraphicsObject * tileObject = freeTiles.dequeue();
-            if (tileObject->pos() != scenePos)
-                tileObject->setPos(scenePos);
-            if (tileObject->isVisible() != true)
-                tileObject->setVisible(true);
-            tileObject->setTile(x,y,this->zoomLevel());
+            else
+            {
+                QString pointKey = QString::number(tileObject->pos().x()) % "," % QString::number(tileObject->pos().y());
+                placesWhereTilesAre.insert(pointKey);
+            }
         }
-    }
 
-    //If we've got a lot of free tiles left over, delete some of them
-    while (freeTiles.size() > 2)
-    {
-        MapTileGraphicsObject * tileObject = freeTiles.dequeue();
-        _tileObjects.remove(tileObject);
-        _childScene->removeItem(tileObject);
-        delete tileObject;
+        const quint16 tileSize = _tileSource->tileSize();
+        const quint32 tilesPerRow = sqrt((long double)_tileSource->tilesOnZoomLevel(this->zoomLevel()));
+        const quint32 tilesPerCol = tilesPerRow;
+
+        const qint32 perSide = qMax(boundingRect.width()/tileSize,
+                                    boundingRect.height()/tileSize) + 3;
+        const qint32 xc = qMax((qint32)0,
+                               (qint32)(centerPointQGS.x() / tileSize) - perSide/2);
+        const qint32 yc = qMax((qint32)0,
+                               (qint32)(centerPointQGS.y() / tileSize) - perSide/2);
+        const qint32 xMax = qMin((qint32)tilesPerRow,
+                                 xc + perSide);
+        const qint32 yMax = qMin(yc + perSide,
+                                 (qint32)tilesPerCol);
+
+        for (qint32 x = xc; x < xMax; x++)
+        {
+            for (qint32 y = yc; y < yMax; y++)
+            {
+                const QPointF scenePos(x*tileSize + tileSize/2,
+                                       y*tileSize + tileSize/2);
+
+
+                bool tileIsThere = false;
+                QString pointKey = QString::number(scenePos.x()) % "," % QString::number(scenePos.y());
+                if (placesWhereTilesAre.contains(pointKey))
+                    tileIsThere = true;
+
+                if (tileIsThere)
+                    continue;
+
+                //Just in case we're running low on free tiles, add one
+                if (freeTiles.isEmpty())
+                {
+                    MapTileGraphicsObject * tileObject = new MapTileGraphicsObject(tileSize);
+                    tileObject->setTileSource(_tileSource);
+                    _tileObjects.insert(tileObject);
+                    _childScene->addItem(tileObject);
+                    freeTiles.enqueue(tileObject);
+                }
+                //Get the first free tile and make it do its thing
+                MapTileGraphicsObject * tileObject = freeTiles.dequeue();
+                if (tileObject->pos() != scenePos)
+                    tileObject->setPos(scenePos);
+                if (tileObject->isVisible() != true)
+                    tileObject->setVisible(true);
+                tileObject->setTile(x,y,this->zoomLevel());
+            }
+        }
+
+        //If we've got a lot of free tiles left over, delete some of them
+        while (freeTiles.size() > 2)
+        {
+            MapTileGraphicsObject * tileObject = freeTiles.dequeue();
+            _tileObjects.remove(tileObject);
+            _childScene->removeItem(tileObject);
+            delete tileObject;
+        }
+
+    } catch (...) {
+        // TODO
+        qDebug() << "Error catched in doTileLayout!";
     }
 
 }
