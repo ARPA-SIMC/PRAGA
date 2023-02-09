@@ -4305,7 +4305,7 @@ void MainWindow::on_actionExport_current_data_triggered()
         QTextStream myStream (&myFile);
         myStream.setRealNumberNotation(QTextStream::FixedNotation);
         myStream.setRealNumberPrecision(1);
-        QString header = "id,name,dataset,state,region,province,municipality,lapse_rate_code,lat,lon,altitude,value";
+        QString header = "id,name,dataset,state,region,province,municipality,lapse_rate_code,lat,lon,utmx,utmy,altitude,value";
         myStream << header << "\n";
         for (int i = 0; i < myProject.nrMeteoPoints; i++)
         {
@@ -4321,6 +4321,8 @@ void MainWindow::on_actionExport_current_data_triggered()
                          << "," << QString::number(myProject.meteoPoints[i].lapseRateCode)
                          << "," << QString::number(myProject.meteoPoints[i].latitude)
                          << "," << QString::number(myProject.meteoPoints[i].longitude)
+                         << "," << QString::number(myProject.meteoPoints[i].point.utm.x)
+                         << "," << QString::number(myProject.meteoPoints[i].point.utm.y)
                          << "," << QString::number(myProject.meteoPoints[i].point.z)
                          << "," << QString::number(myProject.meteoPoints[i].currentValue) << "\n";
             }
