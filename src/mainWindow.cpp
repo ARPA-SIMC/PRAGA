@@ -658,7 +658,7 @@ void MainWindow::disableAllButton(bool toggled)
     }
 }
 
-void MainWindow::on_actionFileMeteopointDownload_triggered()
+void MainWindow::on_actionFileMeteopointArkimetDownload_triggered()
 {
     if(myProject.nrMeteoPoints == 0)
     {
@@ -3835,7 +3835,7 @@ void MainWindow::on_actionFileMeteogridExportRaster_triggered()
 }
 
 
-void MainWindow::on_actionUpdate_properties_triggered()
+void MainWindow::on_actionFileMeteopointArkimetUpdatePointProperties_triggered()
 {
     if (! myProject.meteoPointsDbHandler)
     {
@@ -4035,7 +4035,7 @@ void MainWindow::on_actionUpdate_properties_triggered()
 }
 
 
-void MainWindow::on_actionUpdate_meteo_points_triggered()
+void MainWindow::on_actionFileMeteopointArkimetUpdateMeteopoints_triggered()
 {
     if (! myProject.meteoPointsDbHandler)
     {
@@ -4109,7 +4109,7 @@ void MainWindow::on_actionUpdate_meteo_points_triggered()
     return;
 }
 
-void MainWindow::on_actionUpdate_datasets_triggered()
+void MainWindow::on_actionFileMeteopointArkimetUpdateDatasets_triggered()
 {
     if (! myProject.meteoPointsDbHandler)
     {
@@ -5132,3 +5132,5 @@ void MainWindow::computeDailyFromHourly_MeteoPoints(const QList<std::string>& id
     myProject.loadMeteoPointsData(currentDate, currentDate, true, true, true);
     redrawMeteoPoints(currentPointsVisualization, true);
 }
+
+

@@ -45,7 +45,11 @@
         void on_actionFileMeteopointNewArkimet_triggered();
         void on_actionFileMeteopointOpen_triggered();
         void on_actionFileMeteopointClose_triggered();
-        void on_actionFileMeteopointDownload_triggered();
+        // File --> Meteopoint --> Arkimet
+        void on_actionFileMeteopointArkimetDownload_triggered();
+        void on_actionFileMeteopointArkimetUpdatePointProperties_triggered();
+        void on_actionFileMeteopointArkimetUpdateMeteopoints_triggered();
+        void on_actionFileMeteopointArkimetUpdateDatasets_triggered();
 
         void on_actionShowPointsHide_triggered();
         void on_actionShowPointsLocation_triggered();
@@ -186,12 +190,6 @@
         void on_actionNewMeteoGrid_triggered();
 
         void on_actionFileMeteogridExportRaster_triggered();
-
-        void on_actionUpdate_properties_triggered();
-
-        void on_actionUpdate_meteo_points_triggered();
-
-        void on_actionUpdate_datasets_triggered();
 
         void on_actionPointStyleCircle_triggered();
 
