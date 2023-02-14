@@ -1890,9 +1890,9 @@ void MainWindow::on_actionElaboration_triggered()
 
 }
 
+
 void MainWindow::on_actionAnomaly_triggered()
 {
-
     if (!ui->meteoPoints->isChecked() && !ui->grid->isChecked())
     {
         myProject.errorString = "Load meteo Points or grid";
@@ -2036,6 +2036,7 @@ void MainWindow::on_actionClimateFields_triggered()
 
 void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool isAnomaly, bool isAnomalyPerc, bool isClima, QString index)
 {
+    float value;
 
     if (isMeteoGrid)
     {
@@ -2105,30 +2106,29 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
                 // hide all meteo points
                 pointList[i]->setVisible(false);
 
-                float v = myProject.meteoPoints[i].currentValue;
-
-                if (int(v) != NODATA)
+                value = myProject.meteoPoints[i].currentValue;
+                if (! isEqual(value, NODATA))
                 {
-                    if (int(minimum) == NODATA)
+                    if (isEqual(minimum, NODATA))
                     {
-                        minimum = v;
-                        maximum = v;
+                        minimum = value;
+                        maximum = value;
                     }
-                    else if (v < minimum) minimum = v;
-                    else if (v > maximum) maximum = v;
+                    else
+                    {
+                        minimum = std::min(value, minimum);
+                        maximum = std::max(value, maximum);
+                    }
                 }
-
             }
             myProject.meteoPointsColorScale->setRange(minimum, maximum);
             roundColorScale(myProject.meteoPointsColorScale, 4, true);
             setColorScale(myProject.clima->variable(), myProject.meteoPointsColorScale);
         }
 
-
         Crit3DColor *myColor;
         for (int i = 0; i < myProject.nrMeteoPoints; i++)
         {
-
             if (!updateColorSCale)
             {
                 if (!isAnomaly)
@@ -2156,9 +2156,9 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
                 // hide all meteo points
                 pointList[i]->setVisible(false);
             }
+
             if (int(myProject.meteoPoints[i].currentValue) != NODATA)
             {
-
                 pointList[i]->setRadius(5);
                 myColor = myProject.meteoPointsColorScale->getColor(myProject.meteoPoints[i].currentValue);
                 pointList[i]->setFillColor(QColor(myColor->red, myColor->green, myColor->blue));
@@ -2170,7 +2170,6 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
         }
 
         meteoPointsLegend->update();
-
     }
 
 
@@ -2534,7 +2533,7 @@ void MainWindow::on_actionSpatialAggregationNewDB_triggered()
     QString rasterName = QFileDialog::getOpenFileName(this, tr("Open raster"), "", tr("files (*.flt)"));
     if (rasterName == "" || !rasterName.contains(".flt"))
     {
-        QMessageBox::information(nullptr, "No Raster ", "Load raster before");
+        myProject.logError("Load raster before.");
         return;
     }
     QFileInfo rasterFileInfo(rasterName);
@@ -2550,16 +2549,19 @@ void MainWindow::on_actionSpatialAggregationNewDB_triggered()
             myProject.logError("Copy raster failed: " + rasterName);
             return;
         }
-        QMessageBox::information(nullptr, "Copied", "Successfully completed");
     }
+
     if (!myProject.aggregationDbHandler->writeRasterName(rasterFileInfo.baseName()))
     {
-        myProject.logError("Writing raster name failed");
+        myProject.logError("Error in writing raster name into db.");
         return;
     }
+
+    myProject.logInfoGUI("New db successfully created.");
 }
 
-void MainWindow::redrawTitle()
+
+void MainWindow::drawWindowTitle()
 {
     QString title = "PRAGA";
     if (myProject.projectName != "")
@@ -2567,6 +2569,7 @@ void MainWindow::redrawTitle()
 
     this->setWindowTitle(title);
 }
+
 
 void MainWindow::drawProject()
 {
@@ -2578,7 +2581,7 @@ void MainWindow::drawProject()
     drawMeteoPoints();
     drawMeteoGrid();
 
-    redrawTitle();
+    drawWindowTitle();
 }
 
 void MainWindow::on_actionFileOpenProject_triggered()
@@ -2639,7 +2642,7 @@ void MainWindow::on_actionFileSaveProjectAs_triggered()
     myProjectDialog->exec();
     myProjectDialog->close();
 
-    redrawTitle();
+    drawWindowTitle();
     checkSaveProject();
 }
 
