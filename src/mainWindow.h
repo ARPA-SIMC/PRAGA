@@ -330,7 +330,7 @@
         void redrawMeteoGrid(visualizationType showType, bool showInterpolationResult);
         void redrawAllData();
         void drawProject();
-        void redrawTitle();
+        void drawWindowTitle();
 
         void checkSaveProject();
         void closeMeteoPoints();
