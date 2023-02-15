@@ -662,8 +662,10 @@ void MainWindow::on_actionFileMeteopointArkimetDownload_triggered()
 {
     if(myProject.nrMeteoPoints == 0)
     {
-         QMessageBox::information(nullptr, "DB not existing", "Create or Open a meteo points database before download");
+        QMessageBox::information(nullptr, "DB not existing", "Create or Open a meteo points database before download");
+        return;
     }
+
     DialogDownloadMeteoData downloadDialog;
     if (downloadDialog.result() != QDialog::Accepted)
     {
