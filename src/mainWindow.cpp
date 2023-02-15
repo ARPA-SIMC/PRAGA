@@ -4694,18 +4694,41 @@ void MainWindow::on_actionShow_InfoProject_triggered()
 
     QTextBrowser textBrowser;
 
-    textBrowser.setText(QString("Project: " + myProject.projectName));
-    textBrowser.append(QString("File Log: " + myProject.logFileName));
-    textBrowser.append(QString("Digital Elevation Model: " + myProject.demFileName));
-    textBrowser.append(QString("Parameters: " + myProject.parametersFileName));
+    if (myProject.projectName != "")
+    {
+        textBrowser.setText(QString("Project: " + myProject.projectName));
+        if (myProject.logFileName != "")
+        {
+            textBrowser.append(QString("File Log: " + myProject.getCompleteFileName(myProject.logFileName, myProject.getProjectPath())));
+        }
+        textBrowser.append(QString("Parameters: " + myProject.getCompleteFileName(myProject.parametersFileName, myProject.getProjectPath())));
+    }
+    else if (myProject.logFileName != "")
+    {
+        textBrowser.setText(QString("File Log: " + myProject.logFileName));
+        textBrowser.append(QString("Parameters: " + myProject.getCompleteFileName(myProject.parametersFileName, myProject.getProjectPath())));
+    }
+    else
+    {
+        textBrowser.setText(QString("Parameters: " + myProject.getCompleteFileName(myProject.parametersFileName, myProject.getProjectPath())));
+    }
 
     if (myProject.meteoPointsLoaded)
     {
-       textBrowser.append(QString("MeteoPoints DB: " + myProject.dbPointsFileName));
+       textBrowser.append(QString("MeteoPoints DB: " + myProject.getCompleteFileName(myProject.dbPointsFileName, myProject.getProjectPath())));
     }
     else
     {
         textBrowser.append(QString("MeteoPoints Db: No meteo points loaded"));
+    }
+
+    if (myProject.DEM.isLoaded)
+    {
+        textBrowser.append(QString("Digital Elevation Model: " + myProject.getCompleteFileName(myProject.demFileName, myProject.getProjectPath())));
+    }
+    else
+    {
+        textBrowser.append(QString("Digital Elevation Model: No DEM loaded"));
     }
 
     if (myProject.meteoGridLoaded && myProject.dbGridXMLFileName != "") // Questo controlla che il grid esista, per evitare che si blocchi Praga coi commandi successivi.
@@ -4724,9 +4747,7 @@ void MainWindow::on_actionShow_InfoProject_triggered()
     mainLayout.addWidget(&textBrowser);
 
     myDialog.setLayout(&mainLayout);
-    myDialog.setFixedSize(400,300);
+    myDialog.setFixedSize(700,300);
     myDialog.exec();
 }
 
-//risolvere le questioni di autenticazione per il push, guardando anche sui settings di github.
-//estrarre percorso assoluto degli archivi
