@@ -662,8 +662,10 @@ void MainWindow::on_actionFileMeteopointArkimetDownload_triggered()
 {
     if(myProject.nrMeteoPoints == 0)
     {
-         QMessageBox::information(nullptr, "DB not existing", "Create or Open a meteo points database before download");
+        QMessageBox::information(nullptr, "DB not existing", "Create or Open a meteo points database before download");
+        return;
     }
+
     DialogDownloadMeteoData downloadDialog;
     if (downloadDialog.result() != QDialog::Accepted)
     {
@@ -928,11 +930,13 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         if (! myProject.netCDF.isLoaded())
             return;
 
+        gis::Crit3DRasterGrid* netcdfRaster = myProject.netCDF.getRaster();
+
         switch(currentNetcdfVisualization)
         {
         case notShown:
         {
-            myProject.netCDF.dataGrid.setConstantValue(NODATA);
+            netcdfRaster->setConstantValue(NODATA);
             netcdfObj->setDrawBorders(false);
             netcdfLegend->setVisible(false);
             break;
@@ -940,7 +944,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
         case showLocation:
         {
-            myProject.netCDF.dataGrid.setConstantValue(NODATA);
+            netcdfRaster->setConstantValue(NODATA);
             netcdfObj->setDrawBorders(true);
             netcdfLegend->setVisible(false);
             break;
@@ -965,7 +969,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
             std::string errorStr;
             myProject.netCDF.extractVariableMap(currentNetcdfVariable, myTime, errorStr);
-            gis::updateMinMaxRasterGrid(&(myProject.netCDF.dataGrid));
+            gis::updateMinMaxRasterGrid(netcdfRaster);
 
             netcdfLegend->setVisible(true);
             netcdfLegend->update();
@@ -991,13 +995,15 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
         myProject.netCDF.readProperties(fileName.toStdString());
 
+        gis::Crit3DRasterGrid* netcdfRaster = myProject.netCDF.getRaster();
+
         if (myProject.netCDF.isLatLon || myProject.netCDF.isRotatedLatLon)
         {
-            netcdfObj->initializeLatLon(&(myProject.netCDF.dataGrid), myProject.gisSettings, myProject.netCDF.latLonHeader, true);
+            netcdfObj->initializeLatLon(netcdfRaster, myProject.gisSettings, myProject.netCDF.latLonHeader, true);
         }
         else
         {
-            netcdfObj->initializeUTM(&(myProject.netCDF.dataGrid), myProject.gisSettings, true);
+            netcdfObj->initializeUTM(netcdfRaster, myProject.gisSettings, true);
         }
 
         // resize map
@@ -1008,12 +1014,12 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         gis::Crit3DGeoPoint* center = netcdfObj->getRasterCenter();
         this->mapView->centerOn(qreal(center->longitude), qreal(center->latitude));
 
-        myProject.netCDF.dataGrid.setConstantValue(NODATA);
+        netcdfRaster->setConstantValue(NODATA);
         currentNetcdfVisualization = showLocation;
 
         // default colorScale: air temperature
-        setColorScale(airTemperature, myProject.netCDF.dataGrid.colorScale);
-        netcdfLegend->colorScale = myProject.netCDF.dataGrid.colorScale;
+        setColorScale(airTemperature, netcdfRaster->colorScale);
+        netcdfLegend->colorScale = netcdfRaster->colorScale;
 
         showNetcdfGroup->setEnabled(true);
         ui->groupBoxNetcdf->setVisible(true);
