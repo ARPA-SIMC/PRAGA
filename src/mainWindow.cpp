@@ -1238,7 +1238,8 @@ void MainWindow::drawMeteoPoints()
     if (! myProject.meteoPointsLoaded || myProject.nrMeteoPoints == 0) return;
     addMeteoPoints();
 
-    myProject.loadMeteoPointsData (myProject.getCurrentDate(), myProject.getCurrentDate(), true, true, true);
+    QDate currentDate = myProject.getCurrentDate();
+    myProject.loadMeteoPointsData (currentDate, currentDate, true, true, true);
 
     ui->meteoPoints->setEnabled(true);
     ui->meteoPoints->setChecked(true);
