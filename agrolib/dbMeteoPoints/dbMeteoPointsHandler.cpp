@@ -546,7 +546,6 @@ bool Crit3DMeteoPointsDbHandler::loadDailyData(Crit3DDate dateStart, Crit3DDate 
 
 bool Crit3DMeteoPointsDbHandler::loadHourlyData(Crit3DDate dateStart, Crit3DDate dateEnd, Crit3DMeteoPoint *meteoPoint)
 {
-    QString dateStr;
     meteoVariable variable;
     int idVar;
     float value;
@@ -1386,7 +1385,8 @@ bool Crit3DMeteoPointsDbHandler::importHourlyMeteoData(QString csvFileName, bool
         qry.prepare(queryStr);
         if (! qry.exec())
         {
-            *log += "\nError in execute query: " + qry.lastError().text();
+            *log += "\nError in execute query: " + qry.lastError().text() +"\n";
+            *log += "Maybe there are missing or wrong data values.";
             return false;
         }
     }

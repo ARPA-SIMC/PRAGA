@@ -32,6 +32,7 @@
 #include "dialogAddMissingStation.h"
 #include "dialogAddRemoveDataset.h"
 #include "dialogShiftData.h"
+#include "dialogComputeData.h"
 #include "meteoWidget.h"
 
 
@@ -52,15 +53,19 @@ MainWindow::MainWindow(QWidget *parent) :
     this->mapScene = new MapGraphicsScene(this);
     this->mapView = new MapGraphicsView(mapScene, this->ui->widgetMap);
 
+    // set color legends
+    this->meteoPointsLegend = new ColorLegend(this->ui->widgetColorLegendPoints);
+    this->meteoPointsLegend->resize(this->ui->widgetColorLegendPoints->size());
+    this->meteoPointsLegend->colorScale = myProject.meteoPointsColorScale;
+
     this->rasterLegend = new ColorLegend(this->ui->widgetColorLegendRaster);
     this->rasterLegend->resize(this->ui->widgetColorLegendRaster->size());
 
     this->meteoGridLegend = new ColorLegend(this->ui->widgetColorLegendGrid);
     this->meteoGridLegend->resize(this->ui->widgetColorLegendGrid->size());
 
-    this->meteoPointsLegend = new ColorLegend(this->ui->widgetColorLegendPoints);
-    this->meteoPointsLegend->resize(this->ui->widgetColorLegendPoints->size());
-    this->meteoPointsLegend->colorScale = myProject.meteoPointsColorScale;
+    this->netcdfLegend = new ColorLegend(this->ui->widgetColorLegendNetcdf);
+    this->netcdfLegend->resize(this->ui->widgetColorLegendNetcdf->size());
 
     // Set tiles source
     this->setTileSource(WebTileSource::OPEN_STREET_MAP);
@@ -74,20 +79,26 @@ MainWindow::MainWindow(QWidget *parent) :
     // Set raster objects
     this->rasterObj = new RasterObject(this->mapView);
     this->meteoGridObj = new RasterObject(this->mapView);
+    this->netcdfObj = new RasterObject(this->mapView);
+    this->netcdfObj->setNetCDF(true);
 
+    // set opacity
     this->rasterObj->setOpacity(this->ui->rasterOpacitySlider->value() / 100.0);
     this->meteoGridObj->setOpacity(this->ui->meteoGridOpacitySlider->value() / 100.0);
+    this->netcdfObj->setOpacity(this->ui->netcdfOpacitySlider->value() / 100.0);
 
+    // set color legend
     this->rasterObj->setColorLegend(this->rasterLegend);
     this->meteoGridObj->setColorLegend(this->meteoGridLegend);
+    this->netcdfObj->setColorLegend(this->netcdfLegend);
 
+    // add raster objects
     this->mapView->scene()->addObject(this->rasterObj);
     this->mapView->scene()->addObject(this->meteoGridObj);
+    this->mapView->scene()->addObject(this->netcdfObj);
+
     connect(this->mapView, SIGNAL(zoomLevelChanged(quint8)), this, SLOT(updateMaps()));
     connect(this->mapView, SIGNAL(mouseMoveSignal(const QPoint&)), this, SLOT(mouseMove(const QPoint&)));
-
-    this->updateVariable();
-    this->updateDateTime();
 
     KeyboardFilter *keyboardFilter = new KeyboardFilter();
     this->ui->dateEdit->installEventFilter(keyboardFilter);
@@ -123,23 +134,47 @@ MainWindow::MainWindow(QWidget *parent) :
     showGridGroup->setEnabled(false);
     this->ui->menuShowGridAnomaly->setEnabled(false);
 
+    showNetcdfGroup = new QActionGroup(this);
+    showNetcdfGroup->setExclusive(true);
+    showNetcdfGroup->addAction(this->ui->actionShowNetcdfHide);
+    showNetcdfGroup->addAction(this->ui->actionShowNetcdfLocation);
+    showNetcdfGroup->addAction(this->ui->actionShowNetcdfVariable);
+
+    showNetcdfGroup->setEnabled(false);
+
     this->currentPointsVisualization = notShown;
     this->currentGridVisualization = notShown;
+    this->currentNetcdfVisualization = notShown;
     this->viewNotActivePoints = false;
+    this->currentNetcdfVariable = NODATA;
+
+    ui->groupBoxElab->hide();
+    ui->groupBoxNetcdf->hide();
+
+    this->updateVariable();
+    this->updateDateTime();
 
     this->setWindowTitle("PRAGA");
 
-    ui->groupBoxElab->hide();
+    #ifndef NETCDF
+        ui->menuFileNetCDF->setEnabled(false);
+    #endif
+
     this->showMaximized();
 }
+
 
 MainWindow::~MainWindow()
 {
     delete rasterObj;
     delete meteoGridObj;
+    delete netcdfObj;
+
+    delete meteoPointsLegend;
     delete rasterLegend;
     delete meteoGridLegend;
-    delete meteoPointsLegend;
+    delete netcdfLegend;
+
     delete mapView;
     delete mapScene;
     delete ui;
@@ -154,7 +189,29 @@ bool KeyboardFilter::eventFilter(QObject* obj, QEvent* event)
     }
 }
 
+
 // SLOT
+void MainWindow::keyPressEvent(QKeyEvent * event)
+{
+    try
+    {
+        // zoom in/out
+        if( event->key() == Qt::Key_Plus)
+        {
+            this->mapView->zoomIn();
+        }
+        else if( event->key() == Qt::Key_Minus)
+        {
+            this->mapView->zoomOut();
+        }
+    }
+    catch (...)
+    {
+        QMessageBox::information(nullptr, "WARNING", "Exception catch in keyPressEvent.");
+    }
+}
+
+
 void MainWindow::mouseMove(const QPoint& mapPos)
 {
     if (! isInsideMap(mapPos)) return;
@@ -169,14 +226,23 @@ void MainWindow::mouseMove(const QPoint& mapPos)
 
     Position geoPos = this->mapView->mapToScene(mapPos);
     QString status = "Lat:" + QString::number(geoPos.latitude())
-                   + " Lon:" + QString::number(geoPos.longitude());
+                   + " - Lon:" + QString::number(geoPos.longitude());
 
+    gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
+
+    // raster
     float value = NODATA;
-    if (meteoGridObj->isLoaded && currentGridVisualization != notShown && !meteoGridObj->isNetCDF())
+    if (rasterObj->isLoaded && rasterObj->visible())
+    {
+        value = rasterObj->getValue(geoPoint);
+        if (!isEqual(value, NODATA))
+            status += " - Raster: " + QString::number(double(value),'f',1);
+    }
+
+    // meteoGrid
+    if (meteoGridObj->isLoaded && currentGridVisualization != notShown)
     {
         int row, col;
-        gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
-
         if (meteoGridObj->getRowCol(geoPoint, &row, &col) &&
             myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
         {
@@ -210,24 +276,24 @@ void MainWindow::mouseMove(const QPoint& mapPos)
                 }
             }
 
-            status += " Grid cell:" + QString::fromStdString(id + " " + name);
+            status += " - Grid cell:" + QString::fromStdString(id + " " + name);
             if (!isEqual(value, NODATA))
             {
-                std::stringstream stream;
-                stream << std::fixed << std::setprecision(2) << value;
-                status += " Value:" + QString::fromStdString(stream.str());
+                status += " Value: " + QString::number(double(value), 'f', 2);
             }
         }
     }
-    else
+
+#ifdef NETCDF
+    if (myProject.netCDF.isLoaded() && currentNetcdfVisualization == showCurrentVariable)
     {
-        if (rasterObj->isLoaded && rasterObj->visible())
+        value = netcdfObj->getValue(geoPoint);
+        if (!isEqual(value, NODATA))
         {
-            value = rasterObj->getValue(geoPos);
-            if (!isEqual(value, NODATA))
-                status += " Raster:" + QString::number(double(value),'f',1);
+            status += " - NetCDF value: " + QString::number(double(value), 'f', 1);
         }
     }
+#endif
 
     this->ui->statusBar->showMessage(status);
 }
@@ -237,7 +303,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event)
 
-    ui->widgetMap->setGeometry(ui->widgetMap->x(), 0, this->width() - ui->widgetMap->x(), this->height() - 42);
+    ui->widgetMap->setGeometry(ui->widgetMap->x(), 0, this->width() - ui->widgetMap->x(), this->height() - 45);
     mapView->resize(ui->widgetMap->size());
 }
 
@@ -325,21 +391,28 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
 }
 
 
-// zoom
+// zoom in/out
 void MainWindow::mouseDoubleClickEvent(QMouseEvent * event)
 {
     QPoint mapPos = getMapPos(event->pos());
-    if (! isInsideMap(mapPos)) return;
+    if (! isInsideMap(mapPos))
+        return;
 
     Position newCenter = this->mapView->mapToScene(mapPos);
-    this->ui->statusBar->showMessage(QString::number(newCenter.latitude()) + " " + QString::number(newCenter.longitude()));
 
-    if (event->button() == Qt::LeftButton)
-        this->mapView->zoomIn();
-    else
-        this->mapView->zoomOut();
+    try
+    {
+        if (event->button() == Qt::LeftButton)
+            this->mapView->zoomIn();
+        else
+            this->mapView->zoomOut();
 
-    this->mapView->centerOn(newCenter.lonLat());
+        this->mapView->centerOn(newCenter.lonLat());
+    }
+    catch (...)
+    {
+        QMessageBox::information(nullptr, "WARNING", "Exception catch in mouseDoubleClickEvent");
+    }
 }
 
 
@@ -362,63 +435,65 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         }
 
         // GRID - context menu
-        if (meteoGridObj->isLoaded)
+        if (meteoGridObj->isLoaded && currentGridVisualization != notShown)
         {
             Position geoPos = mapView->mapToScene(mapPos);
             gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
 
-            #ifdef NETCDF
-            if (myProject.netCDF.isLoaded())
-            {
-                netCDF_exportDataSeries(geoPoint);
-                return;
-            }
-            #endif
-
             int row, col;
-            if (! meteoGridObj->getRowCol(geoPoint, &row, &col))
-                return;
-
-            std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
-            std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
-
-            if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
+            if (meteoGridObj->getRowCol(geoPoint, &row, &col))
             {
-                QMenu menu;
-                QAction *openMeteoWidget = menu.addAction("Open new meteo widget");
-                QAction *appendMeteoWidget = menu.addAction("Append to last meteo widget");
-                QAction *openPointStatisticsWidget = menu.addAction("Open point statistics widget");
+                std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->id;
+                std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->name;
 
-                if (myProject.meteoGridDbHandler->meteoGrid()->gridStructure().isEnsemble())
+                if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->active)
                 {
-                    appendMeteoWidget->setEnabled(false);
-                }
-                else
-                {
-                    appendMeteoWidget->setEnabled(true);
-                }
+                    QMenu menu;
+                    QAction *openMeteoWidget = menu.addAction("Open new meteo widget");
+                    QAction *appendMeteoWidget = menu.addAction("Append to last meteo widget");
+                    QAction *openPointStatisticsWidget = menu.addAction("Open point statistics widget");
 
-                QAction *selection =  menu.exec(QCursor::pos());
+                    if (myProject.meteoGridDbHandler->meteoGrid()->gridStructure().isEnsemble())
+                    {
+                        appendMeteoWidget->setEnabled(false);
+                    }
+                    else
+                    {
+                        appendMeteoWidget->setEnabled(true);
+                    }
 
-                if (selection != nullptr)
-                {
-                    if (selection == openMeteoWidget)
-                    {
-                        myProject.showMeteoWidgetGrid(id, false);
-                    }
-                    if (selection == appendMeteoWidget)
-                    {
-                        myProject.showMeteoWidgetGrid(id, true);
-                    }
-                    else if (selection == openPointStatisticsWidget)
-                    {
-                        myProject.showPointStatisticsWidgetGrid(id);
-                    }
-                    // TODO: other actions
+                    QAction *selection =  menu.exec(QCursor::pos());
 
+                    if (selection != nullptr)
+                    {
+                        if (selection == openMeteoWidget)
+                        {
+                            myProject.showMeteoWidgetGrid(id, false);
+                        }
+                        if (selection == appendMeteoWidget)
+                        {
+                            myProject.showMeteoWidgetGrid(id, true);
+                        }
+                        else if (selection == openPointStatisticsWidget)
+                        {
+                            myProject.showPointStatisticsWidgetGrid(id);
+                        }
+                        // TODO: other actions
+
+                    }
                 }
             }
         }
+#ifdef NETCDF
+        else if (myProject.netCDF.isLoaded())
+        {
+            Position geoPos = mapView->mapToScene(mapPos);
+            gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
+
+            netCDF_exportDataSeries(geoPoint);
+            return;
+        }
+#endif
     }
 }
 
@@ -432,6 +507,12 @@ void MainWindow::on_rasterOpacitySlider_sliderMoved(int position)
 void MainWindow::on_meteoGridOpacitySlider_sliderMoved(int position)
 {
     this->meteoGridObj->setOpacity(position / 100.0);
+}
+
+
+void MainWindow::on_netcdfOpacitySlider_sliderMoved(int position)
+{
+    this->netcdfObj->setOpacity(position / 100.0);
 }
 
 
@@ -462,20 +543,22 @@ void MainWindow::updateMaps()
     {
         rasterObj->updateCenter();
         meteoGridObj->updateCenter();
+        netcdfObj->updateCenter();
+
         rasterLegend->update();
         meteoGridLegend->update();
+        netcdfLegend->update();
     }
-
-    catch (std::invalid_argument& e)
+    catch (...)
     {
-        QMessageBox::information(nullptr, "ERROR", QString::fromStdString(e.what()));
+        QMessageBox::information(nullptr, "WARNING", "Exception catch in updateMaps function.");
     }
 }
 
 void MainWindow::clearDEM()
 {
     this->rasterObj->clear();
-    this->rasterObj->redrawRequested();
+    emit this->rasterObj->redrawRequested();
     this->rasterLegend->setVisible(false);
     ui->labelRasterScale->setText("");
     this->ui->rasterOpacitySlider->setEnabled(false);
@@ -575,7 +658,7 @@ void MainWindow::disableAllButton(bool toggled)
     }
 }
 
-void MainWindow::on_actionFileMeteopointDownload_triggered()
+void MainWindow::on_actionFileMeteopointArkimetDownload_triggered()
 {
     if(myProject.nrMeteoPoints == 0)
     {
@@ -799,6 +882,17 @@ void MainWindow::updateDateTime()
     this->ui->timeEdit->setValue(myHour);
 }
 
+
+void MainWindow::redrawAllData()
+{
+    redrawMeteoPoints(currentPointsVisualization, true);
+    redrawMeteoGrid(currentGridVisualization, false);
+    #ifdef NETCDF
+        redrawNetcdf();
+    #endif
+}
+
+
 void MainWindow::on_dateChanged()
 {
     QDate date = this->ui->dateEdit->date();
@@ -808,10 +902,9 @@ void MainWindow::on_dateChanged()
         myProject.loadMeteoPointsData(date, date, true, true, true);
         myProject.loadMeteoGridData(date, date, true);
         myProject.setCurrentDate(date);
-    }
 
-    redrawMeteoPoints(currentPointsVisualization, true);
-    redrawMeteoGrid(currentGridVisualization, false);
+        redrawAllData();
+    }
 }
 
 void MainWindow::on_timeEdit_valueChanged(int myHour)
@@ -819,23 +912,80 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
     if (myHour != myProject.getCurrentHour())
     {
         myProject.setCurrentHour(myHour);
-    }
 
-    frequencyType frequency = myProject.getCurrentFrequency();
-    if (frequency == hourly)
-    {
-        redrawMeteoPoints(currentPointsVisualization, true);
-        redrawMeteoGrid(currentGridVisualization, false);
+        if (myProject.getCurrentFrequency() == hourly)
+        {
+            redrawAllData();
+        }
     }
 }
 
 
 #ifdef NETCDF
 
+    void MainWindow::redrawNetcdf()
+    {
+        if (! myProject.netCDF.isLoaded())
+            return;
+
+        switch(currentNetcdfVisualization)
+        {
+        case notShown:
+        {
+            myProject.netCDF.dataGrid.setConstantValue(NODATA);
+            netcdfObj->setDrawBorders(false);
+            netcdfLegend->setVisible(false);
+            break;
+        }
+
+        case showLocation:
+        {
+            myProject.netCDF.dataGrid.setConstantValue(NODATA);
+            netcdfObj->setDrawBorders(true);
+            netcdfLegend->setVisible(false);
+            break;
+        }
+
+        case showCurrentVariable:
+        {
+            netcdfObj->setDrawBorders(false);
+
+            if (currentNetcdfVariable == NODATA)
+            {
+                netcdfLegend->setVisible(false);
+                ui->labelNetcdfVariable->setText("");
+                return;
+            }
+
+            Crit3DTime myTime = myProject.getCrit3DCurrentTime();
+            if (myProject.getCurrentFrequency() == daily)
+            {
+                myTime = getCrit3DTime(myProject.getCurrentDate(), 0);
+            }
+
+            std::string errorStr;
+            myProject.netCDF.extractVariableMap(currentNetcdfVariable, myTime, errorStr);
+            gis::updateMinMaxRasterGrid(&(myProject.netCDF.dataGrid));
+
+            netcdfLegend->setVisible(true);
+            netcdfLegend->update();
+
+            break;
+        }
+        default: { }
+        }
+
+        netcdfObj->updateCenter();
+        emit netcdfObj->redrawRequested();
+    }
+
+
     void MainWindow::on_actionNetCDF_Open_triggered()
     {
         QString fileName = QFileDialog::getOpenFileName(this, "Open NetCDF data", "", "NetCDF files (*.nc)");
         if (fileName == "") return;
+
+        closeNetCDF();
 
         myProject.netCDF.initialize(myProject.gisSettings.utmZone);
 
@@ -843,26 +993,33 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
         if (myProject.netCDF.isLatLon || myProject.netCDF.isRotatedLatLon)
         {
-            meteoGridObj->initializeLatLon(&(myProject.netCDF.dataGrid), myProject.gisSettings, myProject.netCDF.latLonHeader, true);
+            netcdfObj->initializeLatLon(&(myProject.netCDF.dataGrid), myProject.gisSettings, myProject.netCDF.latLonHeader, true);
         }
         else
         {
-            meteoGridObj->initializeUTM(&(myProject.netCDF.dataGrid), myProject.gisSettings, true);
+            netcdfObj->initializeUTM(&(myProject.netCDF.dataGrid), myProject.gisSettings, true);
         }
 
-        meteoGridObj->setNetCDF(true);
-
         // resize map
-        double size = log2(1000 / double(meteoGridObj->getRasterMaxSize()));
+        double size = log2(2000 / double(netcdfObj->getRasterMaxSize()));
         this->mapView->setZoomLevel(quint8(size));
 
         // center map
-        gis::Crit3DGeoPoint* center = meteoGridObj->getRasterCenter();
+        gis::Crit3DGeoPoint* center = netcdfObj->getRasterCenter();
         this->mapView->centerOn(qreal(center->longitude), qreal(center->latitude));
 
-        myProject.netCDF.dataGrid.setConstantValue(0);
+        myProject.netCDF.dataGrid.setConstantValue(NODATA);
+        currentNetcdfVisualization = showLocation;
 
-        updateMaps();
+        // default colorScale: air temperature
+        setColorScale(airTemperature, myProject.netCDF.dataGrid.colorScale);
+        netcdfLegend->colorScale = myProject.netCDF.dataGrid.colorScale;
+
+        showNetcdfGroup->setEnabled(true);
+        ui->groupBoxNetcdf->setVisible(true);
+        netcdfObj->setVisible(true);
+
+        redrawNetcdf();
     }
 
 
@@ -871,10 +1028,16 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         if (! myProject.netCDF.isLoaded()) return;
 
         myProject.netCDF.close();
-        meteoGridObj->clear();
-        meteoGridObj->redrawRequested();
-        meteoGridLegend->setVisible(false);
+        currentNetcdfVariable = NODATA;
+        ui->labelNetcdfVariable->setText("");
+
+        netcdfObj->clear();
+
+        netcdfObj->setVisible(false);
+        ui->groupBoxNetcdf->setVisible(false);
+        showNetcdfGroup->setEnabled(false);
     }
+
 
     void MainWindow::on_actionNetCDF_Close_triggered()
     {
@@ -903,6 +1066,22 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         myDialog.exec();
     }
 
+
+    void MainWindow::on_netCDFButtonVariable_clicked()
+    {
+        int idVar;
+        std::string errorStr;
+
+        if (netCDF_ChooseVariable(&(myProject.netCDF), idVar, myProject.getCurrentFrequency()))
+        {
+            currentNetcdfVariable = idVar;
+            currentNetcdfVisualization = showCurrentVariable;
+            ui->labelNetcdfVariable->setText(QString::fromStdString(myProject.netCDF.getVariableFromId(idVar).getVarName()));
+            redrawNetcdf();
+        }
+    }
+
+
     // extract data series
     void MainWindow::netCDF_exportDataSeries(gis::Crit3DGeoPoint geoPoint)
     {
@@ -911,7 +1090,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
             int idVar;
             QDateTime firstTime, lastTime;
 
-            if (chooseNetCDFVariable(&(myProject.netCDF), &idVar, &firstTime, &lastTime))
+            if (netCDF_ExportDataSeries(&(myProject.netCDF), idVar, firstTime, lastTime))
             {
                 std::stringstream buffer;
                 if (! myProject.netCDF.exportDataSeries(idVar, geoPoint, getCrit3DTime(firstTime), getCrit3DTime(lastTime), &buffer))
@@ -940,6 +1119,108 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         }
     }
 
+    void MainWindow::on_actionShowNetcdfHide_triggered()
+    {
+        ui->actionShowNetcdfHide->setChecked(true);
+        currentNetcdfVisualization = notShown;
+        redrawNetcdf();
+    }
+
+    void MainWindow::on_actionShowNetcdfLocation_triggered()
+    {
+        ui->actionShowNetcdfLocation->setChecked(true);
+        currentNetcdfVisualization = showLocation;
+        redrawNetcdf();
+    }
+
+    void MainWindow::on_actionShowNetcdfVariable_triggered()
+    {
+        ui->actionShowNetcdfVariable->setChecked(true);
+        currentNetcdfVisualization = showCurrentVariable;
+        redrawNetcdf();
+    }
+
+    void MainWindow::on_actionNetcdf_ColorScale_SetType_triggered()
+    {
+        if (! myProject.netCDF.isLoaded())
+        {
+            QMessageBox::information(nullptr, "No NetCDF", "Open NetCDF file before.");
+            return;
+        }
+
+        // choose color scale
+        meteoVariable myVar = chooseColorScale();
+        if (myVar != noMeteoVar)
+        {
+            setColorScale(myVar, this->netcdfObj->getRaster()->colorScale);
+        }
+
+        redrawNetcdf();
+    }
+
+
+    void MainWindow::on_actionNetcdf_ColorScale_Reverse_triggered()
+    {
+        if (! myProject.netCDF.isLoaded())
+        {
+            QMessageBox::information(nullptr, "No NetCDF", "Open NetCDF file before.");
+            return;
+        }
+
+        reverseColorScale(this->netcdfObj->getRaster()->colorScale);
+        redrawNetcdf();
+    }
+
+
+    void MainWindow::setColorScaleRangeNetcdf(bool isFixed)
+    {
+        if (! myProject.netCDF.isLoaded())
+        {
+            QMessageBox::information(nullptr, "No NetCDF", "Open NetCDF file before.");
+            return;
+        }
+
+        if (isFixed)
+        {
+            // choose minimum
+            float minimum = this->netcdfObj->getRaster()->colorScale->minimum();
+            QString valueStr = editValue("Choose minimum value", QString::number(minimum));
+            if (valueStr == "") return;
+            minimum = valueStr.toFloat();
+
+            // choose maximum
+            float maximum = this->netcdfObj->getRaster()->colorScale->maximum();
+            valueStr = editValue("Choose maximum value", QString::number(maximum));
+            if (valueStr == "") return;
+            maximum = valueStr.toFloat();
+
+            // set range
+            this->netcdfObj->getRaster()->colorScale->setRange(minimum, maximum);
+            this->netcdfObj->getRaster()->colorScale->setRangeBlocked(true);
+        }
+        else
+        {
+            this->netcdfObj->getRaster()->colorScale->setRangeBlocked(false);
+        }
+
+        redrawNetcdf();
+    }
+
+
+    void MainWindow::on_actionNetcdf_ColorScale_Fixed_triggered()
+    {
+        ui->actionNetcdf_ColorScale_Fixed->setChecked(true);
+        ui->actionNetcdf_ColorScale_RangeVariable->setChecked(false);
+        setColorScaleRangeNetcdf(true);
+    }
+
+
+    void MainWindow::on_actionNetcdf_ColorScale_RangeVariable_triggered()
+    {
+        ui->actionNetcdf_ColorScale_RangeVariable->setChecked(true);
+        ui->actionNetcdf_ColorScale_Fixed->setChecked(false);
+        setColorScaleRangeNetcdf(false);
+    }
 #endif
 
 
@@ -970,6 +1251,7 @@ void MainWindow::drawMeteoPoints()
     ui->menuDelete_data->setEnabled(true);
     ui->menuShift_data->setEnabled(true);
     ui->actionMeteopointDataCount->setEnabled(true);
+    ui->menuCompute_daily_data_from_hourly->setEnabled(true);
 
     ui->grid->setChecked(false);
 
@@ -1104,7 +1386,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
             Crit3DColor *myColor;
             for (int i = 0; i < myProject.nrMeteoPoints; i++)
             {
-                if (int(myProject.meteoPoints[i].currentValue) != NODATA)
+                if (int(myProject.meteoPoints[i].currentValue) != NODATA || myProject.meteoPoints[i].marked)
                 {
                     if (myProject.meteoPoints[i].quality == quality::accepted)
                     {
@@ -1115,7 +1397,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                         if (isWindVector)
                             drawWindVector(i);
                     }
-                    else
+                    else if (! myProject.meteoPoints[i].marked)
                     {
                         // Wrong data
                         pointList[i]->setRadius(10);
@@ -1128,7 +1410,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                     pointList[i]->setToolTip();
 
                     // hide not active points
-                    bool isVisible = (myProject.meteoPoints[i].active || viewNotActivePoints);
+                    bool isVisible = (myProject.meteoPoints[i].active || viewNotActivePoints || myProject.meteoPoints[i].marked);
                     pointList[i]->setVisible(isVisible);
                 }
             }
@@ -1183,9 +1465,9 @@ bool MainWindow::loadMeteoPoints(QString dbName)
         return false;
 }
 
+
 void MainWindow::drawMeteoGrid()
 {
-
     if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr) return;
 
     myProject.meteoGridDbHandler->meteoGrid()->createRasterGrid();
@@ -1212,6 +1494,7 @@ void MainWindow::drawMeteoGrid()
     this->ui->grid->setChecked(true);
     showGridGroup->setEnabled(true);
     this->ui->menuActive_cells->setEnabled(true);
+    this->ui->actionCompute_monthly_data_from_daily->setEnabled(true);
     if (myProject.getCurrentVariable() != noMeteoVar && myProject.getCurrentFrequency() != noFrequency)
     {
         this->ui->actionShowGridCurrent->setEnabled(true);
@@ -1236,11 +1519,8 @@ void MainWindow::drawMeteoGrid()
     redrawMeteoGrid(currentGridVisualization, false);
 
     updateDateTime();
-
     updateMaps();
-
 }
-
 
 
 void MainWindow::redrawMeteoGrid(visualizationType showType, bool showInterpolationResult)
@@ -1337,26 +1617,12 @@ void MainWindow::redrawMeteoGrid(visualizationType showType, bool showInterpolat
         }
     }
 
-    /*
-    if (myProject.nrMeteoPoints != 0)
-    {
-        // hide all meteo points
-        for (int i = 0; i < myProject.nrMeteoPoints; i++)
-            pointList[i]->setVisible(false);
-        meteoPointsLegend->setVisible(false);
-        this->ui->actionShowPointsHide->setChecked(true);
-    }*/
-
     emit meteoGridObj->redrawRequested();
 }
 
 
 bool MainWindow::loadMeteoGrid(QString xmlName)
 {
-    #ifdef NETCDF
-        closeNetCDF();
-    #endif
-
     if (myProject.loadMeteoGridDB(xmlName))
     {
         drawMeteoGrid();
@@ -1372,10 +1638,6 @@ bool MainWindow::loadMeteoGrid(QString xmlName)
 
 bool MainWindow::newMeteoGrid(QString xmlName)
 {
-    #ifdef NETCDF
-        closeNetCDF();
-    #endif
-
     if (myProject.newMeteoGridDB(xmlName))
     {
         drawMeteoGrid();
@@ -1546,6 +1808,7 @@ void MainWindow::on_variableButton_clicked()
     }
 }
 
+
 void MainWindow::on_frequencyButton_clicked()
 {
    frequencyType myFrequency = chooseFrequency(&myProject);
@@ -1553,14 +1816,13 @@ void MainWindow::on_frequencyButton_clicked()
    if (myFrequency != noFrequency)
    {
        myProject.setCurrentFrequency(myFrequency);
-       this->updateVariable();
+       updateVariable();
 
        if (myProject.getCurrentVariable() != noMeteoVar)
        {
-           this->ui->actionShowPointsCurrent->setEnabled(true);
-           this->ui->actionShowGridCurrent->setEnabled(true);
-           redrawMeteoPoints(showCurrentVariable, true);
-           redrawMeteoGrid(showCurrentVariable, false);
+           ui->actionShowPointsCurrent->setEnabled(true);
+           ui->actionShowGridCurrent->setEnabled(true);
+           redrawAllData();
        }
    }
 }
@@ -1570,7 +1832,7 @@ void MainWindow::setCurrentRaster(gis::Crit3DRasterGrid *myRaster)
 {
     this->rasterObj->initializeUTM(myRaster, myProject.gisSettings, false);
     this->rasterLegend->colorScale = myRaster->colorScale;
-    this->rasterObj->redrawRequested();
+    emit this->rasterObj->redrawRequested();
 }
 
 
@@ -1580,9 +1842,9 @@ void MainWindow::on_dateEdit_dateChanged(const QDate &date)
     this->on_dateChanged();
 }
 
+
 void MainWindow::on_actionElaboration_triggered()
 {
-
     if (!ui->meteoPoints->isChecked() && !ui->grid->isChecked())
     {
         myProject.errorString = "Load meteo Points or grid";
@@ -1628,9 +1890,9 @@ void MainWindow::on_actionElaboration_triggered()
 
 }
 
+
 void MainWindow::on_actionAnomaly_triggered()
 {
-
     if (!ui->meteoPoints->isChecked() && !ui->grid->isChecked())
     {
         myProject.errorString = "Load meteo Points or grid";
@@ -1774,6 +2036,7 @@ void MainWindow::on_actionClimateFields_triggered()
 
 void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool isAnomaly, bool isAnomalyPerc, bool isClima, QString index)
 {
+    float value;
 
     if (isMeteoGrid)
     {
@@ -1843,30 +2106,29 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
                 // hide all meteo points
                 pointList[i]->setVisible(false);
 
-                float v = myProject.meteoPoints[i].currentValue;
-
-                if (int(v) != NODATA)
+                value = myProject.meteoPoints[i].currentValue;
+                if (! isEqual(value, NODATA))
                 {
-                    if (int(minimum) == NODATA)
+                    if (isEqual(minimum, NODATA))
                     {
-                        minimum = v;
-                        maximum = v;
+                        minimum = value;
+                        maximum = value;
                     }
-                    else if (v < minimum) minimum = v;
-                    else if (v > maximum) maximum = v;
+                    else
+                    {
+                        minimum = std::min(value, minimum);
+                        maximum = std::max(value, maximum);
+                    }
                 }
-
             }
             myProject.meteoPointsColorScale->setRange(minimum, maximum);
             roundColorScale(myProject.meteoPointsColorScale, 4, true);
             setColorScale(myProject.clima->variable(), myProject.meteoPointsColorScale);
         }
 
-
         Crit3DColor *myColor;
         for (int i = 0; i < myProject.nrMeteoPoints; i++)
         {
-
             if (!updateColorSCale)
             {
                 if (!isAnomaly)
@@ -1894,9 +2156,9 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
                 // hide all meteo points
                 pointList[i]->setVisible(false);
             }
+
             if (int(myProject.meteoPoints[i].currentValue) != NODATA)
             {
-
                 pointList[i]->setRadius(5);
                 myColor = myProject.meteoPointsColorScale->getColor(myProject.meteoPoints[i].currentValue);
                 pointList[i]->setFillColor(QColor(myColor->red, myColor->green, myColor->blue));
@@ -1908,7 +2170,6 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
         }
 
         meteoPointsLegend->update();
-
     }
 
 
@@ -2227,8 +2488,8 @@ bool MainWindow::openRaster(QString fileName, gis::Crit3DRasterGrid *myRaster)
 
         if (! gis::readEsriGrid(fnWithoutExt, myRaster, myError))
         {
-            qDebug("Load raster failed!");
-            return (false);
+            myProject.logError("Load raster failed!");
+            return false;
         }
         return true;
 }
@@ -2249,10 +2510,7 @@ void MainWindow::on_actionSpatialAggregationNewDB_triggered()
 
     QString dbName = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("DB files (*.db)"));
     if (dbName == "")
-    {
-        qDebug() << "missing new db file name";
         return;
-    }
 
     QFile dbFile(dbName);
     QFileInfo dbFileInfo(dbFile.fileName());
@@ -2275,7 +2533,7 @@ void MainWindow::on_actionSpatialAggregationNewDB_triggered()
     QString rasterName = QFileDialog::getOpenFileName(this, tr("Open raster"), "", tr("files (*.flt)"));
     if (rasterName == "" || !rasterName.contains(".flt"))
     {
-        QMessageBox::information(nullptr, "No Raster ", "Load raster before");
+        myProject.logError("Load raster before.");
         return;
     }
     QFileInfo rasterFileInfo(rasterName);
@@ -2291,16 +2549,19 @@ void MainWindow::on_actionSpatialAggregationNewDB_triggered()
             myProject.logError("Copy raster failed: " + rasterName);
             return;
         }
-        QMessageBox::information(nullptr, "Copied", "Successfully completed");
     }
+
     if (!myProject.aggregationDbHandler->writeRasterName(rasterFileInfo.baseName()))
     {
-        myProject.logError("Writing raster name failed");
+        myProject.logError("Error in writing raster name into db.");
         return;
     }
+
+    myProject.logInfoGUI("New db successfully created.");
 }
 
-void MainWindow::redrawTitle()
+
+void MainWindow::drawWindowTitle()
 {
     QString title = "PRAGA";
     if (myProject.projectName != "")
@@ -2308,6 +2569,7 @@ void MainWindow::redrawTitle()
 
     this->setWindowTitle(title);
 }
+
 
 void MainWindow::drawProject()
 {
@@ -2319,7 +2581,7 @@ void MainWindow::drawProject()
     drawMeteoPoints();
     drawMeteoGrid();
 
-    redrawTitle();
+    drawWindowTitle();
 }
 
 void MainWindow::on_actionFileOpenProject_triggered()
@@ -2356,16 +2618,17 @@ void MainWindow::on_actionFileCloseProject_triggered()
 {
     if (! myProject.isProjectLoaded) return;
 
-    on_actionFileMeteogridClose_triggered();
-    on_actionFileMeteopointClose_triggered();
-    this->ui->labelFrequency->setText("None");
-    this->ui->labelVariable->setText(("None"));
+    closeMeteoGrid();
+    closeMeteoPoints();
+
+    ui->labelFrequency->setText("None");
+    ui->labelVariable->setText(("None"));
     currentGridVisualization = showLocation;
     currentPointsVisualization = showLocation;
 
     clearDEM();
 
-    this->mapView->centerOn(startCenter->lonLat());
+    mapView->centerOn(startCenter->lonLat());
 
     if (! myProject.loadPragaProject(myProject.getApplicationPath() + "default.ini")) return;
 
@@ -2379,7 +2642,7 @@ void MainWindow::on_actionFileSaveProjectAs_triggered()
     myProjectDialog->exec();
     myProjectDialog->close();
 
-    redrawTitle();
+    drawWindowTitle();
     checkSaveProject();
 }
 
@@ -2459,7 +2722,7 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
 
     QList <meteoVariable> myVariables, aggrVariables;
     myVariables.push_back(myVar);
-    myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables, aggrVariables, false, 1);
+    myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables, aggrVariables, false, 1, NODATA);
 }
 
 
@@ -2491,12 +2754,11 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
 
             if (getUseDetrendingVar(myVar))
             {
-                int proxyNr = myProject.interpolationSettings.getProxyNr();
+                int proxyNr = int(myProject.interpolationSettings.getProxyNr());
                 if (proxyNr > 0)
                 {
                     cvOutput << std::endl << "Interpolation proxies" << std::endl;
                     Crit3DProxyCombination* proxyCombination = myProject.interpolationSettings.getCurrentCombination();
-                    std::string signif;
                     Crit3DProxy* myProxy;
                     for (int i=0; i < proxyNr; i++)
                     {
@@ -2550,10 +2812,7 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
 
     QString dbName = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("DB files (*.db)"));
     if (dbName == "")
-    {
-        qDebug() << "missing new db file name";
         return;
-    }
 
     QFile dbFile(dbName);
     if (dbFile.exists())
@@ -2698,33 +2957,30 @@ void MainWindow::on_actionFileMeteogridOpen_triggered()
 
 void MainWindow::closeMeteoGrid()
 {
-    if (myProject.meteoGridDbHandler != nullptr)
+    if (myProject.meteoGridLoaded)
     {
+        this->meteoGridObj->clear();
+        emit this->meteoGridObj->redrawRequested();
+        this->meteoGridLegend->setVisible(false);
 
-        if (myProject.meteoGridDbHandler != nullptr)
+        myProject.closeMeteoGridDB();
+
+        this->ui->groupBoxElab->hide();
+        this->ui->meteoGridOpacitySlider->setEnabled(false);
+
+        this->ui->grid->setChecked(false);
+        this->ui->grid->setEnabled(false);
+
+        this->showGridGroup->setEnabled(false);
+        this->ui->menuActive_cells->setEnabled(false);
+        this->ui->actionCompute_monthly_data_from_daily->setEnabled(false);
+        this->ui->menuShowGridAnomaly->setEnabled(false);
+
+        if (myProject.meteoPointsLoaded)
         {
-            myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.isLoaded = false;
-            meteoGridObj->clear();
-            meteoGridObj->redrawRequested();
-            meteoGridLegend->setVisible(false);
-            myProject.closeMeteoGridDB();
-            ui->groupBoxElab->hide();
-            ui->meteoGridOpacitySlider->setEnabled(false);
-
-            this->ui->grid->setChecked(false);
-            this->ui->grid->setEnabled(false);
-
-            showGridGroup->setEnabled(false);
-            this->ui->menuActive_cells->setEnabled(false);
-            this->ui->menuShowGridAnomaly->setEnabled(false);
-
-            if (myProject.meteoPointsDbHandler != nullptr)
-            {
-                this->ui->meteoPoints->setChecked(true);
-            }
+            this->ui->meteoPoints->setChecked(true);
         }
     }
-
 }
 
 
@@ -2732,7 +2988,6 @@ void MainWindow::on_actionFileMeteogridClose_triggered()
 {
     this->closeMeteoGrid();
 }
-
 
 
 void MainWindow::on_actionMeteopointDataCount_triggered()
@@ -2954,9 +3209,6 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
 }
 
 
-
-
-
 void MainWindow::on_actionPointProperties_import_triggered()
 {
     // check meteo point
@@ -2999,6 +3251,7 @@ void MainWindow::on_actionPointProperties_import_triggered()
         myProject.closeLogInfo();
     }
 }
+
 
 void MainWindow::on_actionPointData_import_triggered()
 {
@@ -3475,10 +3728,7 @@ void MainWindow::on_actionFileMeteopointNewCsv_triggered()
 
     QString dbName = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("DB files (*.db)"));
     if (dbName == "")
-    {
-        qDebug() << "missing new db file name";
         return;
-    }
 
     QFile dbFile(dbName);
     if (dbFile.exists())
@@ -3588,7 +3838,7 @@ void MainWindow::on_actionFileMeteogridExportRaster_triggered()
 }
 
 
-void MainWindow::on_actionUpdate_properties_triggered()
+void MainWindow::on_actionFileMeteopointArkimetUpdatePointProperties_triggered()
 {
     if (! myProject.meteoPointsDbHandler)
     {
@@ -3612,7 +3862,6 @@ void MainWindow::on_actionUpdate_properties_triggered()
     bool everythingUpdated = true;
     QList<QString> column;
     QList<QString> values;
-    QString infoPoint;
     bool update = false, updateAll = false;
 
     myProject.setProgressBar("Checking properties...", listMeteoPoints.size());
@@ -3789,7 +4038,7 @@ void MainWindow::on_actionUpdate_properties_triggered()
 }
 
 
-void MainWindow::on_actionUpdate_meteo_points_triggered()
+void MainWindow::on_actionFileMeteopointArkimetUpdateMeteopoints_triggered()
 {
     if (! myProject.meteoPointsDbHandler)
     {
@@ -3863,7 +4112,7 @@ void MainWindow::on_actionUpdate_meteo_points_triggered()
     return;
 }
 
-void MainWindow::on_actionUpdate_datasets_triggered()
+void MainWindow::on_actionFileMeteopointArkimetUpdateDatasets_triggered()
 {
     if (! myProject.meteoPointsDbHandler)
     {
@@ -4059,7 +4308,7 @@ void MainWindow::on_actionExport_current_data_triggered()
         QTextStream myStream (&myFile);
         myStream.setRealNumberNotation(QTextStream::FixedNotation);
         myStream.setRealNumberPrecision(1);
-        QString header = "id,name,dataset,state,region,province,municipality,lapse_rate_code,lat,lon,altitude,value";
+        QString header = "id,name,dataset,state,region,province,municipality,lapse_rate_code,lat,lon,utmx,utmy,altitude,value";
         myStream << header << "\n";
         for (int i = 0; i < myProject.nrMeteoPoints; i++)
         {
@@ -4075,6 +4324,8 @@ void MainWindow::on_actionExport_current_data_triggered()
                          << "," << QString::number(myProject.meteoPoints[i].lapseRateCode)
                          << "," << QString::number(myProject.meteoPoints[i].latitude)
                          << "," << QString::number(myProject.meteoPoints[i].longitude)
+                         << "," << QString::number(myProject.meteoPoints[i].point.utm.x)
+                         << "," << QString::number(myProject.meteoPoints[i].point.utm.y)
                          << "," << QString::number(myProject.meteoPoints[i].point.z)
                          << "," << QString::number(myProject.meteoPoints[i].currentValue) << "\n";
             }
@@ -4203,7 +4454,7 @@ void MainWindow::on_actionMeteoGrid_Reverse_color_scale_triggered()
 }
 
 
-void MainWindow::setColorScaleRange(bool isFixed)
+void MainWindow::setColorScaleRangeMeteoGrid(bool isFixed)
 {
     if (! checkMeteoGridColorScale()) return;
 
@@ -4237,14 +4488,14 @@ void MainWindow::setColorScaleRange(bool isFixed)
 void MainWindow::on_flagMeteoGrid_Dynamic_color_scale_triggered(bool isChecked)
 {
     ui->flagMeteoGrid_Fixed_color_scale->setChecked(! isChecked);
-    setColorScaleRange(! isChecked);
+    setColorScaleRangeMeteoGrid(! isChecked);
 }
 
 
 void MainWindow::on_flagMeteoGrid_Fixed_color_scale_triggered(bool isChecked)
 {
     ui->flagMeteoGrid_Dynamic_color_scale->setChecked(! isChecked);
-    setColorScaleRange(isChecked);
+    setColorScaleRangeMeteoGrid(isChecked);
 }
 
 
@@ -4751,3 +5002,164 @@ void MainWindow::on_actionShow_InfoProject_triggered()
     myDialog.exec();
 }
 
+<<<<<<< HEAD
+=======
+
+//risolvere le questioni di autenticazione per il push, guardando anche sui settings di github.
+//estrarre percorso assoluto degli archivi
+
+void MainWindow::on_actionCompute_monthly_data_from_daily_triggered()
+{
+    if (myProject.meteoGridDbHandler == nullptr)
+    {
+        myProject.logError(ERROR_STR_MISSING_GRID);
+        return;
+    }
+
+    bool allPoints = true;
+    bool isGrid = true;
+    QDate myDateFrom = myProject.meteoGridDbHandler->firstDate();
+    QDate myDateTo = myProject.meteoGridDbHandler->lastDate();
+
+    DialogComputeData computeMonthlyDialog(myDateFrom, myDateTo, isGrid, allPoints);
+    if (computeMonthlyDialog.result() == QDialog::Accepted)
+    {
+        QList <meteoVariable> varToCompute = computeMonthlyDialog.getVariables();
+        QDate firstDate = computeMonthlyDialog.getDateFrom();
+        QDate lastDate = computeMonthlyDialog.getDateTo();
+        if (myProject.meteoGridDbHandler->getFirsMonthlytDate().isValid() && myProject.meteoGridDbHandler->getLastMonthlyDate().isValid())
+        {
+            if (firstDate >= myProject.meteoGridDbHandler->getFirsMonthlytDate() || lastDate <= myProject.meteoGridDbHandler->getLastMonthlyDate())
+            {
+                QMessageBox::StandardButton reply;
+                reply = QMessageBox::question(this, "Are you sure?" ,
+                                              " monthly data will be overwritten ",
+                                              QMessageBox::Yes|QMessageBox::No);
+                if (reply == QMessageBox::No)
+                {
+                    return;
+                }
+            }
+        }
+        if (! myProject.monthlyVariablesGrid(firstDate, lastDate, varToCompute))
+        {
+                myProject.logError("Failed to compute monthly data");
+        }
+    }
+    else
+    {
+        return;
+    }
+    QDate date = myProject.getCurrentDate();
+    myProject.loadMeteoGridData(date, date, true);
+
+    redrawMeteoGrid(currentGridVisualization, false);
+}
+
+
+void MainWindow::on_actionCompute_daily_from_Hourly_all_triggered()
+{
+    if (! myProject.meteoPointsLoaded)
+    {
+        myProject.logError(ERROR_STR_MISSING_DB);
+        return;
+    }
+
+    QList<std::string> idPointList;
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        idPointList << myProject.meteoPoints[i].id;
+    }
+
+    computeDailyFromHourly_MeteoPoints(idPointList);
+}
+
+
+void MainWindow::on_actionCompute_daily_from_Hourly_selected_triggered()
+{
+    if (! myProject.meteoPointsLoaded)
+    {
+        myProject.logError(ERROR_STR_MISSING_DB);
+        return;
+    }
+
+    QList<std::string> idPointList;
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        if (myProject.meteoPoints[i].selected)
+        {
+            idPointList << myProject.meteoPoints[i].id;
+        }
+    }
+
+    if (idPointList.isEmpty())
+    {
+        myProject.logError("No meteo points selected.");
+        return;
+    }
+
+    computeDailyFromHourly_MeteoPoints(idPointList);
+}
+
+
+void MainWindow::computeDailyFromHourly_MeteoPoints(const QList<std::string>& idPointList)
+{
+    if (idPointList.size() == 0) return;
+
+    bool isGrid = false;
+    bool allPoints = (idPointList.size() == myProject.nrMeteoPoints);
+
+    QDate myDateFrom = myProject.meteoPointsDbHandler->getFirstDate(hourly).date();
+    QDate myDateTo = myProject.meteoPointsDbHandler->getLastDate(hourly).date();
+
+    DialogComputeData computeDailyDialog(myDateFrom, myDateTo, isGrid, allPoints);
+    if (computeDailyDialog.result() != QDialog::Accepted)
+    {
+        return;
+    }
+
+    QList <meteoVariable> varToCompute = computeDailyDialog.getVariables();
+    QDate firstDate = computeDailyDialog.getDateFrom();
+    QDate lastDate = computeDailyDialog.getDateTo();
+
+    if (myProject.meteoPointsDbHandler->getFirstDate(daily).date().isValid() && myProject.meteoPointsDbHandler->getLastDate(daily).date().isValid())
+    {
+        if (firstDate >= myProject.meteoPointsDbHandler->getFirstDate(daily).date() || lastDate <= myProject.meteoPointsDbHandler->getLastDate(daily).date())
+        {
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(this, "Are you sure?" ,
+                                          " daily data of " + QString::number(idPointList.size()) + " points will be overwritten\n"
+                                              + "From: " + firstDate.toString("yyyy-MM-dd") + " to: " + lastDate.toString("yyyy-MM-dd"),
+                                          QMessageBox::Yes|QMessageBox::No);
+            if (reply == QMessageBox::No)
+            {
+                return;
+            }
+        }
+    }
+
+    QList <QString> idErrorList;
+    for (int i = 0; i < idPointList.size(); i++)
+    {
+        Crit3DMeteoPoint meteoPoint;
+        meteoPoint.setId(idPointList[i]);
+        myProject.meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstDate), getCrit3DDate(lastDate), &meteoPoint);
+        if (! myProject.computeDailyVariablesPoint(&meteoPoint, firstDate, lastDate, varToCompute))
+        {
+            idErrorList.append(QString::fromStdString(idPointList[i]));
+        }
+        meteoPoint.clear();
+    }
+
+    if (idErrorList.size() > 0)
+    {
+        myProject.logError("Failed to compute daily data for id: " + idErrorList.join(","));
+    }
+
+    QDate currentDate = myProject.getCurrentDate();
+    myProject.loadMeteoPointsData(currentDate, currentDate, true, true, true);
+    redrawMeteoPoints(currentPointsVisualization, true);
+}
+
+
+>>>>>>> 01040c8991c3b612cd81a0a4f4b726f1d42c41f1

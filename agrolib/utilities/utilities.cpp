@@ -37,10 +37,17 @@ bool getValue(QVariant myRs, int* myValue)
     *myValue = NODATA;
 
     if (! myRs.isValid() || myRs.isNull()) return false;
+    if (myRs == "" || myRs == "NULL" || myRs == "nan") return false;
 
-    if (myRs == "" || myRs == "NULL") return false;
+    bool isOk;
+    *myValue = myRs.toInt(&isOk);
 
-    *myValue = myRs.toInt();
+    if (! isOk)
+    {
+        *myValue = NODATA;
+        return false;
+    }
+
     return true;
 }
 
@@ -50,9 +57,17 @@ bool getValue(QVariant myRs, float* myValue)
     *myValue = NODATA;
 
     if (! myRs.isValid() || myRs.isNull()) return false;
-    if (myRs == "" || myRs == "NULL") return false;
+    if (myRs == "" || myRs == "NULL" || myRs == "nan") return false;
 
-    *myValue = myRs.toFloat();
+    bool isOk;
+    *myValue = myRs.toFloat(&isOk);
+
+    if (! isOk)
+    {
+        *myValue = NODATA;
+        return false;
+    }
+
     return true;
 }
 
@@ -62,9 +77,17 @@ bool getValue(QVariant myRs, double* myValue)
     *myValue = NODATA;
 
     if (! myRs.isValid() || myRs.isNull()) return false;
-    if (myRs == "" || myRs == "NULL") return false;
+    if (myRs == "" || myRs == "NULL" || myRs == "nan") return false;
 
-    *myValue = myRs.toDouble();
+    bool isOk;
+    *myValue = myRs.toDouble(&isOk);
+
+    if (! isOk)
+    {
+        *myValue = NODATA;
+        return false;
+    }
+
     return true;
 }
 
@@ -154,9 +177,11 @@ QDate getQDate(const Crit3DDate& d)
 QDateTime getQDateTime(const Crit3DTime& t)
 {
     QDate myDate = QDate(t.date.year, t.date.month, t.date.day);
+
     QDateTime myDateTime;
     myDateTime.setTimeSpec(Qt::UTC);
     myDateTime.setDate(myDate);
+    myDateTime.setTime(QTime(0,0,0,0));
     return myDateTime.addSecs(t.time);
 }
 

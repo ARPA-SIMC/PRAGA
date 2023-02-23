@@ -66,7 +66,6 @@ void Project::initializeProject()
     currentVariable = noMeteoVar;
     currentFrequency = noFrequency;
     currentDate.setDate(1800,1,1);
-    previousDate = currentDate;
     currentHour = 12;
 
     parameters = nullptr;
@@ -755,12 +754,11 @@ void Project::setCurrentDate(QDate myDate)
 {
     if (myDate != this->currentDate)
     {
-        this->previousDate = this->currentDate;
         this->currentDate = myDate;
-    }
-    if (proxyWidget != nullptr)
-    {
-        proxyWidget->updateDateTime(currentDate, currentHour);
+        if (proxyWidget != nullptr)
+        {
+            proxyWidget->updateDateTime(currentDate, currentHour);
+        }
     }
 }
 
@@ -977,21 +975,21 @@ bool Project::loadMeteoPointsDB(QString fileName)
     QString dbName = getCompleteFileName(fileName, PATH_METEOPOINT);
     if (! QFile(dbName).exists())
     {
-        logError("Meteo points DB does not exists:\n" + dbName);
+        errorString = "Meteo points DB does not exists:\n" + dbName;
         return false;
     }
 
     meteoPointsDbHandler = new Crit3DMeteoPointsDbHandler(dbName);
     if (meteoPointsDbHandler->error != "")
     {
-        logError("Function loadMeteoPointsDB:\n" + dbName + "\n" + meteoPointsDbHandler->error);
+        errorString = "Function loadMeteoPointsDB:\n" + dbName + "\n" + meteoPointsDbHandler->error;
         closeMeteoPointsDB();
         return false;
     }
 
     if (! meteoPointsDbHandler->loadVariableProperties())
     {
-        logError(meteoPointsDbHandler->error);
+        errorString = meteoPointsDbHandler->error;
         closeMeteoPointsDB();
         return false;
     }
@@ -1001,7 +999,6 @@ bool Project::loadMeteoPointsDB(QString fileName)
     if (! meteoPointsDbHandler->getPropertiesFromDb(listMeteoPoints, gisSettings, errorString))
     {
         errorString = "Error in reading table 'point_properties'\n" + errorString;
-        logError();
         closeMeteoPointsDB();
         return false;
     }
@@ -1010,7 +1007,6 @@ bool Project::loadMeteoPointsDB(QString fileName)
     if (nrMeteoPoints == 0)
     {
         errorString = "Missing data in the table 'point_properties'\n" + errorString;
-        logError();
         closeMeteoPointsDB();
         return false;
     }
@@ -2289,6 +2285,14 @@ bool Project::loadProjectSettings(QString settingsFileName)
         outputPointsFileName = projectSettings->value("output_points").toString();
         dbAggregationFileName = projectSettings->value("aggregation_points").toString();
 
+        // LC nel caso ci sia solo il dbAggregation ma si vogliano utilizzare le funzioni "nate" per i db point (es. calcolo clima)
+        // copio il dbAggregation in dbPointsFileName così può essere trattato allo stesso modo.
+        // Utile soprattutto nel caso di chiamate da shell in quanto da GUI è possibile direttamente aprire un db aggregation come db points.
+        if (dbPointsFileName.isEmpty() && !dbAggregationFileName.isEmpty())
+        {
+            dbPointsFileName = dbAggregationFileName;
+        }
+
         dbGridXMLFileName = projectSettings->value("meteo_grid").toString();
         loadGridDataAtStart = projectSettings->value("load_grid_data_at_start").toBool();
 
@@ -2982,7 +2986,33 @@ bool Project::writeMeteoPointsProperties(QList<QString> joinedList)
 
 void Project::showProxyGraph()
 {
-    proxyWidget = new Crit3DProxyWidget(&interpolationSettings, meteoPoints, nrMeteoPoints, currentFrequency, currentDate, currentHour, quality, &qualityInterpolationSettings, meteoSettings, &climateParameters, checkSpatialQuality);
+    Crit3DMeteoPoint* meteoPointsSelected;
+    int nSelected = 0;
+    for (int i = 0; i < nrMeteoPoints; i++)
+    {
+        if (meteoPoints[i].selected)
+        {
+            nSelected = nSelected + 1;
+        }
+    }
+    if (nSelected == 0)
+    {
+        proxyWidget = new Crit3DProxyWidget(&interpolationSettings, meteoPoints, nrMeteoPoints, currentFrequency, currentDate, currentHour, quality, &qualityInterpolationSettings, meteoSettings, &climateParameters, checkSpatialQuality);
+    }
+    else
+    {
+        meteoPointsSelected = new Crit3DMeteoPoint[unsigned(nSelected)];
+        int posMpSelected = 0;
+        for (int i = 0; i < nrMeteoPoints; i++)
+        {
+            if (meteoPoints[i].selected)
+            {
+                meteoPointsSelected[posMpSelected] = meteoPoints[i];
+                posMpSelected = posMpSelected + 1;
+            }
+        }
+        proxyWidget = new Crit3DProxyWidget(&interpolationSettings, meteoPointsSelected, nSelected, currentFrequency, currentDate, currentHour, quality, &qualityInterpolationSettings, meteoSettings, &climateParameters, checkSpatialQuality);
+    }
     QObject::connect(proxyWidget, SIGNAL(closeProxyWidget()), this, SLOT(deleteProxyWidget()));
     return;
 }
@@ -3385,7 +3415,7 @@ bool Project::exportMeteoGridToESRI(QString fileName, double cellSize)
                 {
                     myGrid->getXY(row,col,&utmx,&utmy);
                     gis::getLatLonFromUtm(gisSettings,utmx,utmy,&lat,&lon);
-                    gis::getMeteoGridRowColFromXY (latlonHeader, lon, lat, &dataGridRow, &dataGridCol);
+                    gis::getGridRowColFromXY (latlonHeader, lon, lat, &dataGridRow, &dataGridCol);
                     if (dataGridRow < 0 || dataGridRow >= latlonHeader.nrRows || dataGridCol < 0 || dataGridCol >= latlonHeader.nrCols)
                     {
                         myValue = NODATA;

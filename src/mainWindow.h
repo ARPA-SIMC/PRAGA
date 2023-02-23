@@ -4,10 +4,8 @@
     #include <QMainWindow>
     #include <QList>
     #include <QCheckBox>
-    #include <QGroupBox>
     #include <QActionGroup>
 
-    #include "Position.h"
     #include "rubberBand.h"
     #include "MapGraphicsView.h"
     #include "MapGraphicsScene.h"
@@ -47,7 +45,11 @@
         void on_actionFileMeteopointNewArkimet_triggered();
         void on_actionFileMeteopointOpen_triggered();
         void on_actionFileMeteopointClose_triggered();
-        void on_actionFileMeteopointDownload_triggered();
+        // File --> Meteopoint --> Arkimet
+        void on_actionFileMeteopointArkimetDownload_triggered();
+        void on_actionFileMeteopointArkimetUpdatePointProperties_triggered();
+        void on_actionFileMeteopointArkimetUpdateMeteopoints_triggered();
+        void on_actionFileMeteopointArkimetUpdateDatasets_triggered();
 
         void on_actionShowPointsHide_triggered();
         void on_actionShowPointsLocation_triggered();
@@ -114,7 +116,18 @@
             void on_actionNetCDF_Open_triggered();
             void on_actionNetCDF_Close_triggered();
             void on_actionNetCDF_ShowMetadata_triggered();
+
+            void on_netCDFButtonVariable_clicked();
             void on_actionFileMeteogridExportNetcdf_triggered();
+
+            void on_actionShowNetcdfHide_triggered();
+            void on_actionShowNetcdfLocation_triggered();
+            void on_actionShowNetcdfVariable_triggered();
+
+            void on_actionNetcdf_ColorScale_SetType_triggered();
+            void on_actionNetcdf_ColorScale_Reverse_triggered();
+            void on_actionNetcdf_ColorScale_Fixed_triggered();
+            void on_actionNetcdf_ColorScale_RangeVariable_triggered();
         #endif
 
         void callNewMeteoWidget(std::string id, std::string name, bool isGrid);
@@ -178,12 +191,6 @@
 
         void on_actionFileMeteogridExportRaster_triggered();
 
-        void on_actionUpdate_properties_triggered();
-
-        void on_actionUpdate_meteo_points_triggered();
-
-        void on_actionUpdate_datasets_triggered();
-
         void on_actionPointStyleCircle_triggered();
 
         void on_actionPointStyleText_triggered();
@@ -242,6 +249,14 @@
 
         void on_actionShow_InfoProject_triggered();
 
+        void on_actionCompute_monthly_data_from_daily_triggered();
+
+        void on_actionCompute_daily_from_Hourly_all_triggered();
+
+        void on_actionCompute_daily_from_Hourly_selected_triggered();
+
+        void on_netcdfOpacitySlider_sliderMoved(int position);
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -259,17 +274,23 @@
 
         void resizeEvent(QResizeEvent * event) override;
 
+        void keyPressEvent(QKeyEvent * event ) override;
+
     private:
         Ui::MainWindow* ui;
 
         Position* startCenter;
         MapGraphicsScene* mapScene;
         MapGraphicsView* mapView;
+
         RasterObject* rasterObj;
         RasterObject* meteoGridObj;
+        RasterObject* netcdfObj;
+
         ColorLegend *rasterLegend;
         ColorLegend *meteoPointsLegend;
         ColorLegend *meteoGridLegend;
+        ColorLegend *netcdfLegend;
 
         QList<StationMarker*> pointList;
         QList<ArrowObject*> windVectorList;
@@ -277,9 +298,13 @@
         RubberBand *rubberBand;
         visualizationType currentPointsVisualization;
         visualizationType currentGridVisualization;
+        visualizationType currentNetcdfVisualization;
+        int currentNetcdfVariable;
+
         bool viewNotActivePoints;
         QActionGroup *showPointsGroup;
         QActionGroup *showGridGroup;
+        QActionGroup *showNetcdfGroup;
 
         QList<QCheckBox*> datasetCheckbox;
         QCheckBox* all;
@@ -303,15 +328,17 @@
         void redrawMeteoPoints(visualizationType showType, bool updateColorScale);
         void drawMeteoGrid();
         void redrawMeteoGrid(visualizationType showType, bool showInterpolationResult);
+        void redrawAllData();
         void drawProject();
-        void redrawTitle();
+        void drawWindowTitle();
 
         void checkSaveProject();
         void closeMeteoPoints();
         void closeMeteoGrid();
 
         bool checkMeteoGridColorScale();
-        void setColorScaleRange(bool isFixed);
+        void setColorScaleRangeMeteoGrid(bool isFixed);
+        void setColorScaleRangeNetcdf(bool isFixed);
 
         bool loadMeteoPoints(QString dbName);
         bool loadMeteoGrid(QString xmlName);
@@ -323,9 +350,12 @@
         void interpolateCrossValidationGUI();
         void showElabResult(bool updateColorSCale, bool isMeteoGrid, bool isAnomaly, bool isAnomalyPerc, bool isClima, QString index);
         void searchMeteoPoint(bool isName);
+        void computeDailyFromHourly_MeteoPoints(const QList<std::string>& pointList);
+
         void closeEvent(QCloseEvent *event) override;
 
         #ifdef NETCDF
+            void redrawNetcdf();
             void netCDF_exportDataSeries(gis::Crit3DGeoPoint geoPoint);
             void closeNetCDF();
         #endif

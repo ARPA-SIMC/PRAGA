@@ -16,16 +16,18 @@ INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/drought ../agrolib/interpolation ../agrolib/solarRadiation ../agrolib/utilities  \
                 ../agrolib/outputPoints ../agrolib/dbMeteoPoints ../agrolib/dbMeteoGrid ../agrolib/meteoWidget  \
                 ../agrolib/proxyWidget ../agrolib/pointStatisticsWidget ../agrolib/homogeneityWidget ../agrolib/synchronicityWidget ../agrolib/climate ../agrolib/netcdfHandler  \
-                ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/commonChartElements ../agrolib/pragaDialogs ../agrolib/importDataXML ../agrolib/project
+                ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/commonChartElements ../agrolib/pragaDialogs ../agrolib/importDataXML \
+                ../agrolib/project ../agrolib/pragaProject
 
 CONFIG += debug_and_release
 
-QMAKE_CXXFLAGS += -std=c++11
+CONFIG += c++11 c++14 c++17
 
 DEFINES += NETCDF
 
 
 CONFIG(debug, debug|release) {
+    LIBS += -L../agrolib/pragaProject/debug -lpragaProject
     LIBS += -L../agrolib/project/debug -lproject
     LIBS += -L../agrolib/pragaDialogs/debug -lpragaDialogs
     LIBS += -L../agrolib/commonDialogs/debug -lcommonDialogs
@@ -65,6 +67,7 @@ CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/mathFunctions/debug -lmathFunctions
 
 } else {
+    LIBS += -L../agrolib/pragaProject/release -lpragaProject
     LIBS += -L../agrolib/graphics/release -lgraphics
     LIBS += -L../mapGraphics/release -lMapGraphics
     LIBS += -L../agrolib/project/release -lproject
@@ -106,28 +109,12 @@ CONFIG(debug, debug|release) {
 SOURCES += \
     main.cpp \
     mainGUI.cpp \
-    mainWindow.cpp \
-    dialogPragaProject.cpp \
-    dialogMeteoComputation.cpp \
-    dialogPragaSettings.cpp \
-    dialogAnomaly.cpp \
-    pragaMeteoMaps.cpp \
-    saveClimaLayout.cpp \
-    pragaProject.cpp \
-    pragaShell.cpp \
+    mainWindow.cpp
 
 
 HEADERS  += \
     mainGUI.h \
-    mainWindow.h \
-    dialogPragaProject.h \
-    dialogMeteoComputation.h \
-    dialogPragaSettings.h \
-    dialogAnomaly.h \
-    pragaMeteoMaps.h \
-    saveClimaLayout.h \
-    pragaProject.h \
-    pragaShell.h \
+    mainWindow.h
 
 
 FORMS    += mainWindow.ui

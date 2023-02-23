@@ -36,7 +36,7 @@ float computePointTransmissivitySamani(float tmin, float tmax, float samaniCoeff
 {
     if (samaniCoeff != NODATA && tmin != NODATA && tmax != NODATA)
         if (tmin <= tmax)
-            return samaniCoeff * sqrt(tmax - tmin);
+            return samaniCoeff * sqrtf(tmax - tmin);
         else
             return false;
     else
@@ -53,7 +53,7 @@ bool computeTransmissivity(Crit3DRadiationSettings* mySettings, Crit3DMeteoPoint
     int deltaSeconds = 3600 / hourlyFraction;
 
     int semiInterval = (intervalWidth - 1)/2;
-    float semiIntervalSeconds = float(semiInterval * deltaSeconds);
+    int semiIntervalSeconds = semiInterval * deltaSeconds;
     int myIndex;
     Crit3DTime myTimeIni =  myTime.addSeconds(-semiIntervalSeconds);
     Crit3DTime myTimeFin =  myTime.addSeconds(semiIntervalSeconds);

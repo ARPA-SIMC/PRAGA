@@ -2,98 +2,133 @@
 #include "carbonNitrogenModel.h"
 #include <math.h>
 
-Crit3DCarbonNitrogenSettings::Crit3DCarbonNitrogenSettings()
+
+Crit1DCarbonNitrogenProfile::Crit1DCarbonNitrogenProfile()
 {
-    rate_C_humusMin = 0.000005;
-    rate_C_litterMin = 0.01;
-    rate_N_NH4_volatilization = 0.4;
-    rate_N_denitrification = 0.001;
-    max_afp_denitr = 0.1;
-    constant_sat_denitr = 10;
-    rate_urea_hydr = 0.43;
-    rate_N_nitrification = 0.0018;
-    limRatio_nitr = 8;
-    FE = 0.5;
-    FH = 0.2;
-    Q10 = 2.3;
-    baseTemperature = 20;
-    Kd_NH4 = 4;
-    CN_RATIO_NOTHARVESTED = 30;
-    LITTERINI_C_DEFAULT = 1200;   //[kg ha-1] initial litter carbon (default)
-    LITTERINI_N_DEFAULT = 40;     //[kg ha-1] initial litter nitrogen (default)
-    LITTERINI_DEPTH_DEFAULT = 30;  //[cm] initial litter depth (default)
-    ratioBiomassCN = 7;
-    ratioHumusCN = 7;
-    ratioLitterCN = 7;
+
+    actualRate.C_humusMin = 0;
+    actualRate.C_litterToHumus = 0;
+    actualRate.C_litterToCO2 = 0;
+    actualRate.C_litterToBiomass = 0;
+    actualRate.N_litterMin = 0;
+    actualRate.N_litterImm = 0;
+    actualRate.N_nitrification = 0;
+    actualRate.N_denitrification = 0;
+    actualRate.ureaHydr = 0;
+
+    flag.SOM = 1;
+    flag.localOS = 0;
+    flag.waterTableUpward = false;
+    flag.waterTableWashing = false;
+
+    nitrogenTotalProfile.humusGG = 0;
+    nitrogenTotalProfile.litterGG = 0;
+    nitrogenTotalProfile.NH4_adsorbedBeforeGG = 0;
+    nitrogenTotalProfile.NH4_adsorbedBeforeGG = 0;
+    nitrogenTotalProfile.profileNO3 = 0;
+    nitrogenTotalProfile.profileNH4 = 0;
+    nitrogenTotalProfile.NH4_adsorbedBeforeGG = 0;
+    nitrogenTotalProfile.balanceFinalNH4 = 0;
+    nitrogenTotalProfile.balanceFinalNO3 = 0;
+    nitrogenTotalProfile.prec_NO3GG = 0;
+    nitrogenTotalProfile.prec_NH4GG = 0;
+    nitrogenTotalProfile.NO3_fertGG = 0;
+    nitrogenTotalProfile.NH4_fertGG = 0;
+    nitrogenTotalProfile.min_litterGG = 0;
+    nitrogenTotalProfile.imm_l_NH4GG = 0;
+    nitrogenTotalProfile.imm_l_NO3GG = 0;
+    nitrogenTotalProfile.min_humusGG = 0;
+    nitrogenTotalProfile.litter_humusGG = 0;
+    nitrogenTotalProfile.NH4_volGG = 0;
+    nitrogenTotalProfile.nitrifGG = 0;
+    nitrogenTotalProfile.urea_hydrGG = 0;
+    nitrogenTotalProfile.flux_NH4GG = 0;
+    nitrogenTotalProfile.flux_NO3GG = 0;
+    nitrogenTotalProfile.NO3_runoff0GG = 0;
+    nitrogenTotalProfile.NH4_runoff0GG = 0;
+    nitrogenTotalProfile.uptakable = 0;
+    nitrogenTotalProfile.cropToHarvest = 0;
+    nitrogenTotalProfile.cropToResidues = 0;
+    nitrogenTotalProfile.roots = 0;
+    nitrogenTotalProfile.ratioHarvested = 0;
+    nitrogenTotalProfile.ratioResidues = 0;
+    nitrogenTotalProfile.ratioRoots = 0;
+    nitrogenTotalProfile.potentialDemandCum = 0;
+    nitrogenTotalProfile.dailyDemand = 0;
+    nitrogenTotalProfile.dailyDemandMaxCover = 0;
+    nitrogenTotalProfile.uptakeMax = 0;
+    nitrogenTotalProfile.uptakeDeficit = 0;
+    nitrogenTotalProfile.NH4_uptakeGG = 0;
+    nitrogenTotalProfile.NO3_uptakeGG = 0;
+    nitrogenTotalProfile.denitrGG = 0;
+
+    carbonTotalProfile.humusGG = 0;
+    carbonTotalProfile.litterGG = 0;
+    carbonTotalProfile.litter_humusGG = 0;
+    carbonTotalProfile.litter_litterGG = 0;
+    carbonTotalProfile.min_humusGG = 0;
+    carbonTotalProfile.min_litterGG = 0;
+
+    N_Initialize();
 }
 
 
-Crit3DCarbonNitrogenProfile::Crit3DCarbonNitrogenProfile()
+void Crit1DCarbonNitrogenProfile::N_Initialize()
 {
-    flagSOM = 1;
+    //****************************************************************
+    //Scopo: lettura da tbAzoto di coefficienti relativi al ciclo di N
+    //****************************************************************
+    //04.08.04.VM eliminazione dei vettori di costanti
+    //00.07.19.VM.MVS nuova sub chiamata da SUB_INI_Profilo per le variabili dell'azoto
+    //****************************************************************
 
-    // TODO initialize
+    // 2008.02 GA da inserire in database
+    /*Nitrogen.N_deficit_max_days = 3
+        ReDim Nitrogen.N_deficit_daily(0)
+        */
 
+    ratio_CN_humus = ratio_CN_biomass = 12; // !! to be read somewhere
+    flag.SOM = 1; // !! to be read somewhere
+    flag.waterTableUpward = true;  // !! to be read somewhere
+    flag.waterTableWashing = true;  // !! to be read somewhere
+    litterIniC = NODATA; // !! to be read somewhere
+    litterIniN = NODATA; // !! to be read somewhere
+    litterIniDepth = NODATA; // !! to be read somewhere
+
+    nitrogenTotalProfile.cropToHarvest = 0;
+    nitrogenTotalProfile.cropToResidues = 0;
+    nitrogenTotalProfile.roots = 0;
 }
 
-double Crit3DCarbonNitrogenProfile::convertToGramsPerM3(double myQuantity, soil::Crit3DLayer &soilLayer)
+
+void Crit1DCarbonNitrogenProfile::humus_Initialize(Crit1DCase &myCase)
 {
-    // convert [g m-2] -> [g m-3] = [mg dm-3]
-    return myQuantity / soilLayer.thickness;
-}
-
-
-double Crit3DCarbonNitrogenProfile::convertToGramsPerLiter(double myQuantity, soil::Crit3DLayer &soilLayer)
-{
-    // convert [g m-2] -> [g m-3] -> [g l-1]
-    return (convertToGramsPerM3(myQuantity, soilLayer) / 1000);
-}
-
-
-double Crit3DCarbonNitrogenProfile::convertToGramsPerKg(double myQuantity, soil::Crit3DLayer &soilLayer)
-{
-    // convert [g m-2] -> [g m-3] -> [g kg-1]
-    return (convertToGramsPerM3(myQuantity, soilLayer) / 1000) / soilLayer.horizon->bulkDensity;
-}
-
-
-
-void Crit3DCarbonNitrogenProfile::humusIni(Crit1DCase &myCase)
-{
-    //'2008.09 GA
-    //'GA 2007.12 perché C calcolato da (CN/CN+1) e non moltiplicando per 0.58 come solito?
-    //'computes initial humus carbon and nitrogen for a layer L
-    //'version 1.0, 2004.08.09.VM
-
-
-    // MVA                '[kg dm-3 = 10^6 g m-3]
-
-    for (unsigned int l = 0; l<myCase.soilLayers.size();l++)
+    for (unsigned int l = 1; l < myCase.soilLayers.size(); l++)
     {
         myCase.carbonNitrogenLayers[l].C_humus = myCase.soilLayers[l].horizon->bulkDensity * 1000000 * (myCase.soilLayers[l].horizon->organicMatter / 100) * 0.58 * myCase.soilLayers[l].thickness; // tolto il 100 perche gia in metri
         myCase.carbonNitrogenLayers[l].N_humus = myCase.carbonNitrogenLayers[l].C_humus / carbonNitrogenParameter.ratioHumusCN;
     }
 }
 
-double Crit3DCarbonNitrogenProfile::updateTotalOfPartitioned(double mySoluteAds,double mySoluteSol)
+
+double Crit1DCarbonNitrogenProfile::updateTotalOfPartitioned(double mySoluteAds,double mySoluteSol)
 {
     return (mySoluteAds + mySoluteSol);
 }
 
-void Crit3DCarbonNitrogenProfile::partitioning(Crit1DCase &myCase)
+
+// partitioning of N (only NH4) between adsorbed and solute
+void Crit1DCarbonNitrogenProfile::partitioning(Crit1DCase &myCase)
 {
-    // partitioning of N (only NH4) between adsorbed and solute
-
-
     double N_NH4_g_dm3;               // [g dm-3] total ammonium
     double N_NH4_sol_g_l;             // [g l-1] ammonium in solution
     double N_NH4_ads_g_kg;            // [g kg-1] adsorbed ammonium
     double N_NH4_ads_g_m3;            // [g m-3] adsorbed ammonium
     double myTheta;
 
-    N_NH4_adsorbedGG = 0;
+    nitrogenTotalProfile.NH4_adsorbedGG = 0;
 
-    for (unsigned int l = 0; l < myCase.soilLayers.size(); l++)
+    for (unsigned int l = 1; l < myCase.soilLayers.size(); l++)
     {
         myTheta = myCase.soilLayers[l].waterContent / (myCase.soilLayers[l].thickness * 1000);
         N_NH4_g_dm3 = convertToGramsPerM3(myCase.carbonNitrogenLayers[l].N_NH4, myCase.soilLayers[l]) / 1000;
@@ -104,29 +139,28 @@ void Crit3DCarbonNitrogenProfile::partitioning(Crit1DCase &myCase)
         N_NH4_ads_g_kg = carbonNitrogenParameter.Kd_NH4 * N_NH4_sol_g_l;
         N_NH4_ads_g_m3 = N_NH4_ads_g_kg * myCase.soilLayers[l].horizon->bulkDensity * 1000;
         myCase.carbonNitrogenLayers[l].N_NH4_Adsorbed = N_NH4_ads_g_m3 * myCase.soilLayers[l].thickness;
-        N_NH4_adsorbedGG += myCase.carbonNitrogenLayers[l].N_NH4_Adsorbed;
+        nitrogenTotalProfile.NH4_adsorbedGG += myCase.carbonNitrogenLayers[l].N_NH4_Adsorbed;
     }
 }
 
 
-void Crit3DCarbonNitrogenProfile::litterIni(Crit1DCase &myCase)
+// computes initial litter carbon and nitrogen for a layer
+void Crit1DCarbonNitrogenProfile::litter_Initialize(Crit1DCase &myCase)
 {
-    //2008.10 GA inizializzazione indipendente da humus ma da input utente
-    //computes initial litter carbon and nitrogen for a layer L
-    //version 1.0, 2004.08.16.VM
-
     double layerRatio;
     double myDepth;
     if (fabs(litterIniC-NODATA) < EPSILON)
+    {
         litterIniC = carbonNitrogenParameter.LITTERINI_C_DEFAULT;
+    }
     if (fabs(litterIniN-NODATA) < EPSILON)
         litterIniN = carbonNitrogenParameter.LITTERINI_N_DEFAULT;
     if (fabs(litterIniDepth-NODATA) < EPSILON)
         litterIniDepth = carbonNitrogenParameter.LITTERINI_DEPTH_DEFAULT;
 
     myDepth = MAXVALUE(litterIniDepth, 6);
-    myDepth /= 100; // transform depth from cm to m
-    for (unsigned int l=0; l<myCase.soilLayers.size() ;l++)
+    myDepth /= 100; // from [cm] to [m]
+    for (unsigned int l=1; l < myCase.soilLayers.size(); l++)
     {
         if (myCase.soilLayers[l].depth <= myDepth)
         {
@@ -137,7 +171,8 @@ void Crit3DCarbonNitrogenProfile::litterIni(Crit1DCase &myCase)
     }
 }
 
-void Crit3DCarbonNitrogenProfile::chemicalTransformations(Crit1DCase &myCase)
+
+void Crit1DCarbonNitrogenProfile::chemicalTransformations(Crit1DCase &myCase)
 {
     // 2013.06 GA
     // revision from LEACHM
@@ -204,7 +239,7 @@ void Crit3DCarbonNitrogenProfile::chemicalTransformations(Crit1DCase &myCase)
 
     static double adjustFactor = 0.08; // factor to extend immobilization and slow the rate
 
-    for (unsigned l=0; l<myCase.soilLayers.size(); l++)
+    for (unsigned l=1; l<myCase.soilLayers.size(); l++)
     {
         // correction functions for soil temperature and humidity
         // inserire parametri in Options.mdb
@@ -246,24 +281,24 @@ void Crit3DCarbonNitrogenProfile::chemicalTransformations(Crit1DCase &myCase)
         //    si assume che tutto il nitrato sia in soluzione (mg l-1)
         //    CO2 prodotta associata a denitrificazione
         //    cinetica primo ordine della decomposizione della s.o. (rateo proporzionale alla concentrazione)
-        CCDEN = MAXVALUE(0, myN_NO3 * (1 - exp(-actualRate_N_denitrification))) * 72. / 56.;
+        CCDEN = MAXVALUE(0, myN_NO3 * (1 - exp(-actualRate.N_denitrification))) * 72. / 56.;
         // No more than a tenth of C present C  can be removed
             CCDEN = MINVALUE(CCDEN,0.1 * myTotalC);
 
 
         // ii) litter transformation
         // litter C to humus C    
-        CCLH = MAXVALUE(0, myLitterC * (1 - exp(-actualRate_C_litterToHumus)));
+        CCLH = MAXVALUE(0, myLitterC * (1 - exp(-actualRate.C_litterToHumus)));
         // litter C internal recycle
-        CCLI = MAXVALUE(0, myLitterC * (1 - exp(-actualRate_C_litterToHumus)));
+        CCLI = MAXVALUE(0, myLitterC * (1 - exp(-actualRate.C_litterToHumus)));
         // litter C to CO2
-        CCLCO2 = MAXVALUE(0, myLitterC * (1 - exp(-actualRate_C_litterToHumus)));
+        CCLCO2 = MAXVALUE(0, myLitterC * (1 - exp(-actualRate.C_litterToHumus)));
         // nitrogen immobilization
         CLIMX = 1;
 
-        if (actualRate_N_litterImm > 0)
+        if (actualRate.N_litterImm > 0)
         {
-            CLIMM = actualRate_N_litterImm * (CCLI + CCLH + CCLCO2);
+            CLIMM = actualRate.N_litterImm * (CCLI + CCLH + CCLCO2);
             if (CLIMM > 0)
                 CLIMX = MINVALUE(1, (adjustFactor * (myN_NO3 + myN_NH4)) / CLIMM);
             // if immobilization limits mineralization then the effective rate of immobilization is reduced
@@ -297,7 +332,7 @@ void Crit3DCarbonNitrogenProfile::chemicalTransformations(Crit1DCase &myCase)
 
         // iii) humus transformations
         // humus to CO2
-        CCHCO2 = MAXVALUE(0, myHumusC * (1 - exp(-actualRate_C_humusMin)));
+        CCHCO2 = MAXVALUE(0, myHumusC * (1 - exp(-actualRate.C_humusMin)));
         // energy source for denitrification
         if (myTotalC > 0)
             CCHDN = CCDEN * myHumusC / myTotalC;
@@ -315,7 +350,7 @@ void Crit3DCarbonNitrogenProfile::chemicalTransformations(Crit1DCase &myCase)
 
     // NITROGEN TRANSFORMATIONS
         // i) urea hydrolysis
-        CURNH = convertToGramsPerM3(myCase.carbonNitrogenLayers[l].N_urea, myCase.soilLayers[l]) * (1 - exp(-actualRateUreaHydr));
+        CURNH = convertToGramsPerM3(myCase.carbonNitrogenLayers[l].N_urea, myCase.soilLayers[l]) * (1 - exp(-actualRate.ureaHydr));
 
         // ii) ammonium volatilization (only top 5 cm of soil) (in LEACHM 10 cm but layer thickness is 10 cm)
         if ((myCase.soilLayers[l].depth + myCase.soilLayers[l].thickness) < 0.05)
@@ -327,11 +362,11 @@ void Crit3DCarbonNitrogenProfile::chemicalTransformations(Crit1DCase &myCase)
             CNHGAS = 0;
 
         // iii) nitrification
-        CNHNO = (MAXVALUE(0, myN_NH4 - myN_NO3 / carbonNitrogenParameter.limRatio_nitr)) * (1 - exp(-actualRate_N_nitrification));
+        CNHNO = (MAXVALUE(0, myN_NH4 - myN_NO3 / carbonNitrogenParameter.limRatio_nitr)) * (1 - exp(-actualRate.N_nitrification));
 
         // iv) mineralization
-        CHNH = MAXVALUE(myHumusN, 0) * actualRate_C_humusMin;
-        CLNH = actualRate_N_litterMin * (CCLH + CCLCO2 + CCLI);
+        CHNH = MAXVALUE(myHumusN, 0) * actualRate.C_humusMin;
+        CLNH = actualRate.N_litterMin * (CCLH + CCLCO2 + CCLI);
         //if (actualRate_N_litterImm > 0)
             //CNHL = CLIMM * CLIMX * NH4_ratio; // already computed above
 
@@ -343,7 +378,7 @@ void Crit3DCarbonNitrogenProfile::chemicalTransformations(Crit1DCase &myCase)
         // adjustment
         def = myN_NH4 + N_NH4_netSink;
         total = CNHNO + CNHGAS + USENH4;
-        if (def < 0 && total > 0)
+        if ((def < 0) && total > 0)
         {
             factor = MAXVALUE(0, 1. + def / total);
             CNHNO *= factor;
@@ -355,7 +390,7 @@ void Crit3DCarbonNitrogenProfile::chemicalTransformations(Crit1DCase &myCase)
 
         // NO3 sink/source
         USENO3 = convertToGramsPerM3(myCase.carbonNitrogenLayers[l].N_NO3_uptake,myCase.soilLayers[l]);
-        if (actualRate_N_litterImm > 0)
+        if (actualRate.N_litterImm > 0)
             CNOL = CLIMM * CLIMX * NO3_ratio;
         else
             CNOL = 0;
@@ -367,7 +402,7 @@ void Crit3DCarbonNitrogenProfile::chemicalTransformations(Crit1DCase &myCase)
         def = myN_NO3 + N_NO3_netSink;
         total = USENO3 + CNON;
 
-        if (def < 0 && total > 0)
+        if ((def < 0) && (total > 0))
         {
             factor = MAXVALUE(0., 1. + def / total);
             CNON *= factor;
@@ -422,14 +457,6 @@ void Crit3DCarbonNitrogenProfile::chemicalTransformations(Crit1DCase &myCase)
         myCase.carbonNitrogenLayers[l].N_humus += humusNNetSink * myCase.soilLayers[l].thickness;
         myCase.carbonNitrogenLayers[l].N_urea -= myCase.carbonNitrogenLayers[l].N_Urea_Hydr;
 
-
-        //If N_NH4(L) < 0 Then Stop
-        //If N_NO3(L) < 0 Then Stop
-        //If C_litter(L) < 0 Then Stop
-        //If C_humus(L) < 0 Then Stop
-        //If N_litter(L) < 0 Then Stop
-        //If N_humus(L) < 0 Then Stop
-
         myCase.carbonNitrogenLayers[l].N_NH4 = MAXVALUE(0, myCase.carbonNitrogenLayers[l].N_NH4);
         myCase.carbonNitrogenLayers[l].N_NO3 = MAXVALUE(0, myCase.carbonNitrogenLayers[l].N_NO3);
         myCase.carbonNitrogenLayers[l].C_litter = MAXVALUE(0, myCase.carbonNitrogenLayers[l].C_litter);
@@ -439,25 +466,25 @@ void Crit3DCarbonNitrogenProfile::chemicalTransformations(Crit1DCase &myCase)
         myCase.carbonNitrogenLayers[l].N_urea = MAXVALUE(0, myCase.carbonNitrogenLayers[l].N_urea);
 
         // profile totals
-        N_humusGG += myCase.carbonNitrogenLayers[l].N_humus;
-        N_litterGG += myCase.carbonNitrogenLayers[l].N_litter;
-        N_litter_humusGG += myCase.carbonNitrogenLayers[l].N_litter_humus;
-        N_min_humusGG += myCase.carbonNitrogenLayers[l].N_min_humus;
-        N_min_litterGG += myCase.carbonNitrogenLayers[l].N_min_litter;
-        N_imm_l_NH4GG += myCase.carbonNitrogenLayers[l].N_imm_l_NH4;
-        N_imm_l_NO3GG += myCase.carbonNitrogenLayers[l].N_imm_l_NO3;
-        C_humusGG += myCase.carbonNitrogenLayers[l].C_humus;
-        C_min_humusGG += myCase.carbonNitrogenLayers[l].C_min_humus;
-        C_litter_humusGG += myCase.carbonNitrogenLayers[l].C_litter_humus;
-        C_litter_litterGG += myCase.carbonNitrogenLayers[l].C_litter_litter;
-        C_min_litterGG += myCase.carbonNitrogenLayers[l].C_min_litter;
-        C_litterGG += myCase.carbonNitrogenLayers[l].C_litter;
-        N_NO3_uptakeGG += myCase.carbonNitrogenLayers[l].N_NO3_uptake;
-        N_NH4_uptakeGG += myCase.carbonNitrogenLayers[l].N_NH4_uptake;
-        N_NH4_volGG += myCase.carbonNitrogenLayers[l].N_vol;
-        N_nitrifGG += myCase.carbonNitrogenLayers[l].N_nitrif;
-        N_urea_hydrGG += myCase.carbonNitrogenLayers[l].N_Urea_Hydr;
-        N_denitrGG += myCase.carbonNitrogenLayers[l].N_denitr;
+        nitrogenTotalProfile.humusGG += myCase.carbonNitrogenLayers[l].N_humus;
+        nitrogenTotalProfile.litterGG += myCase.carbonNitrogenLayers[l].N_litter;
+        nitrogenTotalProfile.litter_humusGG += myCase.carbonNitrogenLayers[l].N_litter_humus;
+        nitrogenTotalProfile.min_humusGG += myCase.carbonNitrogenLayers[l].N_min_humus;
+        nitrogenTotalProfile.min_litterGG += myCase.carbonNitrogenLayers[l].N_min_litter;
+        nitrogenTotalProfile.imm_l_NH4GG += myCase.carbonNitrogenLayers[l].N_imm_l_NH4;
+        nitrogenTotalProfile.imm_l_NO3GG += myCase.carbonNitrogenLayers[l].N_imm_l_NO3;
+        carbonTotalProfile.humusGG += myCase.carbonNitrogenLayers[l].C_humus;
+        carbonTotalProfile.min_humusGG += myCase.carbonNitrogenLayers[l].C_min_humus;
+        carbonTotalProfile.litter_humusGG += myCase.carbonNitrogenLayers[l].C_litter_humus;
+        carbonTotalProfile.litter_litterGG += myCase.carbonNitrogenLayers[l].C_litter_litter;
+        carbonTotalProfile.min_litterGG += myCase.carbonNitrogenLayers[l].C_min_litter;
+        carbonTotalProfile.litterGG += myCase.carbonNitrogenLayers[l].C_litter;
+        nitrogenTotalProfile.NO3_uptakeGG += myCase.carbonNitrogenLayers[l].N_NO3_uptake;
+        nitrogenTotalProfile.NH4_uptakeGG += myCase.carbonNitrogenLayers[l].N_NH4_uptake;
+        nitrogenTotalProfile.NH4_volGG += myCase.carbonNitrogenLayers[l].N_vol;
+        nitrogenTotalProfile.nitrifGG += myCase.carbonNitrogenLayers[l].N_nitrif;
+        nitrogenTotalProfile.urea_hydrGG += myCase.carbonNitrogenLayers[l].N_Urea_Hydr;
+        nitrogenTotalProfile.denitrGG += myCase.carbonNitrogenLayers[l].N_denitr;
 
     }
 
@@ -466,35 +493,7 @@ void Crit3DCarbonNitrogenProfile::chemicalTransformations(Crit1DCase &myCase)
 }
 
 
-// da valutare
-void Crit3DCarbonNitrogenProfile::N_Initialize()
-{
-    //****************************************************************
-    //Scopo: lettura da tbAzoto di coefficienti relativi al ciclo di N
-    //****************************************************************
-    //04.08.04.VM eliminazione dei vettori di costanti
-    //00.07.19.VM.MVS nuova sub chiamata da SUB_INI_Profilo per le variabili dell'azoto
-    //****************************************************************
-
-        // 2008.02 GA da inserire in database
-        /*Nitrogen.N_deficit_max_days = 3
-        ReDim Nitrogen.N_deficit_daily(0)
-        */
-
-        ratio_CN_humus = ratio_CN_biomass = 12; // !! to be read somewhere
-        flagSOM = 1; // !! to be read somewhere
-        flagWaterTableUpward = true;  // !! to be read somewhere
-        flagWaterTableWashing = true;  // !! to be read somewhere
-        litterIniC = NODATA; // !! to be read somewhere
-        litterIniN = NODATA; // !! to be read somewhere
-        litterIniDepth = NODATA; // !! to be read somewhere
-
-        N_cropToHarvest = 0;
-        N_cropToResidues = 0;
-        N_roots = 0;
-}
-
-void Crit3DCarbonNitrogenProfile::N_Fertilization(Crit1DCase &myCase,TfertilizerProperties fertilizerProperties)
+void Crit1DCarbonNitrogenProfile::N_Fertilization(Crit1DCase &myCase,Crit3DFertilizerProperties fertilizerProperties)
 {
     //07.12.17 GA cambiata dichiarazione da Integer a Single per concentrazioni (per valori frazionari)
     //02.11.27.MVS aggiunta concime organico
@@ -525,7 +524,7 @@ void Crit3DCarbonNitrogenProfile::N_Fertilization(Crit1DCase &myCase,Tfertilizer
 
     //perdita immediata per volatilizzazione dell'urea
     if (fertilizerProperties.ID_FERTILIZER == FERTILIZER_UREA)
-        N_totalQuantity *= 0.8; // assuming 20% becomes NH3 by volatilization
+        N_totalQuantity *= 0.8; // assuming 20% becomes NO3 by volatilization
 
     //2007.04 GA se profondità = 0 (tutto nei primi 10 cm)
     if (fertilizerProperties.fertilizerDepth < 10)
@@ -534,7 +533,7 @@ void Crit3DCarbonNitrogenProfile::N_Fertilization(Crit1DCase &myCase,Tfertilizer
     // divido la quantità per cm
     quantityNcm = N_totalQuantity / fertilizerProperties.fertilizerDepth;
     unsigned int ll=1;
-    for (unsigned int l=0; l<myCase.soilLayers.size(); l++)
+    for (unsigned int l=1; l<myCase.soilLayers.size(); l++)
     {
         if (N_totalQuantity <= 0)
         {
@@ -548,7 +547,7 @@ void Crit3DCarbonNitrogenProfile::N_Fertilization(Crit1DCase &myCase,Tfertilizer
         quantityN[l] /= 10; // from kg ha-1 to g m-2
     }
 
-    for (unsigned int l=0; l<ll; l++)
+    for (unsigned int l=1; l<ll; l++)
     {
         //'2007.12 GA inserita concimazione ureica (prima N_urea era sempre 0!)
         //'perdita del 30% per volatilizzazione immediata
@@ -560,8 +559,8 @@ void Crit3DCarbonNitrogenProfile::N_Fertilization(Crit1DCase &myCase,Tfertilizer
         N_Norg_fert[l] = quantityN[l]*fertilizerProperties.N_org_percentage/ 100;
 
         //per il bilancio...
-        N_NO3_fertGG += N_NO3_fert[l];
-        N_NH4_fertGG += N_NH4_fert[l];
+        nitrogenTotalProfile.NO3_fertGG += N_NO3_fert[l];
+        nitrogenTotalProfile.NH4_fertGG += N_NH4_fert[l];
 
         myCase.carbonNitrogenLayers[l].N_NO3 += N_NO3_fert[l];                                      // updating N_NO3
         myCase.carbonNitrogenLayers[l].N_NH4 += N_NH4_fert[l];                                      // updating N_NH4
@@ -572,16 +571,8 @@ void Crit3DCarbonNitrogenProfile::N_Fertilization(Crit1DCase &myCase,Tfertilizer
 }
 
 // da valutare
-void Crit3DCarbonNitrogenProfile::N_InitializeVariables(Crit1DCase &myCase)
+void Crit1DCarbonNitrogenProfile::N_InitializeVariables(Crit1DCase &myCase)
 {
-    //2004.08.16.VM introduzione di FUN_CNhumus_INI e LitterIni
-    //2004.08.05.VM eliminato da tbLog la costante CNratio_humus
-    //2004.06.25.VM forzato la sostanza organica del suolo
-    //2002.03.15.GD correzione calcolo N_humus
-    //2000.11.20.MVS nuovo codice sulla lettura di tbIniProfilo e tblog
-    //1999.12.02.MVS cambiamento tbUscite in tbUscite_azoto...
-    //1999.05.20.GD
-    //1999.03.15.GD
     //-------------- NOTE -----------------------------------------------------
     //Questa routine carica i valori iniziali nelle variabili
     //utilizzando due metodi alternativi:
@@ -593,12 +584,7 @@ void Crit3DCarbonNitrogenProfile::N_InitializeVariables(Crit1DCase &myCase)
     //nrLayers           [-] numero di strati
     //DataIniziale      [-] data di inizio della simulazione
     //-------------- Output Variables -----------------------------------------
-
-    //-------------- Internal Variables ---------------------------------------
-
-    /*Dim Nome$          '[-] nome del campo umidità
-
-
+    /*
     Dim dataformattata As String
     Dim i As Integer
     Dim variable As String
@@ -643,41 +629,44 @@ void Crit3DCarbonNitrogenProfile::N_InitializeVariables(Crit1DCase &myCase)
             tbLog.MoveFirst
 
         Else
-            HumusIni
+            humus_Initialize
             LitterIni
             Partitioning
         End If
 
     Else
-        HumusIni
+        humus_Initialize
         LitterIni
         Partitioning
     End If
 
     */
-    humusIni(myCase);
-    litterIni(myCase);
+    humus_Initialize(myCase);
+    litter_Initialize(myCase);
     partitioning(myCase);
 
-    double nitrogenPerCm = 0.05; // [g m-2] valore da rivedere
-    // azzeramento delle variabili non rilette
-    for(unsigned int l=0; l<myCase.soilLayers.size();l++)
+    double nitrogenPerCm = 0.05;            // [g m-2] valore da rivedere
+
+    // initialize state variables
+    // TODO add these varibles to state/restart
+    for(unsigned int l=1; l < myCase.soilLayers.size(); l++)
     {
         myCase.carbonNitrogenLayers[l].N_NO3 = 100*myCase.soilLayers[l].thickness*nitrogenPerCm;
         myCase.carbonNitrogenLayers[l].N_NH4 = 100*myCase.soilLayers[l].thickness*nitrogenPerCm;
         myCase.carbonNitrogenLayers[l].N_NH4_Adsorbed = 0.1*(myCase.carbonNitrogenLayers[l].N_NH4);
         myCase.carbonNitrogenLayers[l].N_urea = 0;
-
     }
-    profileNH4 = profileNO3 = 0;
-    for(unsigned int l=0; l<myCase.soilLayers.size();l++)
+
+    nitrogenTotalProfile.profileNH4 = 0;
+    nitrogenTotalProfile.profileNO3 = 0;
+    for(unsigned int l=1; l < myCase.soilLayers.size(); l++)
     {
-        profileNO3 += myCase.carbonNitrogenLayers[l].N_NO3;
-        profileNH4 += myCase.carbonNitrogenLayers[l].N_NH4;
+        nitrogenTotalProfile.profileNO3 += myCase.carbonNitrogenLayers[l].N_NO3;
+        nitrogenTotalProfile.profileNH4 += myCase.carbonNitrogenLayers[l].N_NH4;
     }
-
-    // End Sub
 }
+
+
 /*
 // da valutare come replicare se fare riferimento ad un database
 void ApriTabellaUsciteAzoto(tbname_azoto As String)
@@ -990,32 +979,26 @@ Dim L As Integer
 
 End Sub
 */
-void Crit3DCarbonNitrogenProfile::N_main(double precGG, Crit1DCase &myCase,Crit3DDate &myDate)
-{
-    //++++++++++ MAIN NITROGEN ROUTINE +++++++++++++++++++++++++++++++++++
-    //2008.09 GA
-    //04.08.05.VM Version 2004.4
-    //04.02.20.VM VERSION 2004.3
-    //04.01.28.FZ REVISIONE 2004.2
-    //04.01.09.FZ REVISIONE 2004.1
-    //02.11.26.MVS riscritto il vecchio SUB_SOIL_N
 
+// --------------------------- MAIN NITROGEN FUNCTION ----------------------------------------
+void Crit1DCarbonNitrogenProfile::N_main(double precGG, Crit1DCase &myCase,Crit3DDate &myDate)
+{
     //inputs from precipitation
-        //wet deposition data (ARPAE)
-        //values for the Bologna-Ravenna plain area about 400 eqN ha-1 y-1 (1 eqN = 14 g)
-        //6 kg ha-1 y-1
-        //considering average annual rainfall of 400 mm
-        //0.015 kg ha-1 N mm-1
-        //0.0015 g m-2 N mm-1
-        //dividing equally between N-NO3 and N-NH4
-        //0.00075 g m-2 N-NO3 and N-NH4 mm-1
+    //wet deposition data (ARPAE)
+    //values for the Bologna-Ravenna plain area about 400 eqN ha-1 y-1 (1 eqN = 14 g)
+    //6 kg ha-1 y-1
+    //considering average annual rainfall of 400 mm
+    //0.015 kg ha-1 N mm-1
+    //0.0015 g m-2 N mm-1
+    //dividing equally between N-NO3 and N-NH4
+    //0.00075 g m-2 N-NO3 and N-NH4 mm-1
 
     if (precGG > 0)
     {
-        precN_NO3GG = 0.00075 * precGG;
-        precN_NH4GG = 0.00075 * precGG;
-        myCase.carbonNitrogenLayers[0].N_NO3 += precN_NO3GG;
-        myCase.carbonNitrogenLayers[0].N_NH4 += precN_NH4GG;
+        nitrogenTotalProfile.prec_NO3GG = 0.00075 * precGG;
+        nitrogenTotalProfile.prec_NH4GG = 0.00075 * precGG;
+        myCase.carbonNitrogenLayers[0].N_NO3 += nitrogenTotalProfile.prec_NO3GG;
+        myCase.carbonNitrogenLayers[0].N_NH4 += nitrogenTotalProfile.prec_NH4GG;
         partitioning(myCase);
     }
 
@@ -1034,47 +1017,47 @@ void Crit3DCarbonNitrogenProfile::N_main(double precGG, Crit1DCase &myCase,Crit3
     partitioning(myCase);
 
     //flussi di azoto nel suolo
-    double myPistonDepth;
-    myPistonDepth = findPistonDepth(myCase);
-        //SoluteFluxesPiston N_NO3, myPistonDepth, Flux_NO3GG
-        //SoluteFluxesPiston N_NH4, myPistonDepth, Flux_NH4GG
-
+    double pistonDepth;
+    pistonDepth = findPistonDepth(myCase);
 
     std::vector<double> mySolute;
     mySolute.resize(myCase.soilLayers.size());
 
-    for(unsigned int l=0;l<myCase.soilLayers.size();l++)
+    for(unsigned int l=1; l < myCase.soilLayers.size(); l++)
     {
         mySolute[l] = myCase.carbonNitrogenLayers[l].N_NO3;
-    }
-    soluteFluxes(mySolute, flagWaterTableUpward , myPistonDepth, &flux_NO3GG, myCase);
+    } 
+    soluteFluxes(mySolute, flag.waterTableUpward , pistonDepth, &nitrogenTotalProfile.flux_NO3GG, myCase);
+
     for(unsigned int l=0;l<myCase.soilLayers.size();l++)
     {
         mySolute[l] = myCase.carbonNitrogenLayers[l].N_NH4_Sol;
     }
-    soluteFluxes(mySolute, flagWaterTableUpward, myPistonDepth, &flux_NH4GG, myCase);
+    soluteFluxes(mySolute, flag.waterTableUpward, pistonDepth, &nitrogenTotalProfile.flux_NH4GG, myCase);
 
-    for(unsigned int l=0;l<myCase.soilLayers.size();l++)
+    for(unsigned int l=1;l<myCase.soilLayers.size();l++)
     {
         myCase.carbonNitrogenLayers[l].N_NH4  = updateTotalOfPartitioned(myCase.carbonNitrogenLayers[l].N_NH4_Adsorbed, myCase.carbonNitrogenLayers[l].N_NH4_Sol);
     }
     partitioning(myCase);
 
-    if (flagWaterTableWashing)
+    if (flag.waterTableWashing)
     {
-        for(unsigned int l=0;l<myCase.soilLayers.size();l++)
+        for(unsigned int l=1; l<myCase.soilLayers.size(); l++)
         {
             mySolute[l] = myCase.carbonNitrogenLayers[l].N_NO3;
         }
-        leachingWaterTable(mySolute, &flux_NO3GG,myCase);
-        for(unsigned int l=0;l<myCase.soilLayers.size();l++)
+        leachingWaterTable(mySolute, &nitrogenTotalProfile.flux_NO3GG,myCase);
+
+        for(unsigned int l=1; l<myCase.soilLayers.size(); l++)
         {
             mySolute[l] = myCase.carbonNitrogenLayers[l].N_NH4_Sol;
         }
-        leachingWaterTable(mySolute, &flux_NH4GG,myCase);
+        leachingWaterTable(mySolute, &nitrogenTotalProfile.flux_NH4GG,myCase);
     }
+
     mySolute.clear();
-    for(unsigned int l=0;l<myCase.soilLayers.size();l++)
+    for(unsigned int l=1;l<myCase.soilLayers.size();l++)
     {
         myCase.carbonNitrogenLayers[l].N_NH4  = updateTotalOfPartitioned(myCase.carbonNitrogenLayers[l].N_NH4_Adsorbed, myCase.carbonNitrogenLayers[l].N_NH4_Sol);
     }
@@ -1098,20 +1081,7 @@ void Crit3DCarbonNitrogenProfile::N_main(double precGG, Crit1DCase &myCase,Crit3
 }
 
 
-double Crit3DCarbonNitrogenProfile::CNRatio(double C,double N,int flagOrganicMatter)
-{
-    // 2004.02.20.VM
-    // computes the C/N ratio
-    if (flagOrganicMatter != 1)
-        return 20.;
-    if (N > 0.000001)
-        return MAXVALUE(0.001, C/N);
-    else
-        return 100.;
-}
-
-
-double Crit3DCarbonNitrogenProfile::computeWaterCorrectionFactor(int l,Crit1DCase &myCase)
+double Crit1DCarbonNitrogenProfile::computeWaterCorrectionFactor(int l,Crit1DCase &myCase)
 {
     // LEACHM
 
@@ -1141,7 +1111,7 @@ double Crit3DCarbonNitrogenProfile::computeWaterCorrectionFactor(int l,Crit1DCas
 }
 
 
-double Crit3DCarbonNitrogenProfile::computeTemperatureCorrectionFactor(bool flagHeat, double layerSoilTemperature, double baseTemperature)
+double Crit1DCarbonNitrogenProfile::computeTemperatureCorrectionFactor(bool flagHeat, double layerSoilTemperature, double baseTemperature)
 {
     //2008.10 GA
     //2004.02.20.VM
@@ -1157,7 +1127,7 @@ double Crit3DCarbonNitrogenProfile::computeTemperatureCorrectionFactor(bool flag
         return 1;
 }
 
-void Crit3DCarbonNitrogenProfile::computeLayerRates(unsigned l, Crit1DCase &myCase)
+void Crit1DCarbonNitrogenProfile::computeLayerRates(unsigned l, Crit1DCase &myCase)
 {
     double totalCorrectionFactor;
     double wCorr_Denitrification;
@@ -1166,34 +1136,34 @@ void Crit3DCarbonNitrogenProfile::computeLayerRates(unsigned l, Crit1DCase &myCa
     double conc_N_NO3;
 
     // update C/N ratio (fixed for humus and biomass)
-    myCase.carbonNitrogenLayers[l].ratio_CN_litter = CNRatio(myCase.carbonNitrogenLayers[l].C_litter, myCase.carbonNitrogenLayers[l].N_litter,flagSOM);
+    myCase.carbonNitrogenLayers[l].ratio_CN_litter = CNRatio(myCase.carbonNitrogenLayers[l].C_litter, myCase.carbonNitrogenLayers[l].N_litter,flag.SOM);
     totalCorrectionFactor = myCase.carbonNitrogenLayers[l].temperatureCorrectionFactor * myCase.carbonNitrogenLayers[l].waterCorrecctionFactor;
 
     // carbon
 
     // humus mineralization
-    actualRate_C_humusMin = carbonNitrogenParameter.rate_C_humusMin * totalCorrectionFactor;
+    actualRate.C_humusMin = carbonNitrogenParameter.rate_C_humusMin * totalCorrectionFactor;
 
     // litter to humus
-    actualRate_C_litterToHumus = carbonNitrogenParameter.rate_C_litterMin * totalCorrectionFactor * (carbonNitrogenParameter.FE * carbonNitrogenParameter.FH);
+    actualRate.C_litterToHumus = carbonNitrogenParameter.rate_C_litterMin * totalCorrectionFactor * (carbonNitrogenParameter.FE * carbonNitrogenParameter.FH);
 
     // litter to CO2
-    actualRate_C_litterToCO2 = carbonNitrogenParameter.rate_C_litterMin * totalCorrectionFactor * (1 - carbonNitrogenParameter.FE);
+    actualRate.C_litterToCO2 = carbonNitrogenParameter.rate_C_litterMin * totalCorrectionFactor * (1 - carbonNitrogenParameter.FE);
 
     // litter to biomass
-    actualRate_C_litterToBiomass = carbonNitrogenParameter.rate_C_litterMin * totalCorrectionFactor * carbonNitrogenParameter.FE * (1 - carbonNitrogenParameter.FH);
+    actualRate.C_litterToBiomass = carbonNitrogenParameter.rate_C_litterMin * totalCorrectionFactor * carbonNitrogenParameter.FE * (1 - carbonNitrogenParameter.FH);
 
     //nitrogen
 
     // litter mineralization/immobilization
-    actualRate_N_litterMin = MAXVALUE(0, 1. / myCase.carbonNitrogenLayers[l].ratio_CN_litter - carbonNitrogenParameter.FE / ratio_CN_biomass);
+    actualRate.N_litterMin = MAXVALUE(0, 1. / myCase.carbonNitrogenLayers[l].ratio_CN_litter - carbonNitrogenParameter.FE / ratio_CN_biomass);
     if (myCase.carbonNitrogenLayers[l].N_litter > 0)
-        actualRate_N_litterImm = -MINVALUE(0, 1. / myCase.carbonNitrogenLayers[l].ratio_CN_litter - carbonNitrogenParameter.FE / ratio_CN_biomass);
+        actualRate.N_litterImm = -MINVALUE(0, 1. / myCase.carbonNitrogenLayers[l].ratio_CN_litter - carbonNitrogenParameter.FE / ratio_CN_biomass);
     else
-        actualRate_N_litterImm = 0;
+        actualRate.N_litterImm = 0;
 
     //nitrification
-    actualRate_N_nitrification = carbonNitrogenParameter.rate_N_nitrification * totalCorrectionFactor;
+    actualRate.N_nitrification = carbonNitrogenParameter.rate_N_nitrification * totalCorrectionFactor;
 
     // denitrification
     thetaSAT = myCase.soilLayers[l].SAT  / (myCase.soilLayers[l].thickness * 1000);
@@ -1201,16 +1171,16 @@ void Crit3DCarbonNitrogenProfile::computeLayerRates(unsigned l, Crit1DCase &myCa
     wCorr_Denitrification = pow(MAXVALUE(0, (theta - (1 - carbonNitrogenParameter.max_afp_denitr) * thetaSAT)) / (thetaSAT - (1 - carbonNitrogenParameter.max_afp_denitr) * thetaSAT), 2);
     conc_N_NO3 =convertToGramsPerLiter(myCase.carbonNitrogenLayers[l].N_NO3,myCase.soilLayers[l]) * 1000;
 
-    actualRate_N_denitrification = carbonNitrogenParameter.rate_N_denitrification * myCase.carbonNitrogenLayers[l].temperatureCorrectionFactor * wCorr_Denitrification
+    actualRate.N_denitrification = carbonNitrogenParameter.rate_N_denitrification * myCase.carbonNitrogenLayers[l].temperatureCorrectionFactor * wCorr_Denitrification
         * conc_N_NO3 / (conc_N_NO3 + carbonNitrogenParameter.constant_sat_denitr);
 
     // urea hydrolysis
 
-    actualRateUreaHydr = carbonNitrogenParameter.rate_urea_hydr * totalCorrectionFactor;
+    actualRate.ureaHydr = carbonNitrogenParameter.rate_urea_hydr * totalCorrectionFactor;
 
 }
 
-void Crit3DCarbonNitrogenProfile::N_Uptake(Crit1DCase &myCase)
+void Crit1DCarbonNitrogenProfile::N_Uptake(Crit1DCase &myCase)
 {
     // 2008.09 GA written based on LEACHM
     //           + new computation for the daily uptake (quit FGS)
@@ -1237,7 +1207,7 @@ void Crit3DCarbonNitrogenProfile::N_Uptake(Crit1DCase &myCase)
 
     // check if total assimilable Nitrogen has already been taken up
 
-    if (N_potentialDemandCum >= N_uptakable)
+    if (nitrogenTotalProfile.potentialDemandCum >= nitrogenTotalProfile.uptakable)
     {
         return;
     }
@@ -1245,7 +1215,7 @@ void Crit3DCarbonNitrogenProfile::N_Uptake(Crit1DCase &myCase)
     // potential N uptake (dependent on LAI)
     N_Uptake_Potential(myCase);
 
-    if (N_dailyDemand == 0)
+    if (nitrogenTotalProfile.dailyDemand == 0)
     {
         return;
     }
@@ -1254,7 +1224,7 @@ void Crit3DCarbonNitrogenProfile::N_Uptake(Crit1DCase &myCase)
     //2008.09 GA no residues
     //Add residues
 
-    N_uptakeMax = N_dailyDemand;
+    nitrogenTotalProfile.uptakeMax = nitrogenTotalProfile.dailyDemand;
 
     if ((myCase.output.dailyTranspiration == 0) || (myCase.crop.getMaxTranspiration(myCase.output.dailyEt0) == 0))
     {
@@ -1266,7 +1236,7 @@ void Crit3DCarbonNitrogenProfile::N_Uptake(Crit1DCase &myCase)
     std::vector<double> N_NH4_up_max;
     N_NO3_up_max.resize(myCase.soilLayers.size());
     N_NH4_up_max.resize(myCase.soilLayers.size());
-    for(unsigned int l=0;l<myCase.soilLayers.size();l++)
+    for(unsigned int l=1;l<myCase.soilLayers.size();l++)
     {
         N_NO3_up_max[l] = 0;
         N_NH4_up_max[l] = 0;
@@ -1293,7 +1263,7 @@ void Crit3DCarbonNitrogenProfile::N_Uptake(Crit1DCase &myCase)
     {
         for (int l = myCase.crop.roots.firstRootLayer;l<myCase.crop.roots.lastRootLayer;l++)
         {
-            myCase.carbonNitrogenLayers[l].N_NO3_uptake = MINVALUE(myCase.carbonNitrogenLayers[l].N_NO3, (N_NO3_up_max[l] / N_max_transp) * N_uptakeMax);
+            myCase.carbonNitrogenLayers[l].N_NO3_uptake = MINVALUE(myCase.carbonNitrogenLayers[l].N_NO3, (N_NO3_up_max[l] / N_max_transp) * nitrogenTotalProfile.uptakeMax);
             //GA2017 dialogo con Ceotto (mais San Prospero)
             myCase.carbonNitrogenLayers[l].N_NH4_uptake = 0; //'min(N_NH4_Sol[L], (N_NH4_up_max[L] / N_max_transp) * N_UptakeMax)
         }
@@ -1302,7 +1272,7 @@ void Crit3DCarbonNitrogenProfile::N_Uptake(Crit1DCase &myCase)
     N_NH4_up_max.clear();
 }
 
-void Crit3DCarbonNitrogenProfile::N_SurfaceRunoff(Crit1DCase &myCase)
+void Crit1DCarbonNitrogenProfile::N_SurfaceRunoff(Crit1DCase &myCase)
 {
     //-----------------------------------------
     //02.11.19.MVS Surface separato da Subsurface
@@ -1313,11 +1283,11 @@ void Crit3DCarbonNitrogenProfile::N_SurfaceRunoff(Crit1DCase &myCase)
     {
         // calcolo dell'azoto perso nel ruscellamento superficiale
         // seguendo i calcoli tratti da EPIC per il fosforo
-        N_NO3_runoff0GG = MINVALUE(myCase.carbonNitrogenLayers[0].N_NO3, myCase.carbonNitrogenLayers[0].N_NO3 / myCase.prevWaterContent[0] * myCase.output.dailySurfaceRunoff);
-        N_NH4_runoff0GG = MINVALUE(myCase.carbonNitrogenLayers[0].N_NH4_Sol, myCase.carbonNitrogenLayers[0].N_NH4_Sol / myCase.prevWaterContent[0] * myCase.output.dailySurfaceRunoff);
+        nitrogenTotalProfile.NO3_runoff0GG = MINVALUE(myCase.carbonNitrogenLayers[0].N_NO3, myCase.carbonNitrogenLayers[0].N_NO3 / myCase.prevWaterContent[0] * myCase.output.dailySurfaceRunoff);
+        nitrogenTotalProfile.NH4_runoff0GG = MINVALUE(myCase.carbonNitrogenLayers[0].N_NH4_Sol, myCase.carbonNitrogenLayers[0].N_NH4_Sol / myCase.prevWaterContent[0] * myCase.output.dailySurfaceRunoff);
 
-        myCase.carbonNitrogenLayers[0].N_NO3 -= N_NO3_runoff0GG;
-        myCase.carbonNitrogenLayers[0].N_NH4_Sol -= N_NH4_runoff0GG;
+        myCase.carbonNitrogenLayers[0].N_NO3 -= nitrogenTotalProfile.NO3_runoff0GG;
+        myCase.carbonNitrogenLayers[0].N_NH4_Sol -= nitrogenTotalProfile.NH4_runoff0GG;
 
     }
 
@@ -1366,13 +1336,13 @@ void N_SubSurfaceRunoff()
 }
 */
 
-void Crit3DCarbonNitrogenProfile::N_Uptake_Potential(Crit1DCase &myCase)
+void Crit1DCarbonNitrogenProfile::N_Uptake_Potential(Crit1DCase &myCase)
 {
     //2008.09 GA new routine to compute Nitrogen demand
     //2008.04 GA
     //2002.11.26.MVS this computation depends on LAI
 
-    N_dailyDemand = 0;
+    nitrogenTotalProfile.dailyDemand = 0;
 
     // to avoid strong changes as far as LAI>0
     if (myCase.crop.LAIpreviousDay == 0)
@@ -1386,8 +1356,8 @@ void Crit3DCarbonNitrogenProfile::N_Uptake_Potential(Crit1DCase &myCase)
         return;
     }
 
-    N_dailyDemand = MINVALUE(MAXVALUE(0, myCase.crop.LAI - myCase.crop.LAIpreviousDay) * maxRate_LAI_Ndemand, maxRate_LAI_Ndemand);
-    N_potentialDemandCum += N_dailyDemand;
+    nitrogenTotalProfile.dailyDemand = MINVALUE(MAXVALUE(0, myCase.crop.LAI - myCase.crop.LAIpreviousDay) * maxRate_LAI_Ndemand, maxRate_LAI_Ndemand);
+    nitrogenTotalProfile.potentialDemandCum += nitrogenTotalProfile.dailyDemand;
 }
 /*
 void N_Uptake_Max()
@@ -1434,7 +1404,7 @@ void N_Uptake_Max()
 }
 */
 
-void Crit3DCarbonNitrogenProfile::N_Reset()
+void Crit1DCarbonNitrogenProfile::N_Reset()
 {
     //'02.11.26.MVS
     //'02.10.22.GD
@@ -1471,43 +1441,43 @@ void Crit3DCarbonNitrogenProfile::N_Reset()
     */
     //'azzero tutte le variabili giornaliere
     //'bil NO3
-    N_NO3_fertGG = 0;
-    N_imm_l_NO3GG = 0;
-    N_denitrGG = 0;//   'Denitrification non viene piu' chiamata
-    N_NO3_uptakeGG = 0;
-    N_NO3_runoff0GG = 0;
-    N_NO3_runoffGG = 0;
-    flux_NO3GG = 0;
-    precN_NO3GG = 0;
-    precN_NH4GG = 0;
-    N_nitrifGG = 0;
-    N_NH4_fertGG = 0;
-    N_NH4_adsorbedGG = 0;
-    N_NH4_adsorbedBeforeGG = 0;
-    N_imm_l_NH4GG = 0;
-    N_min_humusGG = 0;
-    N_min_litterGG = 0;
-    N_NH4_volGG = 0;
-    N_urea_hydrGG = 0;
-    N_NH4_uptakeGG = 0;
-    flux_NH4GG = 0;
-    N_NH4_runoff0GG = 0;
-    N_NH4_runoffGG = 0;
-    N_humusGG = 0;
-    N_litterGG = 0;
-    C_humusGG = 0;
-    C_litterGG = 0;
-    C_min_humusGG = 0;
-    C_min_litterGG = 0;
-    C_litter_humusGG = 0;
-    C_litter_litterGG = 0;
+    nitrogenTotalProfile.NO3_fertGG = 0;
+    nitrogenTotalProfile.imm_l_NO3GG = 0;
+    nitrogenTotalProfile.denitrGG = 0;//   'Denitrification non viene piu' chiamata
+    nitrogenTotalProfile.NO3_uptakeGG = 0;
+    nitrogenTotalProfile.NO3_runoff0GG = 0;
+    nitrogenTotalProfile.NO3_runoffGG = 0;
+    nitrogenTotalProfile.flux_NO3GG = 0;
+    nitrogenTotalProfile.prec_NO3GG = 0;
+    nitrogenTotalProfile.prec_NH4GG = 0;
+    nitrogenTotalProfile.nitrifGG = 0;
+    nitrogenTotalProfile.NH4_fertGG = 0;
+    nitrogenTotalProfile.NH4_adsorbedGG = 0;
+    nitrogenTotalProfile.NH4_adsorbedBeforeGG = 0;
+    nitrogenTotalProfile.imm_l_NH4GG = 0;
+    nitrogenTotalProfile.min_humusGG = 0;
+    nitrogenTotalProfile.min_litterGG = 0;
+    nitrogenTotalProfile.NH4_volGG = 0;
+    nitrogenTotalProfile.urea_hydrGG = 0;
+    nitrogenTotalProfile.NH4_uptakeGG = 0;
+    nitrogenTotalProfile.flux_NH4GG = 0;
+    nitrogenTotalProfile.NH4_runoff0GG = 0;
+    nitrogenTotalProfile.NH4_runoffGG = 0;
+    nitrogenTotalProfile.humusGG = 0;
+    nitrogenTotalProfile.litterGG = 0;
+    carbonTotalProfile.humusGG = 0;
+    carbonTotalProfile.litterGG = 0;
+    carbonTotalProfile.min_humusGG = 0;
+    carbonTotalProfile.min_litterGG = 0;
+    carbonTotalProfile.litter_humusGG = 0;
+    carbonTotalProfile.litter_litterGG = 0;
 }
 
 
-double Crit3DCarbonNitrogenProfile::findPistonDepth(Crit1DCase &myCase)
+double Crit1DCarbonNitrogenProfile::findPistonDepth(Crit1DCase &myCase)
 {
     unsigned int l;
-    for (l = 0;l<myCase.soilLayers.size();l++)
+    for (l = 1; l < myCase.soilLayers.size(); l++)
     {
         if (myCase.prevWaterContent[l] > myCase.soilLayers[l].FC)
         {
@@ -1627,7 +1597,7 @@ void soluteFluxesPiston_old(double* mySolute, double* leached, double* CoeffPist
 }
 
 */
-void Crit3DCarbonNitrogenProfile::soluteFluxes(std::vector<double> &mySolute,bool upwardFlag, double pistonDepth,double* leached,Crit1DCase &myCase)
+void Crit1DCarbonNitrogenProfile::soluteFluxes(std::vector<double> &mySolute,bool upwardFlag, double pistonDepth,double* leached,Crit1DCase &myCase)
 {
     //2022.12 AV code translation from VB to C/C++
     //2008.10 GA quit the dispersive algorithm because the pseudonumerical procedure is already self dispersive
@@ -1649,26 +1619,29 @@ void Crit3DCarbonNitrogenProfile::soluteFluxes(std::vector<double> &mySolute,boo
     double myFreeSolute;
     double coeffMobile;
 
-        if (pistonDepth >= myCase.soilLayers[myCase.soilLayers.size()-1].depth)
-            return;
-        else
-        {
-            unsigned int l=0;
-            while(myCase.soilLayers[l].depth >= pistonDepth)
-            {
-                l++;
-                firstLayer = l;
-            }
-        }
+    unsigned int lastLayer = myCase.soilLayers.size() - 1;
 
-        fluxSolute.resize(myCase.soilLayers.size());
-        fSolute.resize(myCase.soilLayers.size());
-        u_temp.resize(myCase.soilLayers.size());
-        for (unsigned int l = 0; l<myCase.soilLayers.size(); l++)
+    if (pistonDepth >= myCase.soilLayers[lastLayer].depth)
+        return;
+    else
+    {
+        unsigned int l=1;
+        while(myCase.soilLayers[l].depth < pistonDepth)
         {
-            fluxSolute[l] = 0;
-            u_temp[l] = myCase.prevWaterContent[l];
+            l++;
         }
+        firstLayer = l;
+    }
+
+    fluxSolute.resize(myCase.soilLayers.size());
+    fSolute.resize(myCase.soilLayers.size());
+    u_temp.resize(myCase.soilLayers.size());
+
+    for (unsigned int l = 1; l <= lastLayer; l++)
+    {
+        fluxSolute[l] = 0;
+        u_temp[l] = myCase.prevWaterContent[l];
+    }
         // ???????????????????
         //For L = nrLayers To 1 Step -1
 
@@ -1679,53 +1652,53 @@ void Crit3DCarbonNitrogenProfile::soluteFluxes(std::vector<double> &mySolute,boo
 
         //iterazioni = min(max(24, 0.1 * max(Flux(0), Abs(Flux(nrLayers))) * max(Flux(0), Abs(Flux(nrLayers)))), 1000)
 
-        iterations = 1;
-        for (unsigned int i = 0; i<iterations; i++)
+    iterations = 1;
+    for (unsigned int i = 0; i < iterations; i++)
+    {
+        for (unsigned int l = firstLayer; l <= lastLayer; l++)
         {
-            for (unsigned int l = firstLayer; l<myCase.soilLayers.size(); l++)
+            fSolute[l] = 0;
+
+            H2O_step_flux = (myCase.soilLayers[l].flux / iterations);
+            H2O_step_flux_L_1 = (myCase.soilLayers[l-1].flux / iterations);
+
+            // water balance from node l
+            u_temp[l] += H2O_step_flux_L_1 - H2O_step_flux;
+
+            // computation of solute fluxes
+            if (myCase.soilLayers[l].flux > 0)
             {
-                fSolute[l] = 0;
-
-                H2O_step_flux = (myCase.soilLayers[l].flux / iterations);
-                H2O_step_flux_L_1 = (myCase.soilLayers[l-1].flux / iterations);
-
-                // water balance from node l
-                u_temp[l] += H2O_step_flux_L_1 - H2O_step_flux;
-
-                // computation of solute fluxes
-                if (myCase.soilLayers[l].flux > 0)
-                {
-                    coeffMobile = 1;
-                    myFreeSolute = mySolute[l] * coeffMobile;
-                    fSolute[l] = MINVALUE(mySolute[l], myFreeSolute / myCase.prevWaterContent[l] * H2O_step_flux);
-                }
-                else if (upwardFlag && (myCase.soilLayers[l].flux < 0) && (l < myCase.soilLayers.size()))
-                {
-                    //myFreeSolute = mySolute[L + 1] * CoeffMobile;
-                    myFreeSolute = mySolute[l+1];
-                    fSolute[l] = MINVALUE(mySolute[l+1], myFreeSolute / myCase.prevWaterContent[l+1] * H2O_step_flux);
-                }
-
-                //azoto in entrata/uscita da nodo L-1
-                mySolute[l] += fSolute[l-1] - fSolute[l];
-
-                //flussi convettivi totali
-                fluxSolute[l] += fSolute[l];
-
+                coeffMobile = 1;
+                myFreeSolute = mySolute[l] * coeffMobile;
+                fSolute[l] = MINVALUE(mySolute[l], myFreeSolute / myCase.prevWaterContent[l] * H2O_step_flux);
             }
-        }
+            else if (upwardFlag && (myCase.soilLayers[l].flux < 0) && (l <= lastLayer))
+            {
+                //myFreeSolute = mySolute[L + 1] * CoeffMobile;
+                myFreeSolute = mySolute[l+1];
+                fSolute[l] = MINVALUE(mySolute[l+1], myFreeSolute / myCase.prevWaterContent[l+1] * H2O_step_flux);
+            }
 
-        // leaching
-        // FT GA 2007.12
-        *leached += fluxSolute[myCase.soilLayers.size()-1];
-        fluxSolute.clear();
-        u_temp.clear();
-        fSolute.clear();
+            //azoto in entrata/uscita da nodo L-1
+            mySolute[l] += fSolute[l-1] - fSolute[l];
+
+            //flussi convettivi totali
+            fluxSolute[l] += fSolute[l];
+
+        }
+    }
+
+    // leaching
+    // FT GA 2007.12
+    *leached += fluxSolute[myCase.soilLayers.size()-1];
+    fluxSolute.clear();
+    u_temp.clear();
+    fSolute.clear();
 }
 
 // function developed by V. Marletto for watertable
 
-void Crit3DCarbonNitrogenProfile::leachingWaterTable(std::vector<double> &mySolute, double* leached,Crit1DCase &myCase)
+void Crit1DCarbonNitrogenProfile::leachingWaterTable(std::vector<double> &mySolute, double* leached,Crit1DCase &myCase)
 {
     double mySoluteLeachEdge;
 
@@ -1733,14 +1706,14 @@ void Crit3DCarbonNitrogenProfile::leachingWaterTable(std::vector<double> &mySolu
 
     if ((myCase.output.dailyWaterTable != NODATA) && (myCase.output.dailyWaterTable > 0) && (myCase.unit.useWaterTableData == 1))// da chiarire && (flagWaterTableCase == 1))
     {
-        for (unsigned int l = 0; l< myCase.soilLayers.size(); l++)
+        for (unsigned int l = 1; l< myCase.soilLayers.size(); l++)
         {
             double maxCapillaryRise = myCase.soilLayers[l].critical - myCase.soilLayers[l].waterContent;
             if (myCase.soilLayers[l].depth > myCase.output.dailyWaterTable)
             {
                 *leached += mySolute[l];
                 mySolute[l] = 0;
-            }            
+            }
             else if (myCase.soilLayers[l].depth >= myCase.output.dailyWaterTable - maxCapillaryRise)
             {
                 mySoluteLeachEdge = (mySolute[l] / maxCapillaryRise) * (maxCapillaryRise - (myCase.output.dailyWaterTable - myCase.soilLayers[l].depth));
@@ -1752,59 +1725,59 @@ void Crit3DCarbonNitrogenProfile::leachingWaterTable(std::vector<double> &mySolu
 
 }
 
-void Crit3DCarbonNitrogenProfile::NH4_Balance(Crit1DCase &myCase)
+void Crit1DCarbonNitrogenProfile::NH4_Balance(Crit1DCase &myCase)
 {
     double profileNH4PreviousDay;
 
-    profileNH4PreviousDay = profileNH4;
+    profileNH4PreviousDay = nitrogenTotalProfile.profileNH4;
     // ProfiloNH4 = ProfileSum(N_NH4())
-    profileNH4 = 0;
+    nitrogenTotalProfile.profileNH4 = 0;
     for (unsigned int i=0;i<myCase.soilLayers.size();i++)
     {
-        profileNH4 += myCase.carbonNitrogenLayers[0].N_NH4;
+        nitrogenTotalProfile.profileNH4 += myCase.carbonNitrogenLayers[0].N_NH4;
     }
 
-    balanceFinalNH4 = profileNH4 - profileNH4PreviousDay - N_NH4_fertGG + N_imm_l_NH4GG;
-    balanceFinalNH4 += - N_min_humusGG - N_min_litterGG;
-    balanceFinalNH4 += N_NH4_volGG - N_urea_hydrGG + N_nitrifGG;
-    balanceFinalNH4 += N_NH4_uptakeGG;
-    balanceFinalNH4 += N_NH4_runoff0GG + N_NH4_runoffGG + flux_NH4GG - precN_NH4GG;
+    nitrogenTotalProfile.balanceFinalNH4 = nitrogenTotalProfile.profileNH4 - profileNH4PreviousDay - nitrogenTotalProfile.NH4_fertGG + nitrogenTotalProfile.imm_l_NH4GG;
+    nitrogenTotalProfile.balanceFinalNH4 += - nitrogenTotalProfile.min_humusGG - nitrogenTotalProfile.min_litterGG;
+    nitrogenTotalProfile.balanceFinalNH4 += nitrogenTotalProfile.NH4_volGG - nitrogenTotalProfile.urea_hydrGG + nitrogenTotalProfile.nitrifGG;
+    nitrogenTotalProfile.balanceFinalNH4 += nitrogenTotalProfile.NH4_uptakeGG;
+    nitrogenTotalProfile.balanceFinalNH4 += nitrogenTotalProfile.NH4_runoff0GG + nitrogenTotalProfile.NH4_runoffGG + nitrogenTotalProfile.flux_NH4GG - nitrogenTotalProfile.prec_NH4GG;
 
     //If BilFinaleNH4 > 0.01 Then Stop
 }
 
-void Crit3DCarbonNitrogenProfile::NO3_Balance(Crit1DCase &myCase)
+void Crit1DCarbonNitrogenProfile::NO3_Balance(Crit1DCase &myCase)
 {
     // 02.11.26.MVS translated by Antonio Volta 2022.07.29
 
     double profileNO3PreviousDay;
 
-    profileNO3PreviousDay = profileNO3;
+    profileNO3PreviousDay = nitrogenTotalProfile.profileNO3;
     //profileNO3 = ProfileSum(N_NO3());
-    profileNO3 = 0;
+    nitrogenTotalProfile.profileNO3 = 0;
     for (unsigned int i=0;i<myCase.soilLayers.size();i++)
     {
-        profileNO3 += myCase.carbonNitrogenLayers[i].N_NO3;
+        nitrogenTotalProfile.profileNO3 += myCase.carbonNitrogenLayers[i].N_NO3;
     }
-    balanceFinalNO3 = profileNO3 - profileNO3PreviousDay - N_NO3_fertGG + N_imm_l_NO3GG;
-    balanceFinalNO3 += N_denitrGG - N_nitrifGG + N_NO3_uptakeGG;
-    balanceFinalNO3 += N_NO3_runoff0GG + N_NO3_runoffGG - precN_NO3GG + flux_NO3GG;
+    nitrogenTotalProfile.balanceFinalNO3 = nitrogenTotalProfile.profileNO3 - profileNO3PreviousDay - nitrogenTotalProfile.NO3_fertGG + nitrogenTotalProfile.imm_l_NO3GG;
+    nitrogenTotalProfile.balanceFinalNO3 += nitrogenTotalProfile.denitrGG - nitrogenTotalProfile.nitrifGG + nitrogenTotalProfile.NO3_uptakeGG;
+    nitrogenTotalProfile.balanceFinalNO3 += nitrogenTotalProfile.NO3_runoff0GG + nitrogenTotalProfile.NO3_runoffGG - nitrogenTotalProfile.prec_NO3GG + nitrogenTotalProfile.flux_NO3GG;
 }
 
-void Crit3DCarbonNitrogenProfile::N_initializeCrop(bool noReset,Crit1DCase &myCase)
+void Crit1DCarbonNitrogenProfile::N_initializeCrop(bool noReset,Crit1DCase &myCase)
 {
-    N_cropToHarvest = 0;
-    N_cropToResidues = 0;
+    nitrogenTotalProfile.cropToHarvest = 0;
+    nitrogenTotalProfile.cropToResidues = 0;
 
     if (!noReset)
-        N_roots = 0;
+        nitrogenTotalProfile.roots = 0;
     // da leggere da database
     //N_uptakable = tbColture("Nasportabile") / 10;   //      da [kg ha-1] a [g m-2]
-    N_uptakable = 20; // TODO da fare lettura chiedere a Fausto
+    nitrogenTotalProfile.uptakable = 20; // TODO da fare lettura chiedere a Fausto
 
-    N_uptakeDeficit = 0;
-    N_uptakeMax = 0;
-    N_potentialDemandCum = 0;
+    nitrogenTotalProfile.uptakeDeficit = 0;
+    nitrogenTotalProfile.uptakeMax = 0;
+    nitrogenTotalProfile.potentialDemandCum = 0;
     // ReDim N_deficit_daily(Nitrogen.N_deficit_max_days) // TODO operazione da capire come gestire
 
     //Select Case TipoColtura
@@ -1812,24 +1785,24 @@ void Crit3DCarbonNitrogenProfile::N_initializeCrop(bool noReset,Crit1DCase &myCa
         if (myCase.crop.type == FRUIT_TREE)
         {
             // 2001 Rufat Dejong Fig. 4 e Tagliavini
-            N_ratioHarvested = 0.4;      // fruits, pruning wood
-            N_ratioResidues = 0.5;       // leaves
-            N_ratioRoots = 0.1;           // roots, trunk, branches
+            nitrogenTotalProfile.ratioHarvested = 0.4;      // fruits, pruning wood
+            nitrogenTotalProfile.ratioResidues = 0.5;       // leaves
+            nitrogenTotalProfile.ratioRoots = 0.1;           // roots, trunk, branches
 
 
         }
         else if (myCase.crop.type == HERBACEOUS_PERENNIAL || myCase.crop.type ==  GRASS || myCase.crop.type ==  FALLOW)
         {
-            N_ratioHarvested = 0.9;
-            N_ratioResidues = 0;
-            N_ratioRoots = 0.1;
+            nitrogenTotalProfile.ratioHarvested = 0.9;
+            nitrogenTotalProfile.ratioResidues = 0;
+            nitrogenTotalProfile.ratioRoots = 0.1;
         }
         else
         {
             // annual crops
-            N_ratioHarvested = 0.9;
-            N_ratioResidues = 0;
-            N_ratioRoots = 0.1;
+            nitrogenTotalProfile.ratioHarvested = 0.9;
+            nitrogenTotalProfile.ratioResidues = 0;
+            nitrogenTotalProfile.ratioRoots = 0.1;
         }
 
     //in prima approssimazione calcolato da N massimo asportabile per ciclo
@@ -1837,12 +1810,12 @@ void Crit3DCarbonNitrogenProfile::N_initializeCrop(bool noReset,Crit1DCase &myCa
     //2013.10 GA
     //scambio mail con Ass.Agr.:
     //
-    maxRate_LAI_Ndemand = (N_uptakable - N_roots) / myCase.crop.LAImax ;
+    maxRate_LAI_Ndemand = (nitrogenTotalProfile.uptakable - nitrogenTotalProfile.roots) / myCase.crop.LAImax ;
 
 }
 
 
-void Crit3DCarbonNitrogenProfile::N_harvest(Crit1DCase &myCase) // public function
+void Crit1DCarbonNitrogenProfile::N_harvest(Crit1DCase &myCase) // public function
 {
         // 2013.06 GA translated in C++ by AV 2022.06
         // annual crops:roots are incorporated in litter at harvest
@@ -1860,13 +1833,13 @@ void Crit3DCarbonNitrogenProfile::N_harvest(Crit1DCase &myCase) // public functi
         //Select Case TipoColtura
         // annual crop
         if (myCase.crop.type == HERBACEOUS_ANNUAL || myCase.crop.type == HORTICULTURAL)
-            N_toLitter = myCase.crop.roots.rootDensity[l] * N_roots; // !! prendere il dato da dove?
+            N_toLitter = myCase.crop.roots.rootDensity[l] * nitrogenTotalProfile.roots; // !! prendere il dato da dove?
         // multiannual crop
         else if (myCase.crop.type == HERBACEOUS_PERENNIAL|| myCase.crop.type == GRASS|| myCase.crop.type ==  FALLOW)
-            N_toLitter = myCase.crop.roots.rootDensity[l] * N_roots / 2;
+            N_toLitter = myCase.crop.roots.rootDensity[l] * nitrogenTotalProfile.roots / 2;
         // tree crops
         else if (myCase.crop.type == FRUIT_TREE)
-            N_toLitter = myCase.crop.roots.rootDensity[l] * N_roots / 2;
+            N_toLitter = myCase.crop.roots.rootDensity[l] * nitrogenTotalProfile.roots / 2;
 
         myCase.carbonNitrogenLayers[l].N_litter += N_toLitter;
         myCase.carbonNitrogenLayers[l].C_litter += carbonNitrogenParameter.CN_RATIO_NOTHARVESTED * N_toLitter;
@@ -1875,52 +1848,51 @@ void Crit3DCarbonNitrogenProfile::N_harvest(Crit1DCase &myCase) // public functi
     if (myCase.crop.type == HERBACEOUS_ANNUAL || myCase.crop.type == HORTICULTURAL)
     {
         // annual crops
-        N_cropToHarvest = 0;
-        N_cropToResidues = 0;
-        N_roots = 0;
+        nitrogenTotalProfile.cropToHarvest = 0;
+        nitrogenTotalProfile.cropToResidues = 0;
+        nitrogenTotalProfile.roots = 0;
     }
     else if (myCase.crop.type == HERBACEOUS_PERENNIAL|| myCase.crop.type == GRASS|| myCase.crop.type ==  FALLOW)
     {
         //pluriennali
-        N_cropToHarvest = 0;
-        N_cropToResidues = 0;
-        N_roots *= 0.5;
+        nitrogenTotalProfile.cropToHarvest = 0;
+        nitrogenTotalProfile.cropToResidues = 0;
+        nitrogenTotalProfile.roots *= 0.5;
     }
     else if (myCase.crop.type == FRUIT_TREE)
     {
         //tree crops
-            N_cropToHarvest = 0;
-            N_roots *= 0.5;
+            nitrogenTotalProfile.cropToHarvest = 0;
+            nitrogenTotalProfile.roots *= 0.5;
     }
-    N_potentialDemandCum = 0;
+    nitrogenTotalProfile.potentialDemandCum = 0;
 }
 
 
 
-void Crit3DCarbonNitrogenProfile::updateNCrop(Crit3DCrop crop) // this function must be private
+void Crit1DCarbonNitrogenProfile::updateNCrop(Crit3DCrop crop) // this function must be private
 {
     // if leguminous
     if (crop.name == "SOYBEAN" || crop.name == "ALFALFA1Y" || crop.name == "ALFALFA")
     {
             // the demand is satisfied by Nitrogen fixation
             // it prevails soil mineral uptake, if available
-            N_cropToHarvest += N_dailyDemand * N_ratioHarvested;
-            N_cropToResidues += N_dailyDemand * N_ratioResidues;
-            N_roots += N_dailyDemand * N_ratioRoots;
+            nitrogenTotalProfile.cropToHarvest += nitrogenTotalProfile.dailyDemand * nitrogenTotalProfile.ratioHarvested;
+            nitrogenTotalProfile.cropToResidues += nitrogenTotalProfile.dailyDemand * nitrogenTotalProfile.ratioResidues;
+            nitrogenTotalProfile.roots += nitrogenTotalProfile.dailyDemand * nitrogenTotalProfile.ratioRoots;
     }
     else
     {
-            N_cropToHarvest += (N_NH4_uptakeGG + N_NO3_uptakeGG) * N_ratioHarvested;
-            N_cropToResidues += (N_NH4_uptakeGG + N_NO3_uptakeGG) * N_ratioResidues;
-            N_roots += (N_NH4_uptakeGG + N_NO3_uptakeGG) * N_ratioRoots;
+            nitrogenTotalProfile.cropToHarvest += (nitrogenTotalProfile.NH4_uptakeGG + nitrogenTotalProfile.NO3_uptakeGG) * nitrogenTotalProfile.ratioHarvested;
+            nitrogenTotalProfile.cropToResidues += (nitrogenTotalProfile.NH4_uptakeGG + nitrogenTotalProfile.NO3_uptakeGG) * nitrogenTotalProfile.ratioResidues;
+            nitrogenTotalProfile.roots += (nitrogenTotalProfile.NH4_uptakeGG + nitrogenTotalProfile.NO3_uptakeGG) * nitrogenTotalProfile.ratioRoots;
     }
     // pare che sia commentato chiedere a Gabri
     //'N_UptakeDeficit = max(N_PotentialDemandCumulated - N_Crop, 0)
 }
 
-void Crit3DCarbonNitrogenProfile::N_plough(Crit1DCase &myCase) // this function must be public
+void Crit1DCarbonNitrogenProfile::N_plough(Crit1DCase &myCase) // this function must be public
 {
-    unsigned int l=0;
     double depthRatio;
     double N_totLitter;
     double N_totHumus = 0;
@@ -1930,11 +1902,11 @@ void Crit3DCarbonNitrogenProfile::N_plough(Crit1DCase &myCase) // this function 
     double N_totNH4 = 0;
     unsigned int myLastLayer;
 
-    N_totLitter = N_cropToHarvest + N_cropToResidues + N_roots;
+    N_totLitter = nitrogenTotalProfile.cropToHarvest + nitrogenTotalProfile.cropToResidues + nitrogenTotalProfile.roots;
     C_totLitter = N_totLitter * carbonNitrogenParameter.CN_RATIO_NOTHARVESTED;
 
+    unsigned int l=1;
     do{
-
         N_totLitter += myCase.carbonNitrogenLayers[l].N_litter;
         C_totLitter += myCase.carbonNitrogenLayers[l].C_litter;
         N_totHumus += myCase.carbonNitrogenLayers[l].N_humus;
@@ -1944,13 +1916,13 @@ void Crit3DCarbonNitrogenProfile::N_plough(Crit1DCase &myCase) // this function 
         l++;
     } while (myCase.soilLayers[l].thickness + myCase.soilLayers[l].depth <= myCase.ploughedSoilDepth);
 
-    if (l == 0)
+    if (l == 1)
         return;
     else
         myLastLayer = l - 1;
 
     // tmp = 0;
-    for (l=0;l<myLastLayer;l++) // verificare i cicli for per cambio indici
+    for (l=1; l<myLastLayer; l++) // verificare i cicli for per cambio indici
     {
         depthRatio = myCase.soilLayers[l].thickness / (myCase.soilLayers[l].thickness + myCase.soilLayers[l].depth);
         //tmp += depthRatio;
@@ -1962,12 +1934,12 @@ void Crit3DCarbonNitrogenProfile::N_plough(Crit1DCase &myCase) // this function 
         myCase.carbonNitrogenLayers[l].N_NH4 = N_totNH4 * depthRatio;
     }
     partitioning(myCase);
-    N_cropToHarvest = 0;
-    N_cropToResidues = 0;
-    N_roots = 0;
+    nitrogenTotalProfile.cropToHarvest = 0;
+    nitrogenTotalProfile.cropToResidues = 0;
+    nitrogenTotalProfile.roots = 0;
 }
 
-void Crit3DCarbonNitrogenProfile::NFromCropSenescence(double myDays,double coeffB,Crit1DCase &myCase) // this function must be public
+void Crit1DCarbonNitrogenProfile::NFromCropSenescence(double myDays,double coeffB,Crit1DCase &myCase) // this function must be public
 {
     //created in 2013.06 by GA, translated by AV 2022.06
     //new function for describing the release of Nitrogen from pluriannual crop residues
@@ -1978,7 +1950,7 @@ void Crit3DCarbonNitrogenProfile::NFromCropSenescence(double myDays,double coeff
     double LENGTH_SENESCENCE = 20;
     double ratioSenescence;      //ratio of drop leaves
     ratioSenescence = exp(coeffB * myDays) * (1 - exp(-coeffB)) / (exp(coeffB * LENGTH_SENESCENCE) - 1);    
-    myCase.carbonNitrogenLayers[0].N_litter += N_cropToResidues * ratioSenescence;
+    myCase.carbonNitrogenLayers[0].N_litter += nitrogenTotalProfile.cropToResidues * ratioSenescence;
 
 }
 

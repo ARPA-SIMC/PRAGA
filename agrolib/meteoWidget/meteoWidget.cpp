@@ -24,6 +24,7 @@
 
 #include "meteoWidget.h"
 #include "dialogSelectVar.h"
+#include "dialogRemoveStation.h"
 #include "dialogMeteoTable.h"
 #include "dialogChangeAxis.h"
 #include "utilities.h"
@@ -32,19 +33,6 @@
 
 #include <QLayout>
 #include <QDate>
-
-qreal findMedian(QList<double> sortedList, int begin, int end)
-{
-    int count = end - begin;
-    if (count % 2) {
-        return sortedList.at(count / 2 + begin);
-    } else {
-        qreal right = sortedList.at(count / 2 + begin);
-        qreal left = sortedList.at(count / 2 - 1 + begin);
-        return (right + left) / 2.0;
-    }
-}
-
 
 
 Crit3DMeteoWidget::Crit3DMeteoWidget(bool isGrid, QString projectPath, Crit3DMeteoSettings* meteoSettings_)
@@ -356,10 +344,12 @@ Crit3DMeteoWidget::Crit3DMeteoWidget(bool isGrid, QString projectPath, Crit3DMet
     QAction* changeLeftAxis = new QAction(tr("&Change axis left"), this);
     QAction* changeRightAxis = new QAction(tr("&Change axis right"), this);
     QAction* exportGraph = new QAction(tr("&Export graph"), this);
+    QAction* removeStation = new QAction(tr("&Remove stations"), this);
 
     editMenu->addAction(changeLeftAxis);
     editMenu->addAction(changeRightAxis);
     editMenu->addAction(exportGraph);
+    editMenu->addAction(removeStation);
 
     connect(addVarButton, &QPushButton::clicked, [=](){ showVar(); });
     connect(dailyButton, &QPushButton::clicked, [=](){ showDailyGraph(); });
@@ -371,11 +361,15 @@ Crit3DMeteoWidget::Crit3DMeteoWidget(bool isGrid, QString projectPath, Crit3DMet
     connect(changeLeftAxis, &QAction::triggered, this, &Crit3DMeteoWidget::on_actionChangeLeftAxis);
     connect(changeRightAxis, &QAction::triggered, this, &Crit3DMeteoWidget::on_actionChangeRightAxis);
     connect(exportGraph, &QAction::triggered, this, &Crit3DMeteoWidget::on_actionExportGraph);
+    connect(removeStation, &QAction::triggered, this, &Crit3DMeteoWidget::on_actionRemoveStation);
 
     plotLayout->addWidget(chartView);
     horizontalGroupBox->setLayout(buttonLayout);
     mainLayout->addWidget(horizontalGroupBox);
     mainLayout->addLayout(plotLayout);
+
+    QStatusBar* statusBar = new QStatusBar();
+    mainLayout->addWidget(statusBar);
     setLayout(mainLayout);
 
     isInitialized = true;
@@ -2039,5 +2033,50 @@ void Crit3DMeteoWidget::on_actionExportGraph()
         buffer.save(&file, "PNG");
     }
 }
+
+void Crit3DMeteoWidget::on_actionRemoveStation()
+{
+    QList<QString> allStations;
+    for (int mp=0; mp<meteoPoints.size();mp++)
+    {
+        QString stationId = QString::fromStdString(meteoPoints[mp].id);
+        QString stationsName = QString::fromStdString(meteoPoints[mp].name);
+        QString station = stationId+"_"+stationsName;
+        allStations << station;
+    }
+    DialogRemoveStation selectStation(allStations);
+    if (selectStation.result() == QDialog::Accepted)
+    {
+        QList<QString> stationsToRemoveList = selectStation.getSelectedStations();
+        for (int n=0; n<stationsToRemoveList.size();n++)
+        {
+            QString id = stationsToRemoveList[n].split("_")[0];
+            for (int indexMp=0; indexMp<meteoPoints.size();indexMp++)
+            {
+                if (meteoPoints[indexMp].id == id.toStdString())
+                {
+                    meteoPoints.removeAt(indexMp);
+                    indexMp = indexMp - 1;
+                }
+            }
+        }
+        updateSeries();
+        redraw();
+    }
+}
+
+
+qreal findMedian(QList<double> sortedList, int begin, int end)
+{
+    int count = end - begin;
+    if (count % 2) {
+        return sortedList.at(count / 2 + begin);
+    } else {
+        qreal right = sortedList.at(count / 2 + begin);
+        qreal left = sortedList.at(count / 2 - 1 + begin);
+        return (right + left) / 2.0;
+    }
+}
+
 
 

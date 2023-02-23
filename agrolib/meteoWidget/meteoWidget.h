@@ -6,8 +6,8 @@
     #include "meteoPoint.h"
     #include "callout.h"
 
-
     qreal findMedian(QList<double> sortedList, int begin, int end);
+
     class Crit3DMeteoWidget : public QWidget
     {
         Q_OBJECT
@@ -46,6 +46,7 @@
             void on_actionChangeLeftAxis();
             void on_actionChangeRightAxis();
             void on_actionExportGraph();
+            void on_actionRemoveStation();
 
     private:
             int meteoWidgetID;
