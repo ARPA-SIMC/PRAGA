@@ -18,11 +18,11 @@ bool checkEnvironmentGUI(QString pragaHome)
 
     if (!QDir(pragaHome).exists())
     {
-        QString warning = "Wrong environment!\n"
-                          "Set correct $PRAGA_HOME variable:\n"
-                          "$PRAGA_HOME = path of praga directory";
+        QString warning = pragaHome + "  doesn't exist!"
+                          "\nSet correct $PRAGA_HOME in the environment variables:"
+                          "\n$PRAGA_HOME = path of praga directory";
 
-        QMessageBox::critical(nullptr, pragaHome, warning);
+        QMessageBox::critical(nullptr, "Wrong environment!", warning);
         return false;
     }
 
@@ -75,7 +75,12 @@ int mainGUI(int argc, char *argv[], QString pragaHome, PragaProject& myProject)
     }
 
     if (!checkEnvironmentGUI(pragaHome))
-        return PRAGA_ENV_ERROR;
+    {
+        QString appPath = myApp.applicationDirPath();
+        pragaHome = searchDefaultPragaPath(appPath);
+        if (!checkEnvironmentGUI(pragaHome))
+            return PRAGA_ENV_ERROR;
+    }
 
     if (! myProject.start(pragaHome))
         return PRAGA_ERROR;
