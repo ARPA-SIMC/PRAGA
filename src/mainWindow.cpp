@@ -4957,23 +4957,26 @@ void MainWindow::on_actionShow_InfoProject_triggered()
         textBrowser.setText(QString("Project: " + myProject.projectName));
         if (myProject.logFileName != "")
         {
-            textBrowser.append(QString("File Log: " + myProject.getCompleteFileName(myProject.logFileName, myProject.getProjectPath())));
+            textBrowser.append(QString("File Log: " + myProject.getCompleteFileName(myProject.logFileName, PATH_LOG)));
         }
-        textBrowser.append(QString("Parameters: " + myProject.getCompleteFileName(myProject.parametersFileName, myProject.getProjectPath())));
-    }
-    else if (myProject.logFileName != "")
-    {
-        textBrowser.setText(QString("File Log: " + myProject.logFileName));
-        textBrowser.append(QString("Parameters: " + myProject.getCompleteFileName(myProject.parametersFileName, myProject.getProjectPath())));
+        textBrowser.append(QString("Parameters: " + myProject.getCompleteFileName(myProject.parametersFileName, PATH_SETTINGS)));
     }
     else
     {
-        textBrowser.setText(QString("Parameters: " + myProject.getCompleteFileName(myProject.parametersFileName, myProject.getProjectPath())));
+        if (myProject.logFileName != "")
+        {
+            textBrowser.setText(QString("File Log: " + myProject.logFileName));
+            textBrowser.append(QString("Parameters: " + myProject.getCompleteFileName(myProject.parametersFileName, PATH_LOG)));
+        }
+        else
+        {
+            textBrowser.setText(QString("Parameters: " + myProject.getCompleteFileName(myProject.parametersFileName, PATH_SETTINGS)));
+        }
     }
 
     if (myProject.meteoPointsLoaded)
     {
-       textBrowser.append(QString("MeteoPoints DB: " + myProject.getCompleteFileName(myProject.dbPointsFileName, myProject.getProjectPath())));
+       textBrowser.append(QString("MeteoPoints DB: " + myProject.getCompleteFileName(myProject.dbPointsFileName, PATH_METEOPOINT)));
     }
     else
     {
@@ -4982,7 +4985,7 @@ void MainWindow::on_actionShow_InfoProject_triggered()
 
     if (myProject.DEM.isLoaded)
     {
-        textBrowser.append(QString("Digital Elevation Model: " + myProject.getCompleteFileName(myProject.demFileName, myProject.getProjectPath())));
+        textBrowser.append(QString("Digital Elevation Model: " + myProject.getCompleteFileName(myProject.demFileName, PATH_DEM)));
     }
     else
     {
@@ -5009,8 +5012,6 @@ void MainWindow::on_actionShow_InfoProject_triggered()
     myDialog.exec();
 }
 
-<<<<<<< HEAD
-=======
 
 //risolvere le questioni di autenticazione per il push, guardando anche sui settings di github.
 //estrarre percorso assoluto degli archivi
@@ -5168,5 +5169,3 @@ void MainWindow::computeDailyFromHourly_MeteoPoints(const QList<std::string>& id
     redrawMeteoPoints(currentPointsVisualization, true);
 }
 
-
->>>>>>> 01040c8991c3b612cd81a0a4f4b726f1d42c41f1
