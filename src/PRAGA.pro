@@ -120,6 +120,10 @@ FORMS    += mainWindow.ui
 
 RESOURCES += bull.ico
 
-RC_ICONS = bull.ico
+win32:
+{
+    RC_ICONS = bull.ico
+}
+
 
 

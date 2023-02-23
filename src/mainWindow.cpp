@@ -4944,7 +4944,6 @@ void MainWindow::searchMeteoPoint(bool isName)
 }
 
 
-
 void MainWindow::on_actionShow_InfoProject_triggered()
 {
     QDialog myDialog;
@@ -5012,9 +5011,6 @@ void MainWindow::on_actionShow_InfoProject_triggered()
     myDialog.exec();
 }
 
-
-//risolvere le questioni di autenticazione per il push, guardando anche sui settings di github.
-//estrarre percorso assoluto degli archivi
 
 void MainWindow::on_actionCompute_monthly_data_from_daily_triggered()
 {
