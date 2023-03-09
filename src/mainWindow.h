@@ -95,7 +95,6 @@
         void on_actionElaboration_triggered();
         void on_actionAnomaly_triggered();
         void on_actionClimate_triggered();
-        void on_actionClimateFields_triggered();
 
         void on_actionRadiationSettings_triggered();
 
@@ -137,9 +136,6 @@
         void callNewSynchronicityTestWidget(std::string id);
         void callSetSynchronicityReference(std::string id);
         void callChangeOrogCode(std::string id, int orogCode);
-
-        void on_meteoPoints_clicked();
-        void on_grid_clicked();
 
         void on_dayBeforeButton_clicked();
 
@@ -256,6 +252,10 @@
         void on_actionCompute_daily_from_Hourly_selected_triggered();
 
         void on_netcdfOpacitySlider_sliderMoved(int position);
+
+        void on_actionMeteoPoints_triggered();
+
+        void on_actionMeteoGrid_triggered();
 
     protected:
         /*!
