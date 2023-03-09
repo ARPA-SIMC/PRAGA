@@ -1913,13 +1913,6 @@ void MainWindow::on_actionAnomaly_triggered()
         return;
     }
 
-    if (myProject.referenceClima == nullptr)
-    {
-        myProject.errorString = "Reference clima is null";
-        myProject.logError();
-        return;
-    }
-
     bool isMeteoPointLoaded = false;
     bool isMeteoGridLoaded = false;
 
