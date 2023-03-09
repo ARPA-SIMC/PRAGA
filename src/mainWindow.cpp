@@ -267,6 +267,11 @@ void MainWindow::mouseMove(const QPoint& mapPos)
                     value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->anomalyPercentage;
                     break;
                 }
+                case showClimate:
+                {
+                    value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->climate;
+                    break;
+                }
                 default:
                 {
                     break;
