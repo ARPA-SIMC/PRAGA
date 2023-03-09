@@ -1852,23 +1852,39 @@ void MainWindow::on_dateEdit_dateChanged(const QDate &date)
 
 void MainWindow::on_actionElaboration_triggered()
 {
-    if (!ui->meteoPoints->isChecked() && !ui->grid->isChecked())
+    if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
     {
         myProject.errorString = "Load meteo Points or grid";
         myProject.logError();
         return;
     }
 
-    bool isMeteoGrid = ui->grid->isChecked();
+    bool isMeteoPointLoaded = false;
+    bool isMeteoGridLoaded = false;
+
+    if (myProject.meteoPointsLoaded)
+    {
+        isMeteoPointLoaded = true;
+    }
+    if (myProject.meteoGridLoaded)
+    {
+        isMeteoGridLoaded = true;
+    }
+
     bool isAnomaly = false;
     bool saveClima = false;
+    bool isMeteoGrid;
 
+
+    DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGridLoaded, isMeteoPointLoaded, isAnomaly, saveClima);
+    if (compDialog.result() != QDialog::Accepted)
+    {
+        return;
+    }
+
+    isMeteoGrid = compDialog.getIsMeteoGrid();
     if (myProject.elaborationCheck(isMeteoGrid, isAnomaly))
     {
-        DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGrid, isAnomaly, saveClima);
-        if (compDialog.result() != QDialog::Accepted)
-            return;
-
         if (!myProject.elaboration(isMeteoGrid, isAnomaly, saveClima))
         {
             myProject.logError();
@@ -1900,26 +1916,38 @@ void MainWindow::on_actionElaboration_triggered()
 
 void MainWindow::on_actionAnomaly_triggered()
 {
-    if (!ui->meteoPoints->isChecked() && !ui->grid->isChecked())
+    if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
     {
         myProject.errorString = "Load meteo Points or grid";
         myProject.logError();
         return;
     }
 
-    bool isMeteoGrid = ui->grid->isChecked();
+    bool isMeteoPointLoaded = false;
+    bool isMeteoGridLoaded = false;
+
+    if (myProject.meteoPointsLoaded)
+    {
+        isMeteoPointLoaded = true;
+    }
+    if (myProject.meteoGridLoaded)
+    {
+        isMeteoGridLoaded = true;
+    }
 
     bool isAnomaly = true;
     bool saveClima = false;
 
+
+    DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGridLoaded, isMeteoPointLoaded, isAnomaly, saveClima);
+    if (compDialog.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    isAnomaly = false;
+    bool isMeteoGrid = compDialog.getIsMeteoGrid();
     if (myProject.elaborationCheck(isMeteoGrid, isAnomaly))
     {
-        DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGrid, isAnomaly, saveClima);
-        if (compDialog.result() != QDialog::Accepted)
-            return;
-
-        isAnomaly = false;
-
         bool res = myProject.elaboration(isMeteoGrid, isAnomaly, saveClima);
         if (!res)
         {
@@ -1953,24 +1981,36 @@ void MainWindow::on_actionAnomaly_triggered()
 
 void MainWindow::on_actionClimate_triggered()
 {
-    if (!ui->meteoPoints->isChecked() && !ui->grid->isChecked())
+    if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
     {
         myProject.errorString = "Load meteo Points or grid";
         myProject.logError();
         return;
     }
 
-    bool isMeteoGrid = ui->grid->isChecked();
+    bool isMeteoPointLoaded = false;
+    bool isMeteoGridLoaded = false;
+
+    if (myProject.meteoPointsLoaded)
+    {
+        isMeteoPointLoaded = true;
+    }
+    if (myProject.meteoGridLoaded)
+    {
+        isMeteoGridLoaded = true;
+    }
     bool isAnomaly = false;
     bool saveClima = true;
 
+    myProject.clima->resetListElab();
+    DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGridLoaded, isMeteoPointLoaded, isAnomaly, saveClima);
+    if (compDialog.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    bool isMeteoGrid = compDialog.getIsMeteoGrid();
     if (myProject.elaborationCheck(isMeteoGrid, isAnomaly))
     {
-        myProject.clima->resetListElab();
-        DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGrid, isAnomaly, saveClima);
-        if (compDialog.result() != QDialog::Accepted)
-            return;
-
         myProject.clima->getListElab()->setListClimateElab(compDialog.getElabSaveList());
         if (!myProject.elaboration(isMeteoGrid, isAnomaly, saveClima))
         {
