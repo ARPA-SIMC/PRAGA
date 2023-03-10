@@ -1870,6 +1870,10 @@ void MainWindow::on_actionElaboration_triggered()
     bool saveClima = false;
     bool isMeteoGrid;
 
+    if (myProject.clima == nullptr)
+    {
+        myProject.clima = new Crit3DClimate();
+    }
 
     DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGridLoaded, isMeteoPointLoaded, isAnomaly, saveClima);
     if (compDialog.result() != QDialog::Accepted)
@@ -1878,32 +1882,27 @@ void MainWindow::on_actionElaboration_triggered()
     }
 
     isMeteoGrid = compDialog.getIsMeteoGrid();
-    if (myProject.elaborationCheck(isMeteoGrid, isAnomaly))
+
+    if (!myProject.elaboration(isMeteoGrid, isAnomaly, saveClima))
     {
-        if (!myProject.elaboration(isMeteoGrid, isAnomaly, saveClima))
-        {
-            myProject.logError();
-        }
-        else
-        {
-            if (isMeteoGrid)
-            {
-                this->ui->actionShowGridElab->setEnabled(true);
-                redrawMeteoGrid(showElaboration, false);
-            }
-            else
-            {
-                this->ui->actionShowPointsElab->setEnabled(true);
-                redrawMeteoPoints(showElaboration, true);
-            }
-        }
-        if (compDialog.result() == QDialog::Accepted)
-            on_actionElaboration_triggered();
+        myProject.logError();
     }
     else
     {
-         myProject.logError();
+        if (isMeteoGrid)
+        {
+            this->ui->actionShowGridElab->setEnabled(true);
+            redrawMeteoGrid(showElaboration, false);
+        }
+        else
+        {
+            this->ui->actionShowPointsElab->setEnabled(true);
+            redrawMeteoPoints(showElaboration, true);
+        }
     }
+    if (compDialog.result() == QDialog::Accepted)
+        on_actionElaboration_triggered();
+
     return;
 
 }
@@ -1933,6 +1932,14 @@ void MainWindow::on_actionAnomaly_triggered()
     bool isAnomaly = true;
     bool saveClima = false;
 
+    if (myProject.clima == nullptr)
+    {
+        myProject.clima = new Crit3DClimate();
+    }
+    if (myProject.referenceClima == nullptr)
+    {
+        myProject.referenceClima = new Crit3DClimate();
+    }
 
     DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGridLoaded, isMeteoPointLoaded, isAnomaly, saveClima);
     if (compDialog.result() != QDialog::Accepted)
@@ -1941,36 +1948,30 @@ void MainWindow::on_actionAnomaly_triggered()
     }
     isAnomaly = false;
     bool isMeteoGrid = compDialog.getIsMeteoGrid();
-    if (myProject.elaborationCheck(isMeteoGrid, isAnomaly))
+    bool res = myProject.elaboration(isMeteoGrid, isAnomaly, saveClima);
+    if (!res)
     {
-        bool res = myProject.elaboration(isMeteoGrid, isAnomaly, saveClima);
-        if (!res)
-        {
-            myProject.logError();
-        }
-        else
-        {
-            isAnomaly = true;
-
-            myProject.elaboration(isMeteoGrid, isAnomaly, saveClima);
-            if (isMeteoGrid)
-            {
-                this->ui->menuShowGridAnomaly->setEnabled(true);
-                redrawMeteoGrid(showAnomalyAbsolute, false);
-            }
-            else
-            {
-                this->ui->menuShowPointsAnomaly->setEnabled(true);
-                redrawMeteoPoints(showAnomalyAbsolute, true);
-            }
-        }
-        if (compDialog.result() == QDialog::Accepted)
-            on_actionAnomaly_triggered();
+        myProject.logError();
     }
     else
     {
-         myProject.logError();
+        isAnomaly = true;
+
+        myProject.elaboration(isMeteoGrid, isAnomaly, saveClima);
+        if (isMeteoGrid)
+        {
+            this->ui->menuShowGridAnomaly->setEnabled(true);
+            redrawMeteoGrid(showAnomalyAbsolute, false);
+        }
+        else
+        {
+            this->ui->menuShowPointsAnomaly->setEnabled(true);
+            redrawMeteoPoints(showAnomalyAbsolute, true);
+        }
     }
+    if (compDialog.result() == QDialog::Accepted)
+        on_actionAnomaly_triggered();
+
     return;
 }
 
@@ -1997,6 +1998,11 @@ void MainWindow::on_actionClimate_triggered()
     bool isAnomaly = false;
     bool saveClima = true;
 
+    if (myProject.clima == nullptr)
+    {
+        myProject.clima = new Crit3DClimate();
+    }
+
     myProject.clima->resetListElab();
     DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGridLoaded, isMeteoPointLoaded, isAnomaly, saveClima);
     if (compDialog.result() != QDialog::Accepted)
@@ -2004,22 +2010,14 @@ void MainWindow::on_actionClimate_triggered()
         return;
     }
     bool isMeteoGrid = compDialog.getIsMeteoGrid();
-    if (myProject.elaborationCheck(isMeteoGrid, isAnomaly))
+    myProject.clima->getListElab()->setListClimateElab(compDialog.getElabSaveList());
+    if (!myProject.elaboration(isMeteoGrid, isAnomaly, saveClima))
     {
-        myProject.clima->getListElab()->setListClimateElab(compDialog.getElabSaveList());
-        if (!myProject.elaboration(isMeteoGrid, isAnomaly, saveClima))
-        {
-            myProject.logError();
-        }
-
-        if (compDialog.result() == QDialog::Accepted)
-            on_actionClimate_triggered();
-
+        myProject.logError();
     }
-    else
-    {
-         myProject.logError();
-    }
+
+    if (compDialog.result() == QDialog::Accepted)
+        on_actionClimate_triggered();
 
     return;
 }
