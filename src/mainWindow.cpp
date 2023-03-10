@@ -1882,6 +1882,7 @@ void MainWindow::on_actionElaboration_triggered()
     }
 
     isMeteoGrid = compDialog.getIsMeteoGrid();
+    myProject.lastElabTargetisGrid = isMeteoGrid;
 
     if (!myProject.elaboration(isMeteoGrid, isAnomaly, saveClima))
     {
@@ -1948,6 +1949,7 @@ void MainWindow::on_actionAnomaly_triggered()
     }
     isAnomaly = false;
     bool isMeteoGrid = compDialog.getIsMeteoGrid();
+    myProject.lastElabTargetisGrid = isMeteoGrid;
     bool res = myProject.elaboration(isMeteoGrid, isAnomaly, saveClima);
     if (!res)
     {
@@ -2010,6 +2012,7 @@ void MainWindow::on_actionClimate_triggered()
         return;
     }
     bool isMeteoGrid = compDialog.getIsMeteoGrid();
+    myProject.lastElabTargetisGrid = isMeteoGrid;
     myProject.clima->getListElab()->setListClimateElab(compDialog.getElabSaveList());
     if (!myProject.elaboration(isMeteoGrid, isAnomaly, saveClima))
     {
