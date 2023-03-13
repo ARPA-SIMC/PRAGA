@@ -116,7 +116,14 @@ HEADERS  += \
     mainGUI.h \
     mainWindow.h
 
-
 FORMS    += mainWindow.ui
+
+RESOURCES += bull.ico
+
+win32:
+{
+    RC_ICONS = bull.ico
+}
+
 
 

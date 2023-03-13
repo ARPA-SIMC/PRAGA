@@ -242,7 +242,6 @@
   <property name="font">
    <font>
     <pointsize>10</pointsize>
-    <weight>50</weight>
     <bold>false</bold>
    </font>
   </property>
@@ -292,7 +291,6 @@
     <property name="font">
      <font>
       <pointsize>10</pointsize>
-      <weight>50</weight>
       <bold>false</bold>
      </font>
     </property>
@@ -309,7 +307,7 @@
       <x>0</x>
       <y>5</y>
       <width>270</width>
-      <height>740</height>
+      <height>701</height>
      </rect>
     </property>
     <property name="maximumSize">
@@ -361,7 +359,6 @@
        <property name="font">
         <font>
          <pointsize>10</pointsize>
-         <weight>50</weight>
          <bold>false</bold>
         </font>
        </property>
@@ -393,7 +390,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -413,7 +409,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -470,7 +465,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -504,7 +498,7 @@
           <second>0</second>
           <year>1752</year>
           <month>10</month>
-          <day>8</day>
+          <day>7</day>
          </datetime>
         </property>
         <property name="maximumDate">
@@ -543,7 +537,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -563,7 +556,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -583,7 +575,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -639,7 +630,6 @@
        <property name="font">
         <font>
          <pointsize>10</pointsize>
-         <weight>50</weight>
          <bold>false</bold>
         </font>
        </property>
@@ -667,7 +657,6 @@
         <property name="font">
          <font>
           <pointsize>8</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -694,7 +683,6 @@
        <property name="font">
         <font>
          <pointsize>10</pointsize>
-         <weight>50</weight>
          <bold>false</bold>
         </font>
        </property>
@@ -719,7 +707,6 @@
         <property name="font">
          <font>
           <pointsize>8</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -786,7 +773,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -1042,7 +1028,6 @@
        <property name="font">
         <font>
          <pointsize>10</pointsize>
-         <weight>50</weight>
          <bold>false</bold>
         </font>
        </property>
@@ -1107,7 +1092,6 @@
         <property name="font">
          <font>
           <pointsize>8</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -1134,7 +1118,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -1164,7 +1147,6 @@
        <property name="font">
         <font>
          <pointsize>10</pointsize>
-         <weight>50</weight>
          <bold>false</bold>
         </font>
        </property>
@@ -1189,7 +1171,6 @@
         <property name="font">
          <font>
           <pointsize>8</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -1252,7 +1233,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -1279,7 +1259,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -1309,7 +1288,6 @@
        <property name="font">
         <font>
          <pointsize>10</pointsize>
-         <weight>50</weight>
          <bold>false</bold>
         </font>
        </property>
@@ -1319,349 +1297,217 @@
        <property name="title">
         <string>Elaboration</string>
        </property>
-       <widget class="QGroupBox" name="groupBoxTarget">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
+       <widget class="QLabel" name="label_elab1">
         <property name="geometry">
          <rect>
-          <x>0</x>
-          <y>20</y>
-          <width>261</width>
-          <height>35</height>
+          <x>10</x>
+          <y>30</y>
+          <width>50</width>
+          <height>20</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>261</width>
-          <height>35</height>
+          <width>50</width>
+          <height>20</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>261</width>
-          <height>35</height>
+          <width>50</width>
+          <height>20</height>
          </size>
         </property>
-        <property name="title">
-         <string/>
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+          <bold>false</bold>
+         </font>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        <property name="text">
+         <string>elab 1:</string>
         </property>
-        <widget class="QRadioButton" name="meteoPoints">
-         <property name="geometry">
-          <rect>
-           <x>70</x>
-           <y>5</y>
-           <width>115</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>meteo points</string>
-         </property>
-        </widget>
-        <widget class="QRadioButton" name="grid">
-         <property name="geometry">
-          <rect>
-           <x>190</x>
-           <y>5</y>
-           <width>71</width>
-           <height>22</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>grid</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>5</y>
-           <width>51</width>
-           <height>18</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>target: </string>
-         </property>
-        </widget>
        </widget>
-       <widget class="QGroupBox" name="groupBoxElab">
+       <widget class="QLineEdit" name="lineEditElab1">
         <property name="geometry">
          <rect>
-          <x>0</x>
-          <y>53</y>
-          <width>261</width>
-          <height>130</height>
+          <x>70</x>
+          <y>30</y>
+          <width>185</width>
+          <height>20</height>
          </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
         </property>
         <property name="minimumSize">
          <size>
-          <width>261</width>
-          <height>126</height>
+          <width>185</width>
+          <height>20</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>261</width>
-          <height>130</height>
+          <width>185</width>
+          <height>20</height>
          </size>
         </property>
-        <property name="autoFillBackground">
-         <bool>true</bool>
+       </widget>
+       <widget class="QLabel" name="label_elab2">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>60</y>
+          <width>50</width>
+          <height>20</height>
+         </rect>
         </property>
-        <property name="title">
-         <string/>
+        <property name="minimumSize">
+         <size>
+          <width>50</width>
+          <height>20</height>
+         </size>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>20</height>
+         </size>
         </property>
-        <widget class="QLabel" name="label_elab1">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>10</y>
-           <width>50</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>50</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>50</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>elab 1:</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_elab2">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>40</y>
-           <width>50</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>50</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>50</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>elab 2:</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_variable">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>70</y>
-           <width>50</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>50</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>50</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>variable:</string>
-         </property>
-        </widget>
-        <widget class="QLabel" name="label_period">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>100</y>
-           <width>50</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>50</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>50</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>9</pointsize>
-           <weight>50</weight>
-           <bold>false</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>period:</string>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="lineEditElab1">
-         <property name="geometry">
-          <rect>
-           <x>70</x>
-           <y>10</y>
-           <width>185</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>185</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>185</width>
-           <height>20</height>
-          </size>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="lineEditElab2">
-         <property name="geometry">
-          <rect>
-           <x>70</x>
-           <y>40</y>
-           <width>185</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>185</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>185</width>
-           <height>20</height>
-          </size>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="lineEditVariable">
-         <property name="geometry">
-          <rect>
-           <x>70</x>
-           <y>70</y>
-           <width>185</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>185</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>185</width>
-           <height>20</height>
-          </size>
-         </property>
-        </widget>
-        <widget class="QLineEdit" name="lineEditPeriod">
-         <property name="geometry">
-          <rect>
-           <x>70</x>
-           <y>100</y>
-           <width>185</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>185</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>185</width>
-           <height>20</height>
-          </size>
-         </property>
-        </widget>
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>elab 2:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_variable">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>90</y>
+          <width>50</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>50</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>variable:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_period">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>120</y>
+          <width>50</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>50</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>9</pointsize>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>period:</string>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEditElab2">
+        <property name="geometry">
+         <rect>
+          <x>70</x>
+          <y>60</y>
+          <width>185</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>185</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>185</width>
+          <height>20</height>
+         </size>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEditVariable">
+        <property name="geometry">
+         <rect>
+          <x>70</x>
+          <y>90</y>
+          <width>185</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>185</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>185</width>
+          <height>20</height>
+         </size>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEditPeriod">
+        <property name="geometry">
+         <rect>
+          <x>70</x>
+          <y>120</y>
+          <width>185</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>185</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>185</width>
+          <height>20</height>
+         </size>
+        </property>
        </widget>
       </widget>
      </item>
@@ -1990,8 +1836,15 @@
      <property name="title">
       <string>Climate</string>
      </property>
+     <widget class="QMenu" name="menuClimate_fields">
+      <property name="title">
+       <string>Climate fields</string>
+      </property>
+      <addaction name="actionMeteoPoints"/>
+      <addaction name="actionMeteoGrid"/>
+     </widget>
      <addaction name="actionClimate"/>
-     <addaction name="actionClimateFields"/>
+     <addaction name="menuClimate_fields"/>
     </widget>
     <widget class="QMenu" name="menuSpatialAggregation">
      <property name="title">
@@ -2200,11 +2053,6 @@
   <action name="actionTopographicDistanceMapsLoad">
    <property name="text">
     <string>Load</string>
-   </property>
-  </action>
-  <action name="actionClimateFields">
-   <property name="text">
-    <string>Climate fields</string>
    </property>
   </action>
   <action name="actionElaboration">
@@ -2863,6 +2711,16 @@
    </property>
    <property name="text">
     <string>Variable</string>
+   </property>
+  </action>
+  <action name="actionMeteoPoints">
+   <property name="text">
+    <string>MeteoPoints</string>
+   </property>
+  </action>
+  <action name="actionMeteoGrid">
+   <property name="text">
+    <string>MeteoGrid</string>
    </property>
   </action>
  </widget>

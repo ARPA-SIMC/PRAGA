@@ -104,9 +104,6 @@ MainWindow::MainWindow(QWidget *parent) :
     this->ui->dateEdit->installEventFilter(keyboardFilter);
     //connect(this->ui->dateEdit, SIGNAL(editingFinished()), this, SLOT(on_dateChanged()));
 
-    this->ui->meteoPoints->setEnabled(false);
-    this->ui->grid->setEnabled(false);
-
     // show menu
     showPointsGroup = new QActionGroup(this);
     showPointsGroup->setExclusive(true);
@@ -148,7 +145,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->viewNotActivePoints = false;
     this->currentNetcdfVariable = NODATA;
 
-    ui->groupBoxElab->hide();
+    ui->groupBoxElaboration->hide();
     ui->groupBoxNetcdf->hide();
 
     this->updateVariable();
@@ -1241,8 +1238,6 @@ void MainWindow::drawMeteoPoints()
     QDate currentDate = myProject.getCurrentDate();
     myProject.loadMeteoPointsData (currentDate, currentDate, true, true, true);
 
-    ui->meteoPoints->setEnabled(true);
-    ui->meteoPoints->setChecked(true);
     showPointsGroup->setEnabled(true);
     ui->actionShowPointsCurrent->setEnabled(false);
     ui->actionShowPointsElab->setEnabled(false);
@@ -1259,8 +1254,6 @@ void MainWindow::drawMeteoPoints()
     ui->menuShift_data->setEnabled(true);
     ui->actionMeteopointDataCount->setEnabled(true);
     ui->menuCompute_daily_data_from_hourly->setEnabled(true);
-
-    ui->grid->setChecked(false);
 
     if (currentPointsVisualization == notShown) currentPointsVisualization = showLocation;
     redrawMeteoPoints(currentPointsVisualization, true);
@@ -1290,7 +1283,7 @@ void MainWindow::drawWindVector(int i)
 void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorScale)
 {
     currentPointsVisualization = showType;
-    ui->groupBoxElab->hide();
+    ui->groupBoxElaboration->hide();
 
     if (pointList.size() == 0) return;
 
@@ -1496,9 +1489,6 @@ void MainWindow::drawMeteoGrid()
         myProject.loadMeteoGridData(myProject.getCurrentDate(), myProject.getCurrentDate(), true);
     }
 
-    this->ui->meteoPoints->setChecked(false);
-    this->ui->grid->setEnabled(true);
-    this->ui->grid->setChecked(true);
     showGridGroup->setEnabled(true);
     this->ui->menuActive_cells->setEnabled(true);
     this->ui->actionCompute_monthly_data_from_daily->setEnabled(true);
@@ -1533,7 +1523,7 @@ void MainWindow::drawMeteoGrid()
 void MainWindow::redrawMeteoGrid(visualizationType showType, bool showInterpolationResult)
 {
     currentGridVisualization = showType;
-    ui->groupBoxElab->hide();
+    ui->groupBoxElaboration->hide();
 
     if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr) return;
 
@@ -1852,23 +1842,39 @@ void MainWindow::on_dateEdit_dateChanged(const QDate &date)
 
 void MainWindow::on_actionElaboration_triggered()
 {
-    if (!ui->meteoPoints->isChecked() && !ui->grid->isChecked())
+    if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
     {
         myProject.errorString = "Load meteo Points or grid";
         myProject.logError();
         return;
     }
 
-    bool isMeteoGrid = ui->grid->isChecked();
+    bool isMeteoPointLoaded = false;
+    bool isMeteoGridLoaded = false;
+
+    if (myProject.meteoPointsLoaded)
+    {
+        isMeteoPointLoaded = true;
+    }
+    if (myProject.meteoGridLoaded)
+    {
+        isMeteoGridLoaded = true;
+    }
+
     bool isAnomaly = false;
     bool saveClima = false;
+    bool isMeteoGrid;
 
+
+    DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGridLoaded, isMeteoPointLoaded, isAnomaly, saveClima);
+    if (compDialog.result() != QDialog::Accepted)
+    {
+        return;
+    }
+
+    isMeteoGrid = compDialog.getIsMeteoGrid();
     if (myProject.elaborationCheck(isMeteoGrid, isAnomaly))
     {
-        DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGrid, isAnomaly, saveClima);
-        if (compDialog.result() != QDialog::Accepted)
-            return;
-
         if (!myProject.elaboration(isMeteoGrid, isAnomaly, saveClima))
         {
             myProject.logError();
@@ -1900,26 +1906,38 @@ void MainWindow::on_actionElaboration_triggered()
 
 void MainWindow::on_actionAnomaly_triggered()
 {
-    if (!ui->meteoPoints->isChecked() && !ui->grid->isChecked())
+    if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
     {
         myProject.errorString = "Load meteo Points or grid";
         myProject.logError();
         return;
     }
 
-    bool isMeteoGrid = ui->grid->isChecked();
+    bool isMeteoPointLoaded = false;
+    bool isMeteoGridLoaded = false;
+
+    if (myProject.meteoPointsLoaded)
+    {
+        isMeteoPointLoaded = true;
+    }
+    if (myProject.meteoGridLoaded)
+    {
+        isMeteoGridLoaded = true;
+    }
 
     bool isAnomaly = true;
     bool saveClima = false;
 
+
+    DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGridLoaded, isMeteoPointLoaded, isAnomaly, saveClima);
+    if (compDialog.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    isAnomaly = false;
+    bool isMeteoGrid = compDialog.getIsMeteoGrid();
     if (myProject.elaborationCheck(isMeteoGrid, isAnomaly))
     {
-        DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGrid, isAnomaly, saveClima);
-        if (compDialog.result() != QDialog::Accepted)
-            return;
-
-        isAnomaly = false;
-
         bool res = myProject.elaboration(isMeteoGrid, isAnomaly, saveClima);
         if (!res)
         {
@@ -1953,24 +1971,36 @@ void MainWindow::on_actionAnomaly_triggered()
 
 void MainWindow::on_actionClimate_triggered()
 {
-    if (!ui->meteoPoints->isChecked() && !ui->grid->isChecked())
+    if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
     {
         myProject.errorString = "Load meteo Points or grid";
         myProject.logError();
         return;
     }
 
-    bool isMeteoGrid = ui->grid->isChecked();
+    bool isMeteoPointLoaded = false;
+    bool isMeteoGridLoaded = false;
+
+    if (myProject.meteoPointsLoaded)
+    {
+        isMeteoPointLoaded = true;
+    }
+    if (myProject.meteoGridLoaded)
+    {
+        isMeteoGridLoaded = true;
+    }
     bool isAnomaly = false;
     bool saveClima = true;
 
+    myProject.clima->resetListElab();
+    DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGridLoaded, isMeteoPointLoaded, isAnomaly, saveClima);
+    if (compDialog.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    bool isMeteoGrid = compDialog.getIsMeteoGrid();
     if (myProject.elaborationCheck(isMeteoGrid, isAnomaly))
     {
-        myProject.clima->resetListElab();
-        DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGrid, isAnomaly, saveClima);
-        if (compDialog.result() != QDialog::Accepted)
-            return;
-
         myProject.clima->getListElab()->setListClimateElab(compDialog.getElabSaveList());
         if (!myProject.elaboration(isMeteoGrid, isAnomaly, saveClima))
         {
@@ -1987,58 +2017,6 @@ void MainWindow::on_actionClimate_triggered()
     }
 
     return;
-}
-
-void MainWindow::on_actionClimateFields_triggered()
-{
-    if (!ui->meteoPoints->isChecked() && !ui->grid->isChecked())
-    {
-        myProject.errorString = "Load meteo Points or grid";
-        myProject.logError();
-        return;
-    }
-
-    bool isMeteoGrid = ui->grid->isChecked();
-    QList<QString> climateDbElab;
-    QList<QString> climateDbVarList;
-    myProject.clima->resetListElab();
-    if (myProject.showClimateFields(isMeteoGrid, &climateDbElab, &climateDbVarList))
-    {
-        DialogClimateFields climateDialog(climateDbElab, climateDbVarList);
-        if (climateDialog.result() == QDialog::Accepted)
-        {
-            QString climaSelected = climateDialog.getSelected();
-
-            if (climateDialog.getIsShowClicked())
-            {
-                QString index = climateDialog.getIndexSelected();
-                myProject.climateIndex = index;
-                myProject.saveClimateResult(isMeteoGrid, climaSelected, index.toInt(), true);
-                if (isMeteoGrid)
-                {
-                    this->ui->actionShowGridClimate->setEnabled(true);
-                    redrawMeteoGrid(showClimate, false);
-                }
-                else
-                {
-                    this->ui->actionShowPointsClimate->setEnabled(true);
-                    redrawMeteoPoints(showClimate, true);
-                }
-            }
-            else
-            {
-                myProject.deleteClima(isMeteoGrid, climaSelected);
-            }
-
-        }
-        else
-        {
-            return;
-        }
-
-    }
-    return;
-
 }
 
 void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool isAnomaly, bool isAnomalyPerc, bool isClima, QString index)
@@ -2265,7 +2243,7 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
     ui->lineEditElab2->setReadOnly(true);
     ui->lineEditVariable->setReadOnly(true);
     ui->lineEditPeriod->setReadOnly(true);
-    ui->groupBoxElab->show();
+    ui->groupBoxElaboration->show();
 
 
 }
@@ -2318,16 +2296,6 @@ void MainWindow::on_actionTopographicDistanceMapsLoad_triggered()
     bool onlyWithData = (reply == QMessageBox::Yes);
 
     myProject.loadTopographicDistanceMaps(onlyWithData, true);
-}
-
-void MainWindow::on_meteoPoints_clicked()
-{
-    redrawMeteoPoints(currentPointsVisualization, true);
-}
-
-void MainWindow::on_grid_clicked()
-{
-    redrawMeteoGrid(currentGridVisualization, false);
 }
 
 void MainWindow::on_actionShowPointsHide_triggered()
@@ -2929,10 +2897,8 @@ void MainWindow::closeMeteoPoints()
         myProject.closeMeteoPointsDB();
 
         myProject.setIsElabMeteoPointsValue(false);
-        ui->groupBoxElab->hide();
+        ui->groupBoxElaboration->hide();
 
-        this->ui->meteoPoints->setChecked(false);
-        this->ui->meteoPoints->setEnabled(false);
         ui->actionMeteopointRectangleSelection->setEnabled(false);
         ui->menuActive_points->setEnabled(false);
         ui->menuDeactive_points->setEnabled(false);
@@ -2943,11 +2909,6 @@ void MainWindow::closeMeteoPoints()
 
         showPointsGroup->setEnabled(false);
         this->ui->menuShowPointsAnomaly->setEnabled(false);
-
-        if (myProject.meteoGridDbHandler != nullptr)
-        {
-            this->ui->grid->setChecked(true);
-        }
     }
 }
 
@@ -2972,21 +2933,13 @@ void MainWindow::closeMeteoGrid()
 
         myProject.closeMeteoGridDB();
 
-        this->ui->groupBoxElab->hide();
+        this->ui->groupBoxElaboration->hide();
         this->ui->meteoGridOpacitySlider->setEnabled(false);
-
-        this->ui->grid->setChecked(false);
-        this->ui->grid->setEnabled(false);
-
         this->showGridGroup->setEnabled(false);
         this->ui->menuActive_cells->setEnabled(false);
         this->ui->actionCompute_monthly_data_from_daily->setEnabled(false);
         this->ui->menuShowGridAnomaly->setEnabled(false);
 
-        if (myProject.meteoPointsLoaded)
-        {
-            this->ui->meteoPoints->setChecked(true);
-        }
     }
 }
 
@@ -4218,7 +4171,7 @@ void MainWindow::on_actionUnmark_all_points_triggered()
 
 bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
 {
-    if (!ui->grid->isChecked())
+    if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
         {
             myProject.errorString = "Load grid";
             myProject.logError();
@@ -4944,7 +4897,6 @@ void MainWindow::searchMeteoPoint(bool isName)
 }
 
 
-
 void MainWindow::on_actionShow_InfoProject_triggered()
 {
     QDialog myDialog;
@@ -5012,9 +4964,6 @@ void MainWindow::on_actionShow_InfoProject_triggered()
     myDialog.exec();
 }
 
-
-//risolvere le questioni di autenticazione per il push, guardando anche sui settings di github.
-//estrarre percorso assoluto degli archivi
 
 void MainWindow::on_actionCompute_monthly_data_from_daily_triggered()
 {
@@ -5167,5 +5116,109 @@ void MainWindow::computeDailyFromHourly_MeteoPoints(const QList<std::string>& id
     QDate currentDate = myProject.getCurrentDate();
     myProject.loadMeteoPointsData(currentDate, currentDate, true, true, true);
     redrawMeteoPoints(currentPointsVisualization, true);
+}
+
+
+void MainWindow::on_actionMeteoPoints_triggered()
+{
+    bool isMeteoGrid = false;
+    if (!myProject.meteoPointsLoaded)
+    {
+        myProject.errorString = "Load meteo Points";
+        myProject.logError();
+        return;
+    }
+
+    QList<QString> climateDbElab;
+    QList<QString> climateDbVarList;
+    myProject.clima->resetListElab();
+    if (myProject.showClimateFields(isMeteoGrid, &climateDbElab, &climateDbVarList))
+    {
+        DialogClimateFields climateDialog(climateDbElab, climateDbVarList);
+        if (climateDialog.result() == QDialog::Accepted)
+        {
+            QString climaSelected = climateDialog.getSelected();
+
+            if (climateDialog.getIsShowClicked())
+            {
+                QString index = climateDialog.getIndexSelected();
+                myProject.climateIndex = index;
+                myProject.saveClimateResult(isMeteoGrid, climaSelected, index.toInt(), true);
+                if (isMeteoGrid)
+                {
+                    this->ui->actionShowGridClimate->setEnabled(true);
+                    redrawMeteoGrid(showClimate, false);
+                }
+                else
+                {
+                    this->ui->actionShowPointsClimate->setEnabled(true);
+                    redrawMeteoPoints(showClimate, true);
+                }
+            }
+            else
+            {
+                myProject.deleteClima(isMeteoGrid, climaSelected);
+            }
+
+        }
+        else
+        {
+            return;
+        }
+
+    }
+    return;
+}
+
+
+void MainWindow::on_actionMeteoGrid_triggered()
+{
+    bool isMeteoGrid = true;
+    if (!myProject.meteoGridLoaded)
+    {
+        myProject.errorString = "Load meteo grid";
+        myProject.logError();
+        return;
+    }
+
+    QList<QString> climateDbElab;
+    QList<QString> climateDbVarList;
+    myProject.clima->resetListElab();
+    if (myProject.showClimateFields(isMeteoGrid, &climateDbElab, &climateDbVarList))
+    {
+        DialogClimateFields climateDialog(climateDbElab, climateDbVarList);
+        if (climateDialog.result() == QDialog::Accepted)
+        {
+            QString climaSelected = climateDialog.getSelected();
+
+            if (climateDialog.getIsShowClicked())
+            {
+                QString index = climateDialog.getIndexSelected();
+                myProject.climateIndex = index;
+                myProject.saveClimateResult(isMeteoGrid, climaSelected, index.toInt(), true);
+                if (isMeteoGrid)
+                {
+                    this->ui->actionShowGridClimate->setEnabled(true);
+                    redrawMeteoGrid(showClimate, false);
+                }
+                else
+                {
+                    this->ui->actionShowPointsClimate->setEnabled(true);
+                    redrawMeteoPoints(showClimate, true);
+                }
+            }
+            else
+            {
+                myProject.deleteClima(isMeteoGrid, climaSelected);
+            }
+
+        }
+        else
+        {
+            return;
+        }
+
+    }
+    return;
 }
 
