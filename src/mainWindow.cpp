@@ -34,8 +34,6 @@
 #include "dialogShiftData.h"
 #include "dialogComputeData.h"
 #include "meteoWidget.h"
-#include "formSelectionSource.h"
-#include "formInfo.h"
 
 
 extern PragaProject myProject;
