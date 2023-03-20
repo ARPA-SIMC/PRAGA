@@ -1019,8 +1019,8 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         netcdfRaster->setConstantValue(NODATA);
         currentNetcdfVisualization = showLocation;
 
-        // default colorScale: air temperature
-        setColorScale(airTemperature, netcdfRaster->colorScale);
+        // default colorScale: precipitation (radar)
+        setColorScale(precipitation, netcdfRaster->colorScale);
         netcdfLegend->colorScale = netcdfRaster->colorScale;
 
         showNetcdfGroup->setEnabled(true);
