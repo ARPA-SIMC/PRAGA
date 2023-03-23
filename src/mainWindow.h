@@ -95,6 +95,7 @@
         void on_actionElaboration_triggered();
         void on_actionAnomaly_triggered();
         void on_actionClimate_triggered();
+        void on_actionStatisticalSummary_triggered();
 
         void on_actionRadiationSettings_triggered();
 

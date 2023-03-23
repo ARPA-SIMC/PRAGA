@@ -12,6 +12,7 @@
 
 #include "formTimePeriod.h"
 #include "formSelection.h"
+#include "formSelectionSource.h"
 #include "formText.h"
 #include "dbMeteoPointsHandler.h"
 #include "download.h"
@@ -2023,6 +2024,55 @@ void MainWindow::on_actionClimate_triggered()
         on_actionClimate_triggered();
 
     return;
+}
+
+void MainWindow::on_actionStatisticalSummary_triggered()
+{
+
+    if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
+    {
+        myProject.errorString = "Load meteo Points or grid";
+        myProject.logError();
+        return;
+    }
+
+    bool isMeteoPointLoaded = false;
+    bool isMeteoGridLoaded = false;
+
+    if (myProject.meteoPointsLoaded)
+    {
+        isMeteoPointLoaded = true;
+    }
+    if (myProject.meteoGridLoaded)
+    {
+        isMeteoGridLoaded = true;
+    }
+    /*
+    FormSelectionSource compStats();
+    if (compStats.result() != QDialog::Accepted)
+    {
+        return;
+    }
+
+    myProject.clima->resetListElab();
+    DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGridLoaded, isMeteoPointLoaded, isAnomaly, saveClima);
+    if (compDialog.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    bool isMeteoGrid = compDialog.getIsMeteoGrid();
+    myProject.lastElabTargetisGrid = isMeteoGrid;
+    myProject.clima->getListElab()->setListClimateElab(compDialog.getElabSaveList());
+    if (!myProject.elaboration(isMeteoGrid, isAnomaly, saveClima))
+    {
+        myProject.logError();
+    }
+
+    if (compStats.result() == QDialog::Accepted)
+        on_actionStatisticalSummary_triggered();
+    */
+    return;
+
 }
 
 void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool isAnomaly, bool isAnomalyPerc, bool isClima, QString index)
