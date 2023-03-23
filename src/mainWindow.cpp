@@ -2461,20 +2461,6 @@ void MainWindow::setTileSource(WebTileSource::WebTileType tileType)
 }
 
 
-bool MainWindow::openRaster(QString fileName, gis::Crit3DRasterGrid *myRaster)
-{
-
-        std::string* myError = new std::string();
-        std::string fnWithoutExt = fileName.left(fileName.length()-4).toStdString();
-
-        if (! gis::readEsriGrid(fnWithoutExt, myRaster, myError))
-        {
-            myProject.logError("Load raster failed!");
-            return false;
-        }
-        return true;
-}
-
 void MainWindow::on_actionSpatialAggregationOpenDB_triggered()
 {
     QString dbName = QFileDialog::getOpenFileName(this, tr("Open DB meteo points"), "", tr("DB files (*.db)"));
@@ -4207,9 +4193,11 @@ bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
         }
         gis::Crit3DRasterGrid *myRaster;
         myRaster = new(gis::Crit3DRasterGrid);
-        if (!openRaster(myProject.aggregationPath + "/" + rasterName + ".flt", myRaster))
+        std::string errorStr = "";
+        QString fileName = myProject.aggregationPath + "/" + rasterName + ".flt";
+        if (!gis::openRaster(fileName.toStdString(), myRaster, errorStr))
         {
-            myProject.errorString = "Open raster file failed";
+            myProject.errorString = "Open raster failed: " + QString::fromStdString(errorStr);
             myProject.logError();
             return false;
         }
@@ -4302,6 +4290,7 @@ void MainWindow::on_actionExport_current_data_triggered()
     }
 }
 
+
 void MainWindow::on_actionFileExportInterpolation_triggered()
 {
     if (! myProject.dataRaster.isLoaded)
@@ -4311,10 +4300,10 @@ void MainWindow::on_actionFileExportInterpolation_triggered()
 
     if (fileName != "")
     {
-        std::string myError = myProject.errorString.toStdString();
         QString fileWithoutExtension = QFileInfo(fileName).absolutePath() + QDir::separator() + QFileInfo(fileName).baseName();
+        std::string myError = "";
 
-        if (!gis::writeEsriGrid(fileWithoutExtension.toStdString(), &myProject.dataRaster, &myError))
+        if (!gis::writeEsriGrid(fileWithoutExtension.toStdString(), &myProject.dataRaster, myError))
             myProject.logError(QString::fromStdString(myError));
     }
 }
@@ -4322,8 +4311,8 @@ void MainWindow::on_actionFileExportInterpolation_triggered()
 
 void MainWindow::on_actionFileDemOpen_triggered()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open raster Grid"), "", tr("ESRI grid files (*.flt)"));
-
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Digital Elevation Model"), "",
+                                                    tr("ESRI FLT (*.flt);;ENVI IMG (*.img)"));
     if (fileName == "") return;
 
     if (!myProject.loadDEM(fileName)) return;
