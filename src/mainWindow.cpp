@@ -821,8 +821,6 @@ void MainWindow::interpolateGridGUI()
     if (myProject.interpolationMeteoGrid(myProject.getCurrentVariable(), myProject.getCurrentFrequency(),
                                          myProject.getCrit3DCurrentTime()))
     {
-        //setCurrentRaster(&(myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid));
-        //ui->labelRasterScale->setText(QString::fromStdString(getVariableString(myProject.getCurrentVariable())));
         redrawMeteoGrid(showCurrentVariable, true);
     }
     else
@@ -964,14 +962,8 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
                 return;
             }
 
-            Crit3DTime myTime = myProject.getCrit3DCurrentTime();
-            if (myProject.getCurrentFrequency() == daily)
-            {
-                myTime = getCrit3DTime(myProject.getCurrentDate(), 0);
-            }
-
             std::string errorStr;
-            myProject.netCDF.extractVariableMap(currentNetcdfVariable, myTime, errorStr);
+            myProject.netCDF.extractVariableMap(currentNetcdfVariable, myProject.getCrit3DCurrentTime(), errorStr);
             gis::updateMinMaxRasterGrid(netcdfRaster);
 
             netcdfLegend->setVisible(true);
@@ -1563,7 +1555,6 @@ void MainWindow::redrawMeteoGrid(visualizationType showType, bool showInterpolat
             {
                 frequencyType frequency = myProject.getCurrentFrequency();
 
-
                 if (myProject.getCurrentVariable() == noMeteoVar)
                 {
                     meteoGridLegend->setVisible(false);
@@ -1571,14 +1562,20 @@ void MainWindow::redrawMeteoGrid(visualizationType showType, bool showInterpolat
                     return;
                 }
 
-                Crit3DTime time = myProject.getCrit3DCurrentTime();
+                Crit3DDate myDate = getCrit3DDate(myProject.getCurrentDate());
 
-                if (frequency == daily)
-                    myProject.meteoGridDbHandler->meteoGrid()->fillCurrentDailyValue(time.date, variable, myProject.meteoSettings);
-                else if (frequency == hourly)
-                    myProject.meteoGridDbHandler->meteoGrid()->fillCurrentHourlyValue(time.date, time.getHour(), time.getMinutes(), variable);
+                if (frequency == hourly)
+                {
+                    myProject.meteoGridDbHandler->meteoGrid()->fillCurrentHourlyValue(myDate, myProject.getCurrentHour(), 0, variable);
+                }
+                else if (frequency == daily)
+                {
+                    myProject.meteoGridDbHandler->meteoGrid()->fillCurrentDailyValue(myDate, variable, myProject.meteoSettings);
+                }
                 else if (frequency == monthly)
-                    myProject.meteoGridDbHandler->meteoGrid()->fillCurrentMonthlyValue(time.date, variable);
+                {
+                    myProject.meteoGridDbHandler->meteoGrid()->fillCurrentMonthlyValue(myDate, variable);
+                }
                 else
                     return;
 
@@ -2741,7 +2738,6 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
     myVariables.push_back(myVar);
     myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables, aggrVariables, false, 1, NODATA);
 }
-
 
 
 void MainWindow::on_actionInterpolationCrossValidation_triggered()
