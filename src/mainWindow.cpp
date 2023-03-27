@@ -4211,48 +4211,45 @@ bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
 {
     if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
         {
-            myProject.errorString = "Load grid";
-            myProject.logError();
+            myProject.logError("Load grid");
             return false;
         }
         if (myProject.aggregationDbHandler == nullptr)
         {
-            myProject.errorString = "Missing DB: open or create a Aggregation DB";
-            myProject.logError();
+            myProject.logError("Missing DB: open or create a Aggregation DB.");
             return false;
         }
         QString rasterName;
         if (!myProject.aggregationDbHandler->getRasterName(&rasterName))
         {
-            myProject.errorString = "Missing Raster Name inside aggregation db";
+            myProject.logError("Missing Raster Name inside aggregation db.");
+            return false;
+        }
+
+        QFileInfo rasterFileFltInfo(myProject.aggregationPath + "/" + rasterName + ".flt");
+        QFileInfo rasterFileHdrInfo(myProject.aggregationPath + "/" + rasterName + ".hdr");
+        if (!rasterFileFltInfo.exists() || !rasterFileHdrInfo.exists())
+        {
+            myProject.errorString = "Raster file does not exist: " + myProject.aggregationPath + "/" + rasterName;
             myProject.logError();
             return false;
         }
 
-        QFileInfo rasterFileFltInfo(myProject.aggregationPath+"/"+rasterName+".flt");
-        QFileInfo rasterFileHdrInfo(myProject.aggregationPath+"/"+rasterName+".hdr");
-        if (!rasterFileFltInfo.exists() || !rasterFileHdrInfo.exists())
-        {
-            myProject.errorString = "Raster file does not exist: " + myProject.aggregationPath+"/"+rasterName;
-            myProject.logError();
-            return false;
-        }
         gis::Crit3DRasterGrid *myRaster;
         myRaster = new(gis::Crit3DRasterGrid);
         std::string errorStr = "";
+
         QString fileName = myProject.aggregationPath + "/" + rasterName + ".flt";
-        if (!gis::openRaster(fileName.toStdString(), myRaster, errorStr))
+        if (!gis::openRaster(fileName.toStdString(), myRaster, myProject.gisSettings.utmZone, errorStr))
         {
-            myProject.errorString = "Open raster failed: " + QString::fromStdString(errorStr);
-            myProject.logError();
+            myProject.logError("Open raster failed: " + QString::fromStdString(errorStr));
             return false;
         }
 
         QList<QString> aggregation = myProject.aggregationDbHandler->getAggregations();
         if (aggregation.isEmpty())
         {
-            myProject.errorString = "Empty aggregation " + myProject.aggregationDbHandler->error();
-            myProject.logError();
+            myProject.logError("Empty aggregation: " + myProject.aggregationDbHandler->error());
             return false;
         }
 
@@ -4361,7 +4358,8 @@ void MainWindow::on_actionFileDemOpen_triggered()
                                                     tr("ESRI FLT (*.flt);;ENVI IMG (*.img)"));
     if (fileName == "") return;
 
-    if (!myProject.loadDEM(fileName)) return;
+    if (!myProject.loadDEM(fileName))
+        return;
 
     renderDEM();
 }
