@@ -4893,13 +4893,17 @@ void MainWindow::searchMeteoPoint(bool isName)
 
     QString title = "Search ";
     if (isName)
-        title += "name";
+        title += "by name";
     else
-        title += "id";
+        title += "by id";
 
     FormText formSearch(title);
-    if (formSearch.result() == QDialog::Rejected) return;
+    if (formSearch.result() == QDialog::Rejected)
+        return;
+
     QString searchString = formSearch.getText();
+    if (searchString == "")
+        return;
 
     // initialize
     for (int i = 0; i < myProject.nrMeteoPoints; i++)
