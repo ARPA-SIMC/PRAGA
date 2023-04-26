@@ -69,6 +69,8 @@ void Crit1DProject::initialize()
     availableWaterDepth.clear();
     fractionAvailableWaterDepth.clear();
     awcDepth.clear();
+
+    soilTexture.resize(13);
 }
 
 
@@ -317,10 +319,10 @@ int Crit1DProject::initializeProject(QString settingsFileName)
     if (myError != CRIT1D_OK)
         return myError;
 
-    if (! loadVanGenuchtenParameters(&dbSoil, soilTexture, &projectError))
+    if (! loadVanGenuchtenParameters(dbSoil, soilTexture, projectError))
         return ERROR_SOIL_PARAMETERS;
 
-    if (! loadDriessenParameters(&dbSoil, soilTexture, &projectError))
+    if (! loadDriessenParameters(dbSoil, soilTexture, projectError))
         return ERROR_SOIL_PARAMETERS;
 
     // Computational unit list
@@ -382,18 +384,24 @@ void Crit1DProject::checkSimulationDates()
 }
 
 
-bool Crit1DProject::setSoil(QString soilCode, QString &myError)
+bool Crit1DProject::setSoil(QString soilCode, QString &errorStr)
 {
-    if (! loadSoil(&dbSoil, soilCode, &(myCase.mySoil), soilTexture, &(myCase.fittingOptions), &myError))
+    if (! loadSoil(dbSoil, soilCode, myCase.mySoil, soilTexture, myCase.fittingOptions, errorStr))
         return false;
 
-    std::string errorString;
-    if (! myCase.initializeSoil(errorString))
+    // warning: some soil data are wrong
+    if (errorStr != "")
     {
-        myError = QString::fromStdString(errorString);
-        return false;
+        //logger.writeInfo("WARNING: " + errorStr);
+        errorStr = "";
     }
 
+    std::string errorStdString;
+    if (! myCase.initializeSoil(errorStdString))
+    {
+        errorStr = QString::fromStdString(errorStdString);
+        return false;
+    }
 
     return true;
 }
@@ -775,7 +783,7 @@ bool Crit1DProject::computeCase(unsigned int memberNr)
 {
     myCase.fittingOptions.useWaterRetentionData = myCase.unit.useWaterRetentionData;
 
-    if (! loadCropParameters(&dbCrop, myCase.unit.idCrop, &(myCase.crop), &projectError))
+    if (! loadCropParameters(dbCrop, myCase.unit.idCrop, myCase.crop, projectError))
         return false;
 
     if (! setSoil(myCase.unit.idSoil, projectError))
@@ -926,6 +934,7 @@ int Crit1DProject::computeAllUnits()
         }
     }
 
+    int infoStep = std::max(1, int(compUnitList.size() / 20));
     logger.writeInfo("COMPUTE...");
 
     try
@@ -959,7 +968,7 @@ int Crit1DProject::computeAllUnits()
             }
 
             // SOIL
-            compUnitList[i].idSoil = getIdSoilString(&dbSoil, compUnitList[i].idSoilNumber, &projectError);
+            compUnitList[i].idSoil = getIdSoilString(dbSoil, compUnitList[i].idSoilNumber, projectError);
             if (compUnitList[i].idSoil == "")
             {
                 logger.writeInfo("Unit " + compUnitList[i].idCase + " Soil nr." + QString::number(compUnitList[i].idSoilNumber) + " ***** missing SOIL *****");
@@ -996,6 +1005,12 @@ int Crit1DProject::computeAllUnits()
                         isErrorModel = true;
                     }
                 }
+            }
+
+            if ((i+1) % infoStep == 0)
+            {
+                double percentage = (i+1) * 100.0 / compUnitList.size();
+                logger.writeInfo("..." + QString::number(round(percentage)) + "%");
             }
         }
 
@@ -1609,14 +1624,14 @@ void Crit1DProject::updateOutput(Crit3DDate myDate, bool isFirst)
 }
 
 
-bool Crit1DProject::saveOutput(QString &myError)
+bool Crit1DProject::saveOutput(QString &errorStr)
 {
     QSqlQuery myQuery = dbOutput.exec(outputString);
     outputString.clear();
 
     if (myQuery.lastError().type() != QSqlError::NoError)
     {
-        myError = "Error in saving output:\n" + myQuery.lastError().text();
+        errorStr = "Error in saveOutput:\n" + myQuery.lastError().text();
         return false;
     }
 
@@ -1789,7 +1804,7 @@ QString getOutputStringNullZero(double value)
 }
 
 
-bool setVariableDepth(QList<QString>& depthList, std::vector<int>& variableDepth)
+bool setVariableDepth(const QList<QString>& depthList, std::vector<int>& variableDepth)
 {
     int nrDepth = depthList.size();
     if (nrDepth > 0)
