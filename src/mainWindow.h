@@ -95,7 +95,6 @@
         void on_actionElaboration_triggered();
         void on_actionAnomaly_triggered();
         void on_actionClimate_triggered();
-        void on_actionStatisticalSummary_triggered();
 
         void on_actionRadiationSettings_triggered();
 
@@ -257,6 +256,8 @@
         void on_actionMeteoPoints_triggered();
 
         void on_actionMeteoGrid_triggered();
+
+        void on_actionStatistical_Summary_triggered();
 
     protected:
         /*!
