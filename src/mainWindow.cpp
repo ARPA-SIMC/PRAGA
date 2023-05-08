@@ -5243,18 +5243,12 @@ void MainWindow::on_actionStatistical_Summary_triggered()
     if (inputSelected.result() != QDialog::Accepted) return;
     int inputId = inputSelected.getSourceSelectionId();
 
-    int noActiveData = 0;
-    int noElabData = 0;
-    double averageData = 0;
-    double sumVar = 0;
-    double std = 0;
-    double minData = 9999.0;
-    double maxData = -9999.0;
     std::string idMin, idMax, nameMin, nameMax;
+    std::vector <float> validValues;
 
     switch(inputId)
     {
-        case 1:
+        case 1:     //point
         {
             if (myProject.meteoPointsLoaded && currentPointsVisualization != notShown)
             {
@@ -5262,45 +5256,42 @@ void MainWindow::on_actionStatistical_Summary_triggered()
                 {
                     if (myProject.meteoPoints[i].active && myProject.meteoPoints[i].selected)
                     {
-                        noActiveData += 1;
                         if (myProject.meteoPoints[i].currentValue != NODATA)
                         {
-                            noElabData += 1;
-                            averageData += myProject.meteoPoints[i].currentValue;
-                            minData = MINVALUE(minData, myProject.meteoPoints[i].currentValue);
-                            if (minData == myProject.meteoPoints[i].currentValue)
-                            {
-                                idMin = myProject.meteoPoints[i].id;
-                                nameMin = myProject.meteoPoints[i].name;
-                            }
-                            maxData = MAXVALUE(maxData, myProject.meteoPoints[i].currentValue);
-                            if (maxData == myProject.meteoPoints[i].currentValue)
-                            {
-                                idMax = myProject.meteoPoints[i].id;
-                                nameMax = myProject.meteoPoints[i].name;
-                            }
+                            validValues.push_back(myProject.meteoPoints[i].currentValue);
                         }
                     }
                 }
-
-                if (noElabData != 0)
-                {
-                    averageData = averageData / noElabData;
-
+                if (validValues.size() == 0)
                     for (int i = 0; i < myProject.nrMeteoPoints; i++)
                     {
-                        if (myProject.meteoPoints[i].active && myProject.meteoPoints[i].selected && myProject.meteoPoints[i].currentValue != NODATA)
+                        if (myProject.meteoPoints[i].active && myProject.meteoPoints[i].currentValue != NODATA)
                         {
-                            sumVar += pow((myProject.meteoPoints[i].currentValue - averageData), 2);
+                            validValues.push_back(myProject.meteoPoints[i].currentValue);
                         }
                     }
-                    std = sqrt(sumVar / noElabData);
+
+                if (validValues.size() != 0)
+                {
+                    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+                    {
+                        if (statistics::minList(validValues,validValues.size()) == myProject.meteoPoints[i].currentValue)
+                        {
+                            idMin = myProject.meteoPoints[i].id;
+                            nameMin = myProject.meteoPoints[i].name;
+                        }
+                        if (statistics::maxList(validValues,validValues.size()) == myProject.meteoPoints[i].currentValue)
+                        {
+                            idMax = myProject.meteoPoints[i].id;
+                            nameMax = myProject.meteoPoints[i].name;
+                        }
+                    }
                 }
                 else
                 {
-                    myProject.errorString = "No MeteoPoints selected";
-                    myProject.logError();
-                    return;
+                        myProject.errorString = "No active points present.";
+                        myProject.logError();
+                        return;
                 }
             }
             else
@@ -5312,7 +5303,7 @@ void MainWindow::on_actionStatistical_Summary_triggered()
              break;
         }
 
-        case 2:
+        case 2:     //grid
         {
             if (meteoGridObj->isLoaded && currentGridVisualization != notShown)
             {
@@ -5321,19 +5312,65 @@ void MainWindow::on_actionStatistical_Summary_triggered()
                     {
                         if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
                         {
-                            noActiveData += 1;
-                            if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue != NODATA)
+                            switch(currentGridVisualization)
                             {
-                                noElabData += 1;
-                                averageData += myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue;
-                                minData = MINVALUE(minData, myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue);
-                                if (minData == myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue)
+                                case showCurrentVariable:
+                                {
+
+                                    if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue != NODATA)
+                                    {
+                                        validValues.push_back(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue);
+                                    }
+                                    break;
+                                }
+                                case showElaboration:
+                                {
+                                    if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->elaboration != NODATA)
+                                    {
+                                        validValues.push_back(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->elaboration);
+                                    }
+                                    break;
+                                }
+                                case showAnomalyAbsolute:
+                                {
+                                    if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->anomaly != NODATA)
+                                    {
+                                        validValues.push_back(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->anomaly);
+                                    }
+                                    break;
+                                }
+                                case showAnomalyPercentage:
+                                {
+                                    if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->anomalyPercentage != NODATA)
+                                    {
+                                        validValues.push_back(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->anomalyPercentage);
+                                    }
+                                    break;
+                                }
+                                case showClimate:
+                                {
+                                    if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->climate != NODATA)
+                                    {
+                                        validValues.push_back(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->climate);
+                                    }
+                                    break;
+                                }
+                                default:
+                                {
+                                    break;
+                                }
+                            }
+
+
+
+                            if (validValues.size() != 0)
+                            {
+                                if (statistics::minList(validValues,validValues.size()) == validValues[validValues.size() - 1])
                                 {
                                     idMin = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
                                     nameMin = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
                                 }
-                                maxData = MAXVALUE(maxData, myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue);
-                                if (maxData == myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue)
+                                if (statistics::maxList(validValues,validValues.size()) == validValues[validValues.size() - 1])
                                 {
                                     idMax = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
                                     nameMax = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
@@ -5341,20 +5378,6 @@ void MainWindow::on_actionStatistical_Summary_triggered()
                             }
                         }
                     }
-                if (noElabData != 0)
-                {
-                    averageData = averageData / noElabData;
-
-                    for (int row = 0; row < myProject.meteoGridDbHandler->gridStructure().header().nrRows; row++)
-                        for (int col = 0; col < myProject.meteoGridDbHandler->gridStructure().header().nrCols; col++)
-                        {
-                            if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active and myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue != NODATA)
-                            {
-                                sumVar += pow((myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue - averageData), 2);
-                            }
-                        }
-                    std = sqrt(sumVar / noElabData);
-                }
             }
             else
             {
@@ -5372,11 +5395,11 @@ void MainWindow::on_actionStatistical_Summary_triggered()
     }
 
     textBrowser.setText(QString("Variable: " + QString::fromStdString(getVariableString(myProject.getCurrentVariable()))));
-    textBrowser.append(QString("Number of cells: " + QString::number(noElabData)));
-    textBrowser.append(QString("Average: " + QString::number(averageData)));
-    textBrowser.append(QString("Standard deviation: " + QString::number(std)));
-    textBrowser.append(QString("Maximum: ") + QString::number(maxData) + " at " + QString::fromStdString(nameMax) + ", id " + QString::fromStdString(idMax));
-    textBrowser.append(QString("Minimum: " + QString::number(minData) + " at " + QString::fromStdString(nameMin) + ", id " + QString::fromStdString(idMin)));
+    textBrowser.append(QString("Number of cells: " + QString::number(validValues.size())));
+    textBrowser.append(QString("Average: " + QString::number(statistics::mean(validValues,validValues.size()))));
+    textBrowser.append(QString("Standard deviation: " + QString::number(statistics::standardDeviation(validValues,validValues.size()))));
+    textBrowser.append(QString("Maximum: ") + QString::number(statistics::maxList(validValues,validValues.size())) + " at " + QString::fromStdString(nameMax) + ", id " + QString::fromStdString(idMax));
+    textBrowser.append(QString("Minimum: " + QString::number(statistics::minList(validValues,validValues.size())) + " at " + QString::fromStdString(nameMin) + ", id " + QString::fromStdString(idMin)));
 
     QVBoxLayout mainLayout;
     mainLayout.addWidget(&textBrowser);
