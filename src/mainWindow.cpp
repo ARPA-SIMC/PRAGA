@@ -1636,6 +1636,7 @@ bool MainWindow::loadMeteoGrid(QString xmlName)
     }
 }
 
+
 bool MainWindow::newMeteoGrid(QString xmlName)
 {
     if (myProject.newMeteoGridDB(xmlName))
@@ -3735,6 +3736,7 @@ void MainWindow::on_actionFileMeteopointNewCsv_triggered()
     loadMeteoPoints(dbName);
 }
 
+
 void MainWindow::on_actionNewMeteoGrid_triggered()
 {
     QString xmlName = QFileDialog::getOpenFileName(this, tr("New XML DB meteo grid"), "", tr("xml files (*.xml)"));
@@ -4334,8 +4336,9 @@ void MainWindow::on_actionFileMeteogridDelete_triggered()
         return;
     }
     QMessageBox::StandardButton reply;
+    QString dbName = myProject.meteoGridDbHandler->db().databaseName();
     reply = QMessageBox::question(this, "WARNING" ,
-                                  "Meteo grid will be deleted! Are you sure?",
+                                  "Meteo grid " + dbName + " will be deleted! Are you sure?",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes)
     {
