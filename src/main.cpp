@@ -106,6 +106,15 @@ int main(int argc, char *argv[])
         return mainGUI(argc, argv, pragaHome, myProject);
     }
 
+    QCoreApplication myApp(argc, argv);
+
+    // only for Windows without right to set environment
+    if (QSysInfo::productType() == "windows" && pragaHome == "")
+    {
+        QString appPath = myApp.applicationDirPath();
+        pragaHome = searchDefaultPragaPath(appPath, myProject);
+    }
+
     if (!checkEnvironmentConsole(pragaHome))
         return PRAGA_ENV_ERROR;
 
@@ -114,8 +123,6 @@ int main(int argc, char *argv[])
 
     if (! myProject.loadPragaProject(myProject.getApplicationPath() + "default.ini"))
         return PRAGA_ERROR;
-
-    QCoreApplication myApp(argc, argv);
 
     // start modality
     if (myProject.modality == MODE_CONSOLE)

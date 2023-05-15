@@ -30,7 +30,7 @@ bool checkEnvironmentGUI(QString pragaHome)
 }
 
 
-QString searchDefaultPragaPath(QString startPath)
+QString searchDefaultPragaPath(QString startPath, PragaProject& myProject)
 {
     QString myRoot = QDir::rootPath();
     QString pragaPath = startPath;
@@ -54,7 +54,7 @@ QString searchDefaultPragaPath(QString startPath)
 
     if (! isFound)
     {
-        QMessageBox::critical(nullptr, "ERROR", "DATA directory is missing");
+        myProject.logError("DATA directory is missing");
         return "";
     }
 
@@ -71,13 +71,13 @@ int mainGUI(int argc, char *argv[], QString pragaHome, PragaProject& myProject)
     if (QSysInfo::productType() == "windows" && pragaHome == "")
     {
         QString appPath = myApp.applicationDirPath();
-        pragaHome = searchDefaultPragaPath(appPath);
+        pragaHome = searchDefaultPragaPath(appPath, myProject);
     }
 
     if (!checkEnvironmentGUI(pragaHome))
     {
         QString appPath = myApp.applicationDirPath();
-        pragaHome = searchDefaultPragaPath(appPath);
+        pragaHome = searchDefaultPragaPath(appPath, myProject);
         if (!checkEnvironmentGUI(pragaHome))
             return PRAGA_ENV_ERROR;
     }
