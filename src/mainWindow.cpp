@@ -4438,6 +4438,49 @@ void MainWindow::setColorScaleRangeMeteoGrid(bool isFixed)
 }
 
 
+bool MainWindow::checkDEMColorScale()
+{
+    if (! myProject.DEM.isLoaded)
+    {
+        QMessageBox::information(nullptr, "Missing DEM", "Open Digital Elevation Map before.");
+        return false;
+    }
+
+    return true;
+}
+
+
+void MainWindow::setColorScaleRangeDEM(bool isFixed)
+{
+    if (! checkDEMColorScale()) return;
+
+    if (isFixed)
+    {
+        // choose minimum
+        float minimum = this->rasterObj->getRaster()->colorScale->minimum();
+        QString valueStr = editValue("Choose minimum value", QString::number(minimum));
+        if (valueStr == "") return;
+        minimum = valueStr.toFloat();
+
+        // choose maximum
+        float maximum = this->rasterObj->getRaster()->colorScale->maximum();
+        valueStr = editValue("Choose maximum value", QString::number(maximum));
+        if (valueStr == "") return;
+        maximum = valueStr.toFloat();
+
+        // set range
+        this->rasterObj->getRaster()->colorScale->setRange(minimum, maximum);
+        this->rasterObj->getRaster()->colorScale->setRangeBlocked(true);
+    }
+    else
+    {
+        this->rasterObj->getRaster()->colorScale->setRangeBlocked(false);
+    }
+
+    emit this->rasterObj->redrawRequested();
+}
+
+
 void MainWindow::on_flagMeteoGrid_Dynamic_color_scale_triggered(bool isChecked)
 {
     ui->flagMeteoGrid_Fixed_color_scale->setChecked(! isChecked);
@@ -5364,8 +5407,6 @@ void MainWindow::on_actionStatistical_Summary_triggered()
                                 }
                             }
 
-
-
                             if (validValues.size() != 0)
                             {
                                 if (statistics::minList(validValues,validValues.size()) == validValues[validValues.size() - 1])
@@ -5413,3 +5454,35 @@ void MainWindow::on_actionStatistical_Summary_triggered()
 
     return;
 }
+
+
+void MainWindow::on_actionDemRangeFixed_triggered(bool isChecked)
+{
+    ui->actionDemRangeDynamic->setChecked(! isChecked);
+    setColorScaleRangeDEM(isChecked);
+}
+
+
+void MainWindow::on_actionDemRangeDynamic_triggered(bool isChecked)
+{
+    ui->actionDemRangeFixed->setChecked(! isChecked);
+    setColorScaleRangeDEM(! isChecked);
+}
+
+
+void MainWindow::on_actionExport_MeteoGrid_toCsv_triggered()
+{
+    if (!myProject.meteoGridLoaded)
+    {
+            myProject.logError("Please load meteoGrid before.");
+            return;
+    }
+
+    QString csvFileName = QFileDialog::getSaveFileName(this, tr("Save current meteogrid data"), "", tr("csv files (*.csv)"));
+
+    if (csvFileName != "")
+    {
+            myProject.exportMeteoGridToCsv(csvFileName);
+    }
+}
+

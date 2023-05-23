@@ -259,6 +259,12 @@
 
         void on_actionStatistical_Summary_triggered();
 
+        void on_actionDemRangeFixed_triggered(bool isChecked);
+
+        void on_actionDemRangeDynamic_triggered(bool isChecked);
+
+        void on_actionExport_MeteoGrid_toCsv_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -341,6 +347,9 @@
         bool checkMeteoGridColorScale();
         void setColorScaleRangeMeteoGrid(bool isFixed);
         void setColorScaleRangeNetcdf(bool isFixed);
+
+        bool checkDEMColorScale();
+        void setColorScaleRangeDEM(bool isFixed);
 
         bool loadMeteoPoints(QString dbName);
         bool loadMeteoGrid(QString xmlName);

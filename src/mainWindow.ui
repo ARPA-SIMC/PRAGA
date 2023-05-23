@@ -242,7 +242,6 @@
   <property name="font">
    <font>
     <pointsize>10</pointsize>
-    <weight>50</weight>
     <bold>false</bold>
    </font>
   </property>
@@ -292,7 +291,6 @@
     <property name="font">
      <font>
       <pointsize>10</pointsize>
-      <weight>50</weight>
       <bold>false</bold>
      </font>
     </property>
@@ -361,7 +359,6 @@
        <property name="font">
         <font>
          <pointsize>10</pointsize>
-         <weight>50</weight>
          <bold>false</bold>
         </font>
        </property>
@@ -393,7 +390,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -413,7 +409,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -470,7 +465,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -504,7 +498,7 @@
           <second>0</second>
           <year>1752</year>
           <month>10</month>
-          <day>7</day>
+          <day>6</day>
          </datetime>
         </property>
         <property name="maximumDate">
@@ -543,7 +537,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -563,7 +556,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -583,7 +575,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -639,7 +630,6 @@
        <property name="font">
         <font>
          <pointsize>10</pointsize>
-         <weight>50</weight>
          <bold>false</bold>
         </font>
        </property>
@@ -667,7 +657,6 @@
         <property name="font">
          <font>
           <pointsize>8</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -694,7 +683,6 @@
        <property name="font">
         <font>
          <pointsize>10</pointsize>
-         <weight>50</weight>
          <bold>false</bold>
         </font>
        </property>
@@ -719,7 +707,6 @@
         <property name="font">
          <font>
           <pointsize>8</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -786,7 +773,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -1042,7 +1028,6 @@
        <property name="font">
         <font>
          <pointsize>10</pointsize>
-         <weight>50</weight>
          <bold>false</bold>
         </font>
        </property>
@@ -1107,7 +1092,6 @@
         <property name="font">
          <font>
           <pointsize>8</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -1134,7 +1118,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -1164,7 +1147,6 @@
        <property name="font">
         <font>
          <pointsize>10</pointsize>
-         <weight>50</weight>
          <bold>false</bold>
         </font>
        </property>
@@ -1189,7 +1171,6 @@
         <property name="font">
          <font>
           <pointsize>8</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -1252,7 +1233,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -1279,7 +1259,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -1309,7 +1288,6 @@
        <property name="font">
         <font>
          <pointsize>10</pointsize>
-         <weight>50</weight>
          <bold>false</bold>
         </font>
        </property>
@@ -1343,7 +1321,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -1397,7 +1374,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -1429,7 +1405,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -1461,7 +1436,6 @@
         <property name="font">
          <font>
           <pointsize>9</pointsize>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -1552,7 +1526,7 @@
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>23</height>
+     <height>29</height>
     </rect>
    </property>
    <property name="palette">
@@ -1605,6 +1579,7 @@
       </property>
       <addaction name="actionFileMeteogridExportRaster"/>
       <addaction name="actionFileMeteogridExportNetcdf"/>
+      <addaction name="actionExport_MeteoGrid_toCsv"/>
      </widget>
      <addaction name="actionFileMeteogridOpen"/>
      <addaction name="actionFileMeteogridClose"/>
@@ -1656,9 +1631,17 @@
      <property name="title">
       <string>DEM</string>
      </property>
+     <widget class="QMenu" name="menuSet_range">
+      <property name="title">
+       <string>Set range</string>
+      </property>
+      <addaction name="actionDemRangeFixed"/>
+      <addaction name="actionDemRangeDynamic"/>
+     </widget>
      <addaction name="actionFileDemOpen"/>
      <addaction name="actionFileExportInterpolation"/>
      <addaction name="actionFileDemRestore"/>
+     <addaction name="menuSet_range"/>
     </widget>
     <widget class="QMenu" name="menuProject">
      <property name="title">
@@ -2762,6 +2745,30 @@
    </property>
    <property name="shortcutVisibleInContextMenu">
     <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionDemRangeFixed">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Fixed...</string>
+   </property>
+  </action>
+  <action name="actionDemRangeDynamic">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Dynamic</string>
+   </property>
+  </action>
+  <action name="actionExport_MeteoGrid_toCsv">
+   <property name="text">
+    <string>to Csv</string>
    </property>
   </action>
  </widget>
