@@ -5224,7 +5224,7 @@ void MainWindow::on_actionClimateMeteoPoints_triggered()
             {
                 QString index = climateDialog.getIndexSelected();
                 myProject.climateIndex = index;
-                myProject.saveClimateResult(isMeteoGrid, climaSelected, index.toInt(), true);
+                myProject.readClimate(isMeteoGrid, climaSelected, index.toInt(), true);
                 if (isMeteoGrid)
                 {
                     this->ui->actionShowGridClimate->setEnabled(true);
@@ -5238,7 +5238,7 @@ void MainWindow::on_actionClimateMeteoPoints_triggered()
             }
             else
             {
-                myProject.deleteClima(isMeteoGrid, climaSelected);
+                myProject.deleteClimate(isMeteoGrid, climaSelected);
             }
 
         }
@@ -5276,7 +5276,7 @@ void MainWindow::on_actionClimateMeteoGrid_triggered()
             {
                 QString index = climateDialog.getIndexSelected();
                 myProject.climateIndex = index;
-                myProject.saveClimateResult(isMeteoGrid, climaSelected, index.toInt(), true);
+                myProject.readClimate(isMeteoGrid, climaSelected, index.toInt(), true);
                 if (isMeteoGrid)
                 {
                     this->ui->actionShowGridClimate->setEnabled(true);
@@ -5290,7 +5290,7 @@ void MainWindow::on_actionClimateMeteoGrid_triggered()
             }
             else
             {
-                myProject.deleteClima(isMeteoGrid, climaSelected);
+                myProject.deleteClimate(isMeteoGrid, climaSelected);
             }
 
         }
