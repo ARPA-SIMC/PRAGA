@@ -816,9 +816,8 @@ void MainWindow::interpolateDemGUI()
 
 void MainWindow::interpolateGridGUI()
 {
-    //if (myProject.interpolationMeteoGrid(myProject.getCurrentVariable(), myProject.getCurrentFrequency(),
-    //                                         myProject.getCrit3DCurrentTime()))
-    if (myProject.interpolationGridMain(myProject.getCurrentVariable(), myProject.getCrit3DCurrentTime()))
+    if (myProject.interpolationMeteoGrid(myProject.getCurrentVariable(), myProject.getCurrentFrequency(),
+                                             myProject.getCrit3DCurrentTime()))
     {
         redrawMeteoGrid(showCurrentVariable, true);
     }
