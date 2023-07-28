@@ -245,6 +245,9 @@
     <bold>false</bold>
    </font>
   </property>
+  <property name="mouseTracking">
+   <bool>false</bool>
+  </property>
   <property name="windowTitle">
    <string>PRAGA</string>
   </property>
@@ -460,8 +463,8 @@
             <minute>0</minute>
             <second>0</second>
             <year>1752</year>
-            <month>10</month>
-            <day>1</day>
+            <month>9</month>
+            <day>30</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1516,7 +1519,7 @@
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>23</height>
+     <height>28</height>
     </rect>
    </property>
    <property name="palette">

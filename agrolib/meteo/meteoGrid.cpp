@@ -880,15 +880,13 @@ void Crit3DMeteoGrid::spatialAggregateMeteoGrid(meteoVariable myVar, frequencyTy
 
 double Crit3DMeteoGrid::spatialAggregateMeteoGridPoint(Crit3DMeteoPoint myPoint, aggregationMethod elab)
 {
-
-    std::vector <double> validValues;
-
+    std::vector<float> validValues;
 
     for (unsigned int i = 0; i < myPoint.aggregationPoints.size(); i++)
     {
         if (myPoint.aggregationPoints[i].z != NODATA)
         {
-            validValues.push_back(myPoint.aggregationPoints[i].z);
+            validValues.push_back(float(myPoint.aggregationPoints[i].z));
         }
     }
 
@@ -909,7 +907,7 @@ double Crit3DMeteoGrid::spatialAggregateMeteoGridPoint(Crit3DMeteoPoint myPoint,
     else if (elab == aggregationMethod::aggrMedian)
     {
         int size = int(validValues.size());
-        return sorting::percentile(validValues.data(), &size, 50.0, true);
+        return sorting::percentile(validValues, size, 50.0, true);
     }
     else if (elab == aggregationMethod::aggrStdDeviation)
     {
@@ -920,8 +918,8 @@ double Crit3DMeteoGrid::spatialAggregateMeteoGridPoint(Crit3DMeteoPoint myPoint,
         return NODATA;
     }
 
-
 }
+
 
 bool Crit3DMeteoGrid::getIsElabValue() const
 {
