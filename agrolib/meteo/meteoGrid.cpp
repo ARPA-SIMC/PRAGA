@@ -880,7 +880,7 @@ void Crit3DMeteoGrid::spatialAggregateMeteoGrid(meteoVariable myVar, frequencyTy
 
 double Crit3DMeteoGrid::spatialAggregateMeteoGridPoint(Crit3DMeteoPoint myPoint, aggregationMethod elab)
 {
-    std::vector<float> validValues;
+    std::vector <float> validValues;
 
     for (unsigned int i = 0; i < myPoint.aggregationPoints.size(); i++)
     {
