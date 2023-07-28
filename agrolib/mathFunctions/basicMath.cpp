@@ -485,6 +485,7 @@
             return NODATA;
         }
 
+
         // warning: if isSortValues is true, list will be modified
         float mode(std::vector<float> &list, int* nrList, bool isSortValues)
         {
