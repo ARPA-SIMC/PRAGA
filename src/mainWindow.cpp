@@ -816,9 +816,8 @@ void MainWindow::interpolateDemGUI()
 
 void MainWindow::interpolateGridGUI()
 {
-    //if (myProject.interpolationMeteoGrid(myProject.getCurrentVariable(), myProject.getCurrentFrequency(),
-    //                                         myProject.getCrit3DCurrentTime()))
-    if (myProject.interpolationGridMain(myProject.getCurrentVariable(), myProject.getCrit3DCurrentTime()))
+    if (myProject.interpolationMeteoGrid(myProject.getCurrentVariable(), myProject.getCurrentFrequency(),
+                                             myProject.getCrit3DCurrentTime()))
     {
         redrawMeteoGrid(showCurrentVariable, true);
     }
@@ -3810,7 +3809,7 @@ void MainWindow::on_actionFileMeteogridExportRaster_triggered()
 
     if (fileName != "")
     {
-        int defaultCellSize = myProject.computeCellSizeFromMeteoGrid();
+        int defaultCellSize = myProject.computeDefaultCellSizeFromMeteoGrid(0.1);
         double cellSizeValue;
         DialogCellSize cellSizeDialog(defaultCellSize);
         if (cellSizeDialog.result() == QDialog::Accepted)
@@ -3821,7 +3820,7 @@ void MainWindow::on_actionFileMeteogridExportRaster_triggered()
         {
             return;
         }
-        if (!myProject.exportMeteoGridToESRI(fileName, cellSizeValue))
+        if (!myProject.exportMeteoGridToRasterFlt(fileName, cellSizeValue))
         {
             myProject.logError(myProject.errorString);
             return;

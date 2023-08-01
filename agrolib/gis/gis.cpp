@@ -1424,9 +1424,9 @@ namespace gis
     }
 
     void resampleGrid(const gis::Crit3DRasterGrid& oldGrid, gis::Crit3DRasterGrid* newGrid,
-                      const gis::Crit3DRasterHeader& header, aggregationMethod elab, float nodataThreshold)
+                      gis::Crit3DRasterHeader* header, aggregationMethod elab, float nodataThreshold)
     {
-        *(newGrid->header) = header;
+        *(newGrid->header) = *header;
 
         double factor = newGrid->header->cellSize / oldGrid.header->cellSize;
         int row, col, tmpRow, tmpCol, nrValues, maxValues;
@@ -1479,7 +1479,7 @@ namespace gis
                             if (elab == aggrAverage)
                                 value = statistics::mean(values, nrValues);
                             else if (elab == aggrMedian)
-                                value = sorting::percentile(values, &nrValues, 50, true);
+                                value = sorting::percentile(values, nrValues, 50, true);
                             else if (elab == aggrPrevailing)
                                 value = prevailingValue(values);
                         }
