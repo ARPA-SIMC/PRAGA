@@ -27,7 +27,6 @@
 #include "dialogPragaProject.h"
 #include "dialogPointProperties.h"
 #include "dialogPointDeleteData.h"
-#include "dialogSelectionMeteoPoint.h"
 #include "dialogCellSize.h"
 #include "dialogSelectDataset.h"
 #include "dialogAddMissingStation.h"
@@ -3809,7 +3808,7 @@ void MainWindow::on_actionFileMeteogridExportRaster_triggered()
 
     if (fileName != "")
     {
-        int defaultCellSize = myProject.computeDefaultCellSizeFromMeteoGrid(0.1);
+        int defaultCellSize = myProject.computeDefaultCellSizeFromMeteoGrid(float(0.1));
         double cellSizeValue;
         DialogCellSize cellSizeDialog(defaultCellSize);
         if (cellSizeDialog.result() == QDialog::Accepted)
@@ -5442,12 +5441,12 @@ void MainWindow::on_actionStatistical_Summary_triggered()
 
                             if (validValues.size() != 0)
                             {
-                                if (statistics::minList(validValues,validValues.size()) == validValues[validValues.size() - 1])
+                                    if (statistics::minList(validValues, int(validValues.size())) == validValues[validValues.size() - 1])
                                 {
                                     idMin = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
                                     nameMin = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
                                 }
-                                if (statistics::maxList(validValues,validValues.size()) == validValues[validValues.size() - 1])
+                                    if (statistics::maxList(validValues, int(validValues.size())) == validValues[validValues.size() - 1])
                                 {
                                     idMax = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
                                     nameMax = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
@@ -5473,10 +5472,10 @@ void MainWindow::on_actionStatistical_Summary_triggered()
 
     textBrowser.setText(QString("Variable: " + QString::fromStdString(getVariableString(myProject.getCurrentVariable()))));
     textBrowser.append(QString("Number of cells: " + QString::number(validValues.size())));
-    textBrowser.append(QString("Average: " + QString::number(statistics::mean(validValues,validValues.size()))));
-    textBrowser.append(QString("Standard deviation: " + QString::number(statistics::standardDeviation(validValues,validValues.size()))));
-    textBrowser.append(QString("Maximum: ") + QString::number(statistics::maxList(validValues,validValues.size())) + " at " + QString::fromStdString(nameMax) + ", id " + QString::fromStdString(idMax));
-    textBrowser.append(QString("Minimum: " + QString::number(statistics::minList(validValues,validValues.size())) + " at " + QString::fromStdString(nameMin) + ", id " + QString::fromStdString(idMin)));
+    textBrowser.append(QString("Average: " + QString::number(statistics::mean(validValues, int(validValues.size())))));
+    textBrowser.append(QString("Standard deviation: " + QString::number(statistics::standardDeviation(validValues, int(validValues.size())))));
+    textBrowser.append(QString("Maximum: ") + QString::number(statistics::maxList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMax) + ", id " + QString::fromStdString(idMax));
+    textBrowser.append(QString("Minimum: " + QString::number(statistics::minList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMin) + ", id " + QString::fromStdString(idMin)));
 
     QVBoxLayout mainLayout;
     mainLayout.addWidget(&textBrowser);
