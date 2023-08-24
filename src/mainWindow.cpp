@@ -26,7 +26,6 @@
 #include "dialogPragaSettings.h"
 #include "dialogPragaProject.h"
 #include "dialogPointProperties.h"
-#include "dialogPointDeleteData.h"
 #include "dialogCellSize.h"
 #include "dialogSelectDataset.h"
 #include "dialogAddMissingStation.h"
