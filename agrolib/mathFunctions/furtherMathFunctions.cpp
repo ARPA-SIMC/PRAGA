@@ -1,31 +1,34 @@
 /*!
-    \copyright 2016 Fausto Tomei, Gabriele Antolini,
-    Alberto Pistocchi, Marco Bittelli, Antonio Volta, Laura Costantini
+    \copyright 2023
+    Fausto Tomei, Gabriele Antolini, Antonio Volta
 
-    This file is part of CRITERIA3D.
-    CRITERIA3D has been developed under contract issued by A.R.P.A. Emilia-Romagna
+    This file is part of AGROLIB distribution.
+    AGROLIB has been developed under contract issued by A.R.P.A. Emilia-Romagna
 
-    CRITERIA3D is free software: you can redistribute it and/or modify
+    AGROLIB is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    CRITERIA3D is distributed in the hope that it will be useful,
+    AGROLIB is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with CRITERIA3D.  If not, see <http://www.gnu.org/licenses/>.
+    along with AGROLIB.  If not, see <http://www.gnu.org/licenses/>.
 
     Contacts:
-    Antonio Volta  avolta@arpae.it
+    ftomei@arpae.it
+    gantolini@arpae.it
+    avolta@arpae.it
 */
 
 #include <math.h>
 #include <stdlib.h>
 #include <time.h>
 #include <functional>
+
 #include "commonConstants.h"
 #include "furtherMathFunctions.h"
 
@@ -794,7 +797,11 @@ namespace interpolation
             secondDerivative[i] = NODATA;
         }
 
-        punctualSecondDerivative(dim, firstColumn, secondColumn, secondDerivative);
+        if (! punctualSecondDerivative(dim, firstColumn, secondColumn, secondDerivative))
+        {
+            free(secondDerivative);
+            return NODATA;
+        }
 
         while (x > firstColumn[i])
             i++;
@@ -811,10 +818,12 @@ namespace interpolation
         return y ;
     }
 
-    void punctualSecondDerivative(int dim, double *firstColumn , double *secondColumn, double* secondDerivative)
+
+    bool punctualSecondDerivative(int dim, double *firstColumn , double *secondColumn, double* secondDerivative)
     {
-        int matrixDimension;
-        matrixDimension = dim-2;
+        if (dim <= 2) return false;
+
+        int matrixDimension = dim-2;
         double *y2 = (double *) calloc(matrixDimension, sizeof(double));
         double *constantTerm = (double *) calloc(matrixDimension, sizeof(double));
         double *diagonal =  (double *) calloc(matrixDimension, sizeof(double));
@@ -842,7 +851,9 @@ namespace interpolation
         free(subDiagonal);
         free(superDiagonal);
 
+        return true;
     }
+
 
     void tridiagonalThomasAlgorithm (int n, double *subDiagonal, double *mainDiagonal, double *superDiagonal, double *constantTerm, double* output)
     {
@@ -922,7 +933,8 @@ namespace interpolation
         {
             R2Previous[i] = NODATA;
         }
-        srand (time(nullptr));
+        srand (unsigned(time(nullptr)));
+
         do
         {
             for (i=0; i<nrParameters; i++)
@@ -979,15 +991,16 @@ namespace interpolation
         double mySSE, diffSSE, newSSE;
         static double VFACTOR = 10;
 
-        //double* paramChange = (double *) calloc(nrParameters, sizeof(double));
         std::vector<double> paramChange;
-        paramChange.resize(nrParameters+1);
+        paramChange.resize(nrParameters);
+
         std::vector<double> newParameters;
         newParameters.resize(nrParameters);
-        //double* lambda = (double *) calloc(nrParameters, sizeof(double));
+
         std::vector<double> lambda;
-        lambda.resize(nrParameters+1);
-        for(int i = 0; i < nrParameters+1; i++)
+        lambda.resize(nrParameters);
+
+        for(int i = 0; i < nrParameters; i++)
         {
             lambda[i] = 0.01;       // damping parameter
             paramChange[i] = 0;
@@ -998,8 +1011,9 @@ namespace interpolation
         int iterationNr = 0;
         do
         {
-            leastSquares_nDimension(func,myFunc, parameters, parametersDelta, x, y, nrData, xDim, lambda, paramChange, isWeighted, weights);
-                // change parameters
+            leastSquares_nDimension(func,myFunc, parameters, parametersDelta, x, y, nrData, xDim,
+                                    lambda, paramChange, isWeighted, weights);
+            // change parameters
             for (int i = 0; i < nrParameters; i++)
             {
                 newParameters[i] = parameters[i] + paramChange[i];
@@ -1020,13 +1034,7 @@ namespace interpolation
             newSSE = normGeneric_nDimension(func, myFunc, newParameters, x, y, nrData,xDim);
 
             if (newSSE == NODATA)
-            {
-                // free memory
-                //free(lambda);
-                //free(paramChange);
-
                 return false;
-            }
 
             diffSSE = mySSE - newSSE ;
 
@@ -1050,8 +1058,10 @@ namespace interpolation
             iterationNr++;
         }
         while (iterationNr <= maxIterationsNr && fabs(diffSSE) > myEpsilon);
+
         return (fabs(diffSSE) <= myEpsilon);
     }
+
 
     void leastSquares_nDimension(double (*func)(std::vector<std::function<double (std::vector<double> &, std::vector<double> &)> > &, std::vector<double> &, std::vector<double> &),
                                  std::vector<std::function<double (std::vector<double> &, std::vector<double> &)> > myFunc,
@@ -1063,20 +1073,20 @@ namespace interpolation
         double pivot, mult, top;
         int nrParameters = int(parameters.size());
 
-        double* g = (double *) calloc(nrParameters+1, sizeof(double));
-        double* z = (double *) calloc(nrParameters+1, sizeof(double));
-        double* firstEst = (double *) calloc(nrData+1, sizeof(double));
+        double* g = (double *) calloc(nrParameters, sizeof(double));
+        double* z = (double *) calloc(nrParameters, sizeof(double));
+        double* firstEst = (double *) calloc(nrData, sizeof(double));
 
-        double** a = (double **) calloc(nrParameters+1, sizeof(double*));
-        double** P = (double **) calloc(nrParameters+1, sizeof(double*));
+        double** a = (double **) calloc(nrParameters, sizeof(double*));
+        double** P = (double **) calloc(nrParameters, sizeof(double*));
 
         std::vector<double>xPoint;
         xPoint.resize(xDim);
 
-        for (i = 0; i < nrParameters+1; i++)
+        for (i = 0; i < nrParameters; i++)
         {
-                a[i] = (double *) calloc(nrParameters+1, sizeof(double));
-                P[i] = (double *) calloc(nrData+1, sizeof(double));
+                a[i] = (double *) calloc(nrParameters, sizeof(double));
+                P[i] = (double *) calloc(nrData, sizeof(double));
         }
 
         // first set of estimates
@@ -1130,7 +1140,7 @@ namespace interpolation
         for (i = 0; i < nrParameters; i++)
         {
             g[i] = 0.;
-            for (k = 0 ; k<nrData ; k++)
+            for (k = 0 ; k < nrData ; k++)
             {
                 g[i] += P[i][k] * (y[k] - firstEst[k]);
             }
@@ -1141,7 +1151,7 @@ namespace interpolation
             }
         }
 
-        for (i = 0; i < (nrParameters+1); i++)
+        for (i = 0; i < nrParameters; i++)
         {
             a[i][i] += lambda[i];
             for (j = i+1; j < nrParameters; j++)
@@ -1182,7 +1192,7 @@ namespace interpolation
         }
 
         // free memory
-        for (i = 0; i < nrParameters+1; i++)
+        for (i = 0; i < nrParameters; i++)
         {
             free(a[i]);
             free(P[i]);
@@ -1194,6 +1204,7 @@ namespace interpolation
         free(firstEst);
     }
 
+
     double normGeneric_nDimension(double (*func)(std::vector<std::function<double(std::vector<double>&, std::vector<double>&)>>&, std::vector<double>& , std::vector<double>&),
                                   std::vector<std::function<double (std::vector<double> &, std::vector<double> &)> > myFunc,
                                   std::vector<double> &parameters,std::vector <std::vector <double>>& x,
@@ -1204,6 +1215,7 @@ namespace interpolation
 
         std::vector<double> xPoint;
         xPoint.resize(xDim);
+
         for (int i = 0; i < nrData; i++)
         {
             for (int j=0; j<xDim; j++)
@@ -1211,16 +1223,16 @@ namespace interpolation
                 xPoint[j] = x[i][j];
             }
             estimate = func(myFunc,xPoint, parameters);
+
             if (estimate == NODATA)
-            {
                 return NODATA;
-            }
+
             error = y[i] - estimate;
             norm += error * error;
         }
+
         return norm;
     }
-
 }
 
 
