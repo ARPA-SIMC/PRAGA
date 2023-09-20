@@ -2,3 +2,4 @@ version: 1
 images:
  - name: rocky:8
  - name: fedora:38
+ - name: fedora:36
