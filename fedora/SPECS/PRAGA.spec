@@ -55,6 +55,9 @@ cp -a src/PRAGA %{buildroot}/%{_bindir}/
 
 
 %changelog
+* Wed Sep 27 2023 Fausto Tomei <ftomei@arpae.it> - 1.7.2-1
+- Release 1.7.2
+
 * Tue Feb 07 2023 Fausto Tomei <ftomei@arpae.it> - 1.6.0-1
 - Release 1.6.0
 
