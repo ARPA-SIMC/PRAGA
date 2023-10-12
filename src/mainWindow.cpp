@@ -3124,6 +3124,7 @@ void MainWindow::on_dayAfterButton_clicked()
     this->ui->dateEdit->setDate(this->ui->dateEdit->date().addDays(1));
 }
 
+
 void MainWindow::on_actionImport_data_XML_grid_triggered()
 {
     // check meteo grid
@@ -3155,12 +3156,12 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
     myProject.setProgressBar("Loading data...", dateFiles.size());
     QString warning;
 
-    for (int i=0; i<dateFiles.size(); i++)
+    for (int i=0; i < dateFiles.size(); i++)
     {
         myProject.updateProgressBar(i);
         if (myProject.loadXMLImportData(dateFiles[i]))
         {
-            if (!myProject.errorString.isEmpty())
+            if (! myProject.errorString.isEmpty())
             {
                 warning += dateFiles[i] + "\n" + myProject.errorString + "\n";
             }
@@ -3251,7 +3252,6 @@ void MainWindow::on_actionPointData_import_triggered()
     if (fileName.isEmpty())
         return;
 
-
     bool isGrid = false;
     if (!myProject.parserXMLImportData(fileName, isGrid))
         return;
@@ -3268,19 +3268,20 @@ void MainWindow::on_actionPointData_import_triggered()
     myProject.setProgressBar("Loading data...", dateFiles.size());
     QString warning;
 
-    for (int i=0; i<dateFiles.size(); i++)
+    for (int i=0; i < dateFiles.size(); i++)
     {
         myProject.updateProgressBar(i);
+
         if (myProject.loadXMLImportData(dateFiles[i]))
         {
-            if (!myProject.errorString.isEmpty())
+            if (! myProject.errorString.isEmpty())
             {
                 warning += dateFiles[i] + "\n" + myProject.errorString + "\n";
             }
         }
         else
         {
-            if (i!=dateFiles.size()-1)
+            if (i != dateFiles.size()-1)
             {
                 // it is not the last
                 QMessageBox msgBox;
@@ -3288,6 +3289,7 @@ void MainWindow::on_actionPointData_import_triggered()
                 msgBox.setInformativeText("Do you want to go on with other files?");
                 msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
                 int ret = msgBox.exec();
+
                 if (ret == QMessageBox::Ok)
                 {
                     continue;
@@ -4607,7 +4609,7 @@ void MainWindow::on_actionShiftDataAll_triggered()
                     dateFromShifted = dateFromShifted.addDays(1);
                     index = index + 1;
                 }
-                if (!myProject.meteoPointsDbHandler->writeDailyDataList(QString::fromStdString(myId), listEntries, &myProject.errorString))
+                if (!myProject.meteoPointsDbHandler->writeDailyDataList(QString::fromStdString(myId), listEntries, myProject.errorString))
                 {
                     myProject.logError("Failed to shift id point "+QString::fromStdString(myId));
                 }
@@ -4721,7 +4723,7 @@ void MainWindow::on_actionShiftDataSelected_triggered()
                     dateFromShifted = dateFromShifted.addDays(1);
                     index = index + 1;
                 }
-                if (!myProject.meteoPointsDbHandler->writeDailyDataList(QString::fromStdString(pointList[i]), listEntries, &myProject.errorString))
+                if (!myProject.meteoPointsDbHandler->writeDailyDataList(QString::fromStdString(pointList[i]), listEntries, myProject.errorString))
                 {
                     myProject.logError("Failed to shift id point "+QString::fromStdString(pointList[i]));
                 }
