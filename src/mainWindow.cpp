@@ -33,6 +33,7 @@
 #include "dialogShiftData.h"
 #include "dialogComputeData.h"
 #include "meteoWidget.h"
+#include "pragaShell.h"
 
 
 extern PragaProject myProject;
@@ -5553,5 +5554,11 @@ void MainWindow::on_actionExport_to_png_triggered()
 
     // save map
     map.save(pngFileName);
+}
+
+
+void MainWindow::on_actionOpenShell_triggered()
+{
+    pragaShell(&myProject);
 }
 
