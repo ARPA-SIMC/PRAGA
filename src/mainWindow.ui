@@ -464,7 +464,7 @@
             <second>0</second>
             <year>1752</year>
             <month>9</month>
-            <day>29</day>
+            <day>28</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1658,7 +1658,7 @@
     <addaction name="separator"/>
     <addaction name="menuFileNetCDF"/>
     <addaction name="separator"/>
-    <addaction name="actionExport_to_png"/>
+    <addaction name="actionOpenShell"/>
    </widget>
    <widget class="QMenu" name="menuMeteopoint">
     <property name="title">
@@ -2766,9 +2766,9 @@
     <string>to Csv</string>
    </property>
   </action>
-  <action name="actionExport_to_png">
+  <action name="actionOpenShell">
    <property name="text">
-    <string>Export to png...</string>
+    <string>Shell</string>
    </property>
   </action>
  </widget>

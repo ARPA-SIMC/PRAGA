@@ -270,6 +270,8 @@
 
         void on_actionExport_to_png_triggered();
 
+        void on_actionOpenShell_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
