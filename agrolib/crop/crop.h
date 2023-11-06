@@ -12,7 +12,7 @@
     #endif
 
     enum speciesType {HERBACEOUS_ANNUAL, HERBACEOUS_PERENNIAL, HORTICULTURAL, GRASS, TREE, FALLOW, FALLOW_ANNUAL};
-    #define NR_CROP_SPECIES 6
+    #define NR_CROP_SPECIES 7
 
     /*!
      * \brief The Crit3DCrop class
@@ -44,7 +44,7 @@
          * water need
          */
         double kcMax;                               /*!< [-] */
-        double psiLeaf;                             /*!< [cm] */
+        int psiLeaf;                                /*!< [cm] */
         double stressTolerance;                     /*!< [-] */
         double fRAW;                                /*!< [-] fraction of Readily Available Water */
 
@@ -81,7 +81,7 @@
         bool isSowingCrop() const;
         bool isRootStatic() const;
 
-        double getDailyDegreeIncrease(double tmin, double tmax);
+        double getDailyDegreeIncrease(double tmin, double tmax, int doy);
 
         void initialize(double latitude, unsigned int nrLayers, double totalSoilDepth, int currentDoy);
         bool needReset(Crit3DDate myDate, double latitude, double waterTableDepth);
@@ -108,8 +108,6 @@
 
     speciesType getCropType(std::string cropType);
     std::string getCropTypeString(speciesType cropType);
-
-    double computeDegreeDays(double myTmin, double myTmax, double myLowerThreshold, double myUpperThreshold);
 
 
 #endif // CROP_H
