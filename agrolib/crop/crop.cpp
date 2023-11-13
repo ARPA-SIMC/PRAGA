@@ -152,10 +152,16 @@ void Crit3DCrop::initialize(double latitude, unsigned int nrLayers, double total
 }
 
 
-double Crit3DCrop::getDailyDegreeIncrease(double tmin, double tmax)
+double Crit3DCrop::getDailyDegreeIncrease(double tmin, double tmax, int doy)
 {
     if (isEqual(tmin, NODATA) || isEqual(tmax, NODATA))
         return NODATA;
+
+    // check crop cycle
+    if (isSowingCrop() && ! isInsideTypicalCycle(doy))
+    {
+        return 0;
+    }
 
     double tmed = (tmin + MINVALUE(tmax, upperThermalThreshold)) * 0.5;
     return MAXVALUE(tmed - thermalThreshold, 0);
@@ -201,7 +207,7 @@ double Crit3DCrop::computeSimpleLAI(double myDegreeDays, double latitude, int cu
 
             if (isLeafFall)
             {
-                currentLAI = leafDevelopment::getLAISenescence(LAImin, LAImax*0.66, currentDoy - doyStartSenescence);
+                currentLAI = leafDevelopment::getLAISenescence(LAImin, LAImax*0.75, currentDoy - doyStartSenescence);
             }
 
             currentLAI += LAIgrass;
@@ -297,7 +303,7 @@ int Crit3DCrop::getDaysFromCurrentSowing(int myDoy) const
 
 bool Crit3DCrop::isInsideTypicalCycle(int myDoy) const
 {
-    return (myDoy >= sowingDoy && getDaysFromTypicalSowing(myDoy) < plantCycle);
+    return (getDaysFromTypicalSowing(myDoy) < plantCycle);
 }
 
 
@@ -457,7 +463,13 @@ bool Crit3DCrop::dailyUpdate(const Crit3DDate &myDate, double latitude, const st
         int currentDoy = getDoyFromDate(myDate);
 
         // update degree days
-        degreeDays += computeDegreeDays(tmin, tmax, thermalThreshold, upperThermalThreshold);
+        double dailyDD = getDailyDegreeIncrease(tmin, tmax, currentDoy);
+        if (isEqual(dailyDD, NODATA))
+        {
+            myError = "Error in computing degree dyas for " + myDate.toStdString();
+            return false;
+        }
+        degreeDays += dailyDD;
 
         // update LAI
         if ( !updateLAI(latitude, nrLayers, currentDoy))
@@ -714,8 +726,6 @@ speciesType getCropType(std::string cropType)
         return HORTICULTURAL;
     else if (cropType == "grass")
         return GRASS;
-    else if (cropType == "grass_first_year")
-        return GRASS;
     else if (cropType == "fallow")
         return FALLOW;
     else if (cropType == "annual_fallow" || cropType == "fallow_annual")
@@ -748,10 +758,4 @@ std::string getCropTypeString(speciesType cropType)
 
     return "No crop type";
 }
-
-double computeDegreeDays(double myTmin, double myTmax, double myLowerThreshold, double myUpperThreshold)
-{
-    return MAXVALUE((myTmin + MINVALUE(myTmax, myUpperThreshold)) / 2. - myLowerThreshold, 0);
-}
-
 
