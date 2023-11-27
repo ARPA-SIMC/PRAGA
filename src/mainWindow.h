@@ -273,6 +273,10 @@
 
         void on_actionView_output_points_triggered();
 
+        void on_actionFileOutputPointsClose_triggered();
+
+        void on_actionFileOutputPointsOpen_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -341,7 +345,9 @@
         void clearDEM();
         void updateVariable();
         void updateDateTime();
-        void resetMeteoPointsMarker();
+        void clearMeteoPointsMarker();
+        void clearOutputPointMarkers();
+        void addOutputPointsGUI();
         void clearWindVectorObjects();
         void addMeteoPoints();
         void drawMeteoPoints();

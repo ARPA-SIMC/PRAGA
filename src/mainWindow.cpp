@@ -719,7 +719,7 @@ bool MainWindow::isInsideMap(const QPoint& pos)
 }
 
 
-void MainWindow::resetMeteoPointsMarker()
+void MainWindow::clearMeteoPointsMarker()
 {
     for (int i = pointList.size()-1; i >= 0; i--)
     {
@@ -728,6 +728,18 @@ void MainWindow::resetMeteoPointsMarker()
     pointList.clear();
 
     datasetCheckbox.clear();
+}
+
+
+void MainWindow::clearOutputPointMarkers()
+{
+    for (int i = 0; i < outputPointList.size(); i++)
+    {
+        mapView->scene()->removeObject(outputPointList[i]);
+        delete outputPointList[i];
+    }
+
+    outputPointList.clear();
 }
 
 
@@ -1225,7 +1237,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
 void MainWindow::drawMeteoPoints()
 {
-    resetMeteoPointsMarker();
+    clearMeteoPointsMarker();
     clearWindVectorObjects();
 
     if (! myProject.meteoPointsLoaded || myProject.nrMeteoPoints == 0) return;
@@ -2813,7 +2825,7 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
 
 void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
 {
-    resetMeteoPointsMarker();
+    clearMeteoPointsMarker();
 
     QString templateFileName = myProject.getDefaultPath() + PATH_TEMPLATE + "template_meteo_arkimet.db";
 
@@ -2921,7 +2933,7 @@ void MainWindow::closeMeteoPoints()
 {
     if (myProject.meteoPointsDbHandler != nullptr)
     {
-        resetMeteoPointsMarker();
+        clearMeteoPointsMarker();
         clearWindVectorObjects();
         meteoPointsLegend->setVisible(false);
 
@@ -3703,7 +3715,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::on_actionFileMeteopointNewCsv_triggered()
 {
-    resetMeteoPointsMarker();
+    clearMeteoPointsMarker();
 
     QString templateFileName = myProject.getDefaultPath() + PATH_TEMPLATE + "template_meteo.db";
 
@@ -5585,6 +5597,49 @@ void MainWindow::redrawOutputPoints()
 void MainWindow::on_actionView_output_points_triggered()
 {
     viewOutputPoints = ui->actionView_output_points->isChecked();
+    redrawOutputPoints();
+}
+
+
+void MainWindow::on_actionFileOutputPointsClose_triggered()
+{
+    myProject.closeOutputMeteoPointsDB();
+    clearOutputPointMarkers();
+}
+
+
+void MainWindow::on_actionFileOutputPointsOpen_triggered()
+{
+    QString dbName = QFileDialog::getOpenFileName(this, tr("Open output meteo points DB"), "", tr("DB files (*.db)"));
+    if (dbName.isEmpty())
+        return;
+
+    if (! myProject.loadOutputMeteoPointsDB(dbName))
+    {
+        myProject.logError();
+        clearOutputPointMarkers();
+    }
+
+    addOutputPointsGUI();
+}
+
+
+void MainWindow::addOutputPointsGUI()
+{
+    clearOutputPointMarkers();
+
+    for (unsigned int i = 0; i < myProject.outputPoints.size(); i++)
+    {
+        SquareMarker* point = new SquareMarker(7, true, QColor((Qt::green)));
+        point->setId(myProject.outputPoints[i].id);
+        point->setLatitude(myProject.outputPoints[i].latitude);
+        point->setLongitude(myProject.outputPoints[i].longitude);
+
+        this->outputPointList.append(point);
+        this->mapView->scene()->addObject(this->outputPointList[i]);
+        outputPointList[i]->setToolTip();
+    }
+
     redrawOutputPoints();
 }
 
