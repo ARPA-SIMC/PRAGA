@@ -3680,9 +3680,9 @@ void MainWindow::on_action_Proxy_graph_triggered()
     return myProject.showProxyGraph();
 }
 
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-
     if (myProject.proxyWidget != nullptr)
     {
         myProject.proxyWidget->close();
@@ -3698,7 +3698,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
     event->accept();
 }
-
 
 
 void MainWindow::on_actionFileMeteopointNewCsv_triggered()
@@ -5510,7 +5509,8 @@ void MainWindow::on_actionExport_MeteoGrid_toCsv_triggered()
 }
 
 
-void MainWindow::on_actionExport_to_png_triggered()
+// TODO
+void MainWindow::Export_to_png()
 {
     // choose colorscale
     QList<QString> colorScaleList;

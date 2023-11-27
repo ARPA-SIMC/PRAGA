@@ -268,8 +268,6 @@
 
         void on_actionExport_MeteoPoints_toCsv_triggered();
 
-        void on_actionExport_to_png_triggered();
-
         void on_actionOpenShell_triggered();
 
     protected:
@@ -290,6 +288,8 @@
         void resizeEvent(QResizeEvent * event) override;
 
         void keyPressEvent(QKeyEvent * event ) override;
+
+        void closeEvent(QCloseEvent *event) override;
 
     private:
         Ui::MainWindow* ui;
@@ -369,7 +369,7 @@
         void searchMeteoPoint(bool isName);
         void computeDailyFromHourly_MeteoPoints(const QList<std::string>& pointList);
 
-        void closeEvent(QCloseEvent *event) override;
+        void Export_to_png();
 
         #ifdef NETCDF
             void redrawNetcdf();
