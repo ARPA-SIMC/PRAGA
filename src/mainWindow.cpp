@@ -142,6 +142,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->currentGridVisualization = notShown;
     this->currentNetcdfVisualization = notShown;
     this->viewNotActivePoints = false;
+    this->viewOutputPoints = true;
     this->currentNetcdfVariable = NODATA;
 
     ui->groupBoxElaboration->hide();
@@ -5560,5 +5561,30 @@ void MainWindow::Export_to_png()
 void MainWindow::on_actionOpenShell_triggered()
 {
     pragaShell(&myProject);
+}
+
+
+void MainWindow::redrawOutputPoints()
+{
+    for (int i = 0; i < int(myProject.outputPoints.size()); i++)
+    {
+        outputPointList[i]->setVisible(this->viewOutputPoints);
+
+        if (myProject.outputPoints[unsigned(i)].active)
+        {
+            outputPointList[i]->setFillColor(QColor(Qt::green));
+        }
+        else
+        {
+            outputPointList[i]->setFillColor(QColor(Qt::red));
+        }
+    }
+}
+
+
+void MainWindow::on_actionView_output_points_triggered()
+{
+    viewOutputPoints = ui->actionView_output_points->isChecked();
+    redrawOutputPoints();
 }
 

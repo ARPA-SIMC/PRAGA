@@ -464,7 +464,7 @@
             <second>0</second>
             <year>1752</year>
             <month>9</month>
-            <day>28</day>
+            <day>27</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1890,6 +1890,7 @@
       <addaction name="actionPointStyleText_multicolor"/>
      </widget>
      <addaction name="actionView_not_active_points"/>
+     <addaction name="actionView_output_points"/>
      <addaction name="menustyle"/>
      <addaction name="separator"/>
      <addaction name="actionShowPointsHide"/>
@@ -2769,6 +2770,17 @@
   <action name="actionOpenShell">
    <property name="text">
     <string>Shell</string>
+   </property>
+  </action>
+  <action name="actionView_output_points">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>View output points</string>
    </property>
   </action>
  </widget>

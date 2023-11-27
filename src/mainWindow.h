@@ -15,6 +15,7 @@
     #include "stationMarker.h"
     #include "colorLegend.h"
     #include "ArrowObject.h"
+    #include "squareMarker.h"
 
     enum visualizationType {notShown, showLocation, showCurrentVariable, showElaboration, showAnomalyAbsolute, showAnomalyPercentage, showClimate};
 
@@ -270,6 +271,8 @@
 
         void on_actionOpenShell_triggered();
 
+        void on_actionView_output_points_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -308,6 +311,7 @@
         ColorLegend *netcdfLegend;
 
         QList<StationMarker*> pointList;
+        QList<SquareMarker*> outputPointList;
         QList<ArrowObject*> windVectorList;
 
         RubberBand *rubberBand;
@@ -317,6 +321,8 @@
         int currentNetcdfVariable;
 
         bool viewNotActivePoints;
+        bool viewOutputPoints;
+
         QActionGroup *showPointsGroup;
         QActionGroup *showGridGroup;
         QActionGroup *showNetcdfGroup;
@@ -370,6 +376,7 @@
         void computeDailyFromHourly_MeteoPoints(const QList<std::string>& pointList);
 
         void Export_to_png();
+        void redrawOutputPoints();
 
         #ifdef NETCDF
             void redrawNetcdf();
