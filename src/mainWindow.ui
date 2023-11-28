@@ -464,7 +464,7 @@
             <second>0</second>
             <year>1752</year>
             <month>9</month>
-            <day>26</day>
+            <day>25</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1648,10 +1648,11 @@
      <addaction name="separator"/>
      <addaction name="actionShow_InfoProject"/>
     </widget>
-    <widget class="QMenu" name="menuOutput_points">
+    <widget class="QMenu" name="actionFileOutputPointsNew">
      <property name="title">
       <string>Output points</string>
      </property>
+     <addaction name="actionFileOutputPoints_NewFromCsv"/>
      <addaction name="actionFileOutputPointsOpen"/>
      <addaction name="actionFileOutputPointsClose"/>
     </widget>
@@ -1661,7 +1662,7 @@
     <addaction name="separator"/>
     <addaction name="menuFileMeteopoint"/>
     <addaction name="separator"/>
-    <addaction name="menuOutput_points"/>
+    <addaction name="actionFileOutputPointsNew"/>
     <addaction name="separator"/>
     <addaction name="menuMeteogrid"/>
     <addaction name="separator"/>
@@ -2800,6 +2801,11 @@
   <action name="actionFileOutputPointsClose">
    <property name="text">
     <string>Close</string>
+   </property>
+  </action>
+  <action name="actionFileOutputPoints_NewFromCsv">
+   <property name="text">
+    <string>New (from csv)...</string>
    </property>
   </action>
  </widget>

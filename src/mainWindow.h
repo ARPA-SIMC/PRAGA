@@ -273,9 +273,10 @@
 
         void on_actionView_output_points_triggered();
 
+        void on_actionFileOutputPoints_NewFromCsv_triggered();
         void on_actionFileOutputPointsClose_triggered();
-
         void on_actionFileOutputPointsOpen_triggered();
+
 
     protected:
         /*!

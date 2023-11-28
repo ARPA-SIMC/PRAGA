@@ -5,6 +5,7 @@
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
 
+#include "commonConstants.h"
 #include "basicMath.h"
 #include "spatialControl.h"
 #include "utilities.h"
@@ -1790,9 +1791,9 @@ void MainWindow::callChangeOrogCode(std::string id, int orogCode)
         myProject.logError(ERROR_STR_MISSING_DB);
         return;
     }
-    if (!myProject.meteoPointsDbHandler->setOrogCode(QString::fromStdString(id), orogCode))
+    if (! myProject.meteoPointsDbHandler->setOrogCode(QString::fromStdString(id), orogCode))
     {
-        myProject.logError(myProject.meteoPointsDbHandler->error);
+        myProject.logError(myProject.meteoPointsDbHandler->getErrorString());
         return;
     }
     QString dbName = myProject.meteoPointsDbHandler->getDbName();
@@ -2828,8 +2829,9 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
     clearMeteoPointsMarker();
 
     QString templateFileName = myProject.getDefaultPath() + PATH_TEMPLATE + "template_meteo_arkimet.db";
+    QString path = myProject.getProjectPath() + PATH_METEOPOINT;
 
-    QString dbName = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("DB files (*.db)"));
+    QString dbName = QFileDialog::getSaveFileName(this, tr("Save as"), path, tr("DB files (*.db)"));
     if (dbName == "")
         return;
 
@@ -3226,28 +3228,32 @@ void MainWindow::on_actionPointProperties_import_triggered()
         return;
 
     QList<QString> pointPropertiesList;
-    if (!myProject.meteoPointsDbHandler->getNameColumn("point_properties", &pointPropertiesList))
+    if (! myProject.meteoPointsDbHandler->getFieldList("point_properties", pointPropertiesList))
     {
         myProject.logError("point_properties table error");
         return;
     }
 
-    QList<QString> csvFields;
-    if (!myProject.parseMeteoPointsPropertiesCSV(fileName, &csvFields))
+    QList<QString> csvFieldsList;
+    QList<QList<QString>> csvData;
+    if (! parseCSV(fileName, csvFieldsList, csvData, myProject.errorString))
+    {
+        myProject.logError();
         return;
+    }
 
 
-    DialogPointProperties dialogPointProp(pointPropertiesList, csvFields);
+    DialogPointProperties dialogPointProp(pointPropertiesList, csvFieldsList);
     if (dialogPointProp.result() != QDialog::Accepted)
         return;
 
     QList<QString> joinedList = dialogPointProp.getJoinedList();
 
-    myProject.logInfoGUI("Loading data...");
-    bool isOk = myProject.writeMeteoPointsProperties(joinedList);
-    myProject.closeLogInfo();
-
-    if (! isOk) return;
+    if (! myProject.writeMeteoPointsProperties(joinedList, csvFieldsList, csvData, false))
+    {
+        myProject.logError();
+        return;
+    }
 
     loadMeteoPoints(myProject.dbPointsFileName);
 }
@@ -3718,9 +3724,10 @@ void MainWindow::on_actionFileMeteopointNewCsv_triggered()
     clearMeteoPointsMarker();
 
     QString templateFileName = myProject.getDefaultPath() + PATH_TEMPLATE + "template_meteo.db";
+    QString path = myProject.getProjectPath() + PATH_METEOPOINT;
 
-    QString dbName = QFileDialog::getSaveFileName(this, tr("Save as"), "", tr("DB files (*.db)"));
-    if (dbName == "")
+    QString dbName = QFileDialog::getSaveFileName(this, tr("Save as"), path, tr("DB files (*.db)"));
+    if (dbName.isEmpty())
         return;
 
     QFile dbFile(dbName);
@@ -3749,32 +3756,32 @@ void MainWindow::on_actionFileMeteopointNewCsv_triggered()
         return;
 
     QList<QString> pointPropertiesList;
-    if (!myProject.meteoPointsDbHandler->getNameColumn("point_properties", &pointPropertiesList))
+    if (! myProject.meteoPointsDbHandler->getFieldList("point_properties", pointPropertiesList))
     {
-        myProject.logError("point_properties table error");
+        myProject.logError("Error in reading table 'point_properties'");
         return;
     }
 
-    QList<QString> csvFields;
-    if (!myProject.parseMeteoPointsPropertiesCSV(fileName, &csvFields))
+    QList<QString> csvFieldsList;
+    QList<QList<QString>> csvData;
+    if (! parseCSV(fileName, csvFieldsList, csvData, myProject.errorString))
     {
+        myProject.logError();
         return;
     }
 
-    DialogPointProperties dialogPointProp(pointPropertiesList, csvFields);
+    DialogPointProperties dialogPointProp(pointPropertiesList, csvFieldsList);
     if (dialogPointProp.result() != QDialog::Accepted)
     {
         return;
     }
 
     QList<QString> joinedList = dialogPointProp.getJoinedList();
-    myProject.logInfoGUI("Loading data...");
-    if (!myProject.writeMeteoPointsProperties(joinedList))
+    if (! myProject.writeMeteoPointsProperties(joinedList, csvFieldsList, csvData, false))
     {
-        myProject.closeLogInfo();
+        myProject.logError();
         return;
     }
-    myProject.closeLogInfo();
 
     loadMeteoPoints(dbName);
 }
@@ -5641,5 +5648,84 @@ void MainWindow::addOutputPointsGUI()
     }
 
     redrawOutputPoints();
+}
+
+
+void MainWindow::on_actionFileOutputPoints_NewFromCsv_triggered()
+{
+    QString templateFileName = myProject.getDefaultPath() + PATH_TEMPLATE + "template_meteo.db";
+    QString path = myProject.getProjectPath() + PATH_METEOPOINT;
+
+    QString dbName = QFileDialog::getSaveFileName(this, tr("Save output points db as"), path, tr("DB files (*.db)"));
+    if (dbName.isEmpty())
+        return;
+
+    // close previous db
+    myProject.closeOutputMeteoPointsDB();
+    clearOutputPointMarkers();
+
+    // remove old file and clone db template
+    QFile dbFile(dbName);
+    if (dbFile.exists())
+    {
+        dbFile.close();
+        dbFile.setPermissions(QFile::ReadOther | QFile::WriteOther);
+        if (! dbFile.remove())
+        {
+            myProject.logError("Remove file failed: " + dbName + "\n" + dbFile.errorString());
+            return;
+        }
+    }
+
+    if (! QFile::copy(templateFileName, dbName))
+    {
+        myProject.logError("Copy failed: " + templateFileName);
+        return;
+    }
+
+    // read csv fields
+    QList<QString> csvFieldsList;
+    QList<QList<QString>> csvData;
+
+    QString csvFileName = QFileDialog::getOpenFileName(this, tr("Open file"), "", tr("csv files (*.csv)"));
+    if (csvFileName.isEmpty())
+        return;
+
+    if (! parseCSV(csvFileName, csvFieldsList, csvData, myProject.errorString))
+    {
+        myProject.logError();
+        return;
+    }
+
+    // open DB and read praga properties
+    myProject.outputMeteoPointsDbHandler = new Crit3DMeteoPointsDbHandler(dbName);
+
+    QList<QString> pragaPointPropertiesList;
+    if (! myProject.outputMeteoPointsDbHandler->getFieldList("point_properties", pragaPointPropertiesList))
+    {
+        myProject.logError("Error in reading table 'point_properties'");
+        return;
+    }
+
+
+
+    // join properties
+    DialogPointProperties dialogPointProp(pragaPointPropertiesList, csvFieldsList);
+    if (dialogPointProp.result() != QDialog::Accepted)
+    {
+        myProject.closeOutputMeteoPointsDB();
+        return;
+    }
+    QList<QString> joinedList = dialogPointProp.getJoinedList();
+
+    // write joined properties
+    if (! myProject.writeMeteoPointsProperties(joinedList, csvFieldsList, csvData, true))
+    {
+        myProject.logError();
+        return;
+    }
+
+    myProject.loadOutputMeteoPointsDB(dbName);
+    addOutputPointsGUI();
 }
 
