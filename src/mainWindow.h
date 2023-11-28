@@ -278,6 +278,8 @@
         void on_actionFileOutputPointsOpen_triggered();
 
 
+        void on_actionInterpolationOutputPointsCurrentTime_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

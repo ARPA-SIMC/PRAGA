@@ -823,6 +823,11 @@ void MainWindow::interpolateDemGUI()
         setCurrentRaster(&(myProject.dataRaster));
         ui->labelRasterScale->setText(QString::fromStdString(getVariableString(myVar)));
     }
+    else
+    {
+        myProject.logError();
+    }
+
     myProject.closeLogInfo();
 }
 
@@ -2681,9 +2686,18 @@ void MainWindow::checkSaveProject()
         ui->actionFileSaveProject->setEnabled(true);
 }
 
+
 void MainWindow::on_actionInterpolationDem_triggered()
 {
     interpolateDemGUI();
+}
+
+
+void MainWindow::on_actionInterpolationOutputPointsCurrentTime_triggered()
+{
+    myProject.setComputeOnlyPoints(true);
+    interpolateDemGUI();
+    myProject.setComputeOnlyPoints(false);
 }
 
 
@@ -2917,14 +2931,18 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
     delete all;
 }
 
+
 void MainWindow::on_actionFileMeteopointOpen_triggered()
 {
-    QString dbName = QFileDialog::getOpenFileName(this, tr("Open DB meteo points"), "", tr("DB files (*.db)"));
+    QString path = myProject.getProjectPath() + PATH_METEOPOINT;
+
+    QString dbName = QFileDialog::getOpenFileName(this, tr("Open DB meteo points"), path, tr("DB files (*.db)"));
     if (dbName != "")
     {
         loadMeteoPoints(dbName);
     }
 }
+
 
 void MainWindow::on_actionFileMeteopointClose_triggered()
 {
@@ -2959,7 +2977,9 @@ void MainWindow::closeMeteoPoints()
 
 void MainWindow::on_actionFileMeteogridOpen_triggered()
 {
-    QString xmlName = QFileDialog::getOpenFileName(this, tr("Open XML DB meteo grid"), "", tr("xml files (*.xml)"));
+    QString path = myProject.getProjectPath() + PATH_METEOGRID;
+
+    QString xmlName = QFileDialog::getOpenFileName(this, tr("Open XML DB meteo grid"), path, tr("xml files (*.xml)"));
     if (xmlName != "")
     {
         closeMeteoGrid();
@@ -5617,7 +5637,9 @@ void MainWindow::on_actionFileOutputPointsClose_triggered()
 
 void MainWindow::on_actionFileOutputPointsOpen_triggered()
 {
-    QString dbName = QFileDialog::getOpenFileName(this, tr("Open output meteo points DB"), "", tr("DB files (*.db)"));
+    QString path = myProject.getProjectPath() + PATH_METEOPOINT;
+
+    QString dbName = QFileDialog::getOpenFileName(this, tr("Open output meteo points DB"), path, tr("DB files (*.db)"));
     if (dbName.isEmpty())
         return;
 
@@ -5637,7 +5659,7 @@ void MainWindow::addOutputPointsGUI()
 
     for (unsigned int i = 0; i < myProject.outputPoints.size(); i++)
     {
-        SquareMarker* point = new SquareMarker(7, true, QColor((Qt::green)));
+        SquareMarker* point = new SquareMarker(9, true, QColor((Qt::green)));
         point->setId(myProject.outputPoints[i].id);
         point->setLatitude(myProject.outputPoints[i].latitude);
         point->setLongitude(myProject.outputPoints[i].longitude);
@@ -5706,8 +5728,6 @@ void MainWindow::on_actionFileOutputPoints_NewFromCsv_triggered()
         myProject.logError("Error in reading table 'point_properties'");
         return;
     }
-
-
 
     // join properties
     DialogPointProperties dialogPointProp(pragaPointPropertiesList, csvFieldsList);

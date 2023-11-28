@@ -1826,8 +1826,15 @@
      <addaction name="separator"/>
      <addaction name="menuInterpolationMeteogridGriddingTask"/>
     </widget>
+    <widget class="QMenu" name="menuInterpolation_to_output_points">
+     <property name="title">
+      <string>Interpolation to output points</string>
+     </property>
+     <addaction name="actionInterpolationOutputPointsCurrentTime"/>
+    </widget>
     <addaction name="actionInterpolationDem"/>
     <addaction name="menuInterpolationMeteogrid"/>
+    <addaction name="menuInterpolation_to_output_points"/>
     <addaction name="actionInterpolationCrossValidation"/>
     <addaction name="actionInterpolationSettings"/>
     <addaction name="separator"/>
@@ -2806,6 +2813,11 @@
   <action name="actionFileOutputPoints_NewFromCsv">
    <property name="text">
     <string>New (from csv)...</string>
+   </property>
+  </action>
+  <action name="actionInterpolationOutputPointsCurrentTime">
+   <property name="text">
+    <string>current time</string>
    </property>
   </action>
  </widget>
