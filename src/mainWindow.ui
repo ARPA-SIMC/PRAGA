@@ -1648,7 +1648,7 @@
      <addaction name="separator"/>
      <addaction name="actionShow_InfoProject"/>
     </widget>
-    <widget class="QMenu" name="actionFileOutputPointsNew">
+    <widget class="QMenu" name="menuFileOutputPoints">
      <property name="title">
       <string>Output points</string>
      </property>
@@ -1662,7 +1662,7 @@
     <addaction name="separator"/>
     <addaction name="menuFileMeteopoint"/>
     <addaction name="separator"/>
-    <addaction name="actionFileOutputPointsNew"/>
+    <addaction name="menuFileOutputPoints"/>
     <addaction name="separator"/>
     <addaction name="menuMeteogrid"/>
     <addaction name="separator"/>
