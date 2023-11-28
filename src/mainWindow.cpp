@@ -2721,7 +2721,7 @@ void MainWindow::on_actionInterpolationMeteogridSaveCurrentData_triggered()
 
 void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
 {
-    // check meteo point
+    // check meteo points
     if (myProject.meteoPointsDbHandler == nullptr)
     {
         myProject.logError("No meteo points DB open");
@@ -2758,6 +2758,59 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
     QList <meteoVariable> myVariables, aggrVariables;
     myVariables.push_back(myVar);
     myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables, aggrVariables, false, 1, NODATA);
+}
+
+
+void MainWindow::on_actionInterpolationOutputPointsPeriod_triggered()
+{
+    // check meteo points
+    if (! myProject.meteoPointsLoaded)
+    {
+        myProject.logError("Open meteo points DB before.");
+        return;
+    }
+
+    // check output points
+    if (! myProject.outputMeteoPointsLoaded)
+    {
+        myProject.logError("Open output points DB before.");
+        return;
+    }
+
+    // check frequency
+    if (myProject.getCurrentFrequency() == noFrequency)
+    {
+        myProject.logError("Choose frequency before.");
+        return noMeteoVar;
+    }
+
+    QDateTime myFirstTime = myProject.findDbPointFirstTime();
+    QDateTime myLastTime = myProject.findDbPointLastTime();
+    if (myFirstTime.isNull())
+    {
+        myFirstTime.setDate(myProject.getCurrentDate());
+        myFirstTime.setTime(QTime(myProject.getCurrentHour(),0));
+    }
+    if (myLastTime.isNull())
+    {
+        myLastTime.setDate(myProject.getCurrentDate());
+        myLastTime.setTime(QTime(myProject.getCurrentHour(),0));
+    }
+
+    FormTimePeriod myForm(&myFirstTime, &myLastTime);
+    myForm.show();
+    if (myForm.exec() == QDialog::Rejected) return;
+
+    meteoVariable myVar = chooseMeteoVariable(myProject);
+    if (myVar == noMeteoVar) return;
+
+    QList <meteoVariable> myVariables;
+    myVariables.push_back(myVar);
+
+    if (! myProject.interpolationOutputPointsPeriod(myFirstTime.date(), myLastTime.date(), myVariables))
+    {
+        myProject.logError();
+    }
 }
 
 
@@ -5748,4 +5801,5 @@ void MainWindow::on_actionFileOutputPoints_NewFromCsv_triggered()
     myProject.loadOutputMeteoPointsDB(dbName);
     addOutputPointsGUI();
 }
+
 

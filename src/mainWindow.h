@@ -280,6 +280,8 @@
 
         void on_actionInterpolationOutputPointsCurrentTime_triggered();
 
+        void on_actionInterpolationOutputPointsPeriod_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
