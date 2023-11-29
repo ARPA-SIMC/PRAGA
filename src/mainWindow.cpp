@@ -2736,7 +2736,7 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
     }
 
     // update first db time
-    if (myProject.meteoPointsDbFirstTime.isNull() || myProject.meteoPointsDbFirstTime.toTime_t() == 0)
+    if (myProject.meteoPointsDbFirstTime.isNull() || myProject.meteoPointsDbFirstTime.toSecsSinceEpoch() == 0)
     {
         myProject.meteoPointsDbFirstTime = myProject.findDbPointFirstTime();
     }
@@ -2792,7 +2792,7 @@ void MainWindow::on_actionInterpolationOutputPointsPeriod_triggered()
     }
 
     myProject.logInfoGUI("Checking available dates, wait..");
-    if (myProject.meteoPointsDbFirstTime.isNull() || myProject.meteoPointsDbFirstTime.toTime_t() == 0)
+    if (myProject.meteoPointsDbFirstTime.isNull() || myProject.meteoPointsDbFirstTime.toSecsSinceEpoch() == 0)
     {
         myProject.meteoPointsDbFirstTime = myProject.findDbPointFirstTime();
     }
@@ -3095,7 +3095,7 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
     frequencyType myFreq = getVarFrequency(myVar);
 
     // update first db time
-    if (myProject.meteoPointsDbFirstTime.isNull() || myProject.meteoPointsDbFirstTime.toTime_t() == 0)
+    if (myProject.meteoPointsDbFirstTime.isNull() || myProject.meteoPointsDbFirstTime.toSecsSinceEpoch() == 0)
     {
         myProject.meteoPointsDbFirstTime = myProject.findDbPointFirstTime();
     }
