@@ -2735,13 +2735,20 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
         return;
     }
 
-    QDateTime myFirstTime = myProject.findDbPointFirstTime();
-    QDateTime myLastTime = myProject.findDbPointLastTime();
+    // update first db time
+    if (myProject.meteoPointsDbFirstTime.isNull() || myProject.meteoPointsDbFirstTime.toTime_t() == 0)
+    {
+        myProject.meteoPointsDbFirstTime = myProject.findDbPointFirstTime();
+    }
+    QDateTime myFirstTime = myProject.meteoPointsDbFirstTime;
+
     if (myFirstTime.isNull())
     {
         myFirstTime.setDate(myProject.getCurrentDate());
         myFirstTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
+
+    QDateTime myLastTime = myProject.meteoPointsDbLastTime;
     if (myLastTime.isNull())
     {
         myLastTime.setDate(myProject.getCurrentDate());
@@ -2781,21 +2788,28 @@ void MainWindow::on_actionInterpolationOutputPointsPeriod_triggered()
     if (myProject.getCurrentFrequency() == noFrequency)
     {
         myProject.logError("Choose frequency before.");
-        return noMeteoVar;
+        return;
     }
 
-    QDateTime myFirstTime = myProject.findDbPointFirstTime();
-    QDateTime myLastTime = myProject.findDbPointLastTime();
+    myProject.logInfoGUI("Checking available dates, wait..");
+    if (myProject.meteoPointsDbFirstTime.isNull() || myProject.meteoPointsDbFirstTime.toTime_t() == 0)
+    {
+        myProject.meteoPointsDbFirstTime = myProject.findDbPointFirstTime();
+    }
+    QDateTime myFirstTime = myProject.meteoPointsDbFirstTime;
     if (myFirstTime.isNull())
     {
         myFirstTime.setDate(myProject.getCurrentDate());
         myFirstTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
+
+    QDateTime myLastTime = myProject.meteoPointsDbLastTime;
     if (myLastTime.isNull())
     {
         myLastTime.setDate(myProject.getCurrentDate());
         myLastTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
+    myProject.closeLogInfo();
 
     FormTimePeriod myForm(&myFirstTime, &myLastTime);
     myForm.show();
@@ -3080,13 +3094,19 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
     if (myVar == noMeteoVar) return;
     frequencyType myFreq = getVarFrequency(myVar);
 
-    QDateTime myFirstTime = myProject.findDbPointFirstTime();
-    QDateTime myLastTime = myProject.findDbPointLastTime();
+    // update first db time
+    if (myProject.meteoPointsDbFirstTime.isNull() || myProject.meteoPointsDbFirstTime.toTime_t() == 0)
+    {
+        myProject.meteoPointsDbFirstTime = myProject.findDbPointFirstTime();
+    }
+    QDateTime myFirstTime = myProject.meteoPointsDbFirstTime;
     if (myFirstTime.isNull())
     {
         myFirstTime.setDate(myProject.getCurrentDate());
         myFirstTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
+
+    QDateTime myLastTime = myProject.meteoPointsDbLastTime;
     if (myLastTime.isNull())
     {
         myLastTime.setDate(myProject.getCurrentDate());
