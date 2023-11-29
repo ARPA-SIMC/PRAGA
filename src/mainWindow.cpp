@@ -2818,10 +2818,10 @@ void MainWindow::on_actionInterpolationOutputPointsPeriod_triggered()
     meteoVariable myVar = chooseMeteoVariable(myProject);
     if (myVar == noMeteoVar) return;
 
-    QList <meteoVariable> myVariables;
-    myVariables.push_back(myVar);
+    QList<meteoVariable> variablesList;
+    variablesList.push_back(myVar);
 
-    if (! myProject.interpolationOutputPointsPeriod(myFirstTime.date(), myLastTime.date(), myVariables))
+    if (! myProject.interpolationOutputPointsPeriod(myFirstTime.date(), myLastTime.date(), variablesList))
     {
         myProject.logError();
     }
