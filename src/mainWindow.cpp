@@ -2803,22 +2803,26 @@ void MainWindow::on_actionInterpolationOutputPointsPeriod_triggered()
     if (firstTime.isNull())
     {
         firstTime.setDate(myProject.getCurrentDate());
-        firstTime.setTime(QTime(myProject.getCurrentHour(),0));
+        firstTime.setTime(QTime(myProject.getCurrentHour(), 0));
     }
 
     QDateTime lastTime;
     lastTime.setTimeSpec(Qt::UTC);
     lastTime = myProject.meteoPointsDbLastTime;
+    if (lastTime.time().hour() == 00)
+        lastTime = lastTime.addSecs(-3600);
+
     if (lastTime.isNull())
     {
         lastTime.setDate(myProject.getCurrentDate());
-        lastTime.setTime(QTime(myProject.getCurrentHour(),0));
+        lastTime.setTime(QTime(myProject.getCurrentHour(), 0));
     }
+    myProject.closeLogInfo();
 
     // choose period
     FormTimePeriod myForm(&firstTime, &lastTime);
-    myForm.setMinimumDate(firstDate);
-    myForm.setMaximumDate(lastTime);
+    myForm.setMinimumDate(firstTime.date());
+    myForm.setMaximumDate(lastTime.date());
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
 
