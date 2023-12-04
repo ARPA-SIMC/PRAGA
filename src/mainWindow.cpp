@@ -3269,7 +3269,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
                             this,
                             "Select one or more files to open",
                             "",
-                            "Files (*.prn *.csv)");
+                            "Files (*.prn *.csv *.txt)");
     if (dateFiles.isEmpty())
         return;
 
@@ -3384,7 +3384,7 @@ void MainWindow::on_actionFileMeteopointData_XMLimport_triggered()
                             this,
                             "Select one or more files to open",
                             "",
-                            "Files (*.prn *.csv)");
+                            "Files (*.prn *.csv *.txt)");
 
     if (dateFiles.isEmpty())
         return;
