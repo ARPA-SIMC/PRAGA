@@ -464,7 +464,7 @@
             <second>0</second>
             <year>1752</year>
             <month>9</month>
-            <day>24</day>
+            <day>23</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1600,8 +1600,8 @@
       <property name="title">
        <string>CSV data</string>
       </property>
-      <addaction name="actionPointProperties_import"/>
-      <addaction name="actionPointData_import"/>
+      <addaction name="actionFileMeteopointProperties_import"/>
+      <addaction name="actionFileMeteopointData_XMLimport"/>
      </widget>
      <widget class="QMenu" name="menuArkimet">
       <property name="title">
@@ -2357,12 +2357,12 @@
     <string>From CSV...</string>
    </property>
   </action>
-  <action name="actionPointProperties_import">
+  <action name="actionFileMeteopointProperties_import">
    <property name="text">
     <string>Import properties...</string>
    </property>
   </action>
-  <action name="actionPointData_import">
+  <action name="actionFileMeteopointData_XMLimport">
    <property name="text">
     <string>Import data with XML...</string>
    </property>

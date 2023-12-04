@@ -3318,7 +3318,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
 }
 
 
-void MainWindow::on_actionPointProperties_import_triggered()
+void MainWindow::on_actionFileMeteopointProperties_import_triggered()
 {
     // check meteo point
     if (myProject.meteoPointsDbHandler == nullptr)
@@ -3363,7 +3363,7 @@ void MainWindow::on_actionPointProperties_import_triggered()
 }
 
 
-void MainWindow::on_actionPointData_import_triggered()
+void MainWindow::on_actionFileMeteopointData_XMLimport_triggered()
 {
     // check meteo point
     if (myProject.meteoPointsDbHandler == nullptr)

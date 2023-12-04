@@ -149,8 +149,6 @@
 
         void on_actionImport_data_XML_grid_triggered();
 
-        void on_actionPointProperties_import_triggered();
-
         void on_actionAll_active_triggered();
 
         void on_actionAll_notActive_triggered();
@@ -185,7 +183,9 @@
 
         void on_actionFileMeteopointNewCsv_triggered();
 
-        void on_actionPointData_import_triggered();
+        void on_actionFileMeteopointData_XMLimport_triggered();
+
+        void on_actionFileMeteopointProperties_import_triggered();
 
         void on_actionNewMeteoGrid_triggered();
 
