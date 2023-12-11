@@ -979,11 +979,13 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
             }
 
             std::string errorStr;
-            myProject.netCDF.extractVariableMap(currentNetcdfVariable, myProject.getCrit3DCurrentTime(), errorStr);
-            gis::updateMinMaxRasterGrid(netcdfRaster);
+            if (myProject.netCDF.extractVariableMap(currentNetcdfVariable, myProject.getCrit3DCurrentTime(), errorStr))
+            {
+                gis::updateMinMaxRasterGrid(netcdfRaster);
 
-            netcdfLegend->setVisible(true);
-            netcdfLegend->update();
+                netcdfLegend->setVisible(true);
+                netcdfLegend->update();
+            }
 
             break;
         }
@@ -1025,7 +1027,8 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         gis::Crit3DGeoPoint* center = netcdfObj->getRasterCenter();
         this->mapView->centerOn(qreal(center->longitude), qreal(center->latitude));
 
-        netcdfRaster->setConstantValue(NODATA);
+        netcdfRaster->header->flag = myProject.netCDF.missingValue;
+        netcdfRaster->setConstantValue(myProject.netCDF.missingValue);
         currentNetcdfVisualization = showLocation;
 
         // default colorScale: precipitation (radar)
@@ -1035,6 +1038,15 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         showNetcdfGroup->setEnabled(true);
         ui->groupBoxNetcdf->setVisible(true);
         netcdfObj->setVisible(true);
+
+        // set current date and hour (last data)
+        if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded)
+        {
+            QDateTime lastDateTime = getQDateTime(myProject.netCDF.getFirstTime());
+            myProject.setCurrentDate(lastDateTime.date());
+            myProject.setCurrentHour(lastDateTime.time().hour());
+            updateDateTime();
+        }
 
         redrawNetcdf();
     }
