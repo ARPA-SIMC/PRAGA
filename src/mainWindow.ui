@@ -464,7 +464,7 @@
             <second>0</second>
             <year>1752</year>
             <month>9</month>
-            <day>23</day>
+            <day>22</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1555,7 +1555,7 @@
       <addaction name="menuNetcdf_ColorScale_Range"/>
       <addaction name="actionNetcdf_ColorScale_Reverse"/>
      </widget>
-     <addaction name="actionNetCDF_Open"/>
+     <addaction name="actionFileNetCDF_Open"/>
      <addaction name="actionNetCDF_Close"/>
      <addaction name="separator"/>
      <addaction name="menuColor_Scale"/>
@@ -2252,7 +2252,7 @@
     <string>Save current data</string>
    </property>
   </action>
-  <action name="actionNetCDF_Open">
+  <action name="actionFileNetCDF_Open">
    <property name="text">
     <string>Open...</string>
    </property>

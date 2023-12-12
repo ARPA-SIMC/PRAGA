@@ -979,7 +979,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
             }
 
             std::string errorStr;
-            if (myProject.netCDF.extractVariableMap(currentNetcdfVariable, myProject.getCrit3DCurrentTime(), errorStr))
+            if (myProject.netCDF.extractVariableMap2(currentNetcdfVariable, myProject.getCrit3DCurrentTime(), errorStr))
             {
                 gis::updateMinMaxRasterGrid(netcdfRaster);
 
@@ -997,7 +997,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
     }
 
 
-    void MainWindow::on_actionNetCDF_Open_triggered()
+    void MainWindow::on_actionFileNetCDF_Open_triggered()
     {
         QString fileName = QFileDialog::getOpenFileName(this, "Open NetCDF data", "", "NetCDF files (*.nc)");
         if (fileName == "") return;
@@ -1006,7 +1006,11 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
         myProject.netCDF.initialize(myProject.gisSettings.utmZone);
 
-        myProject.netCDF.readProperties(fileName.toStdString());
+        if (! myProject.netCDF.readProperties(fileName.toStdString()) )
+        {
+            myProject.logError("Error in reading file: " + fileName);
+            return;
+        }
 
         gis::Crit3DRasterGrid* netcdfRaster = myProject.netCDF.getRaster();
 
@@ -1099,7 +1103,6 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
     void MainWindow::on_netCDFButtonVariable_clicked()
     {
         int idVar;
-        std::string errorStr;
 
         if (netCDF_ChooseVariable(&(myProject.netCDF), idVar, myProject.getCurrentFrequency()))
         {
@@ -5844,5 +5847,4 @@ void MainWindow::on_actionFileOutputPoints_NewFromCsv_triggered()
     myProject.loadOutputMeteoPointsDB(dbName);
     addOutputPointsGUI();
 }
-
 

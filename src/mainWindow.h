@@ -114,7 +114,7 @@
         void mouseMove(const QPoint& eventPos);
 
         #ifdef NETCDF
-            void on_actionNetCDF_Open_triggered();
+            void on_actionFileNetCDF_Open_triggered();
             void on_actionNetCDF_Close_triggered();
             void on_actionNetCDF_ShowMetadata_triggered();
 
@@ -276,7 +276,6 @@
         void on_actionFileOutputPoints_NewFromCsv_triggered();
         void on_actionFileOutputPointsClose_triggered();
         void on_actionFileOutputPointsOpen_triggered();
-
 
         void on_actionInterpolationOutputPointsCurrentTime_triggered();
 
