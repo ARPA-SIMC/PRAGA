@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1200</width>
-    <height>813</height>
+    <height>777</height>
    </rect>
   </property>
   <property name="palette">
@@ -279,7 +279,7 @@
       <property name="maximumSize">
        <size>
         <width>270</width>
-        <height>740</height>
+        <height>700</height>
        </size>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -464,7 +464,7 @@
             <second>0</second>
             <year>1752</year>
             <month>9</month>
-            <day>22</day>
+            <day>21</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1242,13 +1242,13 @@
          <property name="minimumSize">
           <size>
            <width>261</width>
-           <height>185</height>
+           <height>150</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
            <width>261</width>
-           <height>185</height>
+           <height>150</height>
           </size>
          </property>
          <property name="font">
@@ -1478,12 +1478,12 @@
         </widget>
        </item>
       </layout>
-      <zorder>groupBoxElaboration</zorder>
       <zorder>groupBoxMeteoGrid</zorder>
       <zorder>groupBoxRaster</zorder>
       <zorder>groupBoxVariable</zorder>
       <zorder>groupBoxMeteoPoints</zorder>
       <zorder>groupBoxNetcdf</zorder>
+      <zorder>groupBoxElaboration</zorder>
      </widget>
     </item>
     <item>
