@@ -2,7 +2,7 @@
 %{!?srcarchivename: %global srcarchivename PRAGA-%{version}}
 
 Name:           PRAGA
-Version:        1.7.4
+Version:        1.7.5
 Release:        1%{?dist}
 Summary:        PRogram for AGrometeorological Analysis
 
@@ -55,6 +55,9 @@ cp -a src/PRAGA %{buildroot}/%{_bindir}/
 
 
 %changelog
+* Wed Dec 20 2023 Laura Costantini <laura.costantini0@gmail.com> - 1.7.5-1
+- Release 1.7.5
+
 * Wed Dec 06 2023 Laura Costantini <laura.costantini0@gmail.com> - 1.7.4-1
 - Release 1.7.4
 
