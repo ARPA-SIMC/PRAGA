@@ -5192,34 +5192,36 @@ void MainWindow::on_actionCompute_monthly_data_from_daily_triggered()
     QDate myDateTo = myProject.meteoGridDbHandler->lastDate();
 
     DialogComputeData computeMonthlyDialog(myDateFrom, myDateTo, isGrid, allPoints);
-    if (computeMonthlyDialog.result() == QDialog::Accepted)
+    if (computeMonthlyDialog.result() != QDialog::Accepted)
+        return;
+
+    QList <meteoVariable> varToCompute = computeMonthlyDialog.getVariables();
+    QDate firstDate = computeMonthlyDialog.getDateFrom();
+    QDate lastDate = computeMonthlyDialog.getDateTo();
+    if (myProject.meteoGridDbHandler->getFirsMonthlytDate().isValid() && myProject.meteoGridDbHandler->getLastMonthlyDate().isValid())
     {
-        QList <meteoVariable> varToCompute = computeMonthlyDialog.getVariables();
-        QDate firstDate = computeMonthlyDialog.getDateFrom();
-        QDate lastDate = computeMonthlyDialog.getDateTo();
-        if (myProject.meteoGridDbHandler->getFirsMonthlytDate().isValid() && myProject.meteoGridDbHandler->getLastMonthlyDate().isValid())
+        if (firstDate >= myProject.meteoGridDbHandler->getFirsMonthlytDate() || lastDate <= myProject.meteoGridDbHandler->getLastMonthlyDate())
         {
-            if (firstDate >= myProject.meteoGridDbHandler->getFirsMonthlytDate() || lastDate <= myProject.meteoGridDbHandler->getLastMonthlyDate())
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(this, "Are you sure?" ,
+                                          " monthly data will be overwritten ",
+                                          QMessageBox::Yes|QMessageBox::No);
+            if (reply == QMessageBox::No)
             {
-                QMessageBox::StandardButton reply;
-                reply = QMessageBox::question(this, "Are you sure?" ,
-                                              " monthly data will be overwritten ",
-                                              QMessageBox::Yes|QMessageBox::No);
-                if (reply == QMessageBox::No)
-                {
-                    return;
-                }
+                return;
             }
         }
-        if (! myProject.monthlyVariablesGrid(firstDate, lastDate, varToCompute))
-        {
-                myProject.logError("Failed to compute monthly data");
-        }
     }
-    else
+
+    myProject.logInfoGUI("Compute monthly data...");
+    bool isOk = myProject.monthlyAggregateVariablesGrid(firstDate, lastDate, varToCompute);
+    myProject.closeLogInfo();
+
+    if (! isOk)
     {
-        return;
+        myProject.logError("Failed to compute monthly data.\n" + myProject.errorString);
     }
+
     QDate date = myProject.getCurrentDate();
     myProject.loadMeteoGridData(date, date, true);
 
