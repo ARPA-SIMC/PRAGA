@@ -2734,6 +2734,7 @@ void MainWindow::on_actionInterpolationMeteogridSaveCurrentData_triggered()
     myProject.closeLogInfo();
 }
 
+
 void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
 {
     // check meteo points
@@ -2746,7 +2747,7 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
     // check meteo grid
     if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr)
     {
-        myProject.logError("No meteo grid DB open");
+        myProject.logError("No meteo grid open");
         return;
     }
 
@@ -2780,6 +2781,8 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
     QList <meteoVariable> myVariables, aggrVariables;
     myVariables.push_back(myVar);
     myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables, aggrVariables, false, 1, NODATA);
+
+    myProject.meteoGridDbHandler->updateMeteoGridDate(myProject.errorString);
 }
 
 
