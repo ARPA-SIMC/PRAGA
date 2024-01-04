@@ -82,7 +82,7 @@ int mainGUI(int argc, char *argv[], QString pragaHome, PragaProject& myProject)
             return PRAGA_ENV_ERROR;
     }
 
-    if (! myProject.pragaStart(pragaHome))
+    if (! myProject.start(pragaHome))
         return PRAGA_ERROR;
 
     if (! myProject.loadPragaProject(myProject.getApplicationPath() + "default.ini"))

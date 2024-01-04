@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
     if (!checkEnvironmentConsole(pragaHome))
         return PRAGA_ENV_ERROR;
 
-    if (! myProject.pragaStart(pragaHome))
+    if (! myProject.start(pragaHome))
         return PRAGA_ERROR;
 
     if (! myProject.loadPragaProject(myProject.getApplicationPath() + "default.ini"))
