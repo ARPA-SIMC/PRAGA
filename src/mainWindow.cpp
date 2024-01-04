@@ -2625,6 +2625,7 @@ void MainWindow::drawProject()
     drawWindowTitle();
 }
 
+
 void MainWindow::on_actionFileOpenProject_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open project file"), myProject.getDefaultPath() + PATH_PROJECT, tr("ini files (*.ini)"));
