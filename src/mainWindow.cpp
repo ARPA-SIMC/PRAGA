@@ -979,7 +979,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
             }
 
             std::string errorStr;
-            if (myProject.netCDF.extractVariableMap2(currentNetcdfVariable, myProject.getCrit3DCurrentTime(), errorStr))
+            if (myProject.netCDF.extractVariableMap_old(currentNetcdfVariable, myProject.getCrit3DCurrentTime(), errorStr))
             {
                 gis::updateMinMaxRasterGrid(netcdfRaster);
 
@@ -999,7 +999,8 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
     void MainWindow::on_actionFileNetCDF_Open_triggered()
     {
-        QString fileName = QFileDialog::getOpenFileName(this, "Open NetCDF data", "", "NetCDF files (*.nc)");
+        QString netcdfPath = myProject.getDefaultPath() + PATH_NETCDF;
+        QString fileName = QFileDialog::getOpenFileName(this, "Open NetCDF data", netcdfPath, "NetCDF files (*.nc)");
         if (fileName == "") return;
 
         closeNetCDF();
@@ -5853,4 +5854,5 @@ void MainWindow::on_actionFileOutputPoints_NewFromCsv_triggered()
     myProject.loadOutputMeteoPointsDB(dbName);
     addOutputPointsGUI();
 }
+
 
