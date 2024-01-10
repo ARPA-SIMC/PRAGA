@@ -979,7 +979,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
             }
 
             std::string errorStr;
-            if (myProject.netCDF.extractVariableMap2(currentNetcdfVariable, myProject.getCrit3DCurrentTime(), errorStr))
+            if (myProject.netCDF.extractVariableMap_old(currentNetcdfVariable, myProject.getCrit3DCurrentTime(), errorStr))
             {
                 gis::updateMinMaxRasterGrid(netcdfRaster);
 
@@ -999,7 +999,8 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
     void MainWindow::on_actionFileNetCDF_Open_triggered()
     {
-        QString fileName = QFileDialog::getOpenFileName(this, "Open NetCDF data", "", "NetCDF files (*.nc)");
+        QString netcdfPath = myProject.getDefaultPath() + PATH_NETCDF;
+        QString fileName = QFileDialog::getOpenFileName(this, "Open NetCDF data", netcdfPath, "NetCDF files (*.nc)");
         if (fileName == "") return;
 
         closeNetCDF();
@@ -2625,6 +2626,7 @@ void MainWindow::drawProject()
     drawWindowTitle();
 }
 
+
 void MainWindow::on_actionFileOpenProject_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open project file"), myProject.getDefaultPath() + PATH_PROJECT, tr("ini files (*.ini)"));
@@ -2734,6 +2736,7 @@ void MainWindow::on_actionInterpolationMeteogridSaveCurrentData_triggered()
     myProject.closeLogInfo();
 }
 
+
 void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
 {
     // check meteo points
@@ -2746,7 +2749,7 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
     // check meteo grid
     if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr)
     {
-        myProject.logError("No meteo grid DB open");
+        myProject.logError("No meteo grid open");
         return;
     }
 
@@ -2780,6 +2783,8 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
     QList <meteoVariable> myVariables, aggrVariables;
     myVariables.push_back(myVar);
     myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables, aggrVariables, false, 1, NODATA);
+
+    myProject.meteoGridDbHandler->updateMeteoGridDate(myProject.errorString);
 }
 
 
@@ -5188,34 +5193,36 @@ void MainWindow::on_actionCompute_monthly_data_from_daily_triggered()
     QDate myDateTo = myProject.meteoGridDbHandler->lastDate();
 
     DialogComputeData computeMonthlyDialog(myDateFrom, myDateTo, isGrid, allPoints);
-    if (computeMonthlyDialog.result() == QDialog::Accepted)
+    if (computeMonthlyDialog.result() != QDialog::Accepted)
+        return;
+
+    QList <meteoVariable> varToCompute = computeMonthlyDialog.getVariables();
+    QDate firstDate = computeMonthlyDialog.getDateFrom();
+    QDate lastDate = computeMonthlyDialog.getDateTo();
+    if (myProject.meteoGridDbHandler->getFirsMonthlytDate().isValid() && myProject.meteoGridDbHandler->getLastMonthlyDate().isValid())
     {
-        QList <meteoVariable> varToCompute = computeMonthlyDialog.getVariables();
-        QDate firstDate = computeMonthlyDialog.getDateFrom();
-        QDate lastDate = computeMonthlyDialog.getDateTo();
-        if (myProject.meteoGridDbHandler->getFirsMonthlytDate().isValid() && myProject.meteoGridDbHandler->getLastMonthlyDate().isValid())
+        if (firstDate >= myProject.meteoGridDbHandler->getFirsMonthlytDate() || lastDate <= myProject.meteoGridDbHandler->getLastMonthlyDate())
         {
-            if (firstDate >= myProject.meteoGridDbHandler->getFirsMonthlytDate() || lastDate <= myProject.meteoGridDbHandler->getLastMonthlyDate())
+            QMessageBox::StandardButton reply;
+            reply = QMessageBox::question(this, "Are you sure?" ,
+                                          " monthly data will be overwritten ",
+                                          QMessageBox::Yes|QMessageBox::No);
+            if (reply == QMessageBox::No)
             {
-                QMessageBox::StandardButton reply;
-                reply = QMessageBox::question(this, "Are you sure?" ,
-                                              " monthly data will be overwritten ",
-                                              QMessageBox::Yes|QMessageBox::No);
-                if (reply == QMessageBox::No)
-                {
-                    return;
-                }
+                return;
             }
         }
-        if (! myProject.monthlyVariablesGrid(firstDate, lastDate, varToCompute))
-        {
-                myProject.logError("Failed to compute monthly data");
-        }
     }
-    else
+
+    myProject.logInfoGUI("Compute monthly data...");
+    bool isOk = myProject.monthlyAggregateVariablesGrid(firstDate, lastDate, varToCompute);
+    myProject.closeLogInfo();
+
+    if (! isOk)
     {
-        return;
+        myProject.logError("Failed to compute monthly data.\n" + myProject.errorString);
     }
+
     QDate date = myProject.getCurrentDate();
     myProject.loadMeteoGridData(date, date, true);
 
@@ -5847,4 +5854,5 @@ void MainWindow::on_actionFileOutputPoints_NewFromCsv_triggered()
     myProject.loadOutputMeteoPointsDB(dbName);
     addOutputPointsGUI();
 }
+
 
