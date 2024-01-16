@@ -55,6 +55,9 @@ cp -a src/PRAGA %{buildroot}/%{_bindir}/
 
 
 %changelog
+* Tue Jan 16 2024 Gabriele Antolini <gantolini@arpae.it> - 1.7.6-1
+- Release 1.7.6
+
 * Wed Dec 20 2023 Laura Costantini <laura.costantini0@gmail.com> - 1.7.5-1
 - Release 1.7.5
 
