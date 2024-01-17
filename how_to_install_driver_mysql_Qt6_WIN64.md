@@ -43,5 +43,6 @@ cmake --build .
 cmake --install .
 ```
 
-8) When you distribute your application, remember to include libmariadb.dll in your installation package. 
-It must be placed in the same folder as the application executable.
+8) *libmariadb.dll* must be in a path visible to the executable, it can be copied into the folder
+``` <Qt_installation_path>\<your platform>\bin ```  
+When you distribute your application, remember to include *libmariadb.dll* in your installation package. It must be placed in the same folder as the application executable.
