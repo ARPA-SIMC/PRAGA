@@ -5666,8 +5666,10 @@ void MainWindow::Export_to_png()
             colorScaleList.append("MeteoGrid");
     if (myProject.meteoPointsLoaded)
             colorScaleList.append("MeteoPoints");
+#ifdef NETCDF
     if (myProject.netCDF.isLoaded())
             colorScaleList.append("NetCDF");
+#endif
 
     QString scaleSelection = "";
     if (colorScaleList.size() > 0)
