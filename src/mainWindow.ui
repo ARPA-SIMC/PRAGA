@@ -464,7 +464,7 @@
             <second>0</second>
             <year>1752</year>
             <month>9</month>
-            <day>21</day>
+            <day>20</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1519,7 +1519,7 @@
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>28</height>
+     <height>23</height>
     </rect>
    </property>
    <property name="palette">
@@ -1853,6 +1853,7 @@
      </property>
      <addaction name="actionElaboration"/>
      <addaction name="actionAnomaly"/>
+     <addaction name="actionCompute_drought"/>
     </widget>
     <widget class="QMenu" name="menuClimate">
      <property name="title">
@@ -2824,6 +2825,11 @@
   <action name="actionInterpolationOutputPointsPeriod">
    <property name="text">
     <string>Interpolate and save period...</string>
+   </property>
+  </action>
+  <action name="actionCompute_drought">
+   <property name="text">
+    <string>Compute drought</string>
    </property>
   </action>
  </widget>

@@ -281,6 +281,8 @@
 
         void on_actionInterpolationOutputPointsPeriod_triggered();
 
+        void on_actionCompute_drought_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

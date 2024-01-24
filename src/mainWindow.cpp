@@ -20,6 +20,7 @@
 #include "dialogSelection.h"
 #include "dialogDownloadMeteoData.h"
 #include "dialogMeteoComputation.h"
+#include "dialogComputeDroughtIndex.h"
 #include "dialogClimateFields.h"
 #include "dialogSeriesOnZones.h"
 #include "dialogInterpolation.h"
@@ -1924,9 +1925,8 @@ void MainWindow::on_actionElaboration_triggered()
 {
     if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
     {
-        myProject.errorString = "Load meteo Points or grid";
-        myProject.logError();
-        return;
+       myProject.logError(ERROR_STR_MISSING_POINT_GRID);
+       return;
     }
 
     bool isMeteoPointLoaded = false;
@@ -1988,8 +1988,7 @@ void MainWindow::on_actionAnomaly_triggered()
 {
     if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
     {
-        myProject.errorString = "Load meteo Points or grid";
-        myProject.logError();
+        myProject.logError(ERROR_STR_MISSING_POINT_GRID);
         return;
     }
 
@@ -2056,8 +2055,7 @@ void MainWindow::on_actionClimate_triggered()
 {
     if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
     {
-        myProject.errorString = "Load meteo Points or grid";
-        myProject.logError();
+        myProject.logError(ERROR_STR_MISSING_POINT_GRID);
         return;
     }
 
@@ -5340,8 +5338,7 @@ void MainWindow::on_actionClimateMeteoPoints_triggered()
     bool isMeteoGrid = false;
     if (!myProject.meteoPointsLoaded)
     {
-        myProject.errorString = "Load meteo Points";
-        myProject.logError();
+        myProject.logError(ERROR_STR_MISSING_DB);
         return;
     }
 
@@ -5392,8 +5389,7 @@ void MainWindow::on_actionClimateMeteoGrid_triggered()
     bool isMeteoGrid = true;
     if (!myProject.meteoGridLoaded)
     {
-        myProject.errorString = "Load meteo grid";
-        myProject.logError();
+        myProject.logError(ERROR_STR_MISSING_GRID);
         return;
     }
 
@@ -5443,8 +5439,7 @@ void MainWindow::on_actionStatistical_Summary_triggered()
 {
     if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
     {
-        myProject.errorString = "Please load meteoPoints or meteoGrid before.";
-        myProject.logError();
+        myProject.logError(ERROR_STR_MISSING_POINT_GRID);
         return;
     }
 
@@ -5642,7 +5637,7 @@ void MainWindow::on_actionExport_MeteoGrid_toCsv_triggered()
 {
     if (!myProject.meteoGridLoaded)
     {
-            myProject.logError("Please load meteoGrid before.");
+            myProject.logError(ERROR_STR_MISSING_GRID);
             return;
     }
 
@@ -5857,4 +5852,41 @@ void MainWindow::on_actionFileOutputPoints_NewFromCsv_triggered()
     addOutputPointsGUI();
 }
 
+
+
+void MainWindow::on_actionCompute_drought_triggered()
+{
+    if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
+    {
+        myProject.logError(ERROR_STR_MISSING_POINT_GRID);
+        return;
+    }
+
+    bool isMeteoPointLoaded = false;
+    bool isMeteoGridLoaded = false;
+    QDate myDatePointsFrom;
+    QDate myDatePointsTo;
+    QDate myDateGridFrom;
+    QDate myDateGridTo;
+
+    if (myProject.meteoPointsLoaded)
+    {
+        isMeteoPointLoaded = true;
+        myDatePointsFrom = myProject.meteoPointsDbHandler->getFirstDate(daily).date();
+        myDatePointsTo = myProject.meteoPointsDbHandler->getLastDate(daily).date();
+    }
+    if (myProject.meteoGridLoaded)
+    {
+        isMeteoGridLoaded = true;
+        myDateGridFrom = myProject.meteoGridDbHandler->getFirstDailyDate();
+        myDateGridTo = myProject.meteoGridDbHandler->getLastDailyDate();
+    }
+
+    DialogComputeDroughtIndex compDialog(isMeteoGridLoaded, isMeteoPointLoaded, myDatePointsFrom, myDatePointsTo, myDateGridFrom, myDateGridTo);
+    if (compDialog.result() != QDialog::Accepted)
+    {
+        return;
+    }
+    // TO DO
+}
 
