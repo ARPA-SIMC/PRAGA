@@ -5864,25 +5864,25 @@ void MainWindow::on_actionCompute_drought_triggered()
 
     bool isMeteoPointLoaded = false;
     bool isMeteoGridLoaded = false;
-    QDate myDatePointsFrom;
-    QDate myDatePointsTo;
-    QDate myDateGridFrom;
-    QDate myDateGridTo;
+    int yearPointsFrom;
+    int yearPointsTo;
+    int yearGridFrom;
+    int yearGridTo;
 
     if (myProject.meteoPointsLoaded)
     {
         isMeteoPointLoaded = true;
-        myDatePointsFrom = myProject.meteoPointsDbHandler->getFirstDate(daily).date();
-        myDatePointsTo = myProject.meteoPointsDbHandler->getLastDate(daily).date();
+        yearPointsFrom = myProject.meteoPointsDbHandler->getFirstDate(daily).date().year();
+        yearPointsTo = myProject.meteoPointsDbHandler->getLastDate(daily).date().year();
     }
     if (myProject.meteoGridLoaded)
     {
         isMeteoGridLoaded = true;
-        myDateGridFrom = myProject.meteoGridDbHandler->getFirstDailyDate();
-        myDateGridTo = myProject.meteoGridDbHandler->getLastDailyDate();
+        yearGridFrom = myProject.meteoGridDbHandler->getFirstDailyDate().year();
+        yearGridTo = myProject.meteoGridDbHandler->getLastDailyDate().year();
     }
 
-    DialogComputeDroughtIndex compDialog(isMeteoGridLoaded, isMeteoPointLoaded, myDatePointsFrom, myDatePointsTo, myDateGridFrom, myDateGridTo);
+    DialogComputeDroughtIndex compDialog(isMeteoGridLoaded, isMeteoPointLoaded, yearPointsFrom, yearPointsTo, yearGridFrom, yearGridTo);
     if (compDialog.result() != QDialog::Accepted)
     {
         return;
