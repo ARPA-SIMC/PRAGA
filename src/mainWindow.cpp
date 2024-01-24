@@ -5906,12 +5906,31 @@ void MainWindow::on_actionFileMeteogrid_ExportDailyData_triggered()
         return;
     }
 
-    QList<QString> varList = exportDialog.getDailyVariableList();
+    // variables list
+    QList<QString> varNameList = exportDialog.getDailyVariableList();
+    QList<meteoVariable> variableList;
+    for (int i = 0; i < varNameList.size(); i++)
+    {
+        meteoVariable var = getMeteoVar(varNameList[i].toStdString());
+        if (var != noMeteoVar)
+        {
+            variableList.append(var);
+        }
+    }
+
     QDate firstDate = exportDialog.getFirstDate();
     QDate lastDate = exportDialog.getLastDate();
-    // cell list
-    // output path
 
-    // TO DO
+    // TODO
+    QString cellListFileName = myProject.getProjectPath() + PATH_OUTPUT + "/elenco.txt";
+    QString outputPath = myProject.getProjectPath() + PATH_OUTPUT;
+
+    if (! myProject.meteoGridDbHandler->exportDailyDataCsv(myProject.errorString, variableList,
+                                                          firstDate, lastDate, cellListFileName, outputPath) )
+    {
+        myProject.logError();
+    }
+
+    myProject.logInfoGUI("Files exported to the directory: " + outputPath);
 }
 
