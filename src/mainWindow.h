@@ -283,6 +283,8 @@
 
         void on_actionCompute_drought_triggered();
 
+        void on_actionFileMeteogrid_ExportDailyData_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

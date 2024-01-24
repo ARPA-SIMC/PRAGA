@@ -5890,3 +5890,15 @@ void MainWindow::on_actionCompute_drought_triggered()
     // TO DO
 }
 
+
+void MainWindow::on_actionFileMeteogrid_ExportDailyData_triggered()
+{
+    if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr)
+    {
+        myProject.logError("Open meteo grid before.");
+        return;
+    }
+
+    // TO DO
+}
+
