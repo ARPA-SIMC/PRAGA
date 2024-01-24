@@ -36,6 +36,7 @@
 #include "dialogComputeData.h"
 #include "meteoWidget.h"
 #include "pragaShell.h"
+#include "dialogExportDataGrid.h"
 
 
 extern PragaProject myProject;
@@ -5895,9 +5896,21 @@ void MainWindow::on_actionFileMeteogrid_ExportDailyData_triggered()
 {
     if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr)
     {
-        myProject.logError("Open meteo grid before.");
+        QMessageBox::information(nullptr, "No Meteo Grid", "Open meteo grid before.");
         return;
     }
+
+    DialogExportDataGrid exportDialog;
+    if (exportDialog.result() != QDialog::Accepted)
+    {
+        return;
+    }
+
+    QList<QString> varList = exportDialog.getDailyVariableList();
+    QDate firstDate = exportDialog.getFirstDate();
+    QDate lastDate = exportDialog.getLastDate();
+    // cell list
+    // output path
 
     // TO DO
 }
