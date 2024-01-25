@@ -5888,7 +5888,37 @@ void MainWindow::on_actionCompute_drought_triggered()
     {
         return;
     }
-    // TO DO
+    bool isMeteoGrid = compDialog.getIsMeteoGrid();
+    int refYearStart = compDialog.getYearFrom();
+    int refYearEnd = compDialog.getYearTo();
+    QString indexStr = compDialog.getIndex();
+    int timescale;
+    droughtIndex index;
+    if (indexStr == "INDEX_SPI")
+    {
+        index = INDEX_SPI;
+        timescale = compDialog.getTimescale();
+    }
+    else if (indexStr == "INDEX_SPEI")
+    {
+        index = INDEX_SPEI;
+        timescale = compDialog.getTimescale();
+    }
+    else if (indexStr == "INDEX_DECILES")
+    {
+        index = INDEX_DECILES;
+    }
+    if (isMeteoGrid)
+    {
+        myProject.logInfoGUI("Computing...");
+        myProject.computeDroughtIndexAll(index, refYearStart, refYearEnd, myProject.getCurrentDate(), timescale, noMeteoVar);
+        myProject.closeLogInfo();
+        myProject.meteoGridDbHandler->meteoGrid()->fillMeteoRasterElabValue();
+    }
+    else
+    {
+
+    }
 }
 
 
