@@ -4465,9 +4465,10 @@ void MainWindow::on_actionFileExportInterpolation_triggered()
     if (! myProject.dataRaster.isLoaded)
         return;
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save interpolated raster"), "", tr("ESRI grid files (*.flt)"));
+    QString defaultPath = myProject.getProjectPath() + PATH_OUTPUT;
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save interpolated raster"), defaultPath, tr("ESRI grid files (*.flt)"));
 
-    if (fileName != "")
+    if (! fileName.isEmpty())
     {
         QString fileWithoutExtension = QFileInfo(fileName).absolutePath() + QDir::separator() + QFileInfo(fileName).baseName();
         std::string myError = "";
@@ -4480,11 +4481,13 @@ void MainWindow::on_actionFileExportInterpolation_triggered()
 
 void MainWindow::on_actionFileDemOpen_triggered()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Digital Elevation Model"), "",
+    QString defaultPath = myProject.getProjectPath() + PATH_DEM;
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Digital Elevation Model"), defaultPath,
                                                     tr("ESRI FLT (*.flt);;ENVI IMG (*.img)"));
-    if (fileName == "") return;
+    if (fileName.isEmpty())
+        return;
 
-    if (!myProject.loadDEM(fileName))
+    if (! myProject.loadDEM(fileName))
         return;
 
     renderDEM();
@@ -5950,9 +5953,8 @@ void MainWindow::on_actionFileMeteogrid_ExportDailyData_triggered()
 
     QDate firstDate = exportDialog.getFirstDate();
     QDate lastDate = exportDialog.getLastDate();
+    QString cellListFileName = exportDialog.getCellListFileName();
 
-    // TODO
-    QString cellListFileName = myProject.getProjectPath() + PATH_OUTPUT + "/elenco.txt";
     QString outputPath = myProject.getProjectPath() + PATH_OUTPUT;
 
     if (! myProject.meteoGridDbHandler->exportDailyDataCsv(myProject.errorString, variableList,
