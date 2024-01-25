@@ -5934,6 +5934,7 @@ void MainWindow::on_actionCompute_drought_triggered()
         ui->lineEditVariable->setReadOnly(true);
         ui->lineEditPeriod->setReadOnly(true);
         ui->groupBoxElaboration->show();
+        emit meteoGridObj->redrawRequested();
     }
     else
     {
