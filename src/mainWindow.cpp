@@ -5860,7 +5860,7 @@ void MainWindow::on_actionFileOutputPoints_NewFromCsv_triggered()
 
 void MainWindow::on_actionCompute_drought_triggered()
 {
-    if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
+    if (!myProject.aggregationDbHandler && !myProject.meteoGridLoaded)
     {
         myProject.logError(ERROR_STR_MISSING_POINT_GRID);
         return;
@@ -5873,7 +5873,7 @@ void MainWindow::on_actionCompute_drought_triggered()
     int yearGridFrom;
     int yearGridTo;
 
-    if (myProject.meteoPointsLoaded)
+    if (myProject.aggregationDbHandler)
     {
         isMeteoPointLoaded = true;
         yearPointsFrom = myProject.meteoPointsDbHandler->getFirstDate(daily).date().year();
@@ -5942,7 +5942,17 @@ void MainWindow::on_actionCompute_drought_triggered()
     }
     else
     {
-
+        // LC La funzione calcola e scrive nel db Aggregation gli indici di siccità. Al momento i db aggregation sono apribili come meteo point ma non esiste
+        // un modo per aprirli direttamente come db aggregation e navigarne graficamente i valori di climi e indici. Per usare quindi questa funzione (nativa da shell)
+        // è necessario aprire un progetto PRAGA con un aggregation_points db, che verrà visualizzato come meteo point. Climi e indici saranno poi scritti nelle tabelle del db.
+        myProject.logInfoGUI("Drought Index - Meteo Point");
+        if (! myProject.computeDroughtIndexPoint(index, timescale, refYearStart, refYearEnd))
+        {
+            return;
+        }
+        myProject.closeLogInfo();
+        QMessageBox::information(nullptr, "Drought Index Computed", "See aggregation DB");
+        return;
     }
 }
 
