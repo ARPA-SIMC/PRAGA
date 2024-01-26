@@ -5916,6 +5916,7 @@ void MainWindow::on_actionCompute_drought_triggered()
         myProject.logInfoGUI("Drought Index - Meteo Grid");
         myProject.computeDroughtIndexAll(index, refYearStart, refYearEnd, myProject.getCurrentDate(), timescale, noMeteoVar);
         myProject.closeLogInfo();
+        meteoGridObj->setDrawBorders(false);
         myProject.meteoGridDbHandler->meteoGrid()->fillMeteoRasterElabValue();
         setColorScale(elaboration, myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.colorScale);
         ui->labelMeteoGridScale->setText(indexStr);
