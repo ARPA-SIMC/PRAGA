@@ -464,7 +464,7 @@
             <second>0</second>
             <year>1752</year>
             <month>9</month>
-            <day>18</day>
+            <day>17</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1519,7 +1519,7 @@
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>28</height>
+     <height>23</height>
     </rect>
    </property>
    <property name="palette">
@@ -1919,6 +1919,7 @@
      <addaction name="actionShowPointsElab"/>
      <addaction name="menuShowPointsAnomaly"/>
      <addaction name="actionShowPointsClimate"/>
+     <addaction name="actionShowPointsDrought"/>
     </widget>
     <widget class="QMenu" name="menuShowGrid">
      <property name="title">
@@ -1937,6 +1938,7 @@
      <addaction name="actionShowGridElab"/>
      <addaction name="menuShowGridAnomaly"/>
      <addaction name="actionShowGridClimate"/>
+     <addaction name="actionShowGridDrought"/>
     </widget>
     <widget class="QMenu" name="menuNetCDF">
      <property name="title">
@@ -2836,6 +2838,22 @@
   <action name="actionFileMeteogrid_ExportDailyData">
    <property name="text">
     <string>Export daily data...</string>
+   </property>
+  </action>
+  <action name="actionShowPointsDrought">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Drought</string>
+   </property>
+  </action>
+  <action name="actionShowGridDrought">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Drought</string>
    </property>
   </action>
  </widget>
