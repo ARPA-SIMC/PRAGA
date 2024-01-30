@@ -5890,7 +5890,7 @@ void MainWindow::on_actionCompute_drought_triggered()
         yearGridTo = myProject.meteoGridDbHandler->getLastDailyDate().year();
     }
 
-    DialogComputeDroughtIndex compDialog(isMeteoGridLoaded, isMeteoPointLoaded, yearPointsFrom, yearPointsTo, yearGridFrom, yearGridTo);
+    DialogComputeDroughtIndex compDialog(isMeteoGridLoaded, isMeteoPointLoaded, yearPointsFrom, yearPointsTo, yearGridFrom, yearGridTo, myProject.getCurrentDate());
     if (compDialog.result() != QDialog::Accepted)
     {
         return;
@@ -5898,6 +5898,7 @@ void MainWindow::on_actionCompute_drought_triggered()
     bool isMeteoGrid = compDialog.getIsMeteoGrid();
     int refYearStart = compDialog.getYearFrom();
     int refYearEnd = compDialog.getYearTo();
+    QDate myDate = compDialog.getDate();
     QString indexStr = compDialog.getIndex();
     int timescale;
     droughtIndex index;
@@ -5918,7 +5919,7 @@ void MainWindow::on_actionCompute_drought_triggered()
     if (isMeteoGrid)
     {
         myProject.logInfoGUI("Drought Index - Meteo Grid");
-        myProject.computeDroughtIndexAll(index, refYearStart, refYearEnd, myProject.getCurrentDate(), timescale, noMeteoVar);
+        myProject.computeDroughtIndexAll(index, refYearStart, refYearEnd, myDate, timescale, noMeteoVar);
         myProject.closeLogInfo();
         meteoGridObj->setDrawBorders(false);
         myProject.meteoGridDbHandler->meteoGrid()->fillMeteoRasterElabValue();
@@ -5948,7 +5949,7 @@ void MainWindow::on_actionCompute_drought_triggered()
     else
     {
         myProject.logInfoGUI("Drought Index - Meteo Point");
-        myProject.computeDroughtIndexPointGUI(index, timescale, refYearStart, refYearEnd, myProject.getCurrentDate());
+        myProject.computeDroughtIndexPointGUI(index, timescale, refYearStart, refYearEnd, myDate);
         myProject.closeLogInfo();
         ui->groupBoxElaboration->hide();
 
