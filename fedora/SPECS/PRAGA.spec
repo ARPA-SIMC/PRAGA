@@ -55,6 +55,9 @@ cp -a src/PRAGA %{buildroot}/%{_bindir}/
 
 
 %changelog
+* Thu Feb 08 2024 Laura Costantini <laura.costantini0@gmail.com> - 1.8.0-1
+- Release 1.8.0
+
 * Tue Jan 16 2024 Emanuele Di Giacomo <edigiacomo@arpae.it> - 1.7.6-2
 - Release bump for inconsistent spec in 1.7.6-1
 
