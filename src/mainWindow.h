@@ -131,8 +131,8 @@
             void on_actionNetcdf_ColorScale_RangeVariable_triggered();
         #endif
 
-        void callNewMeteoWidget(std::string id, std::string name, bool isGrid);
-        void callAppendMeteoWidget(std::string id, std::string name, bool isGrid);
+        void callNewMeteoWidget(std::string id, std::string name, std::string lapseRate, bool isGrid);
+        void callAppendMeteoWidget(std::string id, std::string name, std::string lapseRate, bool isGrid);
         void callNewPointStatisticsWidget(std::string id, bool isGrid);
         void callNewHomogeneityTestWidget(std::string id);
         void callNewSynchronicityTestWidget(std::string id);

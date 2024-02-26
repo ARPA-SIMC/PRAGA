@@ -1740,8 +1740,8 @@ void MainWindow::addMeteoPoints()
         this->mapView->scene()->addObject(this->pointList[i]);
 
         point->setToolTip();
-        connect(point, SIGNAL(newStationClicked(std::string, std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, std::string, bool)));
-        connect(point, SIGNAL(appendStationClicked(std::string, std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, std::string, bool)));
+        connect(point, SIGNAL(newStationClicked(std::string, std::string, std::string, bool)), this, SLOT(callNewMeteoWidget(std::string, std::string, std::string, bool)));
+        connect(point, SIGNAL(appendStationClicked(std::string, std::string, std::string, bool)), this, SLOT(callAppendMeteoWidget(std::string, std::string, std::string, bool)));
         connect(point, SIGNAL(newPointStatisticsClicked(std::string, bool)), this, SLOT(callNewPointStatisticsWidget(std::string, bool)));
         connect(point, SIGNAL(newHomogeneityTestClicked(std::string)), this, SLOT(callNewHomogeneityTestWidget(std::string)));
         connect(point, SIGNAL(newSynchronicityTestClicked(std::string)), this, SLOT(callNewSynchronicityTestWidget(std::string)));
@@ -1752,7 +1752,7 @@ void MainWindow::addMeteoPoints()
     }
 }
 
-void MainWindow::callNewMeteoWidget(std::string id, std::string name, bool isGrid)
+void MainWindow::callNewMeteoWidget(std::string id, std::string name, std::string lapseRate, bool isGrid)
 {
     bool isAppend = false;
     if (isGrid)
@@ -1761,12 +1761,12 @@ void MainWindow::callNewMeteoWidget(std::string id, std::string name, bool isGri
     }
     else
     {
-        myProject.showMeteoWidgetPoint(id, name, isAppend);
+        myProject.showMeteoWidgetPoint(id, name, lapseRate, isAppend);
     }
     return;
 }
 
-void MainWindow::callAppendMeteoWidget(std::string id, std::string name, bool isGrid)
+void MainWindow::callAppendMeteoWidget(std::string id, std::string name, std::string lapseRate, bool isGrid)
 {
     bool isAppend = true;
     if (isGrid)
@@ -1775,7 +1775,7 @@ void MainWindow::callAppendMeteoWidget(std::string id, std::string name, bool is
     }
     else
     {
-        myProject.showMeteoWidgetPoint(id, name, isAppend);
+        myProject.showMeteoWidgetPoint(id, name, lapseRate, isAppend);
     }
     return;
 }
