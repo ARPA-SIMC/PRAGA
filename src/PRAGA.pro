@@ -16,7 +16,7 @@ INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/drought ../agrolib/interpolation ../agrolib/solarRadiation ../agrolib/utilities  \
                 ../agrolib/outputPoints ../agrolib/dbMeteoPoints ../agrolib/dbMeteoGrid ../agrolib/meteoWidget  \
                 ../agrolib/proxyWidget ../agrolib/pointStatisticsWidget ../agrolib/homogeneityWidget ../agrolib/synchronicityWidget ../agrolib/climate ../agrolib/netcdfHandler  \
-                ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/commonChartElements ../agrolib/pragaDialogs ../agrolib/importDataXML \
+                ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/commonChartElements ../agrolib/pragaDialogs ../agrolib/inOutDataXML \
                 ../agrolib/project ../agrolib/pragaProject
 
 CONFIG += debug_and_release
@@ -47,7 +47,7 @@ CONFIG(debug, debug|release) {
         LIBS += -L../mapGraphics/debug -lMapGraphics
         LIBS += -L/usr/local/lib/ -lnetcdf
     }
-    LIBS += -L../agrolib/importDataXML/debug -limportDataXML
+    LIBS += -L../agrolib/inOutDataXML/debug -linOutDataXML
     LIBS += -L../agrolib/synchronicityWidget/debug -lsynchronicityWidget
     LIBS += -L../agrolib/homogeneityWidget/debug -lhomogeneityWidget
     LIBS += -L../agrolib/pointStatisticsWidget/debug -lpointStatisticsWidget
@@ -85,7 +85,7 @@ CONFIG(debug, debug|release) {
     macx:{
         LIBS += -L/usr/local/lib/ -lnetcdf
     }
-    LIBS += -L../agrolib/importDataXML/release -limportDataXML
+    LIBS += -L../agrolib/inOutDataXML/release -linOutDataXML
     LIBS += -L../agrolib/synchronicityWidget/release -lsynchronicityWidget
     LIBS += -L../agrolib/homogeneityWidget/release -lhomogeneityWidget
     LIBS += -L../agrolib/pointStatisticsWidget/release -lpointStatisticsWidget
