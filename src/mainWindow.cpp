@@ -3283,7 +3283,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
         return;
 
 
-    if (!myProject.parserXMLImportData(fileName, isGrid))
+    if (!myProject.parserXMLImportExportData(fileName, isGrid))
     {
         return;
     }
@@ -3335,6 +3335,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
     {
         QMessageBox::warning(nullptr, " Not valid or missing values: ", warning);
     }
+    delete myProject.inOutData;
     QString xmlName = myProject.dbGridXMLFileName;
     closeMeteoGrid();
     loadMeteoGrid(xmlName);
@@ -3400,7 +3401,7 @@ void MainWindow::on_actionFileMeteopointData_XMLimport_triggered()
         return;
 
     bool isGrid = false;
-    if (!myProject.parserXMLImportData(fileName, isGrid))
+    if (!myProject.parserXMLImportExportData(fileName, isGrid))
         return;
 
     QList<QString> dateFiles = QFileDialog::getOpenFileNames(
@@ -3455,6 +3456,7 @@ void MainWindow::on_actionFileMeteopointData_XMLimport_triggered()
         QMessageBox::warning(nullptr, "WARNING", warning);
     }
 
+    delete myProject.inOutData;
     QString dbName = myProject.meteoPointsDbHandler->getDbName();
     loadMeteoPoints(dbName);
 }
@@ -6086,7 +6088,7 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
         return;
 
     bool isGrid = false;
-    if (!myProject.parserXMLImportData(xmlName, isGrid))
+    if (!myProject.parserXMLImportExportData(xmlName, isGrid))
         return;
 
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save data"), "", tr("pnr file (*.pnr)"));
