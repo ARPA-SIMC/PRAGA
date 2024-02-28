@@ -6071,3 +6071,33 @@ void MainWindow::on_actionFileMeteogrid_ExportDailyData_triggered()
     myProject.logInfoGUI("Files exported to the directory: " + outputPath);
 }
 
+
+void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
+{
+    // check meteo point
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        myProject.logError("Open a meteo points DB before");
+        return;
+    }
+
+    QString xmlName = QFileDialog::getOpenFileName(this, tr("Open XML file"), "", tr("xml files (*.xml)"));
+    if (xmlName.isEmpty())
+        return;
+
+    bool isGrid = false;
+    if (!myProject.parserXMLImportData(xmlName, isGrid))
+        return;
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save data"), "", tr("pnr file (*.pnr)"));
+
+    if (fileName != "")
+    {
+        // TO DO
+        qDebug() << "fileName " << fileName;
+    }
+    return;
+
+
+}
+

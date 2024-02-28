@@ -285,6 +285,8 @@
 
         void on_actionFileMeteogrid_ExportDailyData_triggered();
 
+        void on_actionFileMeteopointData_XMLexport_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
