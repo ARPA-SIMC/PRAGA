@@ -6095,9 +6095,14 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
 
     if (fileName != "")
     {
-        // TO DO
-        qDebug() << "fileName " << fileName;
+        if (!myProject.loadXMLExportData(fileName))
+        {
+            QMessageBox::critical(nullptr, "Error", myProject.errorString);
+            delete myProject.inOutData;
+            return;
+        }
     }
+    delete myProject.inOutData;
     return;
 
 
