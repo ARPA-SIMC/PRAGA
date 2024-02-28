@@ -620,7 +620,14 @@ void PragaProject::readClimate(bool isMeteoGrid, QString climateSelected, int cl
     climate.push_back(climateSelected);
 
     climateList.setListClimateElab(climate);
-    climateList.parserElaboration();
+
+    errorString = "";
+    climateList.parserElaboration(errorString);
+    if (! errorString.isEmpty())
+    {
+        logError();
+        errorString = "";
+    }
 
     // copy elaboration to clima
     clima->setYearStart(climateList.listYearStart().at(0));
@@ -666,7 +673,7 @@ void PragaProject::readClimate(bool isMeteoGrid, QString climateSelected, int cl
                     Crit3DMeteoPoint* meteoPoint = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col);
                     if (climateIndex != NODATA)
                     {
-                        result = readElab(db, table.toLower(), climateIndex, QString::fromStdString(meteoPoint->id), climateSelected, &errorString);
+                        result = readClimateElab(db, table.toLower(), climateIndex, QString::fromStdString(meteoPoint->id), climateSelected, &errorString);
                         meteoPoint->climate = result;
                     }
                     else
@@ -702,7 +709,7 @@ void PragaProject::readClimate(bool isMeteoGrid, QString climateSelected, int cl
                 }
                 else
                 {
-                    result = readElab(db, table.toLower(), climateIndex, id, climateSelected, &errorString);
+                    result = readClimateElab(db, table.toLower(), climateIndex, id, climateSelected, &errorString);
                     meteoPoints[i].climate = result;
                 }
             }
@@ -1045,7 +1052,14 @@ bool PragaProject::climatePointsCycle(bool showInfo)
     }
     // parser all the list
     Crit3DClimateList* climateList = clima->getListElab();
-    climateList->parserElaboration();
+
+    errorString = "";
+    climateList->parserElaboration(errorString);
+    if (! errorString.isEmpty())
+    {
+        logError();
+        errorString = "";
+    }
 
     Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
     for (int i = 0; i < nrMeteoPoints; i++)
@@ -1166,7 +1180,14 @@ bool PragaProject::climatePointsCycleGrid(bool showInfo)
 
     // parser all the list
     Crit3DClimateList* climateList = clima->getListElab();
-    climateList->parserElaboration();
+
+    errorString = "";
+    climateList->parserElaboration(errorString);
+    if (! errorString.isEmpty())
+    {
+        logError();
+        errorString = "";
+    }
 
     Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
     for (int row = 0; row < meteoGridDbHandler->gridStructure().header().nrRows; row++)
@@ -1962,11 +1983,11 @@ bool PragaProject::interpolationOutputPointsPeriod(QDate firstDate, QDate lastDa
     QVector<QList<QString>> hourlyDataList;
     if (isDaily)
     {
-        dailyDataList.resize(outputPoints.size());
+        dailyDataList.resize(int(outputPoints.size()));
     }
     if (isHourly)
     {
-        hourlyDataList.resize(outputPoints.size());
+        hourlyDataList.resize(int(outputPoints.size()));
     }
 
     int nrDays = firstDate.daysTo(lastDate) + 1;
@@ -3754,18 +3775,16 @@ bool PragaProject::cleanClimatePoint()
     QList<QString> climateTables;
     QList<QString> climateFields;
 
-    unsigned i,j;
-
     if (getClimateTables(db, &errorString, &climateTables) )
     {
-        for (i=0; i < climateTables.size(); i++)
+        for (int i = 0; i < climateTables.size(); i++)
         {
             climateFields.clear();
             getClimateFieldsFromTable(db, &errorString, climateTables[i], &climateFields);
 
             if (! climateFields.isEmpty())
             {
-                for (j=0; j < climateFields.size(); j++)
+                for (int j = 0; j < climateFields.size(); j++)
                     if (! deleteElab(db, &errorString, climateTables[i].toLower(), climateFields[j]))
                         return false;
             }
