@@ -6091,20 +6091,45 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
     if (!myProject.parserXMLImportExportData(xmlName, isGrid))
         return;
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save data"), "", tr("pnr file (*.pnr)"));
-
-    if (fileName != "")
+    QList<QString> pointSelected;
+    bool allPoints = false;
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
     {
-        if (!myProject.loadXMLExportData(fileName))
+        if (myProject.meteoPoints[i].selected)
         {
-            QMessageBox::critical(nullptr, "Error", myProject.errorString);
-            delete myProject.inOutData;
-            return;
+            pointSelected << QString::fromStdString(myProject.meteoPoints[i].id);
+        }
+    }
+    if (pointSelected.isEmpty())
+    {
+        allPoints = true;
+    }
+
+    if (allPoints)
+    {
+        for (int i = 0; i < myProject.nrMeteoPoints; i++)
+        {
+            if (!myProject.loadXMLExportData(QString::fromStdString(myProject.meteoPoints[i].id)))
+            {
+                    QMessageBox::critical(nullptr, "Error", myProject.errorString);
+                    delete myProject.inOutData;
+                    return;
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < pointSelected.size(); i++)
+        {
+            if (!myProject.loadXMLExportData(pointSelected[i]))
+            {
+                    QMessageBox::critical(nullptr, "Error", myProject.errorString);
+                    delete myProject.inOutData;
+                    return;
+            }
         }
     }
     delete myProject.inOutData;
     return;
-
-
 }
 
