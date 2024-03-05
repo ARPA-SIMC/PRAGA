@@ -6144,6 +6144,7 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
 
 void MainWindow::on_actionFileMeteogridData_XMLexport_triggered()
 {
+    /*
     // check meteo grid
     if (myProject.meteoGridDbHandler == nullptr)
     {
@@ -6159,6 +6160,27 @@ void MainWindow::on_actionFileMeteogridData_XMLexport_triggered()
     if (!myProject.parserXMLImportExportData(xmlName, isGrid))
         return;
 
-    // TO DO
+    myProject.setProgressBar("Exporting cells...", myProject.meteoGridDbHandler->gridStructure().header().nrRows);
+    for (int row = 0; row < myProject.meteoGridDbHandler->gridStructure().header().nrRows; row++)
+    {
+        myProject.updateProgressBar(row);
+        for (int col = 0; col < myProject.meteoGridDbHandler->gridStructure().header().nrCols; col++)
+        {
+            if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
+            {
+                    if ( !myProject.loadXMLExportDataGrid(QString::fromStdString(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id)) )
+                    {
+                        QMessageBox::critical(nullptr, "Error", myProject.errorString);
+                        myProject.closeProgressBar();
+                        delete myProject.inOutData;
+                        return;
+                    }
+            }
+        }
+    }
+    myProject.closeProgressBar();
+    delete myProject.inOutData;
+    return;
+*/
 }
 
