@@ -6107,27 +6107,35 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
 
     if (allPoints)
     {
+        myProject.setProgressBar("Exporting points...", myProject.nrMeteoPoints);
         for (int i = 0; i < myProject.nrMeteoPoints; i++)
         {
+            myProject.updateProgressBar(i);
             if (!myProject.loadXMLExportData(QString::fromStdString(myProject.meteoPoints[i].id)))
             {
                     QMessageBox::critical(nullptr, "Error", myProject.errorString);
+                    myProject.closeProgressBar();
                     delete myProject.inOutData;
                     return;
             }
         }
+        myProject.closeProgressBar();
     }
     else
     {
+        myProject.setProgressBar("Exporting points...", pointSelected.size());
         for (int i = 0; i < pointSelected.size(); i++)
         {
+            myProject.updateProgressBar(i);
             if (!myProject.loadXMLExportData(pointSelected[i]))
             {
                     QMessageBox::critical(nullptr, "Error", myProject.errorString);
+                    myProject.closeProgressBar();
                     delete myProject.inOutData;
                     return;
             }
         }
+        myProject.closeProgressBar();
     }
     delete myProject.inOutData;
     return;
