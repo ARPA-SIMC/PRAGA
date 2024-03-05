@@ -6141,3 +6141,24 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
     return;
 }
 
+
+void MainWindow::on_actionFileMeteogridData_XMLexport_triggered()
+{
+    // check meteo grid
+    if (myProject.meteoGridDbHandler == nullptr)
+    {
+        myProject.logError(ERROR_STR_MISSING_GRID);
+        return;
+    }
+
+    QString xmlName = QFileDialog::getOpenFileName(this, tr("Open XML file"), "", tr("xml files (*.xml)"));
+    if (xmlName.isEmpty())
+        return;
+
+    bool isGrid = true;
+    if (!myProject.parserXMLImportExportData(xmlName, isGrid))
+        return;
+
+    // TO DO
+}
+

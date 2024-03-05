@@ -464,7 +464,7 @@
             <second>0</second>
             <year>1752</year>
             <month>9</month>
-            <day>16</day>
+            <day>15</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1582,6 +1582,7 @@
      <addaction name="separator"/>
      <addaction name="actioFileMeteogrid_Load_current_data"/>
      <addaction name="actionImport_data_XML_grid"/>
+     <addaction name="actionFileMeteogridData_XMLexport"/>
      <addaction name="actionFileMeteogrid_ExportDailyData"/>
      <addaction name="menuExport"/>
      <addaction name="separator"/>
@@ -2858,6 +2859,11 @@
    </property>
   </action>
   <action name="actionFileMeteopointData_XMLexport">
+   <property name="text">
+    <string>Export data with XML</string>
+   </property>
+  </action>
+  <action name="actionFileMeteogridData_XMLexport">
    <property name="text">
     <string>Export data with XML</string>
    </property>

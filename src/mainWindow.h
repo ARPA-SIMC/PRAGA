@@ -287,6 +287,8 @@
 
         void on_actionFileMeteopointData_XMLexport_triggered();
 
+        void on_actionFileMeteogridData_XMLexport_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
