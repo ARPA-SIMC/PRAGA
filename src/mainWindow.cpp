@@ -6144,7 +6144,6 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
 
 void MainWindow::on_actionFileMeteogridData_XMLexport_triggered()
 {
-    /*
     // check meteo grid
     if (myProject.meteoGridDbHandler == nullptr)
     {
@@ -6181,6 +6180,5 @@ void MainWindow::on_actionFileMeteogridData_XMLexport_triggered()
     myProject.closeProgressBar();
     delete myProject.inOutData;
     return;
-*/
 }
 
