@@ -37,9 +37,6 @@ DAILY_ET0_HS,line,darkGreen
 DAILY_ET0_PM,line,green
 DAILY_LEAFW,bar,darkCyan
 DAILY_TEMPRANGE,bar,darkRed
-DAILY_AIRDEW_TMIN,line,yellow
-DAILY_AIRDEW_TMAX,line,blue
-DAILY_AIRDEW_TAVG,line,green
 DAILY_THOMMAX,bar,magenta
 DAILY_THOMAVG,bar,darkMagenta
 DAILY_THOM_HABOVE,bar,magenta
