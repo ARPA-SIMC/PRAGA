@@ -5863,7 +5863,6 @@ void MainWindow::on_actionFileOutputPoints_NewFromCsv_triggered()
 }
 
 
-
 void MainWindow::on_actionCompute_drought_triggered()
 {
     if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
@@ -5894,9 +5893,8 @@ void MainWindow::on_actionCompute_drought_triggered()
 
     DialogComputeDroughtIndex compDialog(isMeteoGridLoaded, isMeteoPointLoaded, yearPointsFrom, yearPointsTo, yearGridFrom, yearGridTo, myProject.getCurrentDate());
     if (compDialog.result() != QDialog::Accepted)
-    {
         return;
-    }
+
     bool isMeteoGrid = compDialog.getIsMeteoGrid();
     int refYearStart = compDialog.getYearFrom();
     int refYearEnd = compDialog.getYearTo();
@@ -5920,16 +5918,16 @@ void MainWindow::on_actionCompute_drought_triggered()
     }
     if (isMeteoGrid)
     {
-        myProject.logInfoGUI("Drought Index - Meteo Grid");
-        myProject.computeDroughtIndexAll(index, refYearStart, refYearEnd, myDate, timescale, noMeteoVar);
-        myProject.closeLogInfo();
+        myProject.computeDroughtIndexGrid(index, refYearStart, refYearEnd, myDate, timescale, noMeteoVar);
+
         meteoGridObj->setDrawBorders(false);
         myProject.meteoGridDbHandler->meteoGrid()->fillMeteoRasterElabValue();
         setColorScale(elaboration, myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.colorScale);
         ui->labelMeteoGridScale->setText(indexStr);
         meteoGridLegend->setVisible(true);
         meteoGridLegend->update();
-        ui->lineEditElab1->setText("Drought index: "+indexStr);
+        ui->lineEditElab1->setText("Drought index: " + indexStr);
+
         if (indexStr == "INDEX_SPI" || indexStr == "INDEX_SPEI")
         {
             ui->lineEditVariable->setText(indexStr+" timescale:"+QString::number(timescale));
@@ -5938,13 +5936,17 @@ void MainWindow::on_actionCompute_drought_triggered()
         {
             ui->lineEditVariable->setText(indexStr);
         }
+
         ui->lineEditElab2->setVisible(false);
         ui->lineEditPeriod->setText("reference period: "+QString::number(refYearStart) + "÷" + QString::number(refYearEnd));
         ui->lineEditElab1->setReadOnly(true);
         ui->lineEditElab2->setReadOnly(true);
         ui->lineEditVariable->setReadOnly(true);
         ui->lineEditPeriod->setReadOnly(true);
+
+        this->ui->actionShowGridDrought->setEnabled(true);
         this->ui->actionShowGridDrought->setChecked(true);
+
         ui->groupBoxElaboration->show();
         emit meteoGridObj->redrawRequested();
     }
