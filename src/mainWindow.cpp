@@ -6085,6 +6085,18 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
         return;
     }
 
+    QDateTime myFirstTime = myProject.meteoPointsDbFirstTime;
+    QDateTime myLastTime = myProject.meteoPointsDbLastTime;
+    if (myFirstTime.isNull() || myLastTime.isNull())
+    {
+        myProject.logError("DB is empty");
+        return;
+    }
+
+    FormTimePeriod myForm(&myFirstTime, &myLastTime);
+    myForm.show();
+    if (myForm.exec() == QDialog::Rejected) return;
+
     QString xmlName = QFileDialog::getOpenFileName(this, tr("Open XML file"), "", tr("xml files (*.xml)"));
     if (xmlName.isEmpty())
         return;
@@ -6113,7 +6125,7 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
         for (int i = 0; i < myProject.nrMeteoPoints; i++)
         {
             myProject.updateProgressBar(i);
-            if (!myProject.loadXMLExportData(QString::fromStdString(myProject.meteoPoints[i].id)))
+            if (!myProject.loadXMLExportData(QString::fromStdString(myProject.meteoPoints[i].id), myFirstTime, myLastTime))
             {
                     QMessageBox::critical(nullptr, "Error", myProject.errorString);
                     myProject.closeProgressBar();
@@ -6129,7 +6141,7 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
         for (int i = 0; i < pointSelected.size(); i++)
         {
             myProject.updateProgressBar(i);
-            if (!myProject.loadXMLExportData(pointSelected[i]))
+            if (!myProject.loadXMLExportData(pointSelected[i], myFirstTime, myLastTime))
             {
                     QMessageBox::critical(nullptr, "Error", myProject.errorString);
                     myProject.closeProgressBar();
@@ -6153,6 +6165,22 @@ void MainWindow::on_actionFileMeteogridData_XMLexport_triggered()
         return;
     }
 
+    QDateTime myFirstTime;
+    myFirstTime.setDate(myProject.meteoGridDbHandler->firstDate());
+    myFirstTime.setTime(QTime(0,0));
+    QDateTime myLastTime;
+    myLastTime.setDate(myProject.meteoGridDbHandler->lastDate());
+    myLastTime.setTime(QTime(0,0));
+    if (myFirstTime.isNull() || myLastTime.isNull())
+    {
+        myProject.logError("DB is empty");
+        return;
+    }
+
+    FormTimePeriod myForm(&myFirstTime, &myLastTime);
+    myForm.show();
+    if (myForm.exec() == QDialog::Rejected) return;
+
     QString xmlName = QFileDialog::getOpenFileName(this, tr("Open XML file"), "", tr("xml files (*.xml)"));
     if (xmlName.isEmpty())
         return;
@@ -6169,7 +6197,7 @@ void MainWindow::on_actionFileMeteogridData_XMLexport_triggered()
         {
             if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
             {
-                    if ( !myProject.loadXMLExportDataGrid(QString::fromStdString(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id)) )
+                    if ( !myProject.loadXMLExportDataGrid(QString::fromStdString(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id), myFirstTime, myLastTime ))
                     {
                         QMessageBox::critical(nullptr, "Error", myProject.errorString);
                         myProject.closeProgressBar();
