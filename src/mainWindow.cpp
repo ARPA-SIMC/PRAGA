@@ -5922,10 +5922,7 @@ void MainWindow::on_actionCompute_drought_triggered()
     if (isMeteoGrid)
     {
         if (! myProject.computeDroughtIndexGrid(index, refYearStart, refYearEnd, myDate, timescale, noMeteoVar))
-        {
-            myProject.logError();
             return;
-        }
 
         redrawMeteoGrid(showElaboration, true);
 
