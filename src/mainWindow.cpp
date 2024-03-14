@@ -2099,6 +2099,7 @@ void MainWindow::on_actionClimate_triggered()
     return;
 }
 
+
 void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool isAnomaly, bool isAnomalyPerc, bool isClima, QString index)
 {
     float value;
@@ -2106,9 +2107,9 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
     if (isMeteoGrid)
     {
         meteoGridObj->setDrawBorders(false);
-        if (!isAnomaly)
+        if (! isAnomaly)
         {
-            if (!isClima)
+            if (! isClima)
             {
                 myProject.meteoGridDbHandler->meteoGrid()->fillMeteoRasterElabValue();
             }
@@ -2144,9 +2145,9 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
             float maximum = NODATA;
             for (int i = 0; i < myProject.nrMeteoPoints; i++)
             {
-                if (!isAnomaly)
+                if (! isAnomaly)
                 {
-                    if (!isClima)
+                    if (! isClima)
                     {
                         myProject.meteoPoints[i].currentValue = myProject.meteoPoints[i].elaboration;
                     }
@@ -2165,7 +2166,6 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
                     {
                         myProject.meteoPoints[i].currentValue = myProject.meteoPoints[i].anomaly;
                     }
-
                 }
 
                 // hide all meteo points
@@ -2186,6 +2186,7 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
                     }
                 }
             }
+
             myProject.meteoPointsColorScale->setRange(minimum, maximum);
             roundColorScale(myProject.meteoPointsColorScale, 4, true);
             setColorScale(myProject.clima->variable(), myProject.meteoPointsColorScale);
@@ -2194,11 +2195,11 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
         Crit3DColor *myColor;
         for (int i = 0; i < myProject.nrMeteoPoints; i++)
         {
-            if (!updateColorSCale)
+            if (! updateColorSCale)
             {
-                if (!isAnomaly)
+                if (! isAnomaly)
                 {
-                    if (!isClima)
+                    if (! isClima)
                     {
                         myProject.meteoPoints[i].currentValue = myProject.meteoPoints[i].elaboration;
                     }
@@ -2237,10 +2238,9 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
         meteoPointsLegend->update();
     }
 
-
     if (int(myProject.clima->param1()) != NODATA)
     {
-        if (!isAnomaly)
+        if (! isAnomaly)
         {
 
             ui->lineEditElab1->setText(myProject.clima->elab1() + " " + QString::number(myProject.clima->param1()));
@@ -2255,12 +2255,11 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
             {
                 ui->lineEditElab1->setText(myProject.clima->elab1() + "Anomaly of: " + QString::number(myProject.clima->param1()));
             }
-
         }
     }
     else
     {
-        if (!isAnomaly)
+        if (! isAnomaly)
         {
             ui->lineEditElab1->setText(myProject.clima->elab1());
         }
@@ -2274,7 +2273,6 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
             {
                 ui->lineEditElab1->setText("Anomaly respect to " + myProject.clima->elab1());
             }
-
         }
     }
     if (myProject.clima->elab2().isEmpty())
@@ -2292,30 +2290,34 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
         {
             ui->lineEditElab2->setText(myProject.clima->elab2());
         }
-
     }
-    std::string var = MapDailyMeteoVarToString.at(myProject.clima->variable());
-    ui->lineEditVariable->setText(QString::fromStdString(var));
-    QString startDay = QString::number(myProject.clima->genericPeriodDateStart().day());
-    QString startMonth = QString::number(myProject.clima->genericPeriodDateStart().month());
-    QString endDay = QString::number(myProject.clima->genericPeriodDateEnd().day());
-    QString endMonth = QString::number(myProject.clima->genericPeriodDateEnd().month());
 
-    QString startYear = QString::number(myProject.clima->yearStart());
-    QString endYear = QString::number(myProject.clima->yearEnd());
-    if (!isClima)
+    if (myProject.clima != nullptr)
     {
-        ui->lineEditPeriod->setText(startDay + "/" + startMonth + "-" + endDay + "/" + endMonth + " " + startYear + "÷" + endYear);
-    }
-    else
-    {
-        if (myProject.clima->periodType() != genericPeriod && myProject.clima->periodType() != annualPeriod)
+        std::string var = MapDailyMeteoVarToString.at(myProject.clima->variable());
+        ui->lineEditVariable->setText(QString::fromStdString(var));
+        QString startDay = QString::number(myProject.clima->genericPeriodDateStart().day());
+        QString startMonth = QString::number(myProject.clima->genericPeriodDateStart().month());
+        QString endDay = QString::number(myProject.clima->genericPeriodDateEnd().day());
+        QString endMonth = QString::number(myProject.clima->genericPeriodDateEnd().month());
+
+        QString startYear = QString::number(myProject.clima->yearStart());
+        QString endYear = QString::number(myProject.clima->yearEnd());
+
+        if (! isClima)
         {
-            ui->lineEditPeriod->setText(startYear + "÷" + endYear + "-" + myProject.clima->periodStr() + " index: " + index);
+            ui->lineEditPeriod->setText(startDay + "/" + startMonth + "-" + endDay + "/" + endMonth + " " + startYear + "÷" + endYear);
         }
         else
         {
-            ui->lineEditPeriod->setText(startYear + "÷" + endYear + "-" + myProject.clima->periodStr());
+            if (myProject.clima->periodType() != genericPeriod && myProject.clima->periodType() != annualPeriod)
+            {
+                ui->lineEditPeriod->setText(startYear + "÷" + endYear + "-" + myProject.clima->periodStr() + " index: " + index);
+            }
+            else
+            {
+                ui->lineEditPeriod->setText(startYear + "÷" + endYear + "-" + myProject.clima->periodStr());
+            }
         }
     }
 
@@ -2324,9 +2326,8 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
     ui->lineEditVariable->setReadOnly(true);
     ui->lineEditPeriod->setReadOnly(true);
     ui->groupBoxElaboration->show();
-
-
 }
+
 
 void MainWindow::on_actionInterpolationSettings_triggered()
 {
@@ -5946,7 +5947,7 @@ void MainWindow::on_actionCompute_drought_triggered()
             ui->lineEditVariable->setText(indexStr);
         }
         ui->lineEditElab2->setVisible(false);
-        ui->lineEditPeriod->setText("reference period: "+QString::number(refYearStart) + "÷" + QString::number(refYearEnd));
+        ui->lineEditPeriod->setText("reference period: " + QString::number(refYearStart) + "÷" + QString::number(refYearEnd));
         ui->lineEditElab1->setReadOnly(true);
         ui->lineEditElab2->setReadOnly(true);
         ui->lineEditVariable->setReadOnly(true);
@@ -5971,10 +5972,12 @@ void MainWindow::on_actionCompute_drought_triggered()
         }
 
         ui->groupBoxElaboration->hide();
+        myProject.clima = new Crit3DClimate();
 
         this->redrawMeteoPoints(showElaboration, true);
 
-        ui->lineEditElab1->setText("Drought index: "+indexStr);
+        ui->lineEditElab1->setText("Drought index: " + indexStr);
+
         if (indexStr == "INDEX_SPI" || indexStr == "INDEX_SPEI")
         {
             ui->lineEditVariable->setText(indexStr+" timescale:"+QString::number(timescale));
@@ -5983,8 +5986,9 @@ void MainWindow::on_actionCompute_drought_triggered()
         {
             ui->lineEditVariable->setText(indexStr);
         }
+
         ui->lineEditElab2->setVisible(false);
-        ui->lineEditPeriod->setText("reference period: "+QString::number(refYearStart) + "÷" + QString::number(refYearEnd));
+        ui->lineEditPeriod->setText("reference period: " + QString::number(refYearStart) + "÷" + QString::number(refYearEnd));
         ui->lineEditElab1->setReadOnly(true);
         ui->lineEditElab2->setReadOnly(true);
         ui->lineEditVariable->setReadOnly(true);
