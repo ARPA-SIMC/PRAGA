@@ -116,7 +116,6 @@ MainWindow::MainWindow(QWidget *parent) :
     showPointsGroup->addAction(this->ui->actionShowPointsAnomalyAbs);
     showPointsGroup->addAction(this->ui->actionShowPointsAnomalyPerc);
     showPointsGroup->addAction(this->ui->actionShowPointsClimate);
-    showPointsGroup->addAction(this->ui->actionShowPointsDrought);
 
     showPointsGroup->setEnabled(false);
     this->ui->menuShowPointsAnomaly->setEnabled(false);
@@ -130,7 +129,6 @@ MainWindow::MainWindow(QWidget *parent) :
     showGridGroup->addAction(this->ui->actionShowGridAnomalyAbs);
     showGridGroup->addAction(this->ui->actionShowGridAnomalyPerc);
     showGridGroup->addAction(this->ui->actionShowGridClimate);
-    showGridGroup->addAction(this->ui->actionShowGridDrought);
 
     showGridGroup->setEnabled(false);
     this->ui->menuShowGridAnomaly->setEnabled(false);
@@ -1276,7 +1274,6 @@ void MainWindow::drawMeteoPoints()
     ui->actionShowPointsCurrent->setEnabled(false);
     ui->actionShowPointsElab->setEnabled(false);
     ui->actionShowPointsClimate->setEnabled(false);
-    ui->actionShowPointsDrought->setEnabled(false);
 
     ui->actionMeteopointRectangleSelection->setEnabled(true);
     ui->actionMeteoPointsClear_selection->setEnabled(true);
@@ -1537,7 +1534,6 @@ void MainWindow::drawMeteoGrid()
     }
     this->ui->actionShowGridElab->setEnabled(false);
     this->ui->actionShowGridClimate->setEnabled(false);
-    this->ui->actionShowGridDrought->setEnabled(false);
 
     // resize map
     double size = double(this->meteoGridObj->getRasterMaxSize());
@@ -5901,6 +5897,7 @@ void MainWindow::on_actionCompute_drought_triggered()
     QDate myDate = compDialog.getDate();
     QString indexStr = compDialog.getIndex();
     int timescale;
+
     droughtIndex index;
     if (indexStr == "INDEX_SPI")
     {
@@ -5916,16 +5913,31 @@ void MainWindow::on_actionCompute_drought_triggered()
     {
         index = INDEX_DECILES;
     }
+    else
+    {
+        myProject.logError("Wrong index.");
+        return;
+    }
+
     if (isMeteoGrid)
     {
-        myProject.computeDroughtIndexGrid(index, refYearStart, refYearEnd, myDate, timescale, noMeteoVar);
+        if (! myProject.computeDroughtIndexGrid(index, refYearStart, refYearEnd, myDate, timescale, noMeteoVar))
+        {
+            myProject.logError();
+            return;
+        }
 
+        redrawMeteoGrid(showElaboration, true);
+
+        /*
         meteoGridObj->setDrawBorders(false);
         myProject.meteoGridDbHandler->meteoGrid()->fillMeteoRasterElabValue();
         setColorScale(elaboration, myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.colorScale);
         ui->labelMeteoGridScale->setText(indexStr);
         meteoGridLegend->setVisible(true);
         meteoGridLegend->update();
+        */
+
         ui->lineEditElab1->setText("Drought index: " + indexStr);
 
         if (indexStr == "INDEX_SPI" || indexStr == "INDEX_SPEI")
@@ -5936,7 +5948,6 @@ void MainWindow::on_actionCompute_drought_triggered()
         {
             ui->lineEditVariable->setText(indexStr);
         }
-
         ui->lineEditElab2->setVisible(false);
         ui->lineEditPeriod->setText("reference period: "+QString::number(refYearStart) + "÷" + QString::number(refYearEnd));
         ui->lineEditElab1->setReadOnly(true);
@@ -5944,74 +5955,28 @@ void MainWindow::on_actionCompute_drought_triggered()
         ui->lineEditVariable->setReadOnly(true);
         ui->lineEditPeriod->setReadOnly(true);
 
-        this->ui->actionShowGridDrought->setEnabled(true);
-        this->ui->actionShowGridDrought->setChecked(true);
-
         ui->groupBoxElaboration->show();
+
         emit meteoGridObj->redrawRequested();
     }
     else
     {
-        myProject.logInfoGUI("Drought Index - Meteo Point");
-        myProject.computeDroughtIndexPointGUI(index, timescale, refYearStart, refYearEnd, myDate);
-        myProject.closeLogInfo();
-        ui->groupBoxElaboration->hide();
-
         if (pointList.size() == 0) return;
 
-        // initialize (hide all meteo points)
-        for (int i = 0; i < myProject.nrMeteoPoints; i++)
+        myProject.logInfoGUI("Drought Index - Meteo Point");
+        bool isOk = myProject.computeDroughtIndexPointGUI(index, timescale, refYearStart, refYearEnd, myDate);
+        myProject.closeLogInfo();
+
+        if(! isOk)
         {
-            pointList[i]->setVisible(false);
-            pointList[i]->setMarked(myProject.meteoPoints[i].marked);
+            myProject.logError("No data.");
+            return;
         }
-        clearWindVectorObjects();
 
-        meteoPointsLegend->setVisible(true);
+        ui->groupBoxElaboration->hide();
 
-        float minimum = NODATA;
-        float maximum = NODATA;
-        float value;
-        for (int i = 0; i < myProject.nrMeteoPoints; i++)
-        {
-            myProject.meteoPoints[i].currentValue = myProject.meteoPoints[i].elaboration;
-            // hide all meteo points
-            pointList[i]->setVisible(false);
+        this->redrawMeteoPoints(showElaboration, true);
 
-            value = myProject.meteoPoints[i].currentValue;
-            if (! isEqual(value, NODATA))
-            {
-                if (isEqual(minimum, NODATA))
-                {
-                    minimum = value;
-                    maximum = value;
-                }
-                else
-                {
-                    minimum = std::min(value, minimum);
-                    maximum = std::max(value, maximum);
-                }
-            }
-        }
-        myProject.meteoPointsColorScale->setRange(minimum, maximum);
-        roundColorScale(myProject.meteoPointsColorScale, 4, true);
-        setColorScale(elaboration, myProject.meteoPointsColorScale);
-
-        Crit3DColor *myColor;
-        for (int i = 0; i < myProject.nrMeteoPoints; i++)
-        {
-            if (int(myProject.meteoPoints[i].currentValue) != NODATA)
-            {
-                    pointList[i]->setRadius(5);
-                    myColor = myProject.meteoPointsColorScale->getColor(myProject.meteoPoints[i].currentValue);
-                    pointList[i]->setFillColor(QColor(myColor->red, myColor->green, myColor->blue));
-                    pointList[i]->setCurrentValue(myProject.meteoPoints[i].currentValue);
-                    pointList[i]->setQuality(myProject.meteoPoints[i].quality);
-                    pointList[i]->setToolTip();
-                    pointList[i]->setVisible(true);
-            }
-        }
-        meteoPointsLegend->update();
         ui->lineEditElab1->setText("Drought index: "+indexStr);
         if (indexStr == "INDEX_SPI" || indexStr == "INDEX_SPEI")
         {
@@ -6027,8 +5992,9 @@ void MainWindow::on_actionCompute_drought_triggered()
         ui->lineEditElab2->setReadOnly(true);
         ui->lineEditVariable->setReadOnly(true);
         ui->lineEditPeriod->setReadOnly(true);
-        this->ui->actionShowPointsDrought->setChecked(true);
+
         ui->groupBoxElaboration->show();
+
         return;
     }
 }
