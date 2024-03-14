@@ -2292,32 +2292,29 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
         }
     }
 
-    if (myProject.clima != nullptr)
+    std::string var = MapDailyMeteoVarToString.at(myProject.clima->variable());
+    ui->lineEditVariable->setText(QString::fromStdString(var));
+    QString startDay = QString::number(myProject.clima->genericPeriodDateStart().day());
+    QString startMonth = QString::number(myProject.clima->genericPeriodDateStart().month());
+    QString endDay = QString::number(myProject.clima->genericPeriodDateEnd().day());
+    QString endMonth = QString::number(myProject.clima->genericPeriodDateEnd().month());
+
+    QString startYear = QString::number(myProject.clima->yearStart());
+    QString endYear = QString::number(myProject.clima->yearEnd());
+
+    if (! isClima)
     {
-        std::string var = MapDailyMeteoVarToString.at(myProject.clima->variable());
-        ui->lineEditVariable->setText(QString::fromStdString(var));
-        QString startDay = QString::number(myProject.clima->genericPeriodDateStart().day());
-        QString startMonth = QString::number(myProject.clima->genericPeriodDateStart().month());
-        QString endDay = QString::number(myProject.clima->genericPeriodDateEnd().day());
-        QString endMonth = QString::number(myProject.clima->genericPeriodDateEnd().month());
-
-        QString startYear = QString::number(myProject.clima->yearStart());
-        QString endYear = QString::number(myProject.clima->yearEnd());
-
-        if (! isClima)
+        ui->lineEditPeriod->setText(startDay + "/" + startMonth + "-" + endDay + "/" + endMonth + " " + startYear + "÷" + endYear);
+    }
+    else
+    {
+        if (myProject.clima->periodType() != genericPeriod && myProject.clima->periodType() != annualPeriod)
         {
-            ui->lineEditPeriod->setText(startDay + "/" + startMonth + "-" + endDay + "/" + endMonth + " " + startYear + "÷" + endYear);
+            ui->lineEditPeriod->setText(startYear + "÷" + endYear + "-" + myProject.clima->periodStr() + " index: " + index);
         }
         else
         {
-            if (myProject.clima->periodType() != genericPeriod && myProject.clima->periodType() != annualPeriod)
-            {
-                ui->lineEditPeriod->setText(startYear + "÷" + endYear + "-" + myProject.clima->periodStr() + " index: " + index);
-            }
-            else
-            {
-                ui->lineEditPeriod->setText(startYear + "÷" + endYear + "-" + myProject.clima->periodStr());
-            }
+            ui->lineEditPeriod->setText(startYear + "÷" + endYear + "-" + myProject.clima->periodStr());
         }
     }
 
