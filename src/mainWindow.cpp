@@ -5927,15 +5927,6 @@ void MainWindow::on_actionCompute_drought_triggered()
 
         redrawMeteoGrid(showElaboration, true);
 
-        /*
-        meteoGridObj->setDrawBorders(false);
-        myProject.meteoGridDbHandler->meteoGrid()->fillMeteoRasterElabValue();
-        setColorScale(elaboration, myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.colorScale);
-        ui->labelMeteoGridScale->setText(indexStr);
-        meteoGridLegend->setVisible(true);
-        meteoGridLegend->update();
-        */
-
         ui->lineEditElab1->setText("Drought index: " + indexStr);
 
         if (indexStr == "INDEX_SPI" || indexStr == "INDEX_SPEI")
