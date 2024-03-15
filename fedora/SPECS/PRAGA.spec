@@ -55,6 +55,9 @@ cp -a src/PRAGA %{buildroot}/%{_bindir}/
 
 
 %changelog
+* Fri Mar 15 2024 Laura Costantini <laura.costantini0@gmail.com> - 1.8.3-1
+- Release 1.8.3
+
 * Thu Mar 14 2024 Laura Costantini <laura.costantini0@gmail.com> - 1.8.2-1
 - Release 1.8.2
 
