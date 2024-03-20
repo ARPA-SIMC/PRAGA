@@ -1398,9 +1398,10 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
             ui->actionMeteopointRectangleSelection->setEnabled(true);
 
             // quality control
+            std::string errorStdStr;
             checkData(myProject.quality, myProject.getCurrentVariable(), myProject.meteoPoints,
                       myProject.nrMeteoPoints, myProject.getCrit3DCurrentTime(), &myProject.qualityInterpolationSettings, myProject.meteoSettings,
-                      &(myProject.climateParameters), myProject.checkSpatialQuality);
+                      &(myProject.climateParameters), myProject.checkSpatialQuality, errorStdStr);
 
             if (updateColorScale)
             {
@@ -2869,69 +2870,71 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
 
     myProject.closeLogInfo();
 
-    if (isComputed) {
+    if (! isComputed)
+    {
+        myProject.logError();
+        return;
+    }
+
+    std::stringstream cvOutput;
+
+    cvOutput << "Time: " << myProject.getCrit3DCurrentTime().toString() << std::endl;
+    cvOutput << "Variable: " << getVariableString(myVar) << std::endl;
+    cvOutput << "MAE: " << myStats.getMeanAbsoluteError() << std::endl;
+    cvOutput << "MBE: " << myStats.getMeanBiasError() << std::endl;
+    cvOutput << "RMSE: " << myStats.getRootMeanSquareError() << std::endl;
+    cvOutput << "CRE: " << myStats.getCompoundRelativeError() << std::endl;
+    cvOutput << "R2: " << myStats.getR2() << std::endl;
+
+    if (getUseDetrendingVar(myVar))
+    {
+        int proxyNr = int(myProject.interpolationSettings.getProxyNr());
+        if (proxyNr > 0)
         {
-            std::stringstream cvOutput;
-
-            cvOutput << "Time: " << myProject.getCrit3DCurrentTime().toString() << std::endl;
-            cvOutput << "Variable: " << getVariableString(myVar) << std::endl;
-            cvOutput << "MAE: " << myStats.getMeanAbsoluteError() << std::endl;
-            cvOutput << "MBE: " << myStats.getMeanBiasError() << std::endl;
-            cvOutput << "RMSE: " << myStats.getRootMeanSquareError() << std::endl;
-            cvOutput << "CRE: " << myStats.getCompoundRelativeError() << std::endl;
-            cvOutput << "R2: " << myStats.getR2() << std::endl;
-
-            if (getUseDetrendingVar(myVar))
+            cvOutput << std::endl << "Interpolation proxies" << std::endl;
+            Crit3DProxyCombination proxyCombination = myProject.interpolationSettings.getCurrentCombination();
+            Crit3DProxy* myProxy;
+            for (int i=0; i < proxyNr; i++)
             {
-                int proxyNr = int(myProject.interpolationSettings.getProxyNr());
-                if (proxyNr > 0)
+                if (proxyCombination.isProxyActive(i))
                 {
-                    cvOutput << std::endl << "Interpolation proxies" << std::endl;
-                    Crit3DProxyCombination proxyCombination = myProject.interpolationSettings.getCurrentCombination();
-                    Crit3DProxy* myProxy;
-                    for (int i=0; i < proxyNr; i++)
-                    {
-                        if (proxyCombination.isProxyActive(i))
-                        {
-                            myProxy = myProject.interpolationSettings.getProxy(i);
-                            cvOutput << myProxy->getName() << ": " << (myProxy->getIsSignificant() ? "" : "not " ) << "significant" << std::endl;
-                            if  (myProxy->getIsSignificant())
-                                cvOutput << "R2=" << myProxy->getRegressionR2() << " slope=" <<myProxy->getRegressionSlope() << std::endl;
-                        }
-                    }
+                    myProxy = myProject.interpolationSettings.getProxy(i);
+                    cvOutput << myProxy->getName() << ": " << (myProxy->getIsSignificant() ? "" : "not " ) << "significant" << std::endl;
+                    if  (myProxy->getIsSignificant())
+                        cvOutput << "R2=" << myProxy->getRegressionR2() << " slope=" <<myProxy->getRegressionSlope() << std::endl;
                 }
             }
-
-            if (myProject.interpolationSettings.getUseTD() && getUseTdVar(myVar))
-            {
-                cvOutput << std::endl;
-                cvOutput << "Topographic distance coefficient" << std::endl;
-                cvOutput << "Best value: " << myProject.interpolationSettings.getTopoDist_Kh() << std::endl;
-                cvOutput << "Optimization: " << std::endl;
-
-                std::vector <float> khSeries = myProject.interpolationSettings.getKh_series();
-                std::vector <float> khErrors = myProject.interpolationSettings.getKh_error_series();
-
-                for (unsigned int i=0; i < khSeries.size(); i++)
-                    cvOutput << "Kh=" << khSeries[i] << " error=" << khErrors[i] << std::endl;
-            }
-
-            QDialog myDialog;
-            myDialog.setWindowTitle("Cross validation statistics");
-
-            QTextBrowser textBrowser;
-            textBrowser.setText(QString::fromStdString(cvOutput.str()));
-
-            QVBoxLayout mainLayout;
-            mainLayout.addWidget(&textBrowser);
-
-            myDialog.setLayout(&mainLayout);
-            myDialog.setFixedSize(300,300);
-            myDialog.exec();
         }
     }
 
+    if (myProject.interpolationSettings.getUseTD() && getUseTdVar(myVar))
+    {
+        cvOutput << std::endl;
+        cvOutput << "Topographic distance coefficient" << std::endl;
+        cvOutput << "Best value: " << myProject.interpolationSettings.getTopoDist_Kh() << std::endl;
+        cvOutput << "Optimization: " << std::endl;
+
+        std::vector <float> khSeries = myProject.interpolationSettings.getKh_series();
+        std::vector <float> khErrors = myProject.interpolationSettings.getKh_error_series();
+
+        for (unsigned int i=0; i < khSeries.size(); i++)
+            cvOutput << "Kh=" << khSeries[i] << " error=" << khErrors[i] << std::endl;
+    }
+
+    QDialog myDialog;
+    myDialog.setWindowTitle("Cross validation statistics");
+
+    QTextBrowser textBrowser;
+    textBrowser.setText(QString::fromStdString(cvOutput.str()));
+
+    QVBoxLayout mainLayout;
+    mainLayout.addWidget(&textBrowser);
+
+    myDialog.setLayout(&mainLayout);
+    myDialog.setFixedSize(300,300);
+    myDialog.exec();
 }
+
 
 void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
 {
