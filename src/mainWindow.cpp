@@ -2891,7 +2891,7 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
                     Crit3DProxy* myProxy;
                     for (int i=0; i < proxyNr; i++)
                     {
-                        if (proxyCombination.getValue(i))
+                        if (proxyCombination.isProxyActive(i))
                         {
                             myProxy = myProject.interpolationSettings.getProxy(i);
                             cvOutput << myProxy->getName() << ": " << (myProxy->getIsSignificant() ? "" : "not " ) << "significant" << std::endl;
