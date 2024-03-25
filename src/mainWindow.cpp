@@ -5204,9 +5204,9 @@ void MainWindow::on_actionCompute_monthly_data_from_daily_triggered()
     QList <meteoVariable> varToCompute = computeMonthlyDialog.getVariables();
     QDate firstDate = computeMonthlyDialog.getDateFrom();
     QDate lastDate = computeMonthlyDialog.getDateTo();
-    if (myProject.meteoGridDbHandler->getFirsMonthlytDate().isValid() && myProject.meteoGridDbHandler->getLastMonthlyDate().isValid())
+    if (myProject.meteoGridDbHandler->getFirstMonthlytDate().isValid() && myProject.meteoGridDbHandler->getLastMonthlyDate().isValid())
     {
-        if (firstDate >= myProject.meteoGridDbHandler->getFirsMonthlytDate() || lastDate <= myProject.meteoGridDbHandler->getLastMonthlyDate())
+        if (firstDate >= myProject.meteoGridDbHandler->getFirstMonthlytDate() || lastDate <= myProject.meteoGridDbHandler->getLastMonthlyDate())
         {
             QMessageBox::StandardButton reply;
             reply = QMessageBox::question(this, "Are you sure?" ,
