@@ -225,16 +225,21 @@ void MainWindow::mouseMove(const QPoint& mapPos)
     }
 
     Position geoPos = this->mapView->mapToScene(mapPos);
-    QString status = "Lat:" + QString::number(geoPos.latitude())
-                   + " - Lon:" + QString::number(geoPos.longitude());
+    QString status = "Lat:" + QString::number(geoPos.latitude());
+    status += " Lon:" + QString::number(geoPos.longitude());
+
+    double x, y;
+    gis::latLonToUtmForceZone(myProject.gisSettings.utmZone, geoPos.latitude(), geoPos.longitude(), &x, &y);
+    status += " - UTM x:" + QString::number(x);
+    status += " y:" + QString::number(y);
 
     // raster
     float value = NODATA;
     if (rasterObj->isLoaded && rasterObj->visible())
     {
         value = rasterObj->getValue(geoPos);
-        if (!isEqual(value, NODATA))
-            status += " - Raster: " + QString::number(double(value),'f',1);
+        if (! isEqual(value, NODATA))
+            status += " - Raster value: " + QString::number(double(value),'f',1);
     }
 
     // meteoGrid
@@ -280,10 +285,14 @@ void MainWindow::mouseMove(const QPoint& mapPos)
                 }
             }
 
-            status += " - Grid cell:" + QString::fromStdString(id + " " + name);
+            status += " - Grid cell:" + QString::fromStdString(id);
+            if (name != id)
+            {
+                status += " " + QString::fromStdString(name);
+            }
             if (!isEqual(value, NODATA))
             {
-                status += " Value: " + QString::number(double(value), 'f', 2);
+                status += " Grid value: " + QString::number(double(value), 'f', 2);
             }
         }
     }
