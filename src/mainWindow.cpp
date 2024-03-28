@@ -102,6 +102,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->mapView, SIGNAL(zoomLevelChanged(quint8)), this, SLOT(updateMaps()));
     connect(this->mapView, SIGNAL(mouseMoveSignal(const QPoint&)), this, SLOT(mouseMove(const QPoint&)));
 
+
     KeyboardFilter *keyboardFilter = new KeyboardFilter();
     this->ui->dateEdit->installEventFilter(keyboardFilter);
     //connect(this->ui->dateEdit, SIGNAL(editingFinished()), this, SLOT(on_dateChanged()));
@@ -391,6 +392,24 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *event)
     if (this->updateSelection(event->pos()))
     {
         this->redrawMeteoPoints(currentPointsVisualization, false);
+    }
+
+    if (event->button() == Qt::RightButton)
+    {
+        //bool isGrid = false; //?
+        QMenu menu;
+        QAction *openProxyGraph = menu.addAction("Open local proxy graph");
+
+        QAction *selection =  menu.exec(QCursor::pos());
+
+        if (selection != nullptr)
+        {
+            //std::string lapseRateCode = getLapseRateCodeName(_lapseRateCode);
+            if (selection == openProxyGraph)
+            {
+                callLocalProxyGraph(event->pos());
+            }
+        }
     }
 }
 
@@ -1774,6 +1793,24 @@ void MainWindow::callAppendMeteoWidget(std::string id, std::string name, std::st
     {
         myProject.showMeteoWidgetPoint(id, name, dataset, altitude, lapseRate, isAppend);
     }
+    return;
+}
+
+void MainWindow::callLocalProxyGraph(const QPoint& mapPos)
+{
+    Position coord = this->mapView->mapToScene(mapPos);
+    gis::Crit3DUtmPoint localUtmPoint;
+    gis::Crit3DGeoPoint localGeoPoint;
+    localGeoPoint.latitude = coord.latitude();
+    localGeoPoint.longitude = coord.longitude();
+    int zoneNumber = myProject.gisSettings.utmZone;
+
+    //conversione coordinate
+    gis::getUtmFromLatLon(zoneNumber, localGeoPoint, &localUtmPoint);
+    double x = localUtmPoint.x;
+    double y = localUtmPoint.y;
+
+    myProject.showLocalProxyGraph(myProject.gisSettings, x, y);
     return;
 }
 

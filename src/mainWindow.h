@@ -140,6 +140,7 @@
         void callChangeOrogCode(std::string id, int orogCode);
         void callMarkPoint(std::string myId);
         void callUnmarkPoint(std::string myId);
+        void callLocalProxyGraph(const QPoint& pos);
 
         void on_dayBeforeButton_clicked();
 
