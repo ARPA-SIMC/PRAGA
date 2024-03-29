@@ -47,3 +47,10 @@ DAILY_DIFFUSE_RAD,bar,magenta
 DAILY_REFLEC_RAD,bar,magenta
 DAILY_BIC,line,darkRed
 DAILY_WATER_TABLE_DEPTH,line,darkCyan
+MONTHLY_TAVG,line,darkGreen
+MONTHLY_TMIN,line,cyan
+MONTHLY_TMAX,line,red
+MONTHLY_PREC,bar,blue
+MONTHLY_ET0_HS,line,darkGreen
+MONTHLY_BIC,line,darkRed
+MONTHLY_RAD,bar,magenta
