@@ -6366,10 +6366,10 @@ void MainWindow::on_actionWaterTable_computeSingleWell_triggered()
         }
     }
 
-    if (! myProject.computeSingleWell(selectedIndex))
+    if (! myProject.waterTableComputeSingleWell(selectedIndex))
         return;
 
-    myProject.showSingleWell(myProject.waterTableList[myProject.waterTableList.size()-1], selectedId);
+    myProject.waterTableShowSingleWell(myProject.waterTableList[myProject.waterTableList.size()-1], selectedId);
     return;
 }
 
@@ -6432,7 +6432,7 @@ void MainWindow::on_actionWaterTable_computeAllWells_triggered()
             continue;
         }
 
-        if (! myProject.computeSingleWell(i))
+        if (! myProject.waterTableComputeSingleWell(i))
         {
             myProject.logInfo("Error in computing well: " + id);
             continue;
