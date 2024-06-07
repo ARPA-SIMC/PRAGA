@@ -7,11 +7,10 @@ resettare il repository
 git clone https://github.com/ARPA-SIMC/PRAGA
 
 2) eliminare la history:
-git reset --hard
 rm -rf .git/
 
 3) cancellare cartelle agrolib e mapgraphics 
-(e ripulire eventuali dati in DATA/ che non servono)
+(e ripulire eventuali file in DATA/ che non servono)
 
 4) git init e primo commit:
 git init
