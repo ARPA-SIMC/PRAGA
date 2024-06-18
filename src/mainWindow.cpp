@@ -1527,13 +1527,15 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
 }
 
 
-bool MainWindow::loadMeteoPoints(QString dbName)
+bool MainWindow::loadMeteoPoints(QString dbFileName)
 {
-    if (! myProject.loadMeteoPointsDB(dbName))
-        return false;
+    myProject.logInfoGUI("Load meteo points DB: " + dbFileName);
+    bool isOk = myProject.loadMeteoPointsDB(dbFileName);
+    myProject.closeLogInfo();
 
     drawMeteoPoints();
-    return true;
+
+    return isOk;
 }
 
 
@@ -3102,7 +3104,10 @@ void MainWindow::on_actionFileMeteopointOpen_triggered()
             ui->labelVariable->setText(("None"));
         }
 
-        loadMeteoPoints(dbName);
+        if (! loadMeteoPoints(dbName))
+        {
+            myProject.logError();
+        }
     }
 }
 

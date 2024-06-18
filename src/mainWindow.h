@@ -402,7 +402,7 @@
         bool checkDEMColorScale();
         void setColorScaleRangeDEM(bool isFixed);
 
-        bool loadMeteoPoints(QString dbName);
+        bool loadMeteoPoints(QString dbFileName);
         bool loadMeteoGrid(QString xmlName);
         bool newMeteoGrid(QString xmlName);
         void setCurrentRaster(gis::Crit3DRasterGrid *myRaster);
