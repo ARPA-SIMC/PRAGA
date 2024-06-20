@@ -1527,13 +1527,18 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
 }
 
 
-bool MainWindow::loadMeteoPoints(QString dbName)
+bool MainWindow::loadMeteoPoints(QString dbFileName)
 {
-    if (! myProject.loadMeteoPointsDB(dbName))
-        return false;
+    myProject.logInfoGUI("Load meteo points DB: " + dbFileName);
+    bool isOk = myProject.loadMeteoPointsDB(dbFileName);
+    myProject.closeLogInfo();
 
     drawMeteoPoints();
-    return true;
+
+    if (! isOk)
+        myProject.logError();
+
+    return isOk;
 }
 
 
@@ -3072,9 +3077,13 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
 
         myProject.logInfoGUI("download points properties...");
         if (myDownload.getPointProperties(datasets))
+        {
             loadMeteoPoints(dbName);
+        }
         else
+        {
             myProject.logError("Error in function getPointProperties");
+        }
 
         myProject.closeLogInfo();
     }
@@ -3850,7 +3859,7 @@ void MainWindow::on_actionWith_Criteria_active_triggered()
 {
     if (myProject.setActiveStateWithCriteria(true))
     {
-        this->loadMeteoPoints(myProject.dbPointsFileName);
+        loadMeteoPoints(myProject.dbPointsFileName);
     }
 }
 
@@ -3858,7 +3867,7 @@ void MainWindow::on_actionWith_Criteria_notActive_triggered()
 {
     if (myProject.setActiveStateWithCriteria(false))
     {
-        this->loadMeteoPoints(myProject.dbPointsFileName);
+        loadMeteoPoints(myProject.dbPointsFileName);
     }
 }
 
