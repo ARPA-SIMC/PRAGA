@@ -1869,10 +1869,12 @@ void MainWindow::callChangeOrogCode(std::string id, int orogCode)
         myProject.logError(myProject.meteoPointsDbHandler->getErrorString());
         return;
     }
+
     QString dbName = myProject.meteoPointsDbHandler->getDbName();
     myProject.logInfoGUI("Update...");
-    myProject.closeMeteoPointsDB();
+
     myProject.loadMeteoPointsDB(dbName);
+    myProject.loadMeteoPointsData(myProject.getCurrentDate(), myProject.getCurrentDate(), true, true, true);
     redrawMeteoPoints(currentPointsVisualization, true);
     myProject.closeLogInfo();
 }
