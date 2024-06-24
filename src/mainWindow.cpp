@@ -718,14 +718,14 @@ void MainWindow::on_actionFileMeteopointArkimetDownload_triggered()
         {
             if (! myProject.downloadDailyDataArkimet(downloadDialog.getVarD(), downloadDialog.getPrec0024(), firstDate, lastDate, true))
              {
-                 QMessageBox::information(nullptr, "Error!", "Error in daily download");
+                myProject.logError();
              }
         }
-        if (!downloadDialog.getVarH().isEmpty())
+        if (! downloadDialog.getVarH().isEmpty())
         {
             if (! myProject.downloadHourlyDataArkimet(downloadDialog.getVarH(), firstDate, lastDate, true))
              {
-                 QMessageBox::information(nullptr, "Error!", "Error in daily download");
+                myProject.logError();
              }
         }
     }
