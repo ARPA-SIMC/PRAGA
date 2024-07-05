@@ -275,7 +275,7 @@ bool TabHorizons::checkDepths()
     for (int horizonNum = 0; horizonNum<tableDb->rowCount(); horizonNum++)
     {
         //except first row
-        if ( horizonNum > 0)
+        if (horizonNum > 0)
         {
             if (mySoil->horizon[unsigned(horizonNum)].dbData.upperDepth != mySoil->horizon[horizonNum-1].dbData.lowerDepth)
             {
@@ -366,12 +366,12 @@ bool TabHorizons::checkHorizonData(int horizonNum)
         tableDb->item(horizonNum,9)->setBackground(Qt::red);
     }
 
-    if (dbData->effectiveCohesion != NODATA && (dbData->effectiveCohesion < 0))
+    if (dbData->effectiveCohesion != NODATA && (dbData->effectiveCohesion < 0 || dbData->effectiveCohesion > 110))
     {
         tableDb->item(horizonNum,10)->setBackground(Qt::red);
     }
 
-    if (dbData->frictionAngle != NODATA && (dbData->frictionAngle < 0))
+    if (dbData->frictionAngle != NODATA && (dbData->frictionAngle < 0 || dbData->frictionAngle > 50))
     {
         tableDb->item(horizonNum,11)->setBackground(Qt::red);
     }
@@ -462,14 +462,15 @@ void TabHorizons::checkComputedValues(int horizonNum)
         tableModel->item(horizonNum,5)->setBackground(Qt::yellow);
     }
 
-    if (horizon->dbData.effectiveCohesion == NODATA)
+    // for soil mechanics parameters just check if is missing
+    if (horizon->geotechnics.effectiveCohesion == NODATA)
     {
-        tableModel->item(horizonNum,11)->setBackground(Qt::yellow);
+        tableModel->item(horizonNum,11)->setBackground(Qt::red);
     }
 
-    if (horizon->dbData.frictionAngle == NODATA)
+    if (horizon->geotechnics.frictionAngle == NODATA)
     {
-        tableModel->item(horizonNum,12)->setBackground(Qt::yellow);
+        tableModel->item(horizonNum,12)->setBackground(Qt::red);
     }
 
 }
