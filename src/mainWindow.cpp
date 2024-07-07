@@ -1271,11 +1271,11 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
 
             // set range
             this->netcdfObj->getRaster()->colorScale->setRange(minimum, maximum);
-            this->netcdfObj->getRaster()->colorScale->setRangeBlocked(true);
+            this->netcdfObj->getRaster()->colorScale->setFixedRange(true);
         }
         else
         {
-            this->netcdfObj->getRaster()->colorScale->setRangeBlocked(false);
+            this->netcdfObj->getRaster()->colorScale->setFixedRange(false);
         }
 
         redrawNetcdf();
@@ -4694,11 +4694,11 @@ void MainWindow::setColorScaleRangeMeteoGrid(bool isFixed)
 
         // set range
         this->meteoGridObj->getRaster()->colorScale->setRange(minimum, maximum);
-        this->meteoGridObj->getRaster()->colorScale->setRangeBlocked(true);
+        this->meteoGridObj->getRaster()->colorScale->setFixedRange(true);
     }
     else
     {
-        this->meteoGridObj->getRaster()->colorScale->setRangeBlocked(false);
+        this->meteoGridObj->getRaster()->colorScale->setFixedRange(false);
     }
 
     emit this->meteoGridObj->redrawRequested();
@@ -4737,11 +4737,11 @@ void MainWindow::setColorScaleRangeDEM(bool isFixed)
 
         // set range
         this->rasterObj->getRaster()->colorScale->setRange(minimum, maximum);
-        this->rasterObj->getRaster()->colorScale->setRangeBlocked(true);
+        this->rasterObj->getRaster()->colorScale->setFixedRange(true);
     }
     else
     {
-        this->rasterObj->getRaster()->colorScale->setRangeBlocked(false);
+        this->rasterObj->getRaster()->colorScale->setFixedRange(false);
     }
 
     emit this->rasterObj->redrawRequested();
