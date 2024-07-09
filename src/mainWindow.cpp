@@ -987,7 +987,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         if (! myProject.netCDF.isLoaded())
             return;
 
-        gis::Crit3DRasterGrid* netcdfRaster = myProject.netCDF.getRaster();
+        gis::Crit3DRasterGrid* netcdfRaster = myProject.netCDF.getRasterPointer();
 
         switch(currentNetcdfVisualization)
         {
@@ -1053,7 +1053,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
             return;
         }
 
-        gis::Crit3DRasterGrid* netcdfRaster = myProject.netCDF.getRaster();
+        gis::Crit3DRasterGrid* netcdfRaster = myProject.netCDF.getRasterPointer();
 
         if (myProject.netCDF.isLatLon || myProject.netCDF.isRotatedLatLon)
         {
@@ -1227,7 +1227,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         meteoVariable myVar = chooseColorScale();
         if (myVar != noMeteoVar)
         {
-            setColorScale(myVar, this->netcdfObj->getRaster()->colorScale);
+            setColorScale(myVar, this->netcdfObj->getRasterPointer()->colorScale);
         }
 
         redrawNetcdf();
@@ -1242,7 +1242,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
             return;
         }
 
-        reverseColorScale(this->netcdfObj->getRaster()->colorScale);
+        reverseColorScale(this->netcdfObj->getRasterPointer()->colorScale);
         redrawNetcdf();
     }
 
@@ -1258,24 +1258,24 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         if (isFixed)
         {
             // choose minimum
-            float minimum = this->netcdfObj->getRaster()->colorScale->minimum();
+            float minimum = this->netcdfObj->getRasterPointer()->colorScale->minimum();
             QString valueStr = editValue("Choose minimum value", QString::number(minimum));
             if (valueStr == "") return;
             minimum = valueStr.toFloat();
 
             // choose maximum
-            float maximum = this->netcdfObj->getRaster()->colorScale->maximum();
+            float maximum = this->netcdfObj->getRasterPointer()->colorScale->maximum();
             valueStr = editValue("Choose maximum value", QString::number(maximum));
             if (valueStr == "") return;
             maximum = valueStr.toFloat();
 
             // set range
-            this->netcdfObj->getRaster()->colorScale->setRange(minimum, maximum);
-            this->netcdfObj->getRaster()->colorScale->setFixedRange(true);
+            this->netcdfObj->getRasterPointer()->colorScale->setRange(minimum, maximum);
+            this->netcdfObj->getRasterPointer()->colorScale->setFixedRange(true);
         }
         else
         {
-            this->netcdfObj->getRaster()->colorScale->setFixedRange(false);
+            this->netcdfObj->getRasterPointer()->colorScale->setFixedRange(false);
         }
 
         redrawNetcdf();
@@ -4658,7 +4658,7 @@ void MainWindow::on_actionMeteoGrid_Set_color_scale_triggered()
     meteoVariable myVar = chooseColorScale();
     if (myVar != noMeteoVar)
     {
-        setColorScale(myVar, this->meteoGridObj->getRaster()->colorScale);
+        setColorScale(myVar, this->meteoGridObj->getRasterPointer()->colorScale);
     }
 
     emit this->meteoGridObj->redrawRequested();
@@ -4669,7 +4669,7 @@ void MainWindow::on_actionMeteoGrid_Reverse_color_scale_triggered()
 {
     if (! checkMeteoGridColorScale()) return;
 
-    reverseColorScale(this->meteoGridObj->getRaster()->colorScale);
+    reverseColorScale(this->meteoGridObj->getRasterPointer()->colorScale);
     emit this->meteoGridObj->redrawRequested();
 }
 
@@ -4681,24 +4681,24 @@ void MainWindow::setColorScaleRangeMeteoGrid(bool isFixed)
     if (isFixed)
     {
         // choose minimum
-        float minimum = this->meteoGridObj->getRaster()->colorScale->minimum();
+        float minimum = this->meteoGridObj->getRasterPointer()->colorScale->minimum();
         QString valueStr = editValue("Choose minimum value", QString::number(minimum));
         if (valueStr == "") return;
         minimum = valueStr.toFloat();
 
         // choose maximum
-        float maximum = this->meteoGridObj->getRaster()->colorScale->maximum();
+        float maximum = this->meteoGridObj->getRasterPointer()->colorScale->maximum();
         valueStr = editValue("Choose maximum value", QString::number(maximum));
         if (valueStr == "") return;
         maximum = valueStr.toFloat();
 
         // set range
-        this->meteoGridObj->getRaster()->colorScale->setRange(minimum, maximum);
-        this->meteoGridObj->getRaster()->colorScale->setFixedRange(true);
+        this->meteoGridObj->getRasterPointer()->colorScale->setRange(minimum, maximum);
+        this->meteoGridObj->getRasterPointer()->colorScale->setFixedRange(true);
     }
     else
     {
-        this->meteoGridObj->getRaster()->colorScale->setFixedRange(false);
+        this->meteoGridObj->getRasterPointer()->colorScale->setFixedRange(false);
     }
 
     emit this->meteoGridObj->redrawRequested();
@@ -4724,24 +4724,24 @@ void MainWindow::setColorScaleRangeDEM(bool isFixed)
     if (isFixed)
     {
         // choose minimum
-        float minimum = this->rasterObj->getRaster()->colorScale->minimum();
+        float minimum = this->rasterObj->getRasterPointer()->colorScale->minimum();
         QString valueStr = editValue("Choose minimum value", QString::number(minimum));
         if (valueStr == "") return;
         minimum = valueStr.toFloat();
 
         // choose maximum
-        float maximum = this->rasterObj->getRaster()->colorScale->maximum();
+        float maximum = this->rasterObj->getRasterPointer()->colorScale->maximum();
         valueStr = editValue("Choose maximum value", QString::number(maximum));
         if (valueStr == "") return;
         maximum = valueStr.toFloat();
 
         // set range
-        this->rasterObj->getRaster()->colorScale->setRange(minimum, maximum);
-        this->rasterObj->getRaster()->colorScale->setFixedRange(true);
+        this->rasterObj->getRasterPointer()->colorScale->setRange(minimum, maximum);
+        this->rasterObj->getRasterPointer()->colorScale->setFixedRange(true);
     }
     else
     {
-        this->rasterObj->getRaster()->colorScale->setFixedRange(false);
+        this->rasterObj->getRasterPointer()->colorScale->setFixedRange(false);
     }
 
     emit this->rasterObj->redrawRequested();
