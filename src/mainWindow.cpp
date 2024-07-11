@@ -3356,7 +3356,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
         return;
 
 
-    if (!myProject.parserXMLImportExportData(fileName, isGrid))
+    if (! myProject.parserXMLImportExportData(fileName, isGrid))
     {
         return;
     }
@@ -3384,7 +3384,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
         }
         else
         {
-            if (i!=dateFiles.size()-1)
+            if (i != dateFiles.size()-1)
             {
                 // it is not the last
                 QMessageBox msgBox;
@@ -3403,6 +3403,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
             }
         }
     }
+
     myProject.closeProgressBar();
     if (!warning.isEmpty())
     {
@@ -3522,6 +3523,7 @@ void MainWindow::on_actionFileMeteopointData_XMLimport_triggered()
             }
         }
     }
+
     myProject.closeProgressBar();
 
     if (!warning.isEmpty())
