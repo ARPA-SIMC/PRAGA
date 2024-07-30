@@ -934,8 +934,13 @@ Crit3DTime Project::getCrit3DCurrentTime()
 QDateTime Project::getCurrentTime()
 {
     QDateTime myDateTime;
-    myDateTime.setDate(this->currentDate);
-    return myDateTime.addSecs(this->currentHour * HOUR_SECONDS);
+    if (gisSettings.isUTC)
+    {
+        myDateTime.setTimeSpec(Qt::UTC);
+    }
+
+    myDateTime.setDate(currentDate);
+    return myDateTime.addSecs(currentHour * HOUR_SECONDS);
 }
 
 
@@ -1102,7 +1107,8 @@ bool Project::loadDEM(QString myFileName)
 
     setProxyDEM();
     interpolationSettings.setProxyLoaded(false);
-    if (! updateProxy()) return false;
+    if (! updateProxy())
+        return false;
 
     //set interpolation settings DEM
     interpolationSettings.setCurrentDEM(&DEM);
@@ -1899,7 +1905,7 @@ bool Project::loadProxyGrids()
             }
             else
             {
-                errorString = "Error loading proxy grid " + fileName;
+                errorString = "Error loading raster proxy:\n" + fileName + "\nHow to fix it: check the proxy section in the parameters.ini";
                 return false;
             }
 
@@ -1972,12 +1978,10 @@ bool Project::updateProxy()
     {
         if (! interpolationSettings.getProxyLoaded())
         {
-            if (loadProxyGrids())
-            {
-                interpolationSettings.setProxyLoaded(true);
-            }
-            else
+            if (! loadProxyGrids())
                 return false;
+
+            interpolationSettings.setProxyLoaded(true);
 
             if (meteoPointsDbHandler != nullptr)
             {
