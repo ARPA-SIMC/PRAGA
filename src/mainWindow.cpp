@@ -1822,7 +1822,9 @@ void MainWindow::callAppendMeteoWidget(std::string id, std::string name, std::st
 
 void MainWindow::callLocalProxyGraph(const gis::Crit3DGeoPoint point)
 {
-    myProject.showLocalProxyGraph(point, &myProject.dataRaster);
+    if (myProject.interpolationSettings.getUseLocalDetrending())
+        myProject.showLocalProxyGraph(point, &myProject.dataRaster);
+
     return;
 }
 
@@ -2698,7 +2700,7 @@ void MainWindow::on_actionFileOpenProject_triggered()
     }
     else
     {
-        QMessageBox::information(nullptr, "Could not open project", myProject.errorString);
+        QMessageBox::critical(nullptr, "Could not open project", myProject.errorString);
 
         this->mapView->centerOn(startCenter->lonLat());
         if (myProject.loadPragaProject(myProject.getApplicationPath() + "default.ini")) drawProject();
