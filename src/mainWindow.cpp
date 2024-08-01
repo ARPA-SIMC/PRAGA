@@ -437,6 +437,8 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
     if (event->button() == Qt::RightButton)
     {
+        bool menuLoaded = false;
+
         if (rubberBand != nullptr)
         {
             QPoint widgetPos = mapPos + QPoint(MAPBORDER, MAPBORDER);
@@ -450,74 +452,60 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         Position geoPos = mapView->mapToScene(mapPos);
         gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
 
-        // GRID - context menu
-        if (meteoGridObj->isLoaded && currentGridVisualization != notShown)
+        int row, col;
+        // GRID - context menu (solo se caricata, visibile e cella attiva)
+        if (meteoGridObj->isLoaded && currentGridVisualization != notShown && meteoGridObj->getRowCol(geoPoint, &row, &col))
         {
-            int row, col;
-            if (meteoGridObj->getRowCol(geoPoint, &row, &col))
+            std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->id;
+            std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->name;
+
+            if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->active)
             {
-                std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->id;
-                std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->name;
+                QMenu menu;
+                QAction *openMeteoWidget = menu.addAction("Open new meteo widget");
+                QAction *appendMeteoWidget = menu.addAction("Append to last meteo widget");
+                menu.addSeparator();
+                QAction *openPointStatisticsWidget = menu.addAction("Open point statistics widget");
 
-                if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->active)
+                QAction *openProxyGraph;
+                if (myProject.meteoPointsLoaded && myProject.interpolationSettings.getUseLocalDetrending())
                 {
-                    QMenu menu;
-                    QAction *openMeteoWidget = menu.addAction("Open new meteo widget");
-                    QAction *appendMeteoWidget = menu.addAction("Append to last meteo widget");
-                    QAction *openPointStatisticsWidget = menu.addAction("Open point statistics widget");
-
-                    QAction *openProxyGraph;
-                    if (myProject.meteoPointsLoaded)
-                        openProxyGraph = menu.addAction("Open local proxy graph");
-
-                    QAction *selection =  menu.exec(QCursor::pos());
-
-                    if (myProject.meteoGridDbHandler->meteoGrid()->gridStructure().isEnsemble())
-                    {
-                        appendMeteoWidget->setEnabled(false);
-                    }
-                    else
-                    {
-                        appendMeteoWidget->setEnabled(true);
-                    }
-
-                    if (selection != nullptr)
-                    {
-                        if (selection == openMeteoWidget)
-                        {
-                            myProject.showMeteoWidgetGrid(id, false);
-                        }
-                        if (selection == appendMeteoWidget)
-                        {
-                            myProject.showMeteoWidgetGrid(id, true);
-                        }
-                        else if (selection == openPointStatisticsWidget)
-                        {
-                            myProject.showPointStatisticsWidgetGrid(id);
-                        }
-                        if (selection == openProxyGraph)
-                        {
-                            callLocalProxyGraph(geoPoint);
-                        }
-                        // TODO: other actions
-
-                    }
+                    menu.addSeparator();
+                    openProxyGraph = menu.addAction("Open local proxy graph");
                 }
-            }
-        }
-        else if (myProject.meteoPointsLoaded)
-        {
-            QMenu menu;
 
-            QAction *openProxyGraph = menu.addAction("Open local proxy graph");
+                QAction *selection =  menu.exec(QCursor::pos());
+                menuLoaded = true;
 
-            QAction *selection =  menu.exec(QCursor::pos());
-
-            if (selection != nullptr)
-            {
-                if (selection == openProxyGraph)
+                if (myProject.meteoGridDbHandler->meteoGrid()->gridStructure().isEnsemble())
                 {
-                    callLocalProxyGraph(geoPoint);
+                    appendMeteoWidget->setEnabled(false);
+                }
+                else
+                {
+                    appendMeteoWidget->setEnabled(true);
+                }
+
+                if (selection != nullptr)
+                {
+                    if (selection == openMeteoWidget)
+                    {
+                        myProject.showMeteoWidgetGrid(id, false);
+                    }
+                    if (selection == appendMeteoWidget)
+                    {
+                        myProject.showMeteoWidgetGrid(id, true);
+                    }
+                    else if (selection == openPointStatisticsWidget)
+                    {
+                        myProject.showPointStatisticsWidgetGrid(id);
+                    }
+                    if (selection == openProxyGraph)
+                    {
+                        callLocalProxyGraph(geoPoint);
+                    }
+                    // TODO: other actions
+
                 }
             }
         }
@@ -532,6 +520,25 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             return;
         }
 #endif
+        // solo se non si è già acceso menu per grid o netcdf apro questo
+        if (myProject.meteoPointsLoaded && ! menuLoaded)
+        {
+            QMenu menu;
+
+            QAction *openProxyGraph;
+            if (myProject.interpolationSettings.getUseLocalDetrending())
+               openProxyGraph = menu.addAction("Open local proxy graph");
+
+            QAction *selection =  menu.exec(QCursor::pos());
+
+            if (selection != nullptr)
+            {
+                if (selection == openProxyGraph)
+                {
+                    callLocalProxyGraph(geoPoint);
+                }
+            }
+        }
     }
 }
 
@@ -1821,9 +1828,7 @@ void MainWindow::callAppendMeteoWidget(std::string id, std::string name, std::st
 
 void MainWindow::callLocalProxyGraph(const gis::Crit3DGeoPoint point)
 {
-    if (myProject.interpolationSettings.getUseLocalDetrending())
-        myProject.showLocalProxyGraph(point, &myProject.dataRaster);
-
+    myProject.showLocalProxyGraph(point, &myProject.dataRaster);
     return;
 }
 
