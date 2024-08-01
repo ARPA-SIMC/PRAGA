@@ -447,12 +447,12 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             return;
         }
 
+        Position geoPos = mapView->mapToScene(mapPos);
+        gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
+
         // GRID - context menu
         if (meteoGridObj->isLoaded && currentGridVisualization != notShown)
         {
-            Position geoPos = mapView->mapToScene(mapPos);
-            gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
-
             int row, col;
             if (meteoGridObj->getRowCol(geoPoint, &row, &col))
             {
@@ -465,10 +465,12 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                     QAction *openMeteoWidget = menu.addAction("Open new meteo widget");
                     QAction *appendMeteoWidget = menu.addAction("Append to last meteo widget");
                     QAction *openPointStatisticsWidget = menu.addAction("Open point statistics widget");
-                    QAction *openProxyGraph = menu.addAction("Open local proxy graph");
+
+                    QAction *openProxyGraph;
+                    if (myProject.meteoPointsLoaded)
+                        openProxyGraph = menu.addAction("Open local proxy graph");
 
                     QAction *selection =  menu.exec(QCursor::pos());
-
 
                     if (myProject.meteoGridDbHandler->meteoGrid()->gridStructure().isEnsemble())
                     {
@@ -505,9 +507,6 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         }
         else if (myProject.meteoPointsLoaded)
         {
-            Position geoPos = mapView->mapToScene(mapPos);
-            gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
-
             QMenu menu;
 
             QAction *openProxyGraph = menu.addAction("Open local proxy graph");
