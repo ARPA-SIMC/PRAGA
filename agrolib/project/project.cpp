@@ -2950,6 +2950,7 @@ frequencyType Project::getCurrentFrequency() const
     return currentFrequency;
 }
 
+
 void Project::setCurrentFrequency(const frequencyType &value)
 {
     currentFrequency = value;
@@ -3348,7 +3349,7 @@ void Project::showMeteoWidgetPoint(std::string idMeteoPoint, std::string namePoi
     QDateTime lastHourly = meteoPointsDbHandler->getLastDate(hourly, idMeteoPoint);
     bool hasHourlyData = !(firstHourly.isNull() || lastHourly.isNull());
 
-    if (!hasDailyData && !hasHourlyData)
+    if (! hasDailyData && ! hasHourlyData)
     {
         logInfoGUI("No data.");
         return;
@@ -3416,6 +3417,10 @@ void Project::showMeteoWidgetPoint(std::string idMeteoPoint, std::string namePoi
         if (hasHourlyData)
         {
             meteoWidgetPoint->setHourlyRange(firstHourly.date(), lastHourly.date());
+            if (! hasDailyData)
+            {
+                meteoWidgetPoint->setFrequency(hourly);
+            }
         }
 
         meteoWidgetPoint->setCurrentDate(this->currentDate);
