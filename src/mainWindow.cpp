@@ -863,6 +863,7 @@ void MainWindow::interpolateDemGUI()
             setColorScale(myProject.clima->variable(), myProject.dataRaster.colorScale);
         else
             setColorScale(myVar, myProject.dataRaster.colorScale);
+
         setCurrentRaster(&(myProject.dataRaster));
         ui->labelRasterScale->setText(QString::fromStdString(getVariableString(myVar)));
     }
@@ -2932,12 +2933,34 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
 {
     myProject.logInfoGUI("Cross validation...");
 
-    bool isComputed = false;
+    meteoVariable currentVariable;
+    switch(currentPointsVisualization)
+    {
+        case showCurrentVariable:
+        {
+            currentVariable = myProject.getCurrentVariable();
+            break;
+        }
+        case showElaboration:
+        {
+            currentVariable = elaboration;
+            break;
+        }
+        case showAnomalyAbsolute:
+        {
+            currentVariable = anomaly;
+            break;
+        }
+        default:
+        {
+            currentVariable = myProject.getCurrentVariable();
+        }
+    }
 
-    meteoVariable myVar = myProject.getCurrentVariable();
     crossValidationStatistics myStats;
 
-    isComputed = myProject.interpolationCv(myVar, myProject.getCrit3DCurrentTime(), &myStats);
+    bool isComputed = false;
+    isComputed = myProject.interpolationCv(currentVariable, myProject.getCrit3DCurrentTime(), &myStats);
 
     myProject.closeLogInfo();
 
@@ -2950,14 +2973,14 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
     std::stringstream cvOutput;
 
     cvOutput << "Time: " << myProject.getCrit3DCurrentTime().toString() << std::endl;
-    cvOutput << "Variable: " << getVariableString(myVar) << std::endl;
+    cvOutput << "Variable: " << getVariableString(currentVariable) << std::endl;
     cvOutput << "MAE: " << myStats.getMeanAbsoluteError() << std::endl;
     cvOutput << "MBE: " << myStats.getMeanBiasError() << std::endl;
     cvOutput << "RMSE: " << myStats.getRootMeanSquareError() << std::endl;
     cvOutput << "CRE: " << myStats.getCompoundRelativeError() << std::endl;
     cvOutput << "R2: " << myStats.getR2() << std::endl;
 
-    if (getUseDetrendingVar(myVar))
+    if (getUseDetrendingVar(currentVariable))
     {
         int proxyNr = int(myProject.interpolationSettings.getProxyNr());
         if (proxyNr > 0)
@@ -2978,7 +3001,7 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
         }
     }
 
-    if (myProject.interpolationSettings.getUseTD() && getUseTdVar(myVar))
+    if (myProject.interpolationSettings.getUseTD() && getUseTdVar(currentVariable))
     {
         cvOutput << std::endl;
         cvOutput << "Topographic distance coefficient" << std::endl;
