@@ -2630,7 +2630,7 @@ void MainWindow::on_actionSpatialAggregationNewDB_triggered()
     myProject.loadAggregationdDB(dbName);
 
     QString rasterName = QFileDialog::getOpenFileName(this, tr("Open raster"), "", tr("files (*.flt)"));
-    if (rasterName == "" || !rasterName.contains(".flt"))
+    if (rasterName.isEmpty() || ! rasterName.contains(".flt"))
     {
         myProject.logError("Load raster before.");
         return;
@@ -2640,9 +2640,9 @@ void MainWindow::on_actionSpatialAggregationNewDB_triggered()
     if (dbFileInfo.absolutePath() != rasterFileInfo.absolutePath())
     {
         QMessageBox::information(nullptr, "Raster will be copied at db path", "Raster and db should be in the same folder");
-        QString rasterCopiedFlt = dbFileInfo.absolutePath()+"/"+rasterFileInfo.baseName()+".flt";
-        QString rasterCopiedHdr = dbFileInfo.absolutePath()+"/"+rasterFileInfo.baseName()+".hdr";
-        QString rasterHdr = rasterFileInfo.absolutePath()+"/"+rasterFileInfo.baseName()+".hdr";
+        QString rasterCopiedFlt = dbFileInfo.absolutePath() + "/" + rasterFileInfo.baseName() + ".flt";
+        QString rasterCopiedHdr = dbFileInfo.absolutePath() + "/" + rasterFileInfo.baseName() + ".hdr";
+        QString rasterHdr = rasterFileInfo.absolutePath() + "/" + rasterFileInfo.baseName() + ".hdr";
         if (!QFile::copy(rasterName, rasterCopiedFlt) || !QFile::copy(rasterHdr, rasterCopiedHdr))
         {
             myProject.logError("Copy raster failed: " + rasterName);
@@ -2650,7 +2650,7 @@ void MainWindow::on_actionSpatialAggregationNewDB_triggered()
         }
     }
 
-    if (!myProject.aggregationDbHandler->writeRasterName(rasterFileInfo.baseName()))
+    if (! myProject.aggregationDbHandler->writeRasterName(rasterFileInfo.baseName()))
     {
         myProject.logError("Error in writing raster name into db.");
         return;
@@ -4457,7 +4457,7 @@ void MainWindow::on_actionUnmark_all_points_triggered()
 
 bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
 {
-    if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
+    if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded)
         {
             myProject.logError("Load grid");
             return false;
@@ -4467,8 +4467,9 @@ bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
             myProject.logError("Missing DB: open or create a Aggregation DB.");
             return false;
         }
+
         QString rasterName;
-        if (!myProject.aggregationDbHandler->getRasterName(&rasterName))
+        if (! myProject.aggregationDbHandler->getRasterName(&rasterName))
         {
             myProject.logError("Missing Raster Name inside aggregation db.");
             return false;
@@ -4518,7 +4519,7 @@ bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
             float threshold = NODATA;
             meteoComputation elab1MeteoComp = noMeteoComp;
             QString periodType = "D";
-            if ( !myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, true))
+            if (! myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, true))
             {
                 myProject.logError();
                 if (myRaster != nullptr)
@@ -4528,6 +4529,7 @@ bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
                 return false;
             }
         }
+
         if (myRaster != nullptr)
         {
             delete myRaster;
