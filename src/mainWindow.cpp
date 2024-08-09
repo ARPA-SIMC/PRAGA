@@ -2660,6 +2660,164 @@ void MainWindow::on_actionSpatialAggregationNewDB_triggered()
 }
 
 
+
+void MainWindow::on_actionSpatialAggregationComputeAltitude_triggered()
+{
+    if (myProject.aggregationDbHandler == nullptr)
+    {
+        myProject.logError("Missing DB: open or create an Aggregation database.");
+        return;
+    }
+
+    if (! myProject.DEM.isLoaded)
+    {
+        myProject.logError(ERROR_STR_MISSING_DEM);
+        return;
+    }
+
+    if (myProject.meteoPointsLoaded)
+    {
+        myProject.logError("Close Meteo points db before execute this operation!");
+        return;
+    }
+
+    // check aggregation raster
+    QString rasterName;
+    if (! myProject.aggregationDbHandler->getRasterName(&rasterName))
+    {
+        myProject.logError("Missing Raster Name inside aggregation db.");
+        return;
+    }
+
+    QFileInfo rasterFileFltInfo(myProject.aggregationPath + "/" + rasterName + ".flt");
+    QFileInfo rasterFileHdrInfo(myProject.aggregationPath + "/" + rasterName + ".hdr");
+    if (! rasterFileFltInfo.exists() || !rasterFileHdrInfo.exists())
+    {
+        myProject.logError("Raster file does not exist: " + myProject.aggregationPath + "/" + rasterName);
+        return;
+    }
+
+    // load aggregation db as meteo points db
+    if (! myProject.loadMeteoPointsDB(myProject.aggregationDbHandler->name()) )
+    {
+        myProject.logError("Error in load aggregation points: " + myProject.errorString);
+        return;
+    }
+
+    // load aggregation raster
+    gis::Crit3DRasterGrid *aggregationRaster;
+    aggregationRaster = new(gis::Crit3DRasterGrid);
+    QString fileName = myProject.aggregationPath + "/" + rasterName + ".flt";
+    std::string errorStr = "";
+    if (!gis::openRaster(fileName.toStdString(), aggregationRaster, myProject.gisSettings.utmZone, errorStr))
+    {
+        myProject.logError("Open raster failed: " + QString::fromStdString(errorStr));
+        return;
+    }
+
+    // resample DEM
+    gis::Crit3DRasterGrid *aggregationDEM;
+    aggregationDEM = new(gis::Crit3DRasterGrid);
+    gis::resampleGrid(myProject.DEM, aggregationDEM, aggregationRaster->header, aggrAverage, 0.1);
+
+    // compute average altitude
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        QString idStr = QString::fromStdString(myProject.meteoPoints[i].id);
+        myProject.logInfo(idStr);
+    }
+
+    // save in point properties
+
+
+    myProject.closeMeteoPointsDB();
+}
+
+
+bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
+{
+    if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded)
+        {
+            myProject.logError("Load grid");
+            return false;
+        }
+        if (myProject.aggregationDbHandler == nullptr)
+        {
+            myProject.logError("Missing DB: open or create a Aggregation DB.");
+            return false;
+        }
+
+        QString rasterName;
+        if (! myProject.aggregationDbHandler->getRasterName(&rasterName))
+        {
+            myProject.logError("Missing Raster Name inside aggregation db.");
+            return false;
+        }
+
+        QFileInfo rasterFileFltInfo(myProject.aggregationPath + "/" + rasterName + ".flt");
+        QFileInfo rasterFileHdrInfo(myProject.aggregationPath + "/" + rasterName + ".hdr");
+        if (!rasterFileFltInfo.exists() || !rasterFileHdrInfo.exists())
+        {
+            myProject.errorString = "Raster file does not exist: " + myProject.aggregationPath + "/" + rasterName;
+            myProject.logError();
+            return false;
+        }
+
+        gis::Crit3DRasterGrid *myRaster;
+        myRaster = new(gis::Crit3DRasterGrid);
+        std::string errorStr = "";
+
+        QString fileName = myProject.aggregationPath + "/" + rasterName + ".flt";
+        if (!gis::openRaster(fileName.toStdString(), myRaster, myProject.gisSettings.utmZone, errorStr))
+        {
+            myProject.logError("Open raster failed: " + QString::fromStdString(errorStr));
+            return false;
+        }
+
+        QList<QString> aggregation = myProject.aggregationDbHandler->getAggregations();
+        if (aggregation.isEmpty())
+        {
+            myProject.logError("Empty aggregation: " + myProject.aggregationDbHandler->error());
+            return false;
+        }
+
+        DialogSeriesOnZones zoneDialog(myProject.pragaDefaultSettings, aggregation, myProject.getCurrentDate());
+
+        if (zoneDialog.result() != QDialog::Accepted)
+        {
+            if (myRaster != nullptr)
+            {
+                delete myRaster;
+            }
+
+            return false;
+        }
+        else
+        {
+            std::vector<float> outputValues;
+            float threshold = NODATA;
+            meteoComputation elab1MeteoComp = noMeteoComp;
+            QString periodType = "D";
+            if (! myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, true))
+            {
+                myProject.logError();
+                if (myRaster != nullptr)
+                {
+                    delete myRaster;
+                }
+                return false;
+            }
+        }
+
+        if (myRaster != nullptr)
+        {
+            delete myRaster;
+        }
+
+        return true;
+}
+
+
 void MainWindow::drawWindowTitle()
 {
     QString title = "PRAGA";
@@ -4332,12 +4490,12 @@ void MainWindow::on_actionFileMeteopointArkimetUpdateMeteopoints_triggered()
                     column.clear();
                     values.clear();
                     pointPropFromArkimet.clear();
-                    if (!myDownload.getPointPropertiesFromId(stationsSelected[i], &pointPropFromArkimet))
+                    if (! myDownload.getPointPropertiesFromId(stationsSelected[i], &pointPropFromArkimet))
                     {
                         myProject.logError("Get point properties from id error");
                         return;
                     }
-                    if (!myProject.meteoPointsDbHandler->writePointProperties(&pointPropFromArkimet))
+                    if (! myProject.meteoPointsDbHandler->writePointProperties(&pointPropFromArkimet))
                     {
                         myProject.logError("Write point properties error");
                         return;
@@ -4454,89 +4612,6 @@ void MainWindow::on_actionUnmark_all_points_triggered()
     redrawMeteoPoints(currentPointsVisualization, true);
 }
 
-
-bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
-{
-    if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded)
-        {
-            myProject.logError("Load grid");
-            return false;
-        }
-        if (myProject.aggregationDbHandler == nullptr)
-        {
-            myProject.logError("Missing DB: open or create a Aggregation DB.");
-            return false;
-        }
-
-        QString rasterName;
-        if (! myProject.aggregationDbHandler->getRasterName(&rasterName))
-        {
-            myProject.logError("Missing Raster Name inside aggregation db.");
-            return false;
-        }
-
-        QFileInfo rasterFileFltInfo(myProject.aggregationPath + "/" + rasterName + ".flt");
-        QFileInfo rasterFileHdrInfo(myProject.aggregationPath + "/" + rasterName + ".hdr");
-        if (!rasterFileFltInfo.exists() || !rasterFileHdrInfo.exists())
-        {
-            myProject.errorString = "Raster file does not exist: " + myProject.aggregationPath + "/" + rasterName;
-            myProject.logError();
-            return false;
-        }
-
-        gis::Crit3DRasterGrid *myRaster;
-        myRaster = new(gis::Crit3DRasterGrid);
-        std::string errorStr = "";
-
-        QString fileName = myProject.aggregationPath + "/" + rasterName + ".flt";
-        if (!gis::openRaster(fileName.toStdString(), myRaster, myProject.gisSettings.utmZone, errorStr))
-        {
-            myProject.logError("Open raster failed: " + QString::fromStdString(errorStr));
-            return false;
-        }
-
-        QList<QString> aggregation = myProject.aggregationDbHandler->getAggregations();
-        if (aggregation.isEmpty())
-        {
-            myProject.logError("Empty aggregation: " + myProject.aggregationDbHandler->error());
-            return false;
-        }
-
-        DialogSeriesOnZones zoneDialog(myProject.pragaDefaultSettings, aggregation, myProject.getCurrentDate());
-
-        if (zoneDialog.result() != QDialog::Accepted)
-        {
-            if (myRaster != nullptr)
-            {
-                delete myRaster;
-            }
-
-            return false;
-        }
-        else
-        {
-            std::vector<float> outputValues;
-            float threshold = NODATA;
-            meteoComputation elab1MeteoComp = noMeteoComp;
-            QString periodType = "D";
-            if (! myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, true))
-            {
-                myProject.logError();
-                if (myRaster != nullptr)
-                {
-                    delete myRaster;
-                }
-                return false;
-            }
-        }
-
-        if (myRaster != nullptr)
-        {
-            delete myRaster;
-        }
-
-        return true;
-}
 
 
 void MainWindow::on_actionExport_MeteoPoints_toCsv_triggered()
@@ -6510,4 +6585,5 @@ void MainWindow::on_actionWaterTable_showId_triggered()
         wellsListObj[i]->setVisible(true);
     }
 }
+
 
