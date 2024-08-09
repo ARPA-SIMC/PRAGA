@@ -1880,7 +1880,7 @@
      <addaction name="actionSpatialAggregationNewDB"/>
      <addaction name="actionSpatialAggregationFromGrid"/>
      <addaction name="separator"/>
-     <addaction name="actionSpatialAggregationComputeAltitude"/>
+     <addaction name="actionSpatialAggregationAssignAltitude"/>
     </widget>
     <addaction name="menuElaborationElab"/>
     <addaction name="menuClimate"/>
@@ -2931,9 +2931,9 @@
     <string>Id</string>
    </property>
   </action>
-  <action name="actionSpatialAggregationComputeAltitude">
+  <action name="actionSpatialAggregationAssignAltitude">
    <property name="text">
-    <string>Compute altitude of aggregation points</string>
+    <string>Assign altitude to aggregation points</string>
    </property>
   </action>
  </widget>

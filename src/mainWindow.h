@@ -308,7 +308,7 @@
 
         void on_actionWaterTable_showId_triggered();
 
-        void on_actionSpatialAggregationComputeAltitude_triggered();
+        void on_actionSpatialAggregationAssignAltitude_triggered();
 
     protected:
         /*!

@@ -2661,79 +2661,6 @@ void MainWindow::on_actionSpatialAggregationNewDB_triggered()
 
 
 
-void MainWindow::on_actionSpatialAggregationComputeAltitude_triggered()
-{
-    if (myProject.aggregationDbHandler == nullptr)
-    {
-        myProject.logError("Missing DB: open or create an Aggregation database.");
-        return;
-    }
-
-    if (! myProject.DEM.isLoaded)
-    {
-        myProject.logError(ERROR_STR_MISSING_DEM);
-        return;
-    }
-
-    if (myProject.meteoPointsLoaded)
-    {
-        myProject.logError("Close Meteo points db before execute this operation!");
-        return;
-    }
-
-    // check aggregation raster
-    QString rasterName;
-    if (! myProject.aggregationDbHandler->getRasterName(&rasterName))
-    {
-        myProject.logError("Missing Raster Name inside aggregation db.");
-        return;
-    }
-
-    QFileInfo rasterFileFltInfo(myProject.aggregationPath + "/" + rasterName + ".flt");
-    QFileInfo rasterFileHdrInfo(myProject.aggregationPath + "/" + rasterName + ".hdr");
-    if (! rasterFileFltInfo.exists() || !rasterFileHdrInfo.exists())
-    {
-        myProject.logError("Raster file does not exist: " + myProject.aggregationPath + "/" + rasterName);
-        return;
-    }
-
-    // load aggregation db as meteo points db
-    if (! myProject.loadMeteoPointsDB(myProject.aggregationDbHandler->name()) )
-    {
-        myProject.logError("Error in load aggregation points: " + myProject.errorString);
-        return;
-    }
-
-    // load aggregation raster
-    gis::Crit3DRasterGrid *aggregationRaster;
-    aggregationRaster = new(gis::Crit3DRasterGrid);
-    QString fileName = myProject.aggregationPath + "/" + rasterName + ".flt";
-    std::string errorStr = "";
-    if (!gis::openRaster(fileName.toStdString(), aggregationRaster, myProject.gisSettings.utmZone, errorStr))
-    {
-        myProject.logError("Open raster failed: " + QString::fromStdString(errorStr));
-        return;
-    }
-
-    // resample DEM
-    gis::Crit3DRasterGrid *aggregationDEM;
-    aggregationDEM = new(gis::Crit3DRasterGrid);
-    gis::resampleGrid(myProject.DEM, aggregationDEM, aggregationRaster->header, aggrAverage, 0.1);
-
-    // compute average altitude
-    for (int i = 0; i < myProject.nrMeteoPoints; i++)
-    {
-        QString idStr = QString::fromStdString(myProject.meteoPoints[i].id);
-        myProject.logInfo(idStr);
-    }
-
-    // save in point properties
-
-
-    myProject.closeMeteoPointsDB();
-}
-
-
 bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
 {
     if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded)
@@ -2815,6 +2742,18 @@ bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
         }
 
         return true;
+}
+
+
+void MainWindow::on_actionSpatialAggregationAssignAltitude_triggered()
+{
+    if (! myProject.assignAltitudeToAggregationPoints() )
+    {
+        myProject.logError();
+        return;
+    }
+
+    myProject.logInfoGUI("Altitude assigned to the aggregation points.");
 }
 
 
@@ -5806,7 +5745,7 @@ void MainWindow::on_actionStatistical_Summary_triggered()
 
     textBrowser.setText(QString("Variable: " + QString::fromStdString(getVariableString(myProject.getCurrentVariable()))));
     textBrowser.append(QString("Number of cells: " + QString::number(validValues.size())));
-    textBrowser.append(QString("Average: " + QString::number(statistics::mean(validValues, int(validValues.size())))));
+    textBrowser.append(QString("Average: " + QString::number(statistics::mean(validValues))));
     textBrowser.append(QString("Standard deviation: " + QString::number(statistics::standardDeviation(validValues, int(validValues.size())))));
     textBrowser.append(QString("Maximum: ") + QString::number(statistics::maxList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMax) + ", id " + QString::fromStdString(idMax));
     textBrowser.append(QString("Minimum: " + QString::number(statistics::minList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMin) + ", id " + QString::fromStdString(idMin)));
