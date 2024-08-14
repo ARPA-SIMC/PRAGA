@@ -464,7 +464,7 @@
             <second>0</second>
             <year>1752</year>
             <month>9</month>
-            <day>10</day>
+            <day>7</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1879,6 +1879,8 @@
      <addaction name="actionSpatialAggregationOpenDB"/>
      <addaction name="actionSpatialAggregationNewDB"/>
      <addaction name="actionSpatialAggregationFromGrid"/>
+     <addaction name="separator"/>
+     <addaction name="actionSpatialAggregationAssignAltitude"/>
     </widget>
     <addaction name="menuElaborationElab"/>
     <addaction name="menuClimate"/>
@@ -2560,17 +2562,17 @@
   </action>
   <action name="actionSpatialAggregationOpenDB">
    <property name="text">
-    <string>Open aggregation DB</string>
+    <string>Open aggregation DB...</string>
    </property>
   </action>
   <action name="actionSpatialAggregationNewDB">
    <property name="text">
-    <string>New aggregation DB</string>
+    <string>New aggregation DB...</string>
    </property>
   </action>
   <action name="actionSpatialAggregationFromGrid">
    <property name="text">
-    <string>Aggregate from grid</string>
+    <string>Aggregate from grid...</string>
    </property>
   </action>
   <action name="actionInterpolationCrossValidation">
@@ -2927,6 +2929,11 @@
   <action name="actionWaterTable_showId">
    <property name="text">
     <string>Id</string>
+   </property>
+  </action>
+  <action name="actionSpatialAggregationAssignAltitude">
+   <property name="text">
+    <string>Assign altitude to aggregation points</string>
    </property>
   </action>
  </widget>

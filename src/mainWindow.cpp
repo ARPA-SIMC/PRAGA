@@ -437,6 +437,8 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
     if (event->button() == Qt::RightButton)
     {
+        bool menuLoaded = false;
+
         if (rubberBand != nullptr)
         {
             QPoint widgetPos = mapPos + QPoint(MAPBORDER, MAPBORDER);
@@ -447,78 +449,63 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             return;
         }
 
-        // GRID - context menu
-        if (meteoGridObj->isLoaded && currentGridVisualization != notShown)
+        Position geoPos = mapView->mapToScene(mapPos);
+        gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
+
+        int row, col;
+        // GRID - context menu (solo se caricata, visibile e cella attiva)
+        if (meteoGridObj->isLoaded && currentGridVisualization != notShown && meteoGridObj->getRowCol(geoPoint, &row, &col))
         {
-            Position geoPos = mapView->mapToScene(mapPos);
-            gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
+            std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->id;
+            std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->name;
 
-            int row, col;
-            if (meteoGridObj->getRowCol(geoPoint, &row, &col))
+            if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->active)
             {
-                std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->id;
-                std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->name;
+                QMenu menu;
+                QAction *openMeteoWidget = menu.addAction("Open new meteo widget");
+                QAction *appendMeteoWidget = menu.addAction("Append to last meteo widget");
+                menu.addSeparator();
+                QAction *openPointStatisticsWidget = menu.addAction("Open point statistics widget");
 
-                if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->active)
+                QAction *openProxyGraph;
+                if (myProject.meteoPointsLoaded && myProject.interpolationSettings.getUseLocalDetrending())
                 {
-                    QMenu menu;
-                    QAction *openMeteoWidget = menu.addAction("Open new meteo widget");
-                    QAction *appendMeteoWidget = menu.addAction("Append to last meteo widget");
-                    QAction *openPointStatisticsWidget = menu.addAction("Open point statistics widget");
-                    QAction *openProxyGraph = menu.addAction("Open local proxy graph");
-
-                    QAction *selection =  menu.exec(QCursor::pos());
-
-
-                    if (myProject.meteoGridDbHandler->meteoGrid()->gridStructure().isEnsemble())
-                    {
-                        appendMeteoWidget->setEnabled(false);
-                    }
-                    else
-                    {
-                        appendMeteoWidget->setEnabled(true);
-                    }
-
-                    if (selection != nullptr)
-                    {
-                        if (selection == openMeteoWidget)
-                        {
-                            myProject.showMeteoWidgetGrid(id, false);
-                        }
-                        if (selection == appendMeteoWidget)
-                        {
-                            myProject.showMeteoWidgetGrid(id, true);
-                        }
-                        else if (selection == openPointStatisticsWidget)
-                        {
-                            myProject.showPointStatisticsWidgetGrid(id);
-                        }
-                        if (selection == openProxyGraph)
-                        {
-                            callLocalProxyGraph(geoPoint);
-                        }
-                        // TODO: other actions
-
-                    }
+                    menu.addSeparator();
+                    openProxyGraph = menu.addAction("Open local proxy graph");
                 }
-            }
-        }
-        else if (myProject.meteoPointsLoaded)
-        {
-            Position geoPos = mapView->mapToScene(mapPos);
-            gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
 
-            QMenu menu;
+                QAction *selection =  menu.exec(QCursor::pos());
+                menuLoaded = true;
 
-            QAction *openProxyGraph = menu.addAction("Open local proxy graph");
-
-            QAction *selection =  menu.exec(QCursor::pos());
-
-            if (selection != nullptr)
-            {
-                if (selection == openProxyGraph)
+                if (myProject.meteoGridDbHandler->meteoGrid()->gridStructure().isEnsemble())
                 {
-                    callLocalProxyGraph(geoPoint);
+                    appendMeteoWidget->setEnabled(false);
+                }
+                else
+                {
+                    appendMeteoWidget->setEnabled(true);
+                }
+
+                if (selection != nullptr)
+                {
+                    if (selection == openMeteoWidget)
+                    {
+                        myProject.showMeteoWidgetGrid(id, false);
+                    }
+                    if (selection == appendMeteoWidget)
+                    {
+                        myProject.showMeteoWidgetGrid(id, true);
+                    }
+                    else if (selection == openPointStatisticsWidget)
+                    {
+                        myProject.showPointStatisticsWidgetGrid(id);
+                    }
+                    if (selection == openProxyGraph)
+                    {
+                        callLocalProxyGraph(geoPoint);
+                    }
+                    // TODO: other actions
+
                 }
             }
         }
@@ -533,6 +520,25 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             return;
         }
 #endif
+        // solo se non si è già acceso menu per grid o netcdf apro questo
+        if (myProject.meteoPointsLoaded && ! menuLoaded)
+        {
+            QMenu menu;
+
+            QAction *openProxyGraph;
+            if (myProject.interpolationSettings.getUseLocalDetrending())
+               openProxyGraph = menu.addAction("Open local proxy graph");
+
+            QAction *selection =  menu.exec(QCursor::pos());
+
+            if (selection != nullptr)
+            {
+                if (selection == openProxyGraph)
+                {
+                    callLocalProxyGraph(geoPoint);
+                }
+            }
+        }
     }
 }
 
@@ -857,6 +863,7 @@ void MainWindow::interpolateDemGUI()
             setColorScale(myProject.clima->variable(), myProject.dataRaster.colorScale);
         else
             setColorScale(myVar, myProject.dataRaster.colorScale);
+
         setCurrentRaster(&(myProject.dataRaster));
         ui->labelRasterScale->setText(QString::fromStdString(getVariableString(myVar)));
     }
@@ -2623,7 +2630,7 @@ void MainWindow::on_actionSpatialAggregationNewDB_triggered()
     myProject.loadAggregationdDB(dbName);
 
     QString rasterName = QFileDialog::getOpenFileName(this, tr("Open raster"), "", tr("files (*.flt)"));
-    if (rasterName == "" || !rasterName.contains(".flt"))
+    if (rasterName.isEmpty() || ! rasterName.contains(".flt"))
     {
         myProject.logError("Load raster before.");
         return;
@@ -2633,9 +2640,9 @@ void MainWindow::on_actionSpatialAggregationNewDB_triggered()
     if (dbFileInfo.absolutePath() != rasterFileInfo.absolutePath())
     {
         QMessageBox::information(nullptr, "Raster will be copied at db path", "Raster and db should be in the same folder");
-        QString rasterCopiedFlt = dbFileInfo.absolutePath()+"/"+rasterFileInfo.baseName()+".flt";
-        QString rasterCopiedHdr = dbFileInfo.absolutePath()+"/"+rasterFileInfo.baseName()+".hdr";
-        QString rasterHdr = rasterFileInfo.absolutePath()+"/"+rasterFileInfo.baseName()+".hdr";
+        QString rasterCopiedFlt = dbFileInfo.absolutePath() + "/" + rasterFileInfo.baseName() + ".flt";
+        QString rasterCopiedHdr = dbFileInfo.absolutePath() + "/" + rasterFileInfo.baseName() + ".hdr";
+        QString rasterHdr = rasterFileInfo.absolutePath() + "/" + rasterFileInfo.baseName() + ".hdr";
         if (!QFile::copy(rasterName, rasterCopiedFlt) || !QFile::copy(rasterHdr, rasterCopiedHdr))
         {
             myProject.logError("Copy raster failed: " + rasterName);
@@ -2643,13 +2650,110 @@ void MainWindow::on_actionSpatialAggregationNewDB_triggered()
         }
     }
 
-    if (!myProject.aggregationDbHandler->writeRasterName(rasterFileInfo.baseName()))
+    if (! myProject.aggregationDbHandler->writeRasterName(rasterFileInfo.baseName()))
     {
         myProject.logError("Error in writing raster name into db.");
         return;
     }
 
     myProject.logInfoGUI("New db successfully created.");
+}
+
+
+
+bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
+{
+    if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded)
+        {
+            myProject.logError("Load grid");
+            return false;
+        }
+        if (myProject.aggregationDbHandler == nullptr)
+        {
+            myProject.logError("Missing DB: open or create a Aggregation DB.");
+            return false;
+        }
+
+        QString rasterName;
+        if (! myProject.aggregationDbHandler->getRasterName(&rasterName))
+        {
+            myProject.logError("Missing Raster Name inside aggregation db.");
+            return false;
+        }
+
+        QFileInfo rasterFileFltInfo(myProject.aggregationPath + "/" + rasterName + ".flt");
+        QFileInfo rasterFileHdrInfo(myProject.aggregationPath + "/" + rasterName + ".hdr");
+        if (!rasterFileFltInfo.exists() || !rasterFileHdrInfo.exists())
+        {
+            myProject.errorString = "Raster file does not exist: " + myProject.aggregationPath + "/" + rasterName;
+            myProject.logError();
+            return false;
+        }
+
+        gis::Crit3DRasterGrid *myRaster;
+        myRaster = new(gis::Crit3DRasterGrid);
+        std::string errorStr = "";
+
+        QString fileName = myProject.aggregationPath + "/" + rasterName + ".flt";
+        if (!gis::openRaster(fileName.toStdString(), myRaster, myProject.gisSettings.utmZone, errorStr))
+        {
+            myProject.logError("Open raster failed: " + QString::fromStdString(errorStr));
+            return false;
+        }
+
+        QList<QString> aggregation = myProject.aggregationDbHandler->getAggregations();
+        if (aggregation.isEmpty())
+        {
+            myProject.logError("Empty aggregation: " + myProject.aggregationDbHandler->error());
+            return false;
+        }
+
+        DialogSeriesOnZones zoneDialog(myProject.pragaDefaultSettings, aggregation, myProject.getCurrentDate());
+
+        if (zoneDialog.result() != QDialog::Accepted)
+        {
+            if (myRaster != nullptr)
+            {
+                delete myRaster;
+            }
+
+            return false;
+        }
+        else
+        {
+            std::vector<float> outputValues;
+            float threshold = NODATA;
+            meteoComputation elab1MeteoComp = noMeteoComp;
+            QString periodType = "D";
+            if (! myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, true))
+            {
+                myProject.logError();
+                if (myRaster != nullptr)
+                {
+                    delete myRaster;
+                }
+                return false;
+            }
+        }
+
+        if (myRaster != nullptr)
+        {
+            delete myRaster;
+        }
+
+        return true;
+}
+
+
+void MainWindow::on_actionSpatialAggregationAssignAltitude_triggered()
+{
+    if (! myProject.assignAltitudeToAggregationPoints() )
+    {
+        myProject.logError();
+        return;
+    }
+
+    myProject.logInfoGUI("Altitude assigned to the aggregation points.");
 }
 
 
@@ -2698,7 +2802,7 @@ void MainWindow::on_actionFileOpenProject_triggered()
     }
     else
     {
-        QMessageBox::information(nullptr, "Could not open project", myProject.errorString);
+        QMessageBox::critical(nullptr, "Could not open project", myProject.errorString);
 
         this->mapView->centerOn(startCenter->lonLat());
         if (myProject.loadPragaProject(myProject.getApplicationPath() + "default.ini")) drawProject();
@@ -2926,12 +3030,34 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
 {
     myProject.logInfoGUI("Cross validation...");
 
-    bool isComputed = false;
+    meteoVariable currentVariable;
+    switch(currentPointsVisualization)
+    {
+        case showCurrentVariable:
+        {
+            currentVariable = myProject.getCurrentVariable();
+            break;
+        }
+        case showElaboration:
+        {
+            currentVariable = elaboration;
+            break;
+        }
+        case showAnomalyAbsolute:
+        {
+            currentVariable = anomaly;
+            break;
+        }
+        default:
+        {
+            currentVariable = myProject.getCurrentVariable();
+        }
+    }
 
-    meteoVariable myVar = myProject.getCurrentVariable();
     crossValidationStatistics myStats;
 
-    isComputed = myProject.interpolationCv(myVar, myProject.getCrit3DCurrentTime(), &myStats);
+    bool isComputed = false;
+    isComputed = myProject.interpolationCv(currentVariable, myProject.getCrit3DCurrentTime(), &myStats);
 
     myProject.closeLogInfo();
 
@@ -2944,14 +3070,14 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
     std::stringstream cvOutput;
 
     cvOutput << "Time: " << myProject.getCrit3DCurrentTime().toString() << std::endl;
-    cvOutput << "Variable: " << getVariableString(myVar) << std::endl;
+    cvOutput << "Variable: " << getVariableString(currentVariable) << std::endl;
     cvOutput << "MAE: " << myStats.getMeanAbsoluteError() << std::endl;
     cvOutput << "MBE: " << myStats.getMeanBiasError() << std::endl;
     cvOutput << "RMSE: " << myStats.getRootMeanSquareError() << std::endl;
     cvOutput << "CRE: " << myStats.getCompoundRelativeError() << std::endl;
     cvOutput << "R2: " << myStats.getR2() << std::endl;
 
-    if (getUseDetrendingVar(myVar))
+    if (getUseDetrendingVar(currentVariable))
     {
         int proxyNr = int(myProject.interpolationSettings.getProxyNr());
         if (proxyNr > 0)
@@ -2972,7 +3098,7 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
         }
     }
 
-    if (myProject.interpolationSettings.getUseTD() && getUseTdVar(myVar))
+    if (myProject.interpolationSettings.getUseTD() && getUseTdVar(currentVariable))
     {
         cvOutput << std::endl;
         cvOutput << "Topographic distance coefficient" << std::endl;
@@ -4303,12 +4429,12 @@ void MainWindow::on_actionFileMeteopointArkimetUpdateMeteopoints_triggered()
                     column.clear();
                     values.clear();
                     pointPropFromArkimet.clear();
-                    if (!myDownload.getPointPropertiesFromId(stationsSelected[i], &pointPropFromArkimet))
+                    if (! myDownload.getPointPropertiesFromId(stationsSelected[i], &pointPropFromArkimet))
                     {
                         myProject.logError("Get point properties from id error");
                         return;
                     }
-                    if (!myProject.meteoPointsDbHandler->writePointProperties(&pointPropFromArkimet))
+                    if (! myProject.meteoPointsDbHandler->writePointProperties(&pointPropFromArkimet))
                     {
                         myProject.logError("Write point properties error");
                         return;
@@ -4425,87 +4551,6 @@ void MainWindow::on_actionUnmark_all_points_triggered()
     redrawMeteoPoints(currentPointsVisualization, true);
 }
 
-
-bool MainWindow::on_actionSpatialAggregationFromGrid_triggered()
-{
-    if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
-        {
-            myProject.logError("Load grid");
-            return false;
-        }
-        if (myProject.aggregationDbHandler == nullptr)
-        {
-            myProject.logError("Missing DB: open or create a Aggregation DB.");
-            return false;
-        }
-        QString rasterName;
-        if (!myProject.aggregationDbHandler->getRasterName(&rasterName))
-        {
-            myProject.logError("Missing Raster Name inside aggregation db.");
-            return false;
-        }
-
-        QFileInfo rasterFileFltInfo(myProject.aggregationPath + "/" + rasterName + ".flt");
-        QFileInfo rasterFileHdrInfo(myProject.aggregationPath + "/" + rasterName + ".hdr");
-        if (!rasterFileFltInfo.exists() || !rasterFileHdrInfo.exists())
-        {
-            myProject.errorString = "Raster file does not exist: " + myProject.aggregationPath + "/" + rasterName;
-            myProject.logError();
-            return false;
-        }
-
-        gis::Crit3DRasterGrid *myRaster;
-        myRaster = new(gis::Crit3DRasterGrid);
-        std::string errorStr = "";
-
-        QString fileName = myProject.aggregationPath + "/" + rasterName + ".flt";
-        if (!gis::openRaster(fileName.toStdString(), myRaster, myProject.gisSettings.utmZone, errorStr))
-        {
-            myProject.logError("Open raster failed: " + QString::fromStdString(errorStr));
-            return false;
-        }
-
-        QList<QString> aggregation = myProject.aggregationDbHandler->getAggregations();
-        if (aggregation.isEmpty())
-        {
-            myProject.logError("Empty aggregation: " + myProject.aggregationDbHandler->error());
-            return false;
-        }
-
-        DialogSeriesOnZones zoneDialog(myProject.pragaDefaultSettings, aggregation, myProject.getCurrentDate());
-
-        if (zoneDialog.result() != QDialog::Accepted)
-        {
-            if (myRaster != nullptr)
-            {
-                delete myRaster;
-            }
-
-            return false;
-        }
-        else
-        {
-            std::vector<float> outputValues;
-            float threshold = NODATA;
-            meteoComputation elab1MeteoComp = noMeteoComp;
-            QString periodType = "D";
-            if ( !myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, true))
-            {
-                myProject.logError();
-                if (myRaster != nullptr)
-                {
-                    delete myRaster;
-                }
-                return false;
-            }
-        }
-        if (myRaster != nullptr)
-        {
-            delete myRaster;
-        }
-
-        return true;
-}
 
 
 void MainWindow::on_actionExport_MeteoPoints_toCsv_triggered()
@@ -5700,7 +5745,7 @@ void MainWindow::on_actionStatistical_Summary_triggered()
 
     textBrowser.setText(QString("Variable: " + QString::fromStdString(getVariableString(myProject.getCurrentVariable()))));
     textBrowser.append(QString("Number of cells: " + QString::number(validValues.size())));
-    textBrowser.append(QString("Average: " + QString::number(statistics::mean(validValues, int(validValues.size())))));
+    textBrowser.append(QString("Average: " + QString::number(statistics::mean(validValues))));
     textBrowser.append(QString("Standard deviation: " + QString::number(statistics::standardDeviation(validValues, int(validValues.size())))));
     textBrowser.append(QString("Maximum: ") + QString::number(statistics::maxList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMax) + ", id " + QString::fromStdString(idMax));
     textBrowser.append(QString("Minimum: " + QString::number(statistics::minList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMin) + ", id " + QString::fromStdString(idMin)));
@@ -6479,4 +6524,5 @@ void MainWindow::on_actionWaterTable_showId_triggered()
         wellsListObj[i]->setVisible(true);
     }
 }
+
 
