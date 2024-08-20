@@ -310,6 +310,8 @@
 
         void on_actionSpatialAggregationAssignAltitude_triggered();
 
+        void on_actionInterpolationTopographicIndex_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

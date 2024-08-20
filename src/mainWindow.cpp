@@ -6526,3 +6526,48 @@ void MainWindow::on_actionWaterTable_showId_triggered()
 }
 
 
+
+void MainWindow::on_actionInterpolationTopographicIndex_triggered()
+{
+    if (! myProject.DEM.isLoaded)
+    {
+        myProject.logError("No DEM loaded");
+        return;
+    }
+
+    FormText formWidths("Insert multiple window widths (separated by commas)");
+    if (formWidths.result() == QDialog::Rejected)
+        return;
+
+    QString widthsString = formWidths.getText();
+    if (widthsString == "")
+        return;
+
+    QStringList widthList = widthsString.split(",");
+
+    std::vector <float> widths;
+    bool isValid;
+    for (QString widthString : widthList)
+    {
+        float width = widthString.toFloat(&isValid);
+
+        if (! isValid)
+            myProject.logError("Invalid width: " + widthString);
+
+        widths.push_back(width);
+    }
+
+    gis::Crit3DRasterGrid outGrid;
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save topographic index"), "", tr("ESRI grid files (*.flt)"));
+
+    if (fileName == "") return;
+
+    if (topographicIndex(myProject.DEM, widths, outGrid))
+    {
+        std::string myError;
+        QString fileWithoutExtension = QFileInfo(fileName).absolutePath() + QDir::separator() + QFileInfo(fileName).baseName();
+        if (!gis::writeEsriGrid(fileWithoutExtension.toStdString(), &outGrid, myError))
+            myProject.logError(QString::fromStdString(myError));
+    }
+}
+
