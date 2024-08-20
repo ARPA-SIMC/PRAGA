@@ -3204,13 +3204,13 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
         QList<QString> datasets = datasetSelected.remove("'").split(",");
 
         myProject.logInfoGUI("download points properties...");
-        if (myDownload.getPointProperties(datasets))
+        if (myDownload.getPointProperties(datasets, myProject.errorString))
         {
             loadMeteoPoints(dbName);
         }
         else
         {
-            myProject.logError("Error in function getPointProperties");
+            myProject.logError("Error in function getPointProperties: " + myProject.errorString);
         }
 
         myProject.closeLogInfo();
@@ -4472,30 +4472,29 @@ void MainWindow::on_actionFileMeteopointArkimetUpdateDatasets_triggered()
         QList<QString> datasetSelected = addDatasetDialog.getDatasetDb();
         QList<QString> datasetToDelete = removeList(dbDatasetsList, datasetSelected);
         QList<QString> datasetToAdd = removeList(datasetSelected, dbDatasetsList);
-        if (!datasetToDelete.isEmpty())
+        if (! datasetToDelete.isEmpty())
         {
-            if (!myProject.meteoPointsDbHandler->deleteAllPointsFromDataset(datasetToDelete))
+            if (! myProject.meteoPointsDbHandler->deleteAllPointsFromDataset(datasetToDelete))
             {
                 myProject.logError("Delete all points error");
                 return;
             }
         }
-        if (!datasetToAdd.isEmpty())
+        if (! datasetToAdd.isEmpty())
         {
             Download myDownload(dbName);
-            if (!myDownload.getPointProperties(datasetToAdd))
+            if (! myDownload.getPointProperties(datasetToAdd, myProject.errorString))
             {
-                myProject.logError("Get point properties error");
+                myProject.logError("Error in function getPointProperties: " + myProject.errorString);
                 return;
             }
         }
 
-        myProject.logInfoGUI("Update...");
         myProject.closeMeteoPointsDB();
         myProject.loadMeteoPointsDB(dbName);
         drawMeteoPoints();
-        myProject.closeLogInfo();
     }
+
     return;
 }
 
