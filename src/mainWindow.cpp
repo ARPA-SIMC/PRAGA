@@ -3204,7 +3204,7 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
         QList<QString> datasets = datasetSelected.remove("'").split(",");
 
         myProject.logInfoGUI("download points properties...");
-        if (myDownload.getPointProperties(datasets, myProject.errorString))
+        if (myDownload.getPointProperties(datasets, myProject.gisSettings.utmZone, myProject.errorString))
         {
             loadMeteoPoints(dbName);
         }
@@ -3844,8 +3844,9 @@ void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
         myProject.updateProgressBar(i);
         if (myProject.meteoPoints[i].active)
         {
-            bool existData = myProject.meteoPointsDbHandler->existData(&myProject.meteoPoints[i], daily) || myProject.meteoPointsDbHandler->existData(&myProject.meteoPoints[i], hourly);
-            if (!existData)
+            bool existData = myProject.meteoPointsDbHandler->existData(myProject.meteoPoints[i], daily)
+                            || myProject.meteoPointsDbHandler->existData(myProject.meteoPoints[i], hourly);
+            if (! existData)
             {
                 pointList.append(QString::fromStdString(myProject.meteoPoints[i].id));
             }
@@ -4214,7 +4215,8 @@ void MainWindow::on_actionFileMeteopointArkimetUpdatePointProperties_triggered()
         update = false;
         pointPropFromArkimet.clear();
         QString id = QString::fromStdString(listMeteoPoints[i].id);
-        if (!myDownload.getPointPropertiesFromId(id, &pointPropFromArkimet) || pointPropFromArkimet.id == "")
+        if (! myDownload.getPointPropertiesFromId(id,  myProject.gisSettings.utmZone, pointPropFromArkimet)
+                || pointPropFromArkimet.id == "")
         {
             log = log + "Get point properties from id error, check id: "+ id + "\n";
             continue;
@@ -4429,12 +4431,12 @@ void MainWindow::on_actionFileMeteopointArkimetUpdateMeteopoints_triggered()
                     column.clear();
                     values.clear();
                     pointPropFromArkimet.clear();
-                    if (! myDownload.getPointPropertiesFromId(stationsSelected[i], &pointPropFromArkimet))
+                    if (! myDownload.getPointPropertiesFromId(stationsSelected[i], myProject.gisSettings.utmZone, pointPropFromArkimet))
                     {
                         myProject.logError("Get point properties from id error");
                         return;
                     }
-                    if (! myProject.meteoPointsDbHandler->writePointProperties(&pointPropFromArkimet))
+                    if (! myProject.meteoPointsDbHandler->writePointProperties(pointPropFromArkimet))
                     {
                         myProject.logError("Write point properties error");
                         return;
@@ -4483,7 +4485,7 @@ void MainWindow::on_actionFileMeteopointArkimetUpdateDatasets_triggered()
         if (! datasetToAdd.isEmpty())
         {
             Download myDownload(dbName);
-            if (! myDownload.getPointProperties(datasetToAdd, myProject.errorString))
+            if (! myDownload.getPointProperties(datasetToAdd, myProject.gisSettings.utmZone, myProject.errorString))
             {
                 myProject.logError("Error in function getPointProperties: " + myProject.errorString);
                 return;
@@ -4848,9 +4850,9 @@ void MainWindow::on_actionShiftDataAll_triggered()
             {
                 std::string myId = myProject.meteoPoints[i].id;
                 meteoPoint.setId(myId);
-                std::vector<float> dailyData = myProject.meteoPointsDbHandler->loadDailyVar(&myProject.errorString, varToShifted,
-                                                                                            getCrit3DDate(dateFrom), getCrit3DDate(dateTo), &firstDateDB, &meteoPoint);
-                if (!myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myId), daily, varList, dateFrom, dateTo))
+                std::vector<float> dailyData = myProject.meteoPointsDbHandler->loadDailyVar(varToShifted, getCrit3DDate(dateFrom),
+                                                                                            getCrit3DDate(dateTo), meteoPoint, firstDateDB);
+                if (! myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(myId), daily, varList, dateFrom, dateTo))
                 {
                     myProject.logError("Failed to delete data id point "+QString::fromStdString(myId));
                 }
@@ -4962,8 +4964,8 @@ void MainWindow::on_actionShiftDataSelected_triggered()
             for (int i = 0; i < pointList.size(); i++)
             {
                 meteoPoint.setId(pointList[i]);
-                std::vector<float> dailyData = myProject.meteoPointsDbHandler->loadDailyVar(&myProject.errorString, varToShifted,
-                                                                                            getCrit3DDate(dateFrom), getCrit3DDate(dateTo), &firstDateDB, &meteoPoint);
+                std::vector<float> dailyData = myProject.meteoPointsDbHandler->loadDailyVar(varToShifted, getCrit3DDate(dateFrom), getCrit3DDate(dateTo),
+                                                                                            meteoPoint, firstDateDB);
                 if (!myProject.meteoPointsDbHandler->deleteData(QString::fromStdString(pointList[i]), daily, varList, dateFrom, dateTo))
                 {
                     myProject.logError("Failed to delete data id point "+QString::fromStdString(pointList[i]));
@@ -5455,11 +5457,13 @@ void MainWindow::computeDailyFromHourly_MeteoPoints(const QList<std::string>& id
     {
         Crit3DMeteoPoint meteoPoint;
         meteoPoint.setId(idPointList[i]);
-        myProject.meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstDate), getCrit3DDate(lastDate), &meteoPoint);
+        myProject.meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstDate), getCrit3DDate(lastDate), meteoPoint);
+
         if (! myProject.computeDailyVariablesPoint(&meteoPoint, firstDate, lastDate, varToCompute))
         {
             idErrorList.append(QString::fromStdString(idPointList[i]));
         }
+
         meteoPoint.clear();
     }
 
