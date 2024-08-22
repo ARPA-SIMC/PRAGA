@@ -3275,6 +3275,7 @@ void MainWindow::closeMeteoPoints()
     }
 }
 
+
 void MainWindow::on_actionFileMeteogridOpen_triggered()
 {
     QString path = myProject.getProjectPath() + PATH_METEOGRID;
