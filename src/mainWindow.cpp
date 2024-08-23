@@ -968,8 +968,6 @@ void MainWindow::on_dateChanged()
 
         redrawAllData();
     }
-    if (myProject.getCurrentVariable() != noMeteoVar)
-        myProject.findTemperatureRange(myProject.getCurrentVariable());
 }
 
 
@@ -1936,7 +1934,6 @@ void MainWindow::on_variableButton_clicked()
 
     myProject.setCurrentVariable(myVar);
     this->updateVariable();
-    myProject.findTemperatureRange(myVar);
 
     if (myProject.getCurrentFrequency() != noFrequency)
     {
