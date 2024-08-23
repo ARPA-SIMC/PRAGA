@@ -3076,26 +3076,74 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
 
     if (getUseDetrendingVar(currentVariable))
     {
-        if (! myProject.interpolationSettings.getUseMultipleDetrending())
+        int proxyNr = int(myProject.interpolationSettings.getProxyNr());
+
+        if (proxyNr > 0)
         {
-            int proxyNr = int(myProject.interpolationSettings.getProxyNr());
-            if (proxyNr > 0)
+            cvOutput << std::endl << "Interpolation proxies" << std::endl;
+            Crit3DProxyCombination proxyCombination = myProject.interpolationSettings.getCurrentCombination();
+            Crit3DProxy* myProxy;
+
+            if (! myProject.interpolationSettings.getUseMultipleDetrending())
             {
-                cvOutput << std::endl << "Interpolation proxies" << std::endl;
-                Crit3DProxyCombination proxyCombination = myProject.interpolationSettings.getCurrentCombination();
-                Crit3DProxy* myProxy;
+
                 for (int i=0; i < proxyNr; i++)
                 {
                     if (proxyCombination.isProxyActive(i))
                     {
                         myProxy = myProject.interpolationSettings.getProxy(i);
+
                         cvOutput << myProxy->getName() << ": " << (myProxy->getIsSignificant() ? "" : "not " ) << "significant" << std::endl;
+
                         if  (myProxy->getIsSignificant())
                             cvOutput << "R2=" << myProxy->getRegressionR2() << " slope=" <<myProxy->getRegressionSlope() << std::endl;
 
                         if (getProxyPragaName(myProxy->getName()) == proxyHeight)
                             cvOutput << "inversion: " << (myProxy->getInversionIsSignificative() ? "significant" : "not significant");
                     }
+                }
+            }
+            else
+            {
+                std::vector<std::vector<double>> par = myProject.interpolationSettings.getFittingParameters();
+                for (int i=0; i < proxyNr; i++)
+                {
+                    if (proxyCombination.isProxyActive(i))
+                    {
+                        myProxy = myProject.interpolationSettings.getProxy(i);
+
+                        if  (myProxy->getIsSignificant())
+                        {
+                            if (getProxyPragaName(myProxy->getName()) == proxyHeight)
+                            {
+                                if (myProxy->getFittingFunctionName() == piecewiseTwo)
+                                {
+                                    cvOutput << "h0: " << par[i][0] << std::endl;
+                                    cvOutput << "t0: " << par[i][1] << std::endl;
+                                    cvOutput << "slope0: " << par[i][2] << std::endl;
+                                    cvOutput << "slope1: " << par[i][3] << std::endl;
+                                }
+                            }
+                        }
+                    }
+                            /*
+
+
+                                if (interpolationSettings->getProxy(proxyPos)->getFittingFunctionName() == piecewiseThree)
+                                {
+                                    std::vector <double> xVector;
+                                    for (int m = xMin; m < xMax; m += 5)
+                                        xVector.push_back(m);
+
+                                    for (int p = 0; p < int(xVector.size()); p++)
+                                    {
+                                        point.setX(xVector[p]);
+                                        point.setY(lapseRatePiecewise_three(xVector[p], parameters[proxyPos]));
+                                        point_vector.append(point);
+                                    }
+                                }
+
+                    }*/
                 }
             }
         }
