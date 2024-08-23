@@ -3079,20 +3079,26 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
 
     if (getUseDetrendingVar(currentVariable))
     {
-        int proxyNr = int(myProject.interpolationSettings.getProxyNr());
-        if (proxyNr > 0)
+        if (! myProject.interpolationSettings.getUseMultipleDetrending())
         {
-            cvOutput << std::endl << "Interpolation proxies" << std::endl;
-            Crit3DProxyCombination proxyCombination = myProject.interpolationSettings.getCurrentCombination();
-            Crit3DProxy* myProxy;
-            for (int i=0; i < proxyNr; i++)
+            int proxyNr = int(myProject.interpolationSettings.getProxyNr());
+            if (proxyNr > 0)
             {
-                if (proxyCombination.isProxyActive(i))
+                cvOutput << std::endl << "Interpolation proxies" << std::endl;
+                Crit3DProxyCombination proxyCombination = myProject.interpolationSettings.getCurrentCombination();
+                Crit3DProxy* myProxy;
+                for (int i=0; i < proxyNr; i++)
                 {
-                    myProxy = myProject.interpolationSettings.getProxy(i);
-                    cvOutput << myProxy->getName() << ": " << (myProxy->getIsSignificant() ? "" : "not " ) << "significant" << std::endl;
-                    if  (myProxy->getIsSignificant())
-                        cvOutput << "R2=" << myProxy->getRegressionR2() << " slope=" <<myProxy->getRegressionSlope() << std::endl;
+                    if (proxyCombination.isProxyActive(i))
+                    {
+                        myProxy = myProject.interpolationSettings.getProxy(i);
+                        cvOutput << myProxy->getName() << ": " << (myProxy->getIsSignificant() ? "" : "not " ) << "significant" << std::endl;
+                        if  (myProxy->getIsSignificant())
+                            cvOutput << "R2=" << myProxy->getRegressionR2() << " slope=" <<myProxy->getRegressionSlope() << std::endl;
+
+                        if (getProxyPragaName(myProxy->getName()) == proxyHeight)
+                            cvOutput << "inversion: " << (myProxy->getInversionIsSignificative() ? "significant" : "not significant");
+                    }
                 }
             }
         }
