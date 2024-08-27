@@ -3114,36 +3114,17 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
 
                         if  (myProxy->getIsSignificant())
                         {
+                            cvOutput << myProxy->getName() << std::endl;
+
                             if (getProxyPragaName(myProxy->getName()) == proxyHeight)
                             {
-                                if (myProxy->getFittingFunctionName() == piecewiseTwo)
-                                {
-                                    cvOutput << "h0: " << par[i][0] << std::endl;
-                                    cvOutput << "t0: " << par[i][1] << std::endl;
-                                    cvOutput << "slope0: " << par[i][2] << std::endl;
-                                    cvOutput << "slope1: " << par[i][3] << std::endl;
-                                }
+                                cvOutput << "function: " << getKeyStringElevationFunction(myProxy->getFittingFunctionName()) << std::endl;
+                                for (int j=0; j < par[i].size(); j++)
+                                    cvOutput << "par" << j << ": " << par[i][j] << std::endl;
+
                             }
                         }
                     }
-                            /*
-
-
-                                if (interpolationSettings->getProxy(proxyPos)->getFittingFunctionName() == piecewiseThree)
-                                {
-                                    std::vector <double> xVector;
-                                    for (int m = xMin; m < xMax; m += 5)
-                                        xVector.push_back(m);
-
-                                    for (int p = 0; p < int(xVector.size()); p++)
-                                    {
-                                        point.setX(xVector[p]);
-                                        point.setY(lapseRatePiecewise_three(xVector[p], parameters[proxyPos]));
-                                        point_vector.append(point);
-                                    }
-                                }
-
-                    }*/
                 }
             }
         }
