@@ -3116,12 +3116,15 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
                         {
                             cvOutput << myProxy->getName() << std::endl;
 
-                            if (getProxyPragaName(myProxy->getName()) == proxyHeight)
+                            if (! myProject.interpolationSettings.getUseLocalDetrending())
                             {
-                                cvOutput << "function: " << getKeyStringElevationFunction(myProxy->getFittingFunctionName()) << std::endl;
-                                for (int j=0; j < par[i].size(); j++)
-                                    cvOutput << "par" << j << ": " << par[i][j] << std::endl;
+                                if (getProxyPragaName(myProxy->getName()) == proxyHeight)
+                                {
+                                    cvOutput << "function: " << getKeyStringElevationFunction(myProxy->getFittingFunctionName()) << std::endl;
+                                    for (int j=0; j < par[i].size(); j++)
+                                        cvOutput << "par" << j << ": " << par[i][j] << std::endl;
 
+                                }
                             }
                         }
                     }
