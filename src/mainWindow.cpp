@@ -1827,7 +1827,7 @@ void MainWindow::callAppendMeteoWidget(std::string id, std::string name, std::st
 
 void MainWindow::callLocalProxyGraph(const gis::Crit3DGeoPoint point)
 {
-    myProject.showLocalProxyGraph(point, &myProject.dataRaster);
+    myProject.showLocalProxyGraph(point);
     return;
 }
 
