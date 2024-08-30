@@ -1,6 +1,5 @@
 #include <sstream>
 #include <iostream>
-#include <iomanip>      // std::setprecision
 
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
@@ -3093,9 +3092,9 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
                     {
                         myProxy = myProject.interpolationSettings.getProxy(i);
 
-                        cvOutput << myProxy->getName() << ": " << (myProxy->getIsSignificant() ? "" : "not " ) << "significant" << std::endl;
+                        cvOutput << myProxy->getName() << ": " << (proxyCombination.isProxySignificant(i) ? "" : "not " ) << "significant" << std::endl;
 
-                        if  (myProxy->getIsSignificant())
+                        if  (proxyCombination.isProxySignificant(i))
                             cvOutput << "R2=" << myProxy->getRegressionR2() << " slope=" <<myProxy->getRegressionSlope() << std::endl;
 
                         if (getProxyPragaName(myProxy->getName()) == proxyHeight)
@@ -3112,7 +3111,7 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
                     {
                         myProxy = myProject.interpolationSettings.getProxy(i);
 
-                        if  (myProxy->getIsSignificant())
+                        if  (proxyCombination.isProxySignificant(i))
                         {
                             cvOutput << myProxy->getName() << std::endl;
 
