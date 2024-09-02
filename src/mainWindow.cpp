@@ -2385,6 +2385,9 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
 void MainWindow::on_actionInterpolationSettings_triggered()
 {
     DialogInterpolation* myDialogInterpolation = new DialogInterpolation(&myProject);
+    if (myProject.proxyWidget != nullptr)
+        myProject.proxyWidget->plot();
+
     myDialogInterpolation->close();
 }
 
