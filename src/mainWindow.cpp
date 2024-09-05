@@ -1,5 +1,4 @@
 #include <sstream>
-#include <iostream>
 
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
@@ -3066,15 +3065,15 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
         return;
     }
 
-    std::stringstream cvOutput;
+    QString cvOutput;
 
-    cvOutput << "Time: " << myProject.getCrit3DCurrentTime().toString() << std::endl;
-    cvOutput << "Variable: " << getVariableString(currentVariable) << std::endl;
-    cvOutput << "MAE: " << myStats.getMeanAbsoluteError() << std::endl;
-    cvOutput << "MBE: " << myStats.getMeanBiasError() << std::endl;
-    cvOutput << "RMSE: " << myStats.getRootMeanSquareError() << std::endl;
-    cvOutput << "CRE: " << myStats.getCompoundRelativeError() << std::endl;
-    cvOutput << "R2: " << myStats.getR2() << std::endl;
+    cvOutput = "Time: " + getQDateTime(myProject.getCrit3DCurrentTime()).toString() + "\n";
+    cvOutput += "Variable: " + QString::fromStdString(getVariableString(currentVariable)) + "\n";
+    cvOutput += "MAE: " + QString::number(myStats.getMeanAbsoluteError(), 'f', 3) + "\n";
+    cvOutput += "MBE: " + QString::number(myStats.getMeanBiasError(), 'f', 3) + "\n";
+    cvOutput += "RMSE: " + QString::number(myStats.getRootMeanSquareError(), 'f', 3) + "\n";
+    cvOutput += "CRE: " + QString::number(myStats.getCompoundRelativeError(), 'f', 3) + "\n";
+    cvOutput += "R2: " + QString::number(myStats.getR2(), 'f', 3) + "\n";
 
     if (getUseDetrendingVar(currentVariable))
     {
@@ -3082,7 +3081,7 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
 
         if (proxyNr > 0)
         {
-            cvOutput << std::endl << "Interpolation proxies" << std::endl;
+            cvOutput + "\n" + "Interpolation proxies" + "\n";
             Crit3DProxyCombination proxyCombination = myProject.interpolationSettings.getCurrentCombination();
             Crit3DProxy* myProxy;
 
@@ -3095,13 +3094,19 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
                     {
                         myProxy = myProject.interpolationSettings.getProxy(i);
 
-                        cvOutput << myProxy->getName() << ": " << (proxyCombination.isProxySignificant(i) ? "" : "not " ) << "significant" << std::endl;
+                        cvOutput += QString::fromStdString(myProxy->getName()) + ": " + (proxyCombination.isProxySignificant(i) ? "" : "not " ) + "significant" + "\n";
 
                         if  (proxyCombination.isProxySignificant(i))
-                            cvOutput << "R2=" << myProxy->getRegressionR2() << " slope=" <<myProxy->getRegressionSlope() << std::endl;
+                        {
+                            cvOutput += "R2=" + QString::number(myProxy->getRegressionR2(), 'f', 3) + "\n";
+                            cvOutput += "slope=" + QString::number(myProxy->getRegressionSlope(), 'f', 3) + "\n";
+                        }
 
                         if (getProxyPragaName(myProxy->getName()) == proxyHeight)
-                            cvOutput << "inversion: " << (myProxy->getInversionIsSignificative() ? "significant" : "not significant");
+                        {
+                            cvOutput += "inversion: ";
+                            cvOutput += (myProxy->getInversionIsSignificative() ? "significant" : "not significant");
+                        }
                     }
                 }
             }
@@ -3116,15 +3121,15 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
 
                         if  (proxyCombination.isProxySignificant(i))
                         {
-                            cvOutput << myProxy->getName() << std::endl;
+                            cvOutput += QString::fromStdString(myProxy->getName()) + "\n";
 
                             if (! myProject.interpolationSettings.getUseLocalDetrending())
                             {
                                 if (getProxyPragaName(myProxy->getName()) == proxyHeight)
                                 {
-                                    cvOutput << "function: " << getKeyStringElevationFunction(myProxy->getFittingFunctionName()) << std::endl;
+                                    cvOutput += "function: " + QString::fromStdString(getKeyStringElevationFunction(myProxy->getFittingFunctionName())) + "\n";
                                     for (int j=0; j < par[i].size(); j++)
-                                        cvOutput << "par" << j << ": " << par[i][j] << std::endl;
+                                        cvOutput += "par" + QString::number(j) + ": " + QString::number(par[i][j]) + "\n";
 
                                 }
                             }
@@ -3137,23 +3142,23 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
 
     if (myProject.interpolationSettings.getUseTD() && getUseTdVar(currentVariable))
     {
-        cvOutput << std::endl;
-        cvOutput << "Topographic distance coefficient" << std::endl;
-        cvOutput << "Best value: " << myProject.interpolationSettings.getTopoDist_Kh() << std::endl;
-        cvOutput << "Optimization: " << std::endl;
+        cvOutput + "\n";
+        cvOutput += "Topographic distance coefficient\n";
+        cvOutput += "Best value: " + QString::number(myProject.interpolationSettings.getTopoDist_Kh()) + "\n";
+        cvOutput += "Optimization:\n";
 
         std::vector <float> khSeries = myProject.interpolationSettings.getKh_series();
         std::vector <float> khErrors = myProject.interpolationSettings.getKh_error_series();
 
         for (unsigned int i=0; i < khSeries.size(); i++)
-            cvOutput << "Kh=" << khSeries[i] << " error=" << khErrors[i] << std::endl;
+            cvOutput += "Kh=" + QString::number(khSeries[i]) + " error=" + QString::number(khErrors[i]) + "\n";
     }
 
     QDialog myDialog;
     myDialog.setWindowTitle("Cross validation statistics");
 
     QTextBrowser textBrowser;
-    textBrowser.setText(QString::fromStdString(cvOutput.str()));
+    textBrowser.setText(cvOutput);
 
     QVBoxLayout mainLayout;
     mainLayout.addWidget(&textBrowser);
