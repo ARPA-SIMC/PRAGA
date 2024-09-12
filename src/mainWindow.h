@@ -17,7 +17,7 @@
     #include "ArrowObject.h"
     #include "squareMarker.h"
 
-    enum visualizationType {notShown, showLocation, showCurrentVariable, showElaboration, showAnomalyAbsolute, showAnomalyPercentage, showClimate};
+    enum visualizationType {notShown, showLocation, showCurrentVariable, showCVResidual, showElaboration, showAnomalyAbsolute, showAnomalyPercentage, showClimate};
 
     namespace Ui
     {
@@ -414,6 +414,7 @@
         void interpolateGridGUI();
         void interpolateCrossValidationGUI();
         void showElabResult(bool updateColorSCale, bool isMeteoGrid, bool isAnomaly, bool isAnomalyPerc, bool isClima, QString index);
+        void showCVResult();
         void searchMeteoPoint(bool isName);
         void computeDailyFromHourly_MeteoPoints(const QList<std::string>& pointList);
 
