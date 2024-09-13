@@ -2484,7 +2484,7 @@ void MainWindow::showCVResult()
     cvOutput += "MAE: " + QString::number(myStats.getMeanAbsoluteError(), 'f', 3) + "\n";
     cvOutput += "MBE: " + QString::number(myStats.getMeanBiasError(), 'f', 3) + "\n";
     cvOutput += "RMSE: " + QString::number(myStats.getRootMeanSquareError(), 'f', 3) + "\n";
-    cvOutput += "CRE: " + QString::number(myStats.getCompoundRelativeError(), 'f', 3) + "\n";
+    cvOutput += "NSE: " + QString::number(myStats.getNashSutcliffeEfficiency(), 'f', 3) + "\n";
     cvOutput += "R2: " + QString::number(myStats.getR2(), 'f', 3) + "\n";
 
     if (getUseDetrendingVar(currentVariable))
