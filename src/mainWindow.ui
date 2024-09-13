@@ -276,10 +276,16 @@
       <property name="enabled">
        <bool>true</bool>
       </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="maximumSize">
        <size>
         <width>270</width>
-        <height>700</height>
+        <height>1000</height>
        </size>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -464,7 +470,7 @@
             <second>0</second>
             <year>1752</year>
             <month>9</month>
-            <day>4</day>
+            <day>3</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1235,6 +1241,32 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="groupBoxCV">
+         <property name="maximumSize">
+          <size>
+           <width>260</width>
+           <height>150</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Cross validation</string>
+         </property>
+         <widget class="QPlainTextEdit" name="textEditCV">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>20</y>
+            <width>241</width>
+            <height>121</height>
+           </rect>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </widget>
+       </item>
+       <item>
         <widget class="QGroupBox" name="groupBoxElaboration">
          <property name="enabled">
           <bool>true</bool>
@@ -1478,12 +1510,6 @@
         </widget>
        </item>
       </layout>
-      <zorder>groupBoxMeteoGrid</zorder>
-      <zorder>groupBoxRaster</zorder>
-      <zorder>groupBoxVariable</zorder>
-      <zorder>groupBoxMeteoPoints</zorder>
-      <zorder>groupBoxNetcdf</zorder>
-      <zorder>groupBoxElaboration</zorder>
      </widget>
     </item>
     <item>
@@ -2944,6 +2970,9 @@
    </property>
   </action>
   <action name="actionShowPointsCVResidual">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Cross validation residual</string>
    </property>

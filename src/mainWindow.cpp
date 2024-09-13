@@ -152,6 +152,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->groupBoxElaboration->hide();
     ui->groupBoxNetcdf->hide();
+    ui->groupBoxCV->hide();
 
     this->updateVariable();
     this->updateDateTime();
@@ -1366,6 +1367,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
 {
     currentPointsVisualization = showType;
     ui->groupBoxElaboration->hide();
+    ui->groupBoxCV->hide();
 
     if (pointList.size() == 0) return;
 
@@ -1618,6 +1620,7 @@ void MainWindow::redrawMeteoGrid(visualizationType showType, bool showInterpolat
 {
     currentGridVisualization = showType;
     ui->groupBoxElaboration->hide();
+    ui->groupBoxCV->hide();
 
     if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr) return;
 
@@ -2447,13 +2450,124 @@ void MainWindow::showCVResult()
 
     meteoPointsLegend->update();
 
-    ui->lineEditPeriod->setText("test");
+    // cv text output
+    meteoVariable currentVariable;
+    switch(currentPointsVisualization)
+    {
+        case showCurrentVariable:
+        {
+            currentVariable = myProject.getCurrentVariable();
+            break;
+        }
+        case showElaboration:
+        {
+            currentVariable = elaboration;
+            break;
+        }
+        case showAnomalyAbsolute:
+        {
+            currentVariable = anomaly;
+            break;
+        }
+        default:
+        {
+            currentVariable = myProject.getCurrentVariable();
+        }
+    }
 
-    ui->lineEditElab1->setReadOnly(true);
-    ui->lineEditElab2->setReadOnly(true);
-    ui->lineEditVariable->setReadOnly(true);
-    ui->lineEditPeriod->setReadOnly(true);
-    ui->groupBoxElaboration->show();
+    QString cvOutput;
+
+    Crit3DCrossValidationStatistics myStats = myProject.getCrossValidationStatistics();
+
+    cvOutput = "Time: " + getQDateTime(myProject.getCrit3DCurrentTime()).toString() + "\n";
+    cvOutput += "Variable: " + QString::fromStdString(getVariableString(currentVariable)) + "\n";
+    cvOutput += "MAE: " + QString::number(myStats.getMeanAbsoluteError(), 'f', 3) + "\n";
+    cvOutput += "MBE: " + QString::number(myStats.getMeanBiasError(), 'f', 3) + "\n";
+    cvOutput += "RMSE: " + QString::number(myStats.getRootMeanSquareError(), 'f', 3) + "\n";
+    cvOutput += "CRE: " + QString::number(myStats.getCompoundRelativeError(), 'f', 3) + "\n";
+    cvOutput += "R2: " + QString::number(myStats.getR2(), 'f', 3) + "\n";
+
+    if (getUseDetrendingVar(currentVariable))
+    {
+        int proxyNr = int(myProject.interpolationSettings.getProxyNr());
+
+        if (proxyNr > 0)
+        {
+            cvOutput + "\n" + "Interpolation proxies" + "\n";
+            Crit3DProxyCombination proxyCombination = myProject.interpolationSettings.getCurrentCombination();
+            Crit3DProxy* myProxy;
+
+            if (! myProject.interpolationSettings.getUseMultipleDetrending())
+            {
+
+                for (int i=0; i < proxyNr; i++)
+                {
+                    if (proxyCombination.isProxyActive(i))
+                    {
+                        myProxy = myProject.interpolationSettings.getProxy(i);
+
+                        cvOutput += QString::fromStdString(myProxy->getName()) + ": " + (proxyCombination.isProxySignificant(i) ? "" : "not " ) + "significant" + "\n";
+
+                        if  (proxyCombination.isProxySignificant(i))
+                        {
+                            cvOutput += "R2=" + QString::number(myProxy->getRegressionR2(), 'f', 3) + "\n";
+                            cvOutput += "slope=" + QString::number(myProxy->getRegressionSlope(), 'f', 3) + "\n";
+                        }
+
+                        if (getProxyPragaName(myProxy->getName()) == proxyHeight)
+                        {
+                            cvOutput += "inversion: ";
+                            cvOutput += (myProxy->getInversionIsSignificative() ? "significant" : "not significant");
+                        }
+                    }
+                }
+            }
+            else if (! myProject.interpolationSettings.getUseLocalDetrending())
+            {
+                std::vector<std::vector<double>> par = myProject.interpolationSettings.getFittingParameters();
+                for (int i=0; i < proxyNr; i++)
+                {
+                    if (proxyCombination.isProxyActive(i))
+                    {
+                        myProxy = myProject.interpolationSettings.getProxy(i);
+
+                        if  (proxyCombination.isProxySignificant(i))
+                        {
+                            cvOutput += QString::fromStdString(myProxy->getName()) + "\n";
+
+                            if (! myProject.interpolationSettings.getUseLocalDetrending())
+                            {
+                                if (getProxyPragaName(myProxy->getName()) == proxyHeight)
+                                {
+                                    cvOutput += "function: " + QString::fromStdString(getKeyStringElevationFunction(myProxy->getFittingFunctionName())) + "\n";
+                                    for (int j=0; j < par[i].size(); j++)
+                                        cvOutput += "par" + QString::number(j) + ": " + QString::number(par[i][j]) + "\n";
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (myProject.interpolationSettings.getUseTD() && getUseTdVar(currentVariable))
+    {
+        cvOutput + "\n";
+        cvOutput += "Topographic distance coefficient\n";
+        cvOutput += "Best value: " + QString::number(myProject.interpolationSettings.getTopoDist_Kh()) + "\n";
+        cvOutput += "Optimization:\n";
+
+        std::vector <float> khSeries = myProject.interpolationSettings.getKh_series();
+        std::vector <float> khErrors = myProject.interpolationSettings.getKh_error_series();
+
+        for (unsigned int i=0; i < khSeries.size(); i++)
+            cvOutput += "Kh=" + QString::number(khSeries[i]) + " error=" + QString::number(khErrors[i]) + "\n";
+    }
+
+    ui->textEditCV->setPlainText(cvOutput);
+    ui->groupBoxCV->show();
 }
 
 
@@ -3128,10 +3242,8 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
         }
     }
 
-    crossValidationStatistics myStats;
-
     bool isComputed = false;
-    isComputed = myProject.interpolationCv(currentVariable, myProject.getCrit3DCurrentTime(), &myStats);
+    isComputed = myProject.interpolationCv(currentVariable, myProject.getCrit3DCurrentTime());
 
     myProject.closeLogInfo();
 
@@ -3141,109 +3253,8 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
         return;
     }
 
-    redrawMeteoPoints(showCVResidual, false);
-
-    QString cvOutput;
-
-    cvOutput = "Time: " + getQDateTime(myProject.getCrit3DCurrentTime()).toString() + "\n";
-    cvOutput += "Variable: " + QString::fromStdString(getVariableString(currentVariable)) + "\n";
-    cvOutput += "MAE: " + QString::number(myStats.getMeanAbsoluteError(), 'f', 3) + "\n";
-    cvOutput += "MBE: " + QString::number(myStats.getMeanBiasError(), 'f', 3) + "\n";
-    cvOutput += "RMSE: " + QString::number(myStats.getRootMeanSquareError(), 'f', 3) + "\n";
-    cvOutput += "CRE: " + QString::number(myStats.getCompoundRelativeError(), 'f', 3) + "\n";
-    cvOutput += "R2: " + QString::number(myStats.getR2(), 'f', 3) + "\n";
-
-    if (getUseDetrendingVar(currentVariable))
-    {
-        int proxyNr = int(myProject.interpolationSettings.getProxyNr());
-
-        if (proxyNr > 0)
-        {
-            cvOutput + "\n" + "Interpolation proxies" + "\n";
-            Crit3DProxyCombination proxyCombination = myProject.interpolationSettings.getCurrentCombination();
-            Crit3DProxy* myProxy;
-
-            if (! myProject.interpolationSettings.getUseMultipleDetrending())
-            {
-
-                for (int i=0; i < proxyNr; i++)
-                {
-                    if (proxyCombination.isProxyActive(i))
-                    {
-                        myProxy = myProject.interpolationSettings.getProxy(i);
-
-                        cvOutput += QString::fromStdString(myProxy->getName()) + ": " + (proxyCombination.isProxySignificant(i) ? "" : "not " ) + "significant" + "\n";
-
-                        if  (proxyCombination.isProxySignificant(i))
-                        {
-                            cvOutput += "R2=" + QString::number(myProxy->getRegressionR2(), 'f', 3) + "\n";
-                            cvOutput += "slope=" + QString::number(myProxy->getRegressionSlope(), 'f', 3) + "\n";
-                        }
-
-                        if (getProxyPragaName(myProxy->getName()) == proxyHeight)
-                        {
-                            cvOutput += "inversion: ";
-                            cvOutput += (myProxy->getInversionIsSignificative() ? "significant" : "not significant");
-                        }
-                    }
-                }
-            }
-            else if (! myProject.interpolationSettings.getUseLocalDetrending())
-            {
-                std::vector<std::vector<double>> par = myProject.interpolationSettings.getFittingParameters();
-                for (int i=0; i < proxyNr; i++)
-                {
-                    if (proxyCombination.isProxyActive(i))
-                    {
-                        myProxy = myProject.interpolationSettings.getProxy(i);
-
-                        if  (proxyCombination.isProxySignificant(i))
-                        {
-                            cvOutput += QString::fromStdString(myProxy->getName()) + "\n";
-
-                            if (! myProject.interpolationSettings.getUseLocalDetrending())
-                            {
-                                if (getProxyPragaName(myProxy->getName()) == proxyHeight)
-                                {
-                                    cvOutput += "function: " + QString::fromStdString(getKeyStringElevationFunction(myProxy->getFittingFunctionName())) + "\n";
-                                    for (int j=0; j < par[i].size(); j++)
-                                        cvOutput += "par" + QString::number(j) + ": " + QString::number(par[i][j]) + "\n";
-
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    if (myProject.interpolationSettings.getUseTD() && getUseTdVar(currentVariable))
-    {
-        cvOutput + "\n";
-        cvOutput += "Topographic distance coefficient\n";
-        cvOutput += "Best value: " + QString::number(myProject.interpolationSettings.getTopoDist_Kh()) + "\n";
-        cvOutput += "Optimization:\n";
-
-        std::vector <float> khSeries = myProject.interpolationSettings.getKh_series();
-        std::vector <float> khErrors = myProject.interpolationSettings.getKh_error_series();
-
-        for (unsigned int i=0; i < khSeries.size(); i++)
-            cvOutput += "Kh=" + QString::number(khSeries[i]) + " error=" + QString::number(khErrors[i]) + "\n";
-    }
-
-    QDialog myDialog;
-    myDialog.setWindowTitle("Cross validation statistics");
-
-    QTextBrowser textBrowser;
-    textBrowser.setText(cvOutput);
-
-    QVBoxLayout mainLayout;
-    mainLayout.addWidget(&textBrowser);
-
-    myDialog.setLayout(&mainLayout);
-    myDialog.setFixedSize(300,300);
-    myDialog.exec();
+    this->ui->actionShowPointsCVResidual->setEnabled(true);
+    redrawMeteoPoints(showCVResidual, false); 
 }
 
 
