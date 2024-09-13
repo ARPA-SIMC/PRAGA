@@ -1843,6 +1843,12 @@ void MainWindow::callAppendMeteoWidget(std::string id, std::string name, std::st
 
 void MainWindow::callLocalProxyGraph(const gis::Crit3DGeoPoint point)
 {
+    if(myProject.getCurrentFrequency() == noFrequency)
+    {
+        QMessageBox::critical(nullptr, "proxy graph", "Select data frequency (daily or hourly)");
+        return;
+    }
+
     myProject.showLocalProxyGraph(point);
     return;
 }
