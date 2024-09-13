@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1200</width>
-    <height>777</height>
+    <width>1276</width>
+    <height>1126</height>
    </rect>
   </property>
   <property name="palette">
@@ -464,7 +464,7 @@
             <second>0</second>
             <year>1752</year>
             <month>9</month>
-            <day>5</day>
+            <day>4</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1518,7 +1518,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1200</width>
+     <width>1276</width>
      <height>23</height>
     </rect>
    </property>
@@ -1921,6 +1921,7 @@
      <addaction name="actionShowPointsHide"/>
      <addaction name="actionShowPointsLocation"/>
      <addaction name="actionShowPointsCurrent"/>
+     <addaction name="actionShowPointsCVResidual"/>
      <addaction name="actionShowPointsElab"/>
      <addaction name="menuShowPointsAnomaly"/>
      <addaction name="actionShowPointsClimate"/>
@@ -2940,6 +2941,11 @@
   <action name="actionInterpolationTopographicIndex">
    <property name="text">
     <string>Topographic index...</string>
+   </property>
+  </action>
+  <action name="actionShowPointsCVResidual">
+   <property name="text">
+    <string>Cross validation residual</string>
    </property>
   </action>
  </widget>

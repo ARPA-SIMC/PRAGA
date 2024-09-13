@@ -113,6 +113,7 @@ MainWindow::MainWindow(QWidget *parent) :
     showPointsGroup->addAction(this->ui->actionShowPointsHide);
     showPointsGroup->addAction(this->ui->actionShowPointsLocation);
     showPointsGroup->addAction(this->ui->actionShowPointsCurrent);
+    showPointsGroup->addAction(this->ui->actionShowPointsCVResidual);
     showPointsGroup->addAction(this->ui->actionShowPointsElab);
     showPointsGroup->addAction(this->ui->actionShowPointsAnomalyAbs);
     showPointsGroup->addAction(this->ui->actionShowPointsAnomalyPerc);
@@ -260,6 +261,11 @@ void MainWindow::mouseMove(const QPoint& mapPos)
                 case showCurrentVariable:
                 {
                     value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue;
+                    break;
+                }
+                case showCVResidual:
+                {
+                    value = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->residual;
                     break;
                 }
                 case showElaboration:
@@ -1315,6 +1321,7 @@ void MainWindow::drawMeteoPoints()
 
     showPointsGroup->setEnabled(true);
     ui->actionShowPointsCurrent->setEnabled(false);
+    ui->actionShowPointsCVResidual->setEnabled(false);
     ui->actionShowPointsElab->setEnabled(false);
     ui->actionShowPointsClimate->setEnabled(false);
 
@@ -1492,6 +1499,14 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
             }
 
             meteoPointsLegend->update();
+            break;
+        }
+
+        case showCVResidual:
+        {
+            this->ui->actionShowPointsCVResidual->setChecked(true);
+            ui->actionMeteopointRectangleSelection->setEnabled(true);
+            showCVResult();
             break;
         }
 
@@ -2380,6 +2395,67 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
     ui->groupBoxElaboration->show();
 }
 
+void MainWindow::showCVResult()
+{
+    float value;
+
+    meteoPointsLegend->setVisible(true);
+
+    float minimum = NODATA;
+    float maximum = NODATA;
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        myProject.meteoPoints[i].currentValue = myProject.meteoPoints[i].residual;
+
+        // hide all meteo points
+        pointList[i]->setVisible(false);
+
+        value = myProject.meteoPoints[i].currentValue;
+        if (! isEqual(value, NODATA))
+        {
+            if (isEqual(minimum, NODATA))
+            {
+                minimum = value;
+                maximum = value;
+            }
+            else
+            {
+                minimum = std::min(value, minimum);
+                maximum = std::max(value, maximum);
+            }
+        }
+    }
+
+    myProject.meteoPointsColorScale->setRange(minimum, maximum);
+    roundColorScale(myProject.meteoPointsColorScale, 4, true);
+    setColorScale(anomaly, myProject.meteoPointsColorScale);
+
+    Crit3DColor *myColor;
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        if (! isEqual(myProject.meteoPoints[i].currentValue, NODATA))
+        {
+            pointList[i]->setRadius(5);
+            myColor = myProject.meteoPointsColorScale->getColor(myProject.meteoPoints[i].currentValue);
+            pointList[i]->setFillColor(QColor(myColor->red, myColor->green, myColor->blue));
+            pointList[i]->setCurrentValue(myProject.meteoPoints[i].currentValue);
+            pointList[i]->setQuality(myProject.meteoPoints[i].quality);
+            pointList[i]->setToolTip();
+            pointList[i]->setVisible(true);
+        }
+    }
+
+    meteoPointsLegend->update();
+
+    ui->lineEditPeriod->setText("test");
+
+    ui->lineEditElab1->setReadOnly(true);
+    ui->lineEditElab2->setReadOnly(true);
+    ui->lineEditVariable->setReadOnly(true);
+    ui->lineEditPeriod->setReadOnly(true);
+    ui->groupBoxElaboration->show();
+}
+
 
 void MainWindow::on_actionInterpolationSettings_triggered()
 {
@@ -3065,6 +3141,8 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
         return;
     }
 
+    redrawMeteoPoints(showCVResidual, false);
+
     QString cvOutput;
 
     cvOutput = "Time: " + getQDateTime(myProject.getCrit3DCurrentTime()).toString() + "\n";
@@ -3110,7 +3188,7 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
                     }
                 }
             }
-            else
+            else if (! myProject.interpolationSettings.getUseLocalDetrending())
             {
                 std::vector<std::vector<double>> par = myProject.interpolationSettings.getFittingParameters();
                 for (int i=0; i < proxyNr; i++)
@@ -6163,16 +6241,9 @@ void MainWindow::on_actionCompute_drought_triggered()
             ui->lineEditVariable->setText(indexStr);
         }
 
-        ui->lineEditElab2->setVisible(false);
-        ui->lineEditPeriod->setText("reference period: " + QString::number(refYearStart) + "÷" + QString::number(refYearEnd));
-        ui->lineEditElab1->setReadOnly(true);
-        ui->lineEditElab2->setReadOnly(true);
-        ui->lineEditVariable->setReadOnly(true);
-        ui->lineEditPeriod->setReadOnly(true);
-
-        ui->groupBoxElaboration->show();
-
-        return;
+        //ui->lineEditElab2->setVisible(false);
+        //ui->lineEditPeriod->setReadOnly(true);
+        //ui->groupBoxElaboration->show();
     }
 }
 
