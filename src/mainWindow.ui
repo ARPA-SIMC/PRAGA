@@ -470,7 +470,7 @@
             <second>0</second>
             <year>1752</year>
             <month>9</month>
-            <day>3</day>
+            <day>2</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1862,10 +1862,17 @@
      <addaction name="actionInterpolationOutputPointsCurrentTime"/>
      <addaction name="actionInterpolationOutputPointsPeriod"/>
     </widget>
+    <widget class="QMenu" name="menuInterpolationCV">
+     <property name="title">
+      <string>Cross validation</string>
+     </property>
+     <addaction name="actionInterpolationCVCurrentTime"/>
+     <addaction name="actionInterpolationCVPeriod"/>
+    </widget>
     <addaction name="actionInterpolationDem"/>
     <addaction name="menuInterpolationMeteogrid"/>
     <addaction name="menuInterpolation_to_output_points"/>
-    <addaction name="actionInterpolationCrossValidation"/>
+    <addaction name="menuInterpolationCV"/>
     <addaction name="actionInterpolationSettings"/>
     <addaction name="separator"/>
     <addaction name="menuTopographicDistanceMaps"/>
@@ -2603,11 +2610,6 @@
     <string>Aggregate from grid...</string>
    </property>
   </action>
-  <action name="actionInterpolationCrossValidation">
-   <property name="text">
-    <string>Cross validation</string>
-   </property>
-  </action>
   <action name="actionExport_MeteoPoints_toCsv">
    <property name="text">
     <string>Export current data to CSV...</string>
@@ -2975,6 +2977,16 @@
    </property>
    <property name="text">
     <string>Cross validation residual</string>
+   </property>
+  </action>
+  <action name="actionInterpolationCVCurrentTime">
+   <property name="text">
+    <string>Current time</string>
+   </property>
+  </action>
+  <action name="actionInterpolationCVPeriod">
+   <property name="text">
+    <string>Period</string>
    </property>
   </action>
  </widget>

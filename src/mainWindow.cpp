@@ -3220,7 +3220,7 @@ void MainWindow::on_actionInterpolationOutputPointsPeriod_triggered()
 }
 
 
-void MainWindow::on_actionInterpolationCrossValidation_triggered()
+void MainWindow::on_actionInterpolationCVCurrentTime_triggered()
 {
     myProject.logInfoGUI("Cross validation...");
 
@@ -3261,6 +3261,61 @@ void MainWindow::on_actionInterpolationCrossValidation_triggered()
 
     this->ui->actionShowPointsCVResidual->setEnabled(true);
     redrawMeteoPoints(showCVResidual, false); 
+}
+
+
+void MainWindow::on_actionInterpolationCVPeriod_triggered()
+{
+    // check meteo points
+    if (myProject.meteoPointsDbHandler == nullptr)
+    {
+        myProject.logError("No meteo points DB open");
+        return;
+    }
+
+    // update first db time
+    if (myProject.meteoPointsDbFirstTime.isNull() || myProject.meteoPointsDbFirstTime.toSecsSinceEpoch() == 0)
+    {
+        myProject.meteoPointsDbFirstTime = myProject.findDbPointFirstTime();
+    }
+    QDateTime myFirstTime = myProject.meteoPointsDbFirstTime;
+    if (myFirstTime.isNull())
+    {
+        myFirstTime.setDate(myProject.getCurrentDate());
+        myFirstTime.setTime(QTime(myProject.getCurrentHour(),0));
+    }
+
+    QDateTime myLastTime = myProject.meteoPointsDbLastTime;
+    if (myLastTime.isNull())
+    {
+        myLastTime.setDate(myProject.getCurrentDate());
+        myLastTime.setTime(QTime(myProject.getCurrentHour(),0));
+    }
+
+    FormTimePeriod myForm(&myFirstTime, &myLastTime);
+    myForm.show();
+    if (myForm.exec() == QDialog::Rejected) return;
+
+    meteoVariable myVar = chooseMeteoVariable(myProject);
+    if (myVar == noMeteoVar)
+        return;
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save current CV output"), "", tr("text file (*.txt)"));
+    if (fileName == "") return;
+
+    bool isComputed = false;
+    isComputed = myProject.interpolationCrossValidationPeriod(myFirstTime.date(), myLastTime.date(), myVar, fileName);
+
+    myProject.closeLogInfo();
+
+    if (! isComputed)
+    {
+        myProject.logError();
+        return;
+    }
+
+    this->ui->actionShowPointsCVResidual->setEnabled(true);
+    redrawMeteoPoints(showCVResidual, false);
 }
 
 
@@ -6660,7 +6715,6 @@ void MainWindow::on_actionWaterTable_showId_triggered()
 }
 
 
-
 void MainWindow::on_actionInterpolationTopographicIndex_triggered()
 {
     if (! myProject.DEM.isLoaded)
@@ -6704,4 +6758,5 @@ void MainWindow::on_actionInterpolationTopographicIndex_triggered()
             myProject.logError(QString::fromStdString(myError));
     }
 }
+
 

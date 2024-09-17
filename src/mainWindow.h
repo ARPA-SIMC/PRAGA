@@ -206,7 +206,7 @@
 
         void on_actionSpatialAggregationNewDB_triggered();
 
-        void on_actionInterpolationCrossValidation_triggered();
+        void on_actionInterpolationCVCurrentTime_triggered();
 
         void on_actionFileExportInterpolation_triggered();
 
@@ -311,6 +311,8 @@
         void on_actionSpatialAggregationAssignAltitude_triggered();
 
         void on_actionInterpolationTopographicIndex_triggered();
+
+        void on_actionInterpolationCVPeriod_triggered();
 
     protected:
         /*!
