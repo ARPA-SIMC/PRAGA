@@ -1725,7 +1725,7 @@ bool MainWindow::loadMeteoGrid(QString xmlName)
     if (myProject.loadMeteoGridDB(xmlName))
     {
         drawMeteoGrid();
-        this->update();
+        update();
         return true;
     }
     else
