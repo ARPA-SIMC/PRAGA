@@ -3273,6 +3273,10 @@ void MainWindow::on_actionInterpolationCVPeriod_triggered()
         return;
     }
 
+    meteoVariable myVar = chooseMeteoVariable(myProject);
+    if (myVar == noMeteoVar)
+        return;
+
     // update first db time
     if (myProject.meteoPointsDbFirstTime.isNull() || myProject.meteoPointsDbFirstTime.toSecsSinceEpoch() == 0)
     {
@@ -3296,26 +3300,13 @@ void MainWindow::on_actionInterpolationCVPeriod_triggered()
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
 
-    meteoVariable myVar = chooseMeteoVariable(myProject);
-    if (myVar == noMeteoVar)
-        return;
-
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save current CV output"), "", tr("text file (*.txt)"));
     if (fileName == "") return;
 
-    bool isComputed = false;
-    isComputed = myProject.interpolationCrossValidationPeriod(myFirstTime.date(), myLastTime.date(), myVar, fileName);
-
-    myProject.closeLogInfo();
-
-    if (! isComputed)
-    {
+    if (myProject.interpolationCrossValidationPeriod(myFirstTime.date(), myLastTime.date(), myVar, fileName))
+        myProject.closeLogInfo();
+    else
         myProject.logError();
-        return;
-    }
-
-    this->ui->actionShowPointsCVResidual->setEnabled(true);
-    redrawMeteoPoints(showCVResidual, false);
 }
 
 
