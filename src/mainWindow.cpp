@@ -3253,14 +3253,11 @@ void MainWindow::on_actionInterpolationCVCurrentTime_triggered()
 
     myProject.closeLogInfo();
 
-    if (! isComputed)
+    if (isComputed)
     {
-        myProject.logError();
-        return;
+        this->ui->actionShowPointsCVResidual->setEnabled(true);
+        redrawMeteoPoints(showCVResidual, false);
     }
-
-    this->ui->actionShowPointsCVResidual->setEnabled(true);
-    redrawMeteoPoints(showCVResidual, false); 
 }
 
 
