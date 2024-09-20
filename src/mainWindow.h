@@ -200,7 +200,7 @@
 
         void on_actionUnmark_all_points_triggered();
 
-        bool on_actionSpatialAggregationFromGrid_triggered();
+        void on_actionSpatialAggregationFromGrid_triggered();
 
         void on_actionSpatialAggregationOpenDB_triggered();
 
@@ -313,6 +313,8 @@
         void on_actionInterpolationTopographicIndex_triggered();
 
         void on_actionInterpolationCVPeriod_triggered();
+
+        void on_actionSpatialAggregationFromGrid_hourly_triggered();
 
     protected:
         /*!
