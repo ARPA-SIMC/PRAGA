@@ -2915,11 +2915,10 @@ void MainWindow::on_actionSpatialAggregationFromGrid_triggered()
     if (zoneDialog.result() != QDialog::Accepted)
         return;
 
-    std::vector<float> outputValues;
     float threshold = NODATA;
     meteoComputation elab1MeteoComp = noMeteoComp;
     QString periodType = "D";
-    if (! myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, &myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, true))
+    if (! myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, &myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, true))
     {
         myProject.logError();
     }
@@ -2952,14 +2951,15 @@ void MainWindow::on_actionSpatialAggregationFromGrid_hourly_triggered()
     if (zoneDialog.result() != QDialog::Accepted)
         return;
 
-    std::vector<float> outputValues;
-    float threshold = NODATA;
+    float myThreshold = NODATA;
+    QString myPeriodType = "H";
     meteoComputation elab1MeteoComp = noMeteoComp;
-    QString periodType = "H";
-    if (! myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, &myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, outputValues, true))
+    meteoVariable variable = zoneDialog.getVariable();
+    bool isShowInfo = true;
+
+    if (! myProject.averageSeriesOnZonesMeteoGrid(variable, elab1MeteoComp, zoneDialog.getSpatialElaboration(), myThreshold, &myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), myPeriodType, isShowInfo))
     {
         myProject.logError();
-        return;
     }
 }
 
