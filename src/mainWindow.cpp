@@ -2917,8 +2917,7 @@ void MainWindow::on_actionSpatialAggregationFromGrid_triggered()
 
     float threshold = NODATA;
     meteoComputation elab1MeteoComp = noMeteoComp;
-    QString periodType = "D";
-    if (! myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, &myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), periodType, true))
+    if (! myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, &myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), true))
     {
         myProject.logError();
     }
@@ -2952,12 +2951,11 @@ void MainWindow::on_actionSpatialAggregationFromGrid_hourly_triggered()
         return;
 
     float myThreshold = NODATA;
-    QString myPeriodType = "H";
     meteoComputation elab1MeteoComp = noMeteoComp;
     meteoVariable variable = zoneDialog.getVariable();
     bool isShowInfo = true;
 
-    if (! myProject.averageSeriesOnZonesMeteoGrid(variable, elab1MeteoComp, zoneDialog.getSpatialElaboration(), myThreshold, &myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), myPeriodType, isShowInfo))
+    if (! myProject.averageSeriesOnZonesMeteoGrid(variable, elab1MeteoComp, zoneDialog.getSpatialElaboration(), myThreshold, &myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), isShowInfo))
     {
         myProject.logError();
     }
