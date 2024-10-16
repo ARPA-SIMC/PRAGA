@@ -248,6 +248,7 @@ void MainWindow::mouseMove(const QPoint& mapPos)
     }
 
     // meteoGrid
+    value = NODATA;
     gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
     if (meteoGridObj->isLoaded && currentGridVisualization != notShown)
     {
@@ -257,6 +258,7 @@ void MainWindow::mouseMove(const QPoint& mapPos)
         {
             std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
             std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
+            QString elev = QString::number(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->point.z);
             switch(currentGridVisualization)
             {
                 case showCurrentVariable:
@@ -295,7 +297,7 @@ void MainWindow::mouseMove(const QPoint& mapPos)
                 }
             }
 
-            status += " - Grid cell: " + QString::fromStdString(id + " " + name) + " - Row: " + QString::number(row) + " - Col: " + QString::number(col);
+            status += " - Grid cell: " + QString::fromStdString(id + " " + name) + " - Row: " + QString::number(row) + " - Col: " + QString::number(col) + " - Height:" + elev;
             if (!isEqual(value, NODATA))
             {
                 status += " - Value: " + QString::number(double(value), 'f', 2);
