@@ -475,7 +475,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                 QAction *openPointStatisticsWidget = menu.addAction("Open point statistics widget");
 
                 QAction *openProxyGraph;
-                if (myProject.meteoPointsLoaded && myProject.interpolationSettings.getUseLocalDetrending())
+                if (myProject.meteoPointsLoaded && (myProject.interpolationSettings.getUseLocalDetrending() || myProject.interpolationSettings.getUseGlocalDetrending()))
                 {
                     menu.addSeparator();
                     openProxyGraph = menu.addAction("Open local proxy graph");
@@ -533,7 +533,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             QMenu menu;
 
             QAction *openProxyGraph;
-            if (myProject.interpolationSettings.getUseLocalDetrending())
+            if (myProject.interpolationSettings.getUseLocalDetrending() || myProject.interpolationSettings.getUseGlocalDetrending())
                openProxyGraph = menu.addAction("Open local proxy graph");
 
             QAction *selection =  menu.exec(QCursor::pos());
