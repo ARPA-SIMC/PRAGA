@@ -316,6 +316,8 @@
 
         void on_actionSpatialAggregationFromGrid_hourly_triggered();
 
+        void on_actionInterpolationWriteGlocalWeightMaps_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

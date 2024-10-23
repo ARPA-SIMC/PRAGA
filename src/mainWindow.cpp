@@ -6772,3 +6772,35 @@ void MainWindow::on_actionInterpolationTopographicIndex_triggered()
     }
 }
 
+
+void MainWindow::on_actionInterpolationWriteGlocalWeightMaps_triggered()
+{
+    if (myProject.loadMacroAreaGlocalMap() < 1)
+    {
+        myProject.logError("Error loading zone grid " + myProject.glocalMapName);
+        return;
+    }
+
+    if (! myProject.interpolationSettings.getMacroAreasMap()->isLoaded)
+    {
+        myProject.logError("Load a zone grid before");
+        return;
+    }
+
+    FormText formWidth("Insert window width");
+    if (formWidth.result() == QDialog::Rejected)
+        return;
+
+    QString widthString = formWidth.getText();
+    if (widthString == "")
+        return;
+
+    bool isValid;
+    float width = widthString.toFloat(&isValid);
+    if (! isValid)
+        myProject.logError("Invalid width: " + widthString);
+
+    if (! myProject.glocalWeightsMaps(width))
+        myProject.logError();
+}
+

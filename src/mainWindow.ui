@@ -469,8 +469,8 @@
             <minute>0</minute>
             <second>0</second>
             <year>1752</year>
-            <month>9</month>
-            <day>1</day>
+            <month>8</month>
+            <day>31</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1545,7 +1545,7 @@
      <x>0</x>
      <y>0</y>
      <width>1276</width>
-     <height>28</height>
+     <height>23</height>
     </rect>
    </property>
    <property name="palette">
@@ -1875,6 +1875,7 @@
     <addaction name="menuInterpolationCV"/>
     <addaction name="actionInterpolationSettings"/>
     <addaction name="separator"/>
+    <addaction name="actionInterpolationWriteGlocalWeightMaps"/>
     <addaction name="menuTopographicDistanceMaps"/>
     <addaction name="actionInterpolationTopographicIndex"/>
     <addaction name="separator"/>
@@ -2993,6 +2994,11 @@
   <action name="actionSpatialAggregationFromGrid_hourly">
    <property name="text">
     <string>Aggregate from grid (hourly)...</string>
+   </property>
+  </action>
+  <action name="actionInterpolationWriteGlocalWeightMaps">
+   <property name="text">
+    <string>Write glocal weight maps</string>
    </property>
   </action>
  </widget>
