@@ -6775,7 +6775,7 @@ void MainWindow::on_actionInterpolationTopographicIndex_triggered()
 
 void MainWindow::on_actionInterpolationWriteGlocalWeightMaps_triggered()
 {
-    if (myProject.loadGlocalFiles() < 1)
+    if (!myProject.loadGlocalAreasMap())
     {
         myProject.logError("Error loading zone grid " + myProject.glocalMapName);
         return;
