@@ -865,7 +865,7 @@ void MainWindow::interpolateDemGUI()
         {
             if (myProject.loadGlocalAreasMap())
             {
-                if (myProject.loadGlocalStationsAndCells(false) < 1) return;
+                if (! myProject.loadGlocalStationsAndCells(false)) return;
             }
             else
                 return;
