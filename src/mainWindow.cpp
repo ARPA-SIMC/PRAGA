@@ -3170,10 +3170,10 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
     if (myVar == noMeteoVar)
         return;
 
-    QList <meteoVariable> myVariables, aggrVariables;
+    QList <meteoVariable> myVariables, aggrVariables, derVariables;
     myVariables.push_back(myVar);
     if (! myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables,
-                                                aggrVariables, 1, NODATA))
+                                                derVariables, aggrVariables, 1, NODATA))
     {
         myProject.logError();
         return;
