@@ -861,15 +861,6 @@ void MainWindow::interpolateDemGUI()
     }
     else
     {
-        if (myProject.interpolationSettings.getUseGlocalDetrending())
-        {
-            if (myProject.loadGlocalAreasMap())
-            {
-                if (! myProject.loadGlocalStationsAndCells(false)) return;
-            }
-            else
-                return;
-        }
         isComputed = myProject.interpolationDemMain(myVar, myProject.getCrit3DCurrentTime(), &(myProject.dataRaster));
     }
 
@@ -3170,10 +3161,10 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
     if (myVar == noMeteoVar)
         return;
 
-    QList <meteoVariable> myVariables, aggrVariables;
+    QList <meteoVariable> myVariables, aggrVariables, derVariables;
     myVariables.push_back(myVar);
     if (! myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables,
-                                                aggrVariables, 1, NODATA))
+                                                derVariables, aggrVariables, 1, NODATA))
     {
         myProject.logError();
         return;
