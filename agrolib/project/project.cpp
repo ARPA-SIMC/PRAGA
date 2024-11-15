@@ -102,7 +102,7 @@ void Project::initializeProject()
     outputPointsFileName = "";
     currentDbOutputFileName = "";
 	glocalMapName = "";
-
+    glocalPointsName = "";
     meteoPointsLoaded = false;
     meteoGridLoaded = false;
     loadGridDataAtStart = false;
@@ -235,7 +235,7 @@ bool Project::checkProxy(Crit3DProxy &myProxy, QString* error, bool isActive)
 
         if (myProxy.getFittingParametersRange().size() != nrParameters*2)
         {
-            *error = "wrong numer of parameters for proxy: " + QString::fromStdString(name_);
+            *error = "wrong number of parameters for proxy: " + QString::fromStdString(name_);
             return false;
         }
 
@@ -633,7 +633,10 @@ bool Project::loadParameters(QString parametersFileName)
                 interpolationSettings.setUseGlocalDetrending(parametersSettings->value("glocalDetrending").toBool());
 
             if (parametersSettings->contains("glocalMapName"))
-                this->glocalMapName = parametersSettings->value("glocalMapName").toString();
+                glocalMapName = parametersSettings->value("glocalMapName").toString();
+
+            if (parametersSettings->contains("glocalPointsName"))
+                glocalPointsName = parametersSettings->value("glocalPointsName").toString();
 
             if (parametersSettings->contains("meteogrid_upscalefromdem"))
                 interpolationSettings.setMeteoGridUpscaleFromDem(parametersSettings->value("meteogrid_upscalefromdem").toBool());
@@ -2238,34 +2241,22 @@ bool Project::loadGlocalAreasMap()
 {
     //TODO: add a check for the code values?
 
-    QString mapsFolder = defaultPath + PATH_GEO;
-    if (! QDir(mapsFolder).exists())
-    {
-        //errore?
-    }
-
-    /*QString mapsFolder = projectPath + PATH_GLOCAL;
-    if (! QDir(mapsFolder).exists())
-    {
-        QDir().mkdir(mapsFolder);
-    }*/
-
     std::string myError;
-    gis::Crit3DRasterGrid* macroAreasGrid = new gis::Crit3DRasterGrid();
-    std::string fileNameMap = mapsFolder.toStdString() + glocalMapName.toStdString() + "_map";
+    QString fileNameMap = getCompleteFileName(glocalMapName, PATH_GEO);
 
-    if (!QFile::exists(QString::fromStdString(fileNameMap + ".flt")))
+    if (!QFile::exists(fileNameMap + ".flt"))
     {
-        myError = "Couldn't find " + fileNameMap + " file in " + mapsFolder.toStdString();
-        logError(QString::fromStdString(myError));
+        errorString = "Could not find " + fileNameMap + " file";
         return false;
     }
 
-    if (gis::readEsriGrid(fileNameMap, macroAreasGrid, myError))
+    gis::Crit3DRasterGrid* macroAreasGrid = new gis::Crit3DRasterGrid();
+
+    if (gis::readEsriGrid(fileNameMap.toStdString(), macroAreasGrid, myError))
         interpolationSettings.setMacroAreasMap(macroAreasGrid);
     else
     {
-        myError = "Error loading:\n" + fileNameMap;
+        errorString = "Error loading:\n" + fileNameMap + "\n" + QString::fromStdString(myError);
         return false;
     }
 
@@ -2275,12 +2266,10 @@ bool Project::loadGlocalAreasMap()
 bool Project::loadGlocalStationsAndCells(bool isGrid)
 {
     //leggi csv aree
-    QString mapsFolder = defaultPath + PATH_GEO;
-    std::string fileNameStations = mapsFolder.toStdString() + glocalMapName.toStdString() + "_stations";
+    QString fileNameStations = getCompleteFileName(glocalPointsName, PATH_GEO);
     std::vector<std::vector<int>> areaPoints;
-    std::string myError;
 
-    loadGlocalStationsCsv(QString::fromStdString(fileNameStations), areaPoints);
+    if (! loadGlocalStationsCsv(fileNameStations, areaPoints)) return false;
 
     //salva in vettore gli indici dei meteopoints che appartengono a area n, infine salva quel vettore
     std::vector<int> temp;
@@ -2288,9 +2277,9 @@ bool Project::loadGlocalStationsAndCells(bool isGrid)
     Crit3DMacroArea myArea;
 
     //per ogni area, rappresentata da righe di areaPoints, si fa ciclo sui meteopoints
-    for (int j = 0; j < areaPoints.size(); j++)
+    for (unsigned j = 0; j < areaPoints.size(); j++)
     {
-        for (int k = 0; k < areaPoints[j].size(); k++)
+        for (unsigned k = 0; k < areaPoints[j].size(); k++)
         {
             //controlla se id si trova nel vettore areaPoints[j] e salva l'indice del meteopoint
             for (int i=0; i < nrMeteoPoints; i++)
@@ -2310,7 +2299,7 @@ bool Project::loadGlocalStationsAndCells(bool isGrid)
     //assegnazione pesi a ogni cella di ogni area
     if (!loadGlocalWeightMaps(myAreas, isGrid))
     {
-        myError = "error while loading the glocal weight maps.";
+        errorString = "Error loading glocal weight maps";
         return false;
     }
 
@@ -2389,28 +2378,23 @@ bool Project::loadGlocalWeightMaps(std::vector<Crit3DMacroArea> &myAreas, bool i
 
 bool Project::loadGlocalStationsCsv(QString fileName, std::vector<std::vector<int>> &areaPoints)
 {
-    std::string myError;
-
     if (fileName == "")
     {
-        myError = "Missing csv filename";
-        logError(QString::fromStdString(myError));
+        errorString = "Missing csv filename";
         return false;
     }
     areaPoints.clear();
 
-    if (! QFile(fileName + ".csv").exists() || ! QFileInfo(fileName + ".csv").isFile())
+    if (! QFile(fileName).exists() || ! QFileInfo(fileName).isFile())
     {
-        myError = "Missing csv file: " + fileName.toStdString();
-        logError(QString::fromStdString(myError));
+        errorString = "Missing csv file: " + fileName;
         return false;
     }
 
-    QFile myFile(fileName + ".csv");
+    QFile myFile(fileName);
     if (!myFile.open(QIODevice::ReadOnly))
     {
-        myError = "Open CSV failed: " + fileName.toStdString();
-        logError(QString::fromStdString(myError));
+        errorString = "Failed opening: " + fileName;
         return false;
     }
 
@@ -2419,16 +2403,14 @@ bool Project::loadGlocalStationsCsv(QString fileName, std::vector<std::vector<in
 
     if (myStream.atEnd())
     {
-        myError = "\nFile is void.";
+        errorString = "File is void";
         myFile.close();
         return false;
     }
 
-    int nrLine = 0;
     std::vector<int> temp;
     while(!myStream.atEnd())
     {
-        nrLine++;
         line = myStream.readLine().split(',');
         for (int i = 1; i < line.size(); i++)
             temp.push_back(line[i].toInt());
@@ -3105,6 +3087,13 @@ bool Project::interpolationDemMain(meteoVariable myVar, const Crit3DTime& myTime
     if (! checkInterpolation(myVar))
         return false;
 
+    // check glocal
+    if (interpolationSettings.getUseGlocalDetrending() && ! interpolationSettings.isGlocalReady())
+    {
+        if (! loadGlocalAreasMap()) return false;
+        if (! loadGlocalStationsAndCells(!interpolationSettings.getMeteoGridUpscaleFromDem())) return false;
+    }
+
     // solar radiation model
     if (myVar == globalIrradiance)
     {
@@ -3168,12 +3157,6 @@ bool Project::interpolationGrid(meteoVariable myVar, const Crit3DTime& myTime)
 
     if (interpolationSettings.getUseMultipleDetrending())
         interpolationSettings.clearFitting();
-
-    if (interpolationSettings.getUseGlocalDetrending())
-    {
-        if (! loadGlocalAreasMap()) return false;
-        if (! loadGlocalStationsAndCells(!interpolationSettings.getMeteoGridUpscaleFromDem())) return false;
-    }
 
     // check quality and pass data to interpolation
     if (! checkAndPassDataToInterpolation(quality, myVar, meteoPoints, nrMeteoPoints, myTime,
@@ -4391,7 +4374,7 @@ void Project::showLocalProxyGraph(gis::Crit3DGeoPoint myPoint)
         myZDEM = DEM.value[row][col];
     }
 
-    if (interpolationSettings.getUseGlocalDetrending())
+    if (interpolationSettings.getUseGlocalDetrending() && ! interpolationSettings.isGlocalReady())
     {
         if (loadGlocalAreasMap())
             loadGlocalStationsAndCells(false);

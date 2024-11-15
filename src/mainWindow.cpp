@@ -861,15 +861,6 @@ void MainWindow::interpolateDemGUI()
     }
     else
     {
-        if (myProject.interpolationSettings.getUseGlocalDetrending())
-        {
-            if (myProject.loadGlocalAreasMap())
-            {
-                if (! myProject.loadGlocalStationsAndCells(false)) return;
-            }
-            else
-                return;
-        }
         isComputed = myProject.interpolationDemMain(myVar, myProject.getCrit3DCurrentTime(), &(myProject.dataRaster));
     }
 

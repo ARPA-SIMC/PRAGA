@@ -2611,6 +2611,13 @@ bool PragaProject::interpolationMeteoGrid(meteoVariable myVar, frequencyType myF
         return false;
     }
 
+    // check glocal
+    if (interpolationSettings.getUseGlocalDetrending() && ! interpolationSettings.isGlocalReady())
+    {
+        if (! loadGlocalAreasMap()) return false;
+        if (! loadGlocalStationsAndCells(!interpolationSettings.getMeteoGridUpscaleFromDem())) return false;
+    }
+
     if (interpolationSettings.getMeteoGridUpscaleFromDem())
     {
         if (myFrequency == hourly)
@@ -2665,8 +2672,8 @@ bool PragaProject::interpolationMeteoGrid(meteoVariable myVar, frequencyType myF
             }
             else if (myVar == windVectorDirection || myVar == windVectorIntensity)
             {
-                if (! interpolationMeteoGrid(windVectorX, hourly, myTime)) return false;
-                if (! interpolationMeteoGrid(windVectorY, hourly, myTime)) return false;
+                if (! interpolationGrid(windVectorX, myTime)) return false;
+                if (! interpolationGrid(windVectorY, myTime)) return false;
                 meteoGridDbHandler->meteoGrid()->computeWindVectorHourly(myTime.date, myTime.getHour());
             }
             else if (myVar == globalIrradiance)
@@ -2818,7 +2825,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
             return false;
     }
 
-    if (interpolationSettings.getUseGlocalDetrending())
+    if (interpolationSettings.getUseGlocalDetrending() && ! interpolationSettings.isGlocalReady())
     {
         if (! loadGlocalAreasMap()) return false;
         if (! loadGlocalStationsAndCells(!interpolationSettings.getMeteoGridUpscaleFromDem())) return false;
@@ -2844,7 +2851,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     QDate loadDateFin = QDate(1800, 1, 1);
 
     while (myDate <= dateFin)
-    {
+    {        
         countDaysSaving++;
 
         // check if load needed
@@ -2904,14 +2911,14 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
                 if (getVarFrequency(myVar) == daily)
                 {
                     logInfo(QString::fromStdString(getMeteoVarName(myVar)));
-                    if (! interpolationMeteoGrid(myVar, daily, getCrit3DTime(myDate, myHour))) return false;
+                    if (! interpolationMeteoGrid(myVar, daily, getCrit3DTime(myDate, 1))) return false;
                 }
             }
 
             foreach (myVar, dailyDerivedVars)
             {
                 logInfo(QString::fromStdString(getMeteoVarName(myVar)));
-                deriveVariableMeteoGrid(myVar, daily, getCrit3DTime(myDate, myHour));
+                deriveVariableMeteoGrid(myVar, daily, getCrit3DTime(myDate, 1));
             }
         }
 
