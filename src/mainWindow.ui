@@ -470,7 +470,7 @@
             <second>0</second>
             <year>1752</year>
             <month>8</month>
-            <day>31</day>
+            <day>30</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -2712,6 +2712,9 @@
   <action name="actionSearchPointName">
    <property name="text">
     <string>Name</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
    </property>
   </action>
   <action name="actionSearchPointId">

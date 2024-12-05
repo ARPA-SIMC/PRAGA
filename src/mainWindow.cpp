@@ -6804,7 +6804,7 @@ void MainWindow::on_actionInterpolationWriteGlocalWeightMaps_triggered()
     if (! isValid)
         myProject.logError("Invalid width: " + widthString);
 
-    if (! myProject.glocalWeightsMaps(width))
+    if (! myProject.writeGlocalWeightsMaps(width))
         myProject.logError();
 }
 
