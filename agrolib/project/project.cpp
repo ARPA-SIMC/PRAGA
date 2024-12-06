@@ -3492,7 +3492,7 @@ void Project::macroAreaDetrending(Crit3DMacroArea myArea, meteoVariable myVar, s
     Crit3DMeteoPoint* myMeteoPoints = new Crit3DMeteoPoint[unsigned(myArea.getMeteoPointsNr())];
     std::vector<int> meteoPointsList = myArea.getMeteoPoints();
 
-    for (int i = 0; i < meteoPointsList.size(); i++)
+    for (unsigned i = 0; i < meteoPointsList.size(); i++)
     {
         myMeteoPoints[i] = meteoPoints[meteoPointsList[i]];
     }
@@ -3504,6 +3504,7 @@ void Project::macroAreaDetrending(Crit3DMacroArea myArea, meteoVariable myVar, s
     }
 
     myMeteoPoints->clear();
+    delete[] myMeteoPoints;
 
     return;
 }
@@ -5242,7 +5243,7 @@ void Project::logWarning()
 
     if (modality == MODE_GUI)
     {
-        QMessageBox::warning(nullptr, "WARNING!", errorString);
+        QMessageBox::warning(nullptr, "WARNING", errorString);
     }
     else
     {
