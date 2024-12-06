@@ -318,6 +318,8 @@
 
         void on_actionInterpolationWriteGlocalWeightMaps_triggered();
 
+        void on_actionHide_supplemental_stations_toggled(bool arg1);
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -368,6 +370,7 @@
 
         bool viewNotActivePoints;
         bool viewOutputPoints;
+        bool hideSupplementals;
 
         QActionGroup *showPointsGroup;
         QActionGroup *showGridGroup;

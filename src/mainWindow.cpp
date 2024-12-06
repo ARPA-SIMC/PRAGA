@@ -148,6 +148,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->currentNetcdfVisualization = notShown;
     this->viewNotActivePoints = false;
     this->viewOutputPoints = true;
+    this->hideSupplementals = false;
     this->currentNetcdfVariable = NODATA;
 
     ui->groupBoxElaboration->hide();
@@ -1497,7 +1498,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                     pointList[i]->setToolTip();
 
                     // hide not active points
-                    bool isVisible = (myProject.meteoPoints[i].active || viewNotActivePoints || myProject.meteoPoints[i].marked);
+                    bool isVisible = ((myProject.meteoPoints[i].active || viewNotActivePoints || myProject.meteoPoints[i].marked) && !(hideSupplementals && myProject.meteoPoints[i].lapseRateCode == supplemental));
                     pointList[i]->setVisible(isVisible);
                 }
             }
@@ -6806,5 +6807,12 @@ void MainWindow::on_actionInterpolationWriteGlocalWeightMaps_triggered()
 
     if (! myProject.writeGlocalWeightsMaps(width))
         myProject.logError();
+}
+
+
+void MainWindow::on_actionHide_supplemental_stations_toggled(bool state)
+{
+    hideSupplementals = state;
+    redrawMeteoPoints(currentPointsVisualization, true);
 }
 
