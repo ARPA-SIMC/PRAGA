@@ -320,6 +320,8 @@
 
         void on_actionHide_supplemental_stations_toggled(bool arg1);
 
+        void on_actionFileLoadInterpolation_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
