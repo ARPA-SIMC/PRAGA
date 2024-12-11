@@ -238,7 +238,7 @@
 
         void on_actionInterpolationMeteogridGriddingTaskRemove_triggered();
 
-        void on_actionFileDemRestore_triggered();
+        void on_actionDemRestore_triggered();
 
         void on_actionSearchPointName_triggered();
 
@@ -322,6 +322,8 @@
 
         void on_actionFileLoadInterpolation_triggered();
 
+        void on_actionDemZoom_to_layer_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -389,6 +391,7 @@
         bool updateSelection(const QPoint& pos);
 
         void renderDEM();
+        void zoomToDEM();
         void clearDEM();
         void updateVariable();
         void updateDateTime();
