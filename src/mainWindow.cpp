@@ -1438,7 +1438,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                 pointList[i]->setToolTip();
 
                 // hide not active points
-                bool isVisible = (myProject.meteoPoints[i].active || viewNotActivePoints);
+                bool isVisible = ((myProject.meteoPoints[i].active || viewNotActivePoints) && !(hideSupplementals && myProject.meteoPoints[i].lapseRateCode == supplemental));
                 pointList[i]->setVisible(isVisible);
             }
 
@@ -2317,7 +2317,9 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
                 pointList[i]->setCurrentValue(myProject.meteoPoints[i].currentValue);
                 pointList[i]->setQuality(myProject.meteoPoints[i].quality);
                 pointList[i]->setToolTip();
-                pointList[i]->setVisible(true);
+
+                if (!(hideSupplementals && myProject.meteoPoints[i].lapseRateCode == supplemental))
+                    pointList[i]->setVisible(true);
             }
         }
 
@@ -2457,7 +2459,8 @@ void MainWindow::showCVResult()
             pointList[i]->setCurrentValue(myProject.meteoPoints[i].currentValue);
             pointList[i]->setQuality(myProject.meteoPoints[i].quality);
             pointList[i]->setToolTip();
-            pointList[i]->setVisible(true);
+            if (!(hideSupplementals && myProject.meteoPoints[i].lapseRateCode == supplemental))
+                pointList[i]->setVisible(true);
         }
     }
 
