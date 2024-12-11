@@ -148,6 +148,7 @@ MainWindow::MainWindow(QWidget *parent) :
     this->currentNetcdfVisualization = notShown;
     this->viewNotActivePoints = false;
     this->viewOutputPoints = true;
+    this->hideSupplementals = false;
     this->currentNetcdfVariable = NODATA;
 
     ui->groupBoxElaboration->hide();
@@ -1497,7 +1498,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                     pointList[i]->setToolTip();
 
                     // hide not active points
-                    bool isVisible = (myProject.meteoPoints[i].active || viewNotActivePoints || myProject.meteoPoints[i].marked);
+                    bool isVisible = ((myProject.meteoPoints[i].active || viewNotActivePoints || myProject.meteoPoints[i].marked) && !(hideSupplementals && myProject.meteoPoints[i].lapseRateCode == supplemental));
                     pointList[i]->setVisible(isVisible);
                 }
             }
@@ -4809,10 +4810,48 @@ void MainWindow::on_actionExport_MeteoPoints_toCsv_triggered()
 }
 
 
+void MainWindow::on_actionFileLoadInterpolation_triggered()
+{
+    meteoVariable myVar = myProject.getCurrentVariable();
+    if (myVar == noMeteoVar)
+    {
+        myProject.logWarning("Choose variable before.");
+        return;
+    }
+
+    QString defaultPath = myProject.getProjectPath() + PATH_OUTPUT;
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Load interpolated raster"), defaultPath, tr("ESRI grid files (*.flt)"));
+
+    // load raster
+    if (! fileName.isEmpty())
+    {
+        QString fileWithoutExtension = QFileInfo(fileName).absolutePath() + QDir::separator() + QFileInfo(fileName).baseName();
+
+        std::string myError = "";
+        if (! gis::readEsriGrid(fileWithoutExtension.toStdString(), &myProject.dataRaster, myError))
+        {
+            myProject.logError(QString::fromStdString(myError));
+        }
+    }
+
+    if (myVar == elaboration)
+        setColorScale(myProject.clima->variable(), myProject.dataRaster.colorScale);
+    else
+        setColorScale(myVar, myProject.dataRaster.colorScale);
+
+    setCurrentRaster(&(myProject.dataRaster));
+    ui->labelRasterScale->setText(QString::fromStdString(getVariableString(myVar)));
+    updateMaps();
+}
+
+
 void MainWindow::on_actionFileExportInterpolation_triggered()
 {
     if (! myProject.dataRaster.isLoaded)
+    {
+        myProject.logWarning("No data to save.");
         return;
+    }
 
     QString defaultPath = myProject.getProjectPath() + PATH_OUTPUT;
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save interpolated raster"), defaultPath, tr("ESRI grid files (*.flt)"));
@@ -6807,4 +6846,12 @@ void MainWindow::on_actionInterpolationWriteGlocalWeightMaps_triggered()
     if (! myProject.writeGlocalWeightsMaps(width))
         myProject.logError();
 }
+
+
+void MainWindow::on_actionHide_supplemental_stations_toggled(bool state)
+{
+    hideSupplementals = state;
+    redrawMeteoPoints(currentPointsVisualization, true);
+}
+
 
