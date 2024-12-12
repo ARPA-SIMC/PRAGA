@@ -590,6 +590,7 @@ void MainWindow::on_actionMeteopointRectangleSelection_triggered()
      }
 }
 
+
 void MainWindow::updateMaps()
 {
     try
@@ -608,6 +609,7 @@ void MainWindow::updateMaps()
     }
 }
 
+
 void MainWindow::clearDEM()
 {
     this->rasterObj->clear();
@@ -618,23 +620,32 @@ void MainWindow::clearDEM()
 }
 
 
+void MainWindow::zoomToDEM()
+{
+    if (! myProject.DEM.isLoaded)
+        return;
+
+    // resize map
+    double size = double(rasterObj->getRasterMaxSize());
+    size = log2(1000. / size);
+    mapView->setZoomLevel(quint8(size));
+
+    // center map
+    Position center = rasterObj->getRasterCenter();
+    mapView->centerOn(center.longitude(), center.latitude());
+
+    updateMaps();
+}
+
+
 void MainWindow::renderDEM()
 {
     this->setCurrentRaster(&(myProject.DEM));
-    ui->labelRasterScale->setText(QString::fromStdString(getVariableString(noMeteoTerrain)));
+    this->ui->labelRasterScale->setText(QString::fromStdString(getVariableString(noMeteoTerrain)));
     this->ui->rasterOpacitySlider->setEnabled(true);
     this->rasterLegend->setVisible(true);
 
-    // resize map
-    double size = double(this->rasterObj->getRasterMaxSize());
-    size = log2(1000 / size);
-    this->mapView->setZoomLevel(quint8(size));
-
-    // center map
-    Position center = this->rasterObj->getRasterCenter();
-    this->mapView->centerOn(center.longitude(), center.latitude());
-
-    this->updateMaps();
+    this->zoomToDEM();
 }
 
 
@@ -1438,7 +1449,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                 pointList[i]->setToolTip();
 
                 // hide not active points
-                bool isVisible = (myProject.meteoPoints[i].active || viewNotActivePoints);
+                bool isVisible = ((myProject.meteoPoints[i].active || viewNotActivePoints) && !(hideSupplementals && myProject.meteoPoints[i].lapseRateCode == supplemental));
                 pointList[i]->setVisible(isVisible);
             }
 
@@ -2317,7 +2328,9 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
                 pointList[i]->setCurrentValue(myProject.meteoPoints[i].currentValue);
                 pointList[i]->setQuality(myProject.meteoPoints[i].quality);
                 pointList[i]->setToolTip();
-                pointList[i]->setVisible(true);
+
+                if (!(hideSupplementals && myProject.meteoPoints[i].lapseRateCode == supplemental))
+                    pointList[i]->setVisible(true);
             }
         }
 
@@ -2457,7 +2470,8 @@ void MainWindow::showCVResult()
             pointList[i]->setCurrentValue(myProject.meteoPoints[i].currentValue);
             pointList[i]->setQuality(myProject.meteoPoints[i].quality);
             pointList[i]->setToolTip();
-            pointList[i]->setVisible(true);
+            if (!(hideSupplementals && myProject.meteoPoints[i].lapseRateCode == supplemental))
+                pointList[i]->setVisible(true);
         }
     }
 
@@ -5419,14 +5433,29 @@ void MainWindow::on_actionInterpolationMeteogridGriddingTaskRemove_triggered()
 }
 
 
-void MainWindow::on_actionFileDemRestore_triggered()
+void MainWindow::on_actionDemRestore_triggered()
 {
-    if (myProject.DEM.isLoaded)
+    if (! myProject.DEM.isLoaded)
     {
-        setCurrentRaster(&(myProject.DEM));
-        ui->labelRasterScale->setText(QString::fromStdString(getVariableString(noMeteoTerrain)));
-        updateMaps();
+        myProject.logWarning(ERROR_STR_MISSING_DEM);
+        return;
     }
+
+    setCurrentRaster(&(myProject.DEM));
+    ui->labelRasterScale->setText(QString::fromStdString(getVariableString(noMeteoTerrain)));
+    updateMaps();
+}
+
+
+void MainWindow::on_actionDemZoom_to_layer_triggered()
+{
+    if (! myProject.DEM.isLoaded)
+    {
+        myProject.logWarning(ERROR_STR_MISSING_DEM);
+        return;
+    }
+
+    zoomToDEM();
 }
 
 
