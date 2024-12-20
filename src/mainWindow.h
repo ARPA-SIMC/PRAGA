@@ -94,7 +94,7 @@
         void on_actionTopographicDistanceMapsSave_triggered();
         void on_actionTopographicDistanceMapsLoad_triggered();
 
-        void on_actionElaboration_triggered();
+        void on_actionElaboration_Daily_data_triggered();
         void on_actionAnomaly_triggered();
         void on_actionClimate_triggered();
 
@@ -323,6 +323,8 @@
         void on_actionFileLoadInterpolation_triggered();
 
         void on_actionDemZoom_to_layer_triggered();
+
+        void on_actionElaboration_Hourly_data_triggered();
 
     protected:
         /*!

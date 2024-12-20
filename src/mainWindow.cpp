@@ -18,6 +18,7 @@
 #include "dialogSelection.h"
 #include "dialogDownloadMeteoData.h"
 #include "dialogMeteoComputation.h"
+#include "dialogMeteoHourlyComputation.h"
 #include "dialogComputeDroughtIndex.h"
 #include "dialogClimateFields.h"
 #include "dialogSeriesOnZones.h"
@@ -2015,24 +2016,12 @@ void MainWindow::on_dateEdit_dateChanged(const QDate &date)
 }
 
 
-void MainWindow::on_actionElaboration_triggered()
+void MainWindow::on_actionElaboration_Daily_data_triggered()
 {
-    if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
+    if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded)
     {
-       myProject.logError(ERROR_STR_MISSING_POINT_GRID);
+       myProject.logWarning(ERROR_STR_MISSING_POINT_GRID);
        return;
-    }
-
-    bool isMeteoPointLoaded = false;
-    bool isMeteoGridLoaded = false;
-
-    if (myProject.meteoPointsLoaded)
-    {
-        isMeteoPointLoaded = true;
-    }
-    if (myProject.meteoGridLoaded)
-    {
-        isMeteoGridLoaded = true;
     }
 
     if (myProject.clima == nullptr)
@@ -2042,37 +2031,56 @@ void MainWindow::on_actionElaboration_triggered()
 
     bool isAnomaly = false;
     bool isClimate = false;
-    DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGridLoaded, isMeteoPointLoaded, isAnomaly, isClimate);
+    DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, myProject.meteoGridLoaded,
+                                      myProject.meteoPointsLoaded, isAnomaly, isClimate);
     if (compDialog.result() != QDialog::Accepted)
     {
         return;
     }
 
     bool isMeteoGrid = compDialog.getIsMeteoGrid();
-    myProject.lastElabTargetisGrid = isMeteoGrid;
+    myProject.lastElabTargetIsGrid = isMeteoGrid;
     bool showInfo = true;
     if (! myProject.computeElaboration(isMeteoGrid, isAnomaly, isClimate, showInfo))
     {
         myProject.logError();
+        return;
+    }
+
+    if (isMeteoGrid)
+    {
+        this->ui->actionShowGridElab->setEnabled(true);
+        redrawMeteoGrid(showElaboration, false);
     }
     else
     {
-        if (isMeteoGrid)
-        {
-            this->ui->actionShowGridElab->setEnabled(true);
-            redrawMeteoGrid(showElaboration, false);
-        }
-        else
-        {
-            this->ui->actionShowPointsElab->setEnabled(true);
-            redrawMeteoPoints(showElaboration, true);
-        }
+        this->ui->actionShowPointsElab->setEnabled(true);
+        redrawMeteoPoints(showElaboration, true);
     }
-    if (compDialog.result() == QDialog::Accepted)
-        on_actionElaboration_triggered();
+}
 
-    return;
 
+void MainWindow::on_actionElaboration_Hourly_data_triggered()
+{
+    if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded)
+    {
+        myProject.logWarning(ERROR_STR_MISSING_POINT_GRID);
+        return;
+    }
+
+    if (myProject.clima == nullptr)
+    {
+        myProject.clima = new Crit3DClimate();
+    }
+
+    DialogMeteoHourlyComputation compDialog(myProject.pragaDefaultSettings, myProject.meteoGridLoaded, myProject.meteoPointsLoaded);
+    if (compDialog.result() != QDialog::Accepted)
+    {
+        return;
+    }
+
+
+    // TODO
 }
 
 
@@ -2080,20 +2088,8 @@ void MainWindow::on_actionAnomaly_triggered()
 {
     if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
     {
-        myProject.logError(ERROR_STR_MISSING_POINT_GRID);
+        myProject.logWarning(ERROR_STR_MISSING_POINT_GRID);
         return;
-    }
-
-    bool isMeteoPointLoaded = false;
-    bool isMeteoGridLoaded = false;
-
-    if (myProject.meteoPointsLoaded)
-    {
-        isMeteoPointLoaded = true;
-    }
-    if (myProject.meteoGridLoaded)
-    {
-        isMeteoGridLoaded = true;
     }
 
     if (myProject.clima == nullptr)
@@ -2107,14 +2103,15 @@ void MainWindow::on_actionAnomaly_triggered()
 
     bool isAnomaly = true;
     bool isClimate = false;
-    DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGridLoaded, isMeteoPointLoaded, isAnomaly, isClimate);
+    DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, myProject.meteoGridLoaded,
+                                      myProject.meteoPointsLoaded, isAnomaly, isClimate);
     if (compDialog.result() != QDialog::Accepted)
     {
         return;
     }
 
     bool isMeteoGrid = compDialog.getIsMeteoGrid();
-    myProject.lastElabTargetisGrid = isMeteoGrid;
+    myProject.lastElabTargetIsGrid = isMeteoGrid;
     isAnomaly = false;
     bool isOk = myProject.computeElaboration(isMeteoGrid, isAnomaly, isClimate, true);
     if (! isOk)
@@ -2183,7 +2180,7 @@ void MainWindow::on_actionClimate_triggered()
     }
 
     bool isMeteoGrid = compDialog.getIsMeteoGrid();
-    myProject.lastElabTargetisGrid = isMeteoGrid;
+    myProject.lastElabTargetIsGrid = isMeteoGrid;
     myProject.clima->getListElab()->setListClimateElab(compDialog.getElabSaveList());
     if (! myProject.computeElaboration(isMeteoGrid, isAnomaly, isClimate, true))
     {
@@ -6284,7 +6281,7 @@ void MainWindow::on_actionCompute_drought_triggered()
 {
     if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
     {
-        myProject.logError(ERROR_STR_MISSING_POINT_GRID);
+        myProject.logWarning(ERROR_STR_MISSING_POINT_GRID);
         return;
     }
 

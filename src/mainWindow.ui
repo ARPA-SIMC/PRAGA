@@ -470,7 +470,7 @@
             <second>0</second>
             <year>1752</year>
             <month>8</month>
-            <day>26</day>
+            <day>25</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1893,7 +1893,14 @@
      <property name="title">
       <string>Elaboration</string>
      </property>
-     <addaction name="actionElaboration"/>
+     <widget class="QMenu" name="menuCompute_elaboration">
+      <property name="title">
+       <string>Compute elaboration</string>
+      </property>
+      <addaction name="actionElaboration_Daily_data"/>
+      <addaction name="actionElaboration_Hourly_data"/>
+     </widget>
+     <addaction name="menuCompute_elaboration"/>
      <addaction name="actionAnomaly"/>
      <addaction name="actionCompute_drought"/>
     </widget>
@@ -1917,6 +1924,7 @@
      </property>
      <addaction name="actionSpatialAggregationOpenDB"/>
      <addaction name="actionSpatialAggregationNewDB"/>
+     <addaction name="separator"/>
      <addaction name="actionSpatialAggregationFromGrid"/>
      <addaction name="actionSpatialAggregationFromGrid_hourly"/>
      <addaction name="separator"/>
@@ -1924,7 +1932,9 @@
     </widget>
     <addaction name="menuElaborationElab"/>
     <addaction name="menuClimate"/>
+    <addaction name="separator"/>
     <addaction name="menuSpatialAggregation"/>
+    <addaction name="separator"/>
     <addaction name="actionStatistical_Summary"/>
    </widget>
    <widget class="QMenu" name="menuShow">
@@ -2161,14 +2171,9 @@
     <string>Load</string>
    </property>
   </action>
-  <action name="actionElaboration">
-   <property name="text">
-    <string>Compute elaboration</string>
-   </property>
-  </action>
   <action name="actionAnomaly">
    <property name="text">
-    <string>Compute anomaly</string>
+    <string>Compute anomaly...</string>
    </property>
   </action>
   <action name="actionClimate">
@@ -2908,7 +2913,7 @@
   </action>
   <action name="actionCompute_drought">
    <property name="text">
-    <string>Compute drought</string>
+    <string>Compute drought...</string>
    </property>
   </action>
   <action name="actionFileMeteogrid_ExportDailyData">
@@ -3028,6 +3033,16 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionElaboration_Daily_data">
+   <property name="text">
+    <string>Daily data...</string>
+   </property>
+  </action>
+  <action name="actionElaboration_Hourly_data">
+   <property name="text">
+    <string>Hourly data...</string>
    </property>
   </action>
  </widget>
