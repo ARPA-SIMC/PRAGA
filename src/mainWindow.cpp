@@ -1708,7 +1708,12 @@ void MainWindow::redrawMeteoGrid(visualizationType showType, bool showInterpolat
         case showElaboration:
         {
             this->ui->actionShowGridElab->setChecked(true);
-            showElabResult(true, true, false, false, false, nullptr);
+            bool updateColorSCale = true;
+            bool isMeteoGrid = true;
+            bool isAnomaly = false;
+            bool isClimate = false;
+            bool isAnomalyPerc = false;
+            showElabResult(updateColorSCale, isMeteoGrid, isAnomaly, isAnomalyPerc, isClimate, nullptr);
             break;
         }
         case showAnomalyAbsolute:
@@ -2079,8 +2084,25 @@ void MainWindow::on_actionElaboration_Hourly_data_triggered()
         return;
     }
 
+    bool isMeteoGrid = compDialog.getIsMeteoGrid();
+    myProject.lastElabTargetIsGrid = isMeteoGrid;
+    bool showInfo = true;
+    if (! myProject.computeElaborationHourly(isMeteoGrid, showInfo))
+    {
+        myProject.logError();
+        return;
+    }
 
-    // TODO
+    if (isMeteoGrid)
+    {
+        this->ui->actionShowGridElab->setEnabled(true);
+        redrawMeteoGrid(showElaboration, false);
+    }
+    else
+    {
+        this->ui->actionShowPointsElab->setEnabled(true);
+        redrawMeteoPoints(showElaboration, true);
+    }
 }
 
 
@@ -2388,8 +2410,19 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
         }
     }
 
-    std::string var = MapDailyMeteoVarToString.at(myProject.clima->variable());
-    ui->lineEditVariable->setText(QString::fromStdString(var));
+    // check variable (daily or hourly)
+    meteoVariable var = myProject.clima->variable();
+    std::string varStr = "";
+    if (MapDailyMeteoVarToString.find(var) != MapDailyMeteoVarToString.end())
+    {
+        varStr = MapDailyMeteoVarToString.at(var);
+    }
+    else if (MapHourlyMeteoVarToString.find(var) != MapHourlyMeteoVarToString.end())
+    {
+        varStr = MapHourlyMeteoVarToString.at(var);
+    }
+    ui->lineEditVariable->setText(QString::fromStdString(varStr));
+
     QString startDay = QString::number(myProject.clima->genericPeriodDateStart().day());
     QString startMonth = QString::number(myProject.clima->genericPeriodDateStart().month());
     QString endDay = QString::number(myProject.clima->genericPeriodDateEnd().day());
