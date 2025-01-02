@@ -2103,8 +2103,6 @@ void MainWindow::on_actionElaboration_Hourly_data_triggered()
         this->ui->actionShowPointsElab->setEnabled(true);
         redrawMeteoPoints(showElaboration, true);
     }
-
-    on_actionElaboration_Hourly_data_triggered();
 }
 
 
