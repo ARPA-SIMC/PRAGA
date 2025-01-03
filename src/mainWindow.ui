@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1276</width>
-    <height>1126</height>
+    <height>920</height>
    </rect>
   </property>
   <property name="palette">
@@ -470,7 +470,7 @@
             <second>0</second>
             <year>1752</year>
             <month>8</month>
-            <day>25</day>
+            <day>23</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1257,7 +1257,7 @@
             <x>10</x>
             <y>20</y>
             <width>241</width>
-            <height>121</height>
+            <height>118</height>
            </rect>
           </property>
           <property name="readOnly">
@@ -1545,7 +1545,7 @@
      <x>0</x>
      <y>0</y>
      <width>1276</width>
-     <height>28</height>
+     <height>23</height>
     </rect>
    </property>
    <property name="palette">

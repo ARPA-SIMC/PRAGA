@@ -1,4 +1,5 @@
 #include <sstream>
+#include "math.h"
 
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
@@ -102,7 +103,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(this->mapView, SIGNAL(zoomLevelChanged(quint8)), this, SLOT(updateMaps()));
     connect(this->mapView, SIGNAL(mouseMoveSignal(const QPoint&)), this, SLOT(mouseMove(const QPoint&)));
-
 
     KeyboardFilter *keyboardFilter = new KeyboardFilter();
     this->ui->dateEdit->installEventFilter(keyboardFilter);
@@ -626,10 +626,11 @@ void MainWindow::zoomToDEM()
     if (! myProject.DEM.isLoaded)
         return;
 
-    // resize map
-    double size = double(rasterObj->getRasterMaxSize());
-    size = log2(1000. / size);
-    mapView->setZoomLevel(quint8(size));
+    double xRatio = rasterObj->getSizeX() / double(ui->widgetMap->size().width());
+    double yRatio = rasterObj->getSizeY() / double(ui->widgetMap->size().height());
+    double ratio = std::max(xRatio, yRatio);
+    double zoomLevel = round(log2(1. / ratio));
+    mapView->setZoomLevel(quint8(zoomLevel));
 
     // center map
     Position center = rasterObj->getRasterCenter();
@@ -1090,7 +1091,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         }
 
         // resize map
-        double size = log2(2000 / double(netcdfObj->getRasterMaxSize()));
+        double size = log2(2000. / netcdfObj->getRasterMaxSize());
         this->mapView->setZoomLevel(quint8(size));
 
         // center map
@@ -1615,7 +1616,7 @@ void MainWindow::drawMeteoGrid()
     this->ui->actionShowGridClimate->setEnabled(false);
 
     // resize map
-    double size = double(this->meteoGridObj->getRasterMaxSize());
+    double size = this->meteoGridObj->getRasterMaxSize();
     size = log2(1000 / size);
     this->mapView->setZoomLevel(quint8(size));
 
