@@ -58,12 +58,12 @@ CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/meteoWidget/debug -lmeteoWidget
     LIBS += -L../agrolib/commonChartElements/debug -lcommonChartElements
     LIBS += -L../agrolib/dbMeteoGrid/debug -ldbMeteoGrid
+    LIBS += -L../agrolib/drought/debug -ldrought
     LIBS += -L../agrolib/dbMeteoPoints/debug -ldbMeteoPoints
     LIBS += -L../agrolib/outputPoints/debug -loutputPoints
     LIBS += -L../agrolib/utilities/debug -lutilities
     LIBS += -L../agrolib/solarRadiation/debug -lsolarRadiation
     LIBS += -L../agrolib/interpolation/debug -linterpolation
-    LIBS += -L../agrolib/drought/debug -ldrought
     LIBS += -L../agrolib/meteo/debug -lmeteo
     LIBS += -L../agrolib/gis/debug -lgis
     LIBS += -L../agrolib/crit3dDate/debug -lcrit3dDate
@@ -97,12 +97,12 @@ CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/meteoWidget/release -lmeteoWidget
     LIBS += -L../agrolib/commonChartElements/release -lcommonChartElements
     LIBS += -L../agrolib/dbMeteoGrid/release -ldbMeteoGrid
+    LIBS += -L../agrolib/drought/release -ldrought
     LIBS += -L../agrolib/dbMeteoPoints/release -ldbMeteoPoints
     LIBS += -L../agrolib/outputPoints/release -loutputPoints
     LIBS += -L../agrolib/utilities/release -lutilities
     LIBS += -L../agrolib/solarRadiation/release -lsolarRadiation
     LIBS += -L../agrolib/interpolation/release -linterpolation
-    LIBS += -L../agrolib/drought/release -ldrought
     LIBS += -L../agrolib/meteo/release -lmeteo
     LIBS += -L../agrolib/gis/release -lgis
     LIBS += -L../agrolib/crit3dDate/release -lcrit3dDate

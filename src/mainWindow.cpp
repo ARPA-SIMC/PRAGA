@@ -1,4 +1,5 @@
 #include <sstream>
+#include "math.h"
 
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
@@ -18,6 +19,7 @@
 #include "dialogSelection.h"
 #include "dialogDownloadMeteoData.h"
 #include "dialogMeteoComputation.h"
+#include "dialogMeteoHourlyComputation.h"
 #include "dialogComputeDroughtIndex.h"
 #include "dialogClimateFields.h"
 #include "dialogSeriesOnZones.h"
@@ -101,7 +103,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(this->mapView, SIGNAL(zoomLevelChanged(quint8)), this, SLOT(updateMaps()));
     connect(this->mapView, SIGNAL(mouseMoveSignal(const QPoint&)), this, SLOT(mouseMove(const QPoint&)));
-
 
     KeyboardFilter *keyboardFilter = new KeyboardFilter();
     this->ui->dateEdit->installEventFilter(keyboardFilter);
@@ -625,10 +626,11 @@ void MainWindow::zoomToDEM()
     if (! myProject.DEM.isLoaded)
         return;
 
-    // resize map
-    double size = double(rasterObj->getRasterMaxSize());
-    size = log2(1000. / size);
-    mapView->setZoomLevel(quint8(size));
+    double xRatio = rasterObj->getSizeX() / double(ui->widgetMap->size().width());
+    double yRatio = rasterObj->getSizeY() / double(ui->widgetMap->size().height());
+    double ratio = std::max(xRatio, yRatio);
+    double zoomLevel = round(log2(1. / ratio));
+    mapView->setZoomLevel(quint8(zoomLevel));
 
     // center map
     Position center = rasterObj->getRasterCenter();
@@ -1089,7 +1091,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         }
 
         // resize map
-        double size = log2(2000 / double(netcdfObj->getRasterMaxSize()));
+        double size = log2(2000. / netcdfObj->getRasterMaxSize());
         this->mapView->setZoomLevel(quint8(size));
 
         // center map
@@ -1614,7 +1616,7 @@ void MainWindow::drawMeteoGrid()
     this->ui->actionShowGridClimate->setEnabled(false);
 
     // resize map
-    double size = double(this->meteoGridObj->getRasterMaxSize());
+    double size = this->meteoGridObj->getRasterMaxSize();
     size = log2(1000 / size);
     this->mapView->setZoomLevel(quint8(size));
 
@@ -1707,7 +1709,12 @@ void MainWindow::redrawMeteoGrid(visualizationType showType, bool showInterpolat
         case showElaboration:
         {
             this->ui->actionShowGridElab->setChecked(true);
-            showElabResult(true, true, false, false, false, nullptr);
+            bool updateColorSCale = true;
+            bool isMeteoGrid = true;
+            bool isAnomaly = false;
+            bool isClimate = false;
+            bool isAnomalyPerc = false;
+            showElabResult(updateColorSCale, isMeteoGrid, isAnomaly, isAnomalyPerc, isClimate, nullptr);
             break;
         }
         case showAnomalyAbsolute:
@@ -2015,24 +2022,12 @@ void MainWindow::on_dateEdit_dateChanged(const QDate &date)
 }
 
 
-void MainWindow::on_actionElaboration_triggered()
+void MainWindow::on_actionElaboration_Daily_data_triggered()
 {
-    if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
+    if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded)
     {
-       myProject.logError(ERROR_STR_MISSING_POINT_GRID);
+       myProject.logWarning(ERROR_STR_MISSING_POINT_GRID);
        return;
-    }
-
-    bool isMeteoPointLoaded = false;
-    bool isMeteoGridLoaded = false;
-
-    if (myProject.meteoPointsLoaded)
-    {
-        isMeteoPointLoaded = true;
-    }
-    if (myProject.meteoGridLoaded)
-    {
-        isMeteoGridLoaded = true;
     }
 
     if (myProject.clima == nullptr)
@@ -2042,37 +2037,73 @@ void MainWindow::on_actionElaboration_triggered()
 
     bool isAnomaly = false;
     bool isClimate = false;
-    DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGridLoaded, isMeteoPointLoaded, isAnomaly, isClimate);
+    DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, myProject.meteoGridLoaded,
+                                      myProject.meteoPointsLoaded, isAnomaly, isClimate);
     if (compDialog.result() != QDialog::Accepted)
     {
         return;
     }
 
     bool isMeteoGrid = compDialog.getIsMeteoGrid();
-    myProject.lastElabTargetisGrid = isMeteoGrid;
+    myProject.lastElabTargetIsGrid = isMeteoGrid;
     bool showInfo = true;
     if (! myProject.computeElaboration(isMeteoGrid, isAnomaly, isClimate, showInfo))
     {
         myProject.logError();
+        return;
+    }
+
+    if (isMeteoGrid)
+    {
+        this->ui->actionShowGridElab->setEnabled(true);
+        redrawMeteoGrid(showElaboration, false);
     }
     else
     {
-        if (isMeteoGrid)
-        {
-            this->ui->actionShowGridElab->setEnabled(true);
-            redrawMeteoGrid(showElaboration, false);
-        }
-        else
-        {
-            this->ui->actionShowPointsElab->setEnabled(true);
-            redrawMeteoPoints(showElaboration, true);
-        }
+        this->ui->actionShowPointsElab->setEnabled(true);
+        redrawMeteoPoints(showElaboration, true);
     }
-    if (compDialog.result() == QDialog::Accepted)
-        on_actionElaboration_triggered();
+}
 
-    return;
 
+void MainWindow::on_actionElaboration_Hourly_data_triggered()
+{
+    if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded)
+    {
+        myProject.logWarning(ERROR_STR_MISSING_POINT_GRID);
+        return;
+    }
+
+    if (myProject.clima == nullptr)
+    {
+        myProject.clima = new Crit3DClimate();
+    }
+
+    DialogMeteoHourlyComputation compDialog(myProject.pragaDefaultSettings, myProject.meteoGridLoaded, myProject.meteoPointsLoaded);
+    if (compDialog.result() != QDialog::Accepted)
+    {
+        return;
+    }
+
+    bool isMeteoGrid = compDialog.getIsMeteoGrid();
+    myProject.lastElabTargetIsGrid = isMeteoGrid;
+    bool showInfo = true;
+    if (! myProject.computeElaborationHourly(isMeteoGrid, showInfo))
+    {
+        myProject.logError();
+        return;
+    }
+
+    if (isMeteoGrid)
+    {
+        this->ui->actionShowGridElab->setEnabled(true);
+        redrawMeteoGrid(showElaboration, false);
+    }
+    else
+    {
+        this->ui->actionShowPointsElab->setEnabled(true);
+        redrawMeteoPoints(showElaboration, true);
+    }
 }
 
 
@@ -2080,20 +2111,8 @@ void MainWindow::on_actionAnomaly_triggered()
 {
     if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
     {
-        myProject.logError(ERROR_STR_MISSING_POINT_GRID);
+        myProject.logWarning(ERROR_STR_MISSING_POINT_GRID);
         return;
-    }
-
-    bool isMeteoPointLoaded = false;
-    bool isMeteoGridLoaded = false;
-
-    if (myProject.meteoPointsLoaded)
-    {
-        isMeteoPointLoaded = true;
-    }
-    if (myProject.meteoGridLoaded)
-    {
-        isMeteoGridLoaded = true;
     }
 
     if (myProject.clima == nullptr)
@@ -2107,14 +2126,15 @@ void MainWindow::on_actionAnomaly_triggered()
 
     bool isAnomaly = true;
     bool isClimate = false;
-    DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, isMeteoGridLoaded, isMeteoPointLoaded, isAnomaly, isClimate);
+    DialogMeteoComputation compDialog(myProject.pragaDefaultSettings, myProject.meteoGridLoaded,
+                                      myProject.meteoPointsLoaded, isAnomaly, isClimate);
     if (compDialog.result() != QDialog::Accepted)
     {
         return;
     }
 
     bool isMeteoGrid = compDialog.getIsMeteoGrid();
-    myProject.lastElabTargetisGrid = isMeteoGrid;
+    myProject.lastElabTargetIsGrid = isMeteoGrid;
     isAnomaly = false;
     bool isOk = myProject.computeElaboration(isMeteoGrid, isAnomaly, isClimate, true);
     if (! isOk)
@@ -2183,7 +2203,7 @@ void MainWindow::on_actionClimate_triggered()
     }
 
     bool isMeteoGrid = compDialog.getIsMeteoGrid();
-    myProject.lastElabTargetisGrid = isMeteoGrid;
+    myProject.lastElabTargetIsGrid = isMeteoGrid;
     myProject.clima->getListElab()->setListClimateElab(compDialog.getElabSaveList());
     if (! myProject.computeElaboration(isMeteoGrid, isAnomaly, isClimate, true))
     {
@@ -2391,8 +2411,19 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
         }
     }
 
-    std::string var = MapDailyMeteoVarToString.at(myProject.clima->variable());
-    ui->lineEditVariable->setText(QString::fromStdString(var));
+    // check variable (daily or hourly)
+    meteoVariable var = myProject.clima->variable();
+    std::string varStr = "";
+    if (MapDailyMeteoVarToString.find(var) != MapDailyMeteoVarToString.end())
+    {
+        varStr = MapDailyMeteoVarToString.at(var);
+    }
+    else if (MapHourlyMeteoVarToString.find(var) != MapHourlyMeteoVarToString.end())
+    {
+        varStr = MapHourlyMeteoVarToString.at(var);
+    }
+    ui->lineEditVariable->setText(QString::fromStdString(varStr));
+
     QString startDay = QString::number(myProject.clima->genericPeriodDateStart().day());
     QString startMonth = QString::number(myProject.clima->genericPeriodDateStart().month());
     QString endDay = QString::number(myProject.clima->genericPeriodDateEnd().day());
@@ -6284,7 +6315,7 @@ void MainWindow::on_actionCompute_drought_triggered()
 {
     if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
     {
-        myProject.logError(ERROR_STR_MISSING_POINT_GRID);
+        myProject.logWarning(ERROR_STR_MISSING_POINT_GRID);
         return;
     }
 
