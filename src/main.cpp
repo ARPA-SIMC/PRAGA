@@ -1,6 +1,5 @@
 #include "pragaProject.h"
 #include "pragaShell.h"
-#include "shell.h"
 #include "mainGUI.h"
 #include "commonConstants.h"
 #include <QCoreApplication>
