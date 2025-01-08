@@ -3,6 +3,7 @@
 #include "shell.h"
 #include "mainGUI.h"
 #include "commonConstants.h"
+
 #include <QCoreApplication>
 #include <iostream>
 #include <QtNetwork/QNetworkProxy>
