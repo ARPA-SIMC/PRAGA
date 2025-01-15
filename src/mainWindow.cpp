@@ -5891,7 +5891,7 @@ void MainWindow::on_actionClimateMeteoGrid_triggered()
 
 void MainWindow::on_actionStatistical_Summary_triggered()
 {
-    if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
+    if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded)
     {
         myProject.logError(ERROR_STR_MISSING_POINT_GRID);
         return;
@@ -5915,6 +5915,7 @@ void MainWindow::on_actionStatistical_Summary_triggered()
         {
             if (myProject.meteoPointsLoaded && currentPointsVisualization != notShown)
             {
+                // user has selected a set of points
                 for (int i = 0; i < myProject.nrMeteoPoints; i++)
                 {
                     if (myProject.meteoPoints[i].active && myProject.meteoPoints[i].selected)
@@ -5925,7 +5926,9 @@ void MainWindow::on_actionStatistical_Summary_triggered()
                         }
                     }
                 }
+                // no selection: all points
                 if (validValues.size() == 0)
+                {
                     for (int i = 0; i < myProject.nrMeteoPoints; i++)
                     {
                         if (myProject.meteoPoints[i].active && myProject.meteoPoints[i].currentValue != NODATA)
@@ -5933,6 +5936,7 @@ void MainWindow::on_actionStatistical_Summary_triggered()
                             validValues.push_back(myProject.meteoPoints[i].currentValue);
                         }
                     }
+                }
 
                 if (validValues.size() != 0)
                 {
@@ -5979,7 +5983,6 @@ void MainWindow::on_actionStatistical_Summary_triggered()
                             {
                                 case showCurrentVariable:
                                 {
-
                                     if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue != NODATA)
                                     {
                                         validValues.push_back(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue);
