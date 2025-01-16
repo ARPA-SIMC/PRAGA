@@ -5891,7 +5891,7 @@ void MainWindow::on_actionClimateMeteoGrid_triggered()
 
 void MainWindow::on_actionStatistical_Summary_triggered()
 {
-    if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded)
+    if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded && ! myProject.dataRaster.isLoaded)
     {
         myProject.logError(ERROR_STR_MISSING_POINT_GRID);
         return;
@@ -6051,7 +6051,94 @@ void MainWindow::on_actionStatistical_Summary_triggered()
              }
             break;
         }
+        /*
+        case 3:     //interpolationRaster
+        {
+            if (myProject.dataRaster.isLoaded && currentGridVisualization != notShown)
+            {
+                for (int row = 0; row < myProject.dataRaster.header->nrRows ; row++)
+                    for (int col = 0; col < myProject.dataRaster.header->nrCols; col++)
+                    {
+                        if (myProject.dataRaster.getValueFromRowCol(row, col) != NODATA)
+                        {
+                            validValues.push_back(myProject.dataRaster.getValueFromRowCol(row, col));
+                        }
 
+                        if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
+                        {
+                            switch(currentGridVisualization)
+                            {
+                                case showCurrentVariable:
+                                {
+                                    if (myProject.dataRaster.getValueFromRowCol(row, col) != NODATA)
+                                    {
+                                        validValues.push_back(myProject.dataRaster.getValueFromRowCol(row, col));
+                                    }
+                                    break;
+                                }
+                                case showElaboration:
+                                {
+                                    if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->elaboration != NODATA)
+                                    {
+                                        validValues.push_back(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->elaboration);
+                                    }
+                                    break;
+                                }
+                                case showAnomalyAbsolute:
+                                {
+                                    if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->anomaly != NODATA)
+                                    {
+                                        validValues.push_back(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->anomaly);
+                                    }
+                                    break;
+                                }
+                                case showAnomalyPercentage:
+                                {
+                                    if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->anomalyPercentage != NODATA)
+                                    {
+                                        validValues.push_back(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->anomalyPercentage);
+                                    }
+                                    break;
+                                }
+                                case showClimate:
+                                {
+                                    if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->climate != NODATA)
+                                    {
+                                        validValues.push_back(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->climate);
+                                    }
+                                    break;
+                                }
+                                default:
+                                {
+                                    break;
+                                }
+                            }
+
+                            if (validValues.size() != 0)
+                            {
+                                    if (statistics::minList(validValues, int(validValues.size())) == validValues[validValues.size() - 1])
+                                {
+                                    idMin = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
+                                    nameMin = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
+                                }
+                                    if (statistics::maxList(validValues, int(validValues.size())) == validValues[validValues.size() - 1])
+                                {
+                                    idMax = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
+                                    nameMax = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
+                                }
+                            }
+                        }
+                    }
+            }
+            else
+            {
+                    myProject.errorString = "No dataRaster loaded";
+                    myProject.logError();
+                    return;
+             }
+            break;
+        }
+        */
         case NODATA:
         {
             return;
