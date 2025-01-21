@@ -39,6 +39,7 @@
 #include "dialogExportDataGrid.h"
 #include "dialogSelectWell.h"
 #include "squareMarker.h"
+#include "gis.h"
 
 
 extern PragaProject myProject;
@@ -5903,11 +5904,16 @@ void MainWindow::on_actionStatistical_Summary_triggered()
     QTextBrowser textBrowser;
     FormSelectionSource inputSelected;
 
+    inputSelected.disableRadioButtons(! myProject.meteoPointsLoaded,! myProject.meteoGridLoaded,! myProject.dataRaster.isLoaded );
+
     if (inputSelected.result() != QDialog::Accepted) return;
     int inputId = inputSelected.getSourceSelectionId();
 
-    std::string idMin, idMax, nameMin, nameMax;
+    std::string idMin, idMax, nameMin, nameMax, errorStdStr;
     std::vector <float> validValues;
+    int nrValidCells = NODATA;
+    float avgValue = NODATA;
+    float area = NODATA;
 
     switch(inputId)
     {
@@ -6051,107 +6057,52 @@ void MainWindow::on_actionStatistical_Summary_triggered()
              }
             break;
         }
-        /*
+
         case 3:     //interpolationRaster
         {
-            if (myProject.dataRaster.isLoaded && currentGridVisualization != notShown)
+            if (! gis::rasterSummary(&(myProject.dataRaster), nrValidCells, avgValue, errorStdStr))
             {
-                for (int row = 0; row < myProject.dataRaster.header->nrRows ; row++)
-                    for (int col = 0; col < myProject.dataRaster.header->nrCols; col++)
-                    {
-                        if (myProject.dataRaster.getValueFromRowCol(row, col) != NODATA)
-                        {
-                            validValues.push_back(myProject.dataRaster.getValueFromRowCol(row, col));
-                        }
-
-                        if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
-                        {
-                            switch(currentGridVisualization)
-                            {
-                                case showCurrentVariable:
-                                {
-                                    if (myProject.dataRaster.getValueFromRowCol(row, col) != NODATA)
-                                    {
-                                        validValues.push_back(myProject.dataRaster.getValueFromRowCol(row, col));
-                                    }
-                                    break;
-                                }
-                                case showElaboration:
-                                {
-                                    if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->elaboration != NODATA)
-                                    {
-                                        validValues.push_back(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->elaboration);
-                                    }
-                                    break;
-                                }
-                                case showAnomalyAbsolute:
-                                {
-                                    if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->anomaly != NODATA)
-                                    {
-                                        validValues.push_back(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->anomaly);
-                                    }
-                                    break;
-                                }
-                                case showAnomalyPercentage:
-                                {
-                                    if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->anomalyPercentage != NODATA)
-                                    {
-                                        validValues.push_back(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->anomalyPercentage);
-                                    }
-                                    break;
-                                }
-                                case showClimate:
-                                {
-                                    if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->climate != NODATA)
-                                    {
-                                        validValues.push_back(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->climate);
-                                    }
-                                    break;
-                                }
-                                default:
-                                {
-                                    break;
-                                }
-                            }
-
-                            if (validValues.size() != 0)
-                            {
-                                    if (statistics::minList(validValues, int(validValues.size())) == validValues[validValues.size() - 1])
-                                {
-                                    idMin = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
-                                    nameMin = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
-                                }
-                                    if (statistics::maxList(validValues, int(validValues.size())) == validValues[validValues.size() - 1])
-                                {
-                                    idMax = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id;
-                                    nameMax = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->name;
-                                }
-                            }
-                        }
-                    }
+                QString errorString = QString::fromStdString(errorStdStr);
+                myProject.logError(errorString);
+                return;
             }
-            else
+
+            if (nrValidCells == 0)
             {
-                    myProject.errorString = "No dataRaster loaded";
-                    myProject.logError();
-                    return;
-             }
-            break;
+                myProject.logWarning("The raster selected has no valid values.");
+                return;
+            }
+
+            gis::updateMinMaxRasterGrid(&(myProject.dataRaster));
+
+            // [m2] -> [km 2]
+            area = nrValidCells * myProject.dataRaster.header->cellSize * myProject.dataRaster.header->cellSize / 1000000;
+
         }
-        */
+
         case NODATA:
         {
             return;
         }
     }
 
-    textBrowser.setText(QString("Variable: " + QString::fromStdString(getVariableString(myProject.getCurrentVariable()))));
-    textBrowser.append(QString("Number of cells: " + QString::number(validValues.size())));
-    textBrowser.append(QString("Average: " + QString::number(statistics::mean(validValues))));
-    textBrowser.append(QString("Standard deviation: " + QString::number(statistics::standardDeviation(validValues, int(validValues.size())))));
-    textBrowser.append(QString("Maximum: ") + QString::number(statistics::maxList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMax) + ", id " + QString::fromStdString(idMax));
-    textBrowser.append(QString("Minimum: " + QString::number(statistics::minList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMin) + ", id " + QString::fromStdString(idMin)));
-
+    if(inputId != 3)
+    {
+        textBrowser.setText(QString("Variable: " + QString::fromStdString(getVariableString(myProject.getCurrentVariable()))));
+        textBrowser.append(QString("Number of cells: " + QString::number(validValues.size())));
+        textBrowser.append(QString("Average: " + QString::number(statistics::mean(validValues))));
+        textBrowser.append(QString("Standard deviation: " + QString::number(statistics::standardDeviation(validValues, int(validValues.size())))));
+        textBrowser.append(QString("Maximum: ") + QString::number(statistics::maxList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMax) + ", id " + QString::fromStdString(idMax));
+        textBrowser.append(QString("Minimum: " + QString::number(statistics::minList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMin) + ", id " + QString::fromStdString(idMin)));
+    }
+    else
+    {
+        textBrowser.append(QString("Number of pixels: " + QString::number(nrValidCells)));
+        textBrowser.append(QString("Valid area: " + QString::number(area) + " Km2"));
+        textBrowser.append(QString("Average: " + QString::number(avgValue)));
+        textBrowser.append(QString("Minimum: " + QString::number(myProject.dataRaster.minimum)));
+        textBrowser.append(QString("Maximum: " + QString::number(myProject.dataRaster.maximum)));
+    }
     QVBoxLayout mainLayout;
     mainLayout.addWidget(&textBrowser);
 
