@@ -7005,3 +7005,12 @@ void MainWindow::on_actionHide_supplemental_stations_toggled(bool state)
 }
 
 
+
+void MainWindow::on_actionShowHelp_triggered()
+{
+    QString helpStr = myProject.getVersion();
+    helpStr += "\n\nhttps://github.com/ARPA-SIMC/PRAGA";
+
+    myProject.logInfoGUI(helpStr);
+}
+
