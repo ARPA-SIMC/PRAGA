@@ -7009,6 +7009,12 @@ void MainWindow::on_actionHide_supplemental_stations_toggled(bool state)
 void MainWindow::on_actionShowHelp_triggered()
 {
     QString helpStr = myProject.getVersion();
+    helpStr += "\n\nARPAE Emilia-Romagna Hydro-Meteo-Climate Service";
+    helpStr += "\n- Gabriele Antolini   gantolini@arpae.it";
+    helpStr += "\n- Fausto Tomei        ftomei@arpae.it";
+    helpStr += "\n- Antonio Volta       avolta@arpae.it";
+    helpStr += "\n- Caterina Toscano    ctoscano@arpae.it";
+    helpStr += "\n- Laura Costantini    laura.costantini0@gmail.com";
     helpStr += "\n\nhttps://github.com/ARPA-SIMC/PRAGA";
 
     myProject.logInfoGUI(helpStr);
