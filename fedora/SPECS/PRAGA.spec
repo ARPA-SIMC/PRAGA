@@ -3,7 +3,7 @@
 
 Name:           PRAGA
 Version:        2.0.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        PRogram for AGrometeorological Analysis
 
 URL:            https://github.com/ARPA-SIMC/PRAGA
@@ -55,6 +55,9 @@ cp -a src/PRAGA %{buildroot}/%{_bindir}/
 
 
 %changelog
+* Tue Jan 21 2025 Fausto Tomei <ftomei@arpae.it> - 2.0.1-3
+- Release 2.0.1
+
 * Tue Jan 21 2025 Fausto Tomei <ftomei@arpae.it> - 2.0.1-2
 - Release 2.0.1
 
