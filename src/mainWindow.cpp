@@ -39,6 +39,7 @@
 #include "dialogExportDataGrid.h"
 #include "dialogSelectWell.h"
 #include "squareMarker.h"
+#include "gis.h"
 
 
 extern PragaProject myProject;
@@ -5891,7 +5892,7 @@ void MainWindow::on_actionClimateMeteoGrid_triggered()
 
 void MainWindow::on_actionStatistical_Summary_triggered()
 {
-    if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded)
+    if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded && ! myProject.dataRaster.isLoaded)
     {
         myProject.logError(ERROR_STR_MISSING_POINT_GRID);
         return;
@@ -5903,11 +5904,16 @@ void MainWindow::on_actionStatistical_Summary_triggered()
     QTextBrowser textBrowser;
     FormSelectionSource inputSelected;
 
+    inputSelected.disableRadioButtons(! myProject.meteoPointsLoaded,! myProject.meteoGridLoaded,! myProject.dataRaster.isLoaded );
+
     if (inputSelected.result() != QDialog::Accepted) return;
     int inputId = inputSelected.getSourceSelectionId();
 
-    std::string idMin, idMax, nameMin, nameMax;
+    std::string idMin, idMax, nameMin, nameMax, errorStdStr;
     std::vector <float> validValues;
+    int nrValidCells = NODATA;
+    float avgValue = NODATA;
+    float area = NODATA;
 
     switch(inputId)
     {
@@ -6052,19 +6058,51 @@ void MainWindow::on_actionStatistical_Summary_triggered()
             break;
         }
 
+        case 3:     //interpolationRaster
+        {
+            if (! gis::rasterSummary(&(myProject.dataRaster), nrValidCells, avgValue, errorStdStr))
+            {
+                QString errorString = QString::fromStdString(errorStdStr);
+                myProject.logError(errorString);
+                return;
+            }
+
+            if (nrValidCells == 0)
+            {
+                myProject.logWarning("The raster selected has no valid values.");
+                return;
+            }
+
+            gis::updateMinMaxRasterGrid(&(myProject.dataRaster));
+
+            // [m2] -> [km 2]
+            area = nrValidCells * myProject.dataRaster.header->cellSize * myProject.dataRaster.header->cellSize / 1000000;
+
+        }
+
         case NODATA:
         {
             return;
         }
     }
 
-    textBrowser.setText(QString("Variable: " + QString::fromStdString(getVariableString(myProject.getCurrentVariable()))));
-    textBrowser.append(QString("Number of cells: " + QString::number(validValues.size())));
-    textBrowser.append(QString("Average: " + QString::number(statistics::mean(validValues))));
-    textBrowser.append(QString("Standard deviation: " + QString::number(statistics::standardDeviation(validValues, int(validValues.size())))));
-    textBrowser.append(QString("Maximum: ") + QString::number(statistics::maxList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMax) + ", id " + QString::fromStdString(idMax));
-    textBrowser.append(QString("Minimum: " + QString::number(statistics::minList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMin) + ", id " + QString::fromStdString(idMin)));
-
+    if(inputId != 3)
+    {
+        textBrowser.setText(QString("Variable: " + QString::fromStdString(getVariableString(myProject.getCurrentVariable()))));
+        textBrowser.append(QString("Number of cells: " + QString::number(validValues.size())));
+        textBrowser.append(QString("Average: " + QString::number(statistics::mean(validValues))));
+        textBrowser.append(QString("Standard deviation: " + QString::number(statistics::standardDeviation(validValues, int(validValues.size())))));
+        textBrowser.append(QString("Maximum: ") + QString::number(statistics::maxList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMax) + ", id " + QString::fromStdString(idMax));
+        textBrowser.append(QString("Minimum: " + QString::number(statistics::minList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMin) + ", id " + QString::fromStdString(idMin)));
+    }
+    else
+    {
+        textBrowser.append(QString("Number of pixels: " + QString::number(nrValidCells)));
+        textBrowser.append(QString("Valid area: " + QString::number(area) + " Km2"));
+        textBrowser.append(QString("Average: " + QString::number(avgValue)));
+        textBrowser.append(QString("Minimum: " + QString::number(myProject.dataRaster.minimum)));
+        textBrowser.append(QString("Maximum: " + QString::number(myProject.dataRaster.maximum)));
+    }
     QVBoxLayout mainLayout;
     mainLayout.addWidget(&textBrowser);
 
@@ -6918,7 +6956,25 @@ void MainWindow::on_actionHide_supplemental_stations_toggled(bool state)
 }
 
 
+<<<<<<< HEAD
 void MainWindow::on_actionShowPointsCVResidual_triggered()
 {
     redrawMeteoPoints(showCVResidual, true);
 }
+=======
+
+void MainWindow::on_actionShowHelp_triggered()
+{
+    QString helpStr = myProject.getVersion();
+    helpStr += "\n\nARPAE Emilia-Romagna Hydro-Meteo-Climate Service";
+    helpStr += "\n- Gabriele Antolini   gantolini@arpae.it";
+    helpStr += "\n- Fausto Tomei        ftomei@arpae.it";
+    helpStr += "\n- Antonio Volta       avolta@arpae.it";
+    helpStr += "\n- Caterina Toscano    ctoscano@arpae.it";
+    helpStr += "\n- Laura Costantini    laura.costantini0@gmail.com";
+    helpStr += "\n\nhttps://github.com/ARPA-SIMC/PRAGA";
+
+    myProject.logInfoGUI(helpStr);
+}
+
+>>>>>>> c67a7f14017c6761d4fac1bb36b3239837bf594d

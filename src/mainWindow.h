@@ -328,6 +328,8 @@
 
         void on_actionShowPointsCVResidual_triggered();
 
+        void on_actionShowHelp_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
