@@ -1,13 +1,15 @@
-# Note: define srcarchivename in Travis build only.
-%{!?srcarchivename: %global srcarchivename PRAGA-%{version}}
+%global releaseno 4
+
+# Note: define srcarchivename in CI build only.
+%{!?srcarchivename: %global srcarchivename %{name}-%{version}-%{releaseno}}
 
 Name:           PRAGA
 Version:        2.0.1
-Release:        3%{?dist}
+Release:        %{releaseno}%{?dist}
 Summary:        PRogram for AGrometeorological Analysis
 
 URL:            https://github.com/ARPA-SIMC/PRAGA
-Source0:        https://github.com/ARPA-SIMC/PRAGA/archive/v%{version}.tar.gz#/%{srcarchivename}.tar.gz
+Source0:        https://github.com/ARPA-SIMC/PRAGA/archive/v%{version}-%{releaseno}.tar.gz#/%{srcarchivename}.tar.gz
 License:        GPL
 
 BuildRequires:  qt5-qtbase
