@@ -5898,16 +5898,12 @@ void MainWindow::on_actionStatistical_Summary_triggered()
         return;
     }
 
-    QDialog myDialog;
-    myDialog.setWindowTitle("Statistics");
+    FormSelectionSource inputForm(myProject.meteoPointsLoaded, myProject.meteoGridLoaded, myProject.dataRaster.isLoaded);
 
-    QTextBrowser textBrowser;
-    FormSelectionSource inputSelected;
-
-    inputSelected.disableRadioButtons(! myProject.meteoPointsLoaded,! myProject.meteoGridLoaded,! myProject.dataRaster.isLoaded );
-
-    if (inputSelected.result() != QDialog::Accepted) return;
-    int inputId = inputSelected.getSourceSelectionId();
+    if (inputForm.result() != QDialog::Accepted)
+        return;
+    int inputId = inputForm.getSourceSelectionId();
+    inputForm.close();
 
     std::string idMin, idMax, nameMin, nameMax, errorStdStr;
     std::vector <float> validValues;
@@ -5962,14 +5958,14 @@ void MainWindow::on_actionStatistical_Summary_triggered()
                 }
                 else
                 {
-                        myProject.errorString = "No active points present.";
+                        myProject.errorString = "No valid value.";
                         myProject.logError();
                         return;
                 }
             }
             else
             {
-                    myProject.errorString = "No MeteoPoints loaded";
+                    myProject.errorString = "No MeteoPoints loaded.";
                     myProject.logError();
                     return;
              }
@@ -6077,37 +6073,43 @@ void MainWindow::on_actionStatistical_Summary_triggered()
 
             // [m2] -> [km 2]
             area = nrValidCells * myProject.dataRaster.header->cellSize * myProject.dataRaster.header->cellSize / 1000000;
+            break;
         }
 
-        case NODATA:
+        default:
         {
             return;
         }
     }
 
-    if(inputId != 3)
+    // Statistics dialog
+    QDialog myDialog;
+    myDialog.setWindowTitle("Statistics");
+    QTextBrowser textBrowser;
+
+    if (inputId != 3)
     {
-        textBrowser.setText(QString("Variable: " + QString::fromStdString(getVariableString(myProject.getCurrentVariable()))));
-        textBrowser.append(QString("Number of cells: " + QString::number(validValues.size())));
-        textBrowser.append(QString("Average: " + QString::number(statistics::mean(validValues))));
-        textBrowser.append(QString("Standard deviation: " + QString::number(statistics::standardDeviation(validValues, int(validValues.size())))));
-        textBrowser.append(QString("Maximum: ") + QString::number(statistics::maxList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMax) + ", id " + QString::fromStdString(idMax));
-        textBrowser.append(QString("Minimum: " + QString::number(statistics::minList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMin) + ", id " + QString::fromStdString(idMin)));
+        textBrowser.setText("Variable: " + QString::fromStdString(getVariableString(myProject.getCurrentVariable())));
+        textBrowser.append("Number of cells: " + QString::number(validValues.size()));
+        textBrowser.append("Average value: " + QString::number(statistics::mean(validValues)));
+        textBrowser.append("Standard deviation: " + QString::number(statistics::standardDeviation(validValues, int(validValues.size()))));
+        textBrowser.append("Maximum: " + QString::number(statistics::maxList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMax) + ", id " + QString::fromStdString(idMax));
+        textBrowser.append("Minimum: " + QString::number(statistics::minList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMin) + ", id " + QString::fromStdString(idMin));
     }
     else
     {
-        textBrowser.append(QString("Number of pixels: " + QString::number(nrValidCells)));
-        textBrowser.append(QString("Valid area: " + QString::number(area) + " Km2"));
-        textBrowser.append(QString("Average: " + QString::number(avgValue)));
-        textBrowser.append(QString("Minimum: " + QString::number(myProject.dataRaster.minimum)));
-        textBrowser.append(QString("Maximum: " + QString::number(myProject.dataRaster.maximum)));
+        textBrowser.append("Interpolation raster");
+        textBrowser.append("Number of pixels: " + QString::number(nrValidCells));
+        textBrowser.append("Valid area: " + QString::number(area) + " Km2");
+        textBrowser.append("Average value: " + QString::number(avgValue));
+        textBrowser.append("Minimum: " + QString::number(myProject.dataRaster.minimum));
+        textBrowser.append("Maximum: " + QString::number(myProject.dataRaster.maximum));
     }
 
     QVBoxLayout mainLayout;
     mainLayout.addWidget(&textBrowser);
-
-    myDialog.setLayout(&mainLayout);
     myDialog.setFixedSize(500,170);
+    myDialog.setLayout(&mainLayout);
     myDialog.exec();
 }
 
