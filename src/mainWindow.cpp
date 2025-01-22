@@ -5894,7 +5894,7 @@ void MainWindow::on_actionStatistical_Summary_triggered()
 {
     if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded && ! myProject.dataRaster.isLoaded)
     {
-        myProject.logError(ERROR_STR_MISSING_POINT_GRID);
+        myProject.logWarning(ERROR_STR_MISSING_POINT_GRID);
         return;
     }
 
