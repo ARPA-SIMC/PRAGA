@@ -6955,13 +6955,10 @@ void MainWindow::on_actionHide_supplemental_stations_toggled(bool state)
     redrawMeteoPoints(currentPointsVisualization, true);
 }
 
-
-<<<<<<< HEAD
 void MainWindow::on_actionShowPointsCVResidual_triggered()
 {
     redrawMeteoPoints(showCVResidual, true);
 }
-=======
 
 void MainWindow::on_actionShowHelp_triggered()
 {
@@ -6977,4 +6974,3 @@ void MainWindow::on_actionShowHelp_triggered()
     myProject.logInfoGUI(helpStr);
 }
 
->>>>>>> c67a7f14017c6761d4fac1bb36b3239837bf594d
