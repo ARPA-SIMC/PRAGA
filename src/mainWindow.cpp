@@ -6054,7 +6054,7 @@ void MainWindow::on_actionStatistical_Summary_triggered()
                     myProject.errorString = "No MeteoGrid loaded";
                     myProject.logError();
                     return;
-             }
+            }
             break;
         }
 
@@ -6077,7 +6077,6 @@ void MainWindow::on_actionStatistical_Summary_triggered()
 
             // [m2] -> [km 2]
             area = nrValidCells * myProject.dataRaster.header->cellSize * myProject.dataRaster.header->cellSize / 1000000;
-
         }
 
         case NODATA:
@@ -6103,14 +6102,13 @@ void MainWindow::on_actionStatistical_Summary_triggered()
         textBrowser.append(QString("Minimum: " + QString::number(myProject.dataRaster.minimum)));
         textBrowser.append(QString("Maximum: " + QString::number(myProject.dataRaster.maximum)));
     }
+
     QVBoxLayout mainLayout;
     mainLayout.addWidget(&textBrowser);
 
     myDialog.setLayout(&mainLayout);
     myDialog.setFixedSize(500,170);
     myDialog.exec();
-
-    return;
 }
 
 
@@ -6960,15 +6958,16 @@ void MainWindow::on_actionShowPointsCVResidual_triggered()
     redrawMeteoPoints(showCVResidual, true);
 }
 
-void MainWindow::on_actionShowHelp_triggered()
+void MainWindow::on_actionShowInfo_triggered()
 {
-    QString helpStr = myProject.getVersion();
-    helpStr += "\n\nARPAE Emilia-Romagna Hydro-Meteo-Climate Service";
+    QString helpStr = "*** " + myProject.getVersion() + " ***";
+    helpStr += "\n\nARPAE Emilia-Romagna\nHydro-Meteo-Climate Service";
+    helpStr += "\n\nAUTHORS:";
     helpStr += "\n- Gabriele Antolini   gantolini@arpae.it";
-    helpStr += "\n- Fausto Tomei        ftomei@arpae.it";
-    helpStr += "\n- Antonio Volta       avolta@arpae.it";
-    helpStr += "\n- Caterina Toscano    ctoscano@arpae.it";
+    helpStr += "\n- Fausto Tomei         ftomei@arpae.it";
+    helpStr += "\n- Antonio Volta        avolta@arpae.it";
     helpStr += "\n- Laura Costantini    laura.costantini0@gmail.com";
+    helpStr += "\n- Caterina Toscano    ctoscano@arpae.it";
     helpStr += "\n\nhttps://github.com/ARPA-SIMC/PRAGA";
 
     myProject.logInfoGUI(helpStr);

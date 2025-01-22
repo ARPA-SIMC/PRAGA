@@ -470,7 +470,7 @@
             <second>0</second>
             <year>1752</year>
             <month>8</month>
-            <day>22</day>
+            <day>21</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1831,7 +1831,7 @@
     <addaction name="menuSettingsMap"/>
     <addaction name="actionSettingsParameters"/>
     <addaction name="separator"/>
-    <addaction name="actionShowHelp"/>
+    <addaction name="actionShowInfo"/>
    </widget>
    <widget class="QMenu" name="menuInterpolation">
     <property name="title">
@@ -3047,9 +3047,9 @@
     <string>Hourly data...</string>
    </property>
   </action>
-  <action name="actionShowHelp">
+  <action name="actionShowInfo">
    <property name="text">
-    <string>Help...</string>
+    <string>Info...</string>
    </property>
   </action>
  </widget>
