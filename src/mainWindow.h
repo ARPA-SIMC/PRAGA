@@ -326,6 +326,8 @@
 
         void on_actionElaboration_Hourly_data_triggered();
 
+        void on_actionShowPointsCVResidual_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

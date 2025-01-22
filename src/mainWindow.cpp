@@ -2580,7 +2580,7 @@ void MainWindow::showCVResult()
                     }
                 }
             }
-            else if (! myProject.interpolationSettings.getUseLocalDetrending())
+            else if (! myProject.interpolationSettings.getUseLocalDetrending() && ! myProject.interpolationSettings.getUseGlocalDetrending())
             {
                 std::vector<std::vector<double>> par = myProject.interpolationSettings.getFittingParameters();
                 for (int i=0; i < proxyNr; i++)
@@ -6918,3 +6918,7 @@ void MainWindow::on_actionHide_supplemental_stations_toggled(bool state)
 }
 
 
+void MainWindow::on_actionShowPointsCVResidual_triggered()
+{
+    redrawMeteoPoints(showCVResidual, true);
+}
