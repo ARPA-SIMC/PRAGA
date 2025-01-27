@@ -6975,3 +6975,30 @@ void MainWindow::on_actionShowInfo_triggered()
     myProject.logInfoGUI(helpStr);
 }
 
+
+void MainWindow::on_actionMark_macro_area_stations_triggered()
+{
+    if (! myProject.interpolationSettings.getUseGlocalDetrending()) return;
+    if (! myProject.loadGlocalAreasMap()) return;
+    if (! myProject.loadGlocalStationsAndCells(false)) return;
+
+    FormText formWidth("Insert macroarea number");
+    if (formWidth.result() == QDialog::Rejected)
+        return;
+
+    QString numberString = formWidth.getText();
+    if (numberString == "")
+        return;
+
+    bool isValid;
+    int areaNr = numberString.toInt(&isValid);
+
+    if (! isValid)
+        myProject.logError("Invalid number: " + numberString);
+    myProject.setMarkedPointsOfMacroArea(areaNr);
+
+    redrawMeteoPoints(currentPointsVisualization, true);
+
+    return;
+}
+
