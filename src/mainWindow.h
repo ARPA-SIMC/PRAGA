@@ -330,6 +330,8 @@
 
         void on_actionShowInfo_triggered();
 
+        void on_actionMark_macro_area_stations_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

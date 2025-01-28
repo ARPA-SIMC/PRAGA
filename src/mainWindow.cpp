@@ -41,7 +41,6 @@
 #include "squareMarker.h"
 #include "gis.h"
 
-
 extern PragaProject myProject;
 
 #define MAPBORDER 10
@@ -5917,42 +5916,25 @@ void MainWindow::on_actionStatistical_Summary_triggered()
         {
             if (myProject.meteoPointsLoaded && currentPointsVisualization != notShown)
             {
-                // user has selected a set of points
-                for (int i = 0; i < myProject.nrMeteoPoints; i++)
-                {
-                    if (myProject.meteoPoints[i].active && myProject.meteoPoints[i].selected)
-                    {
-                        if (myProject.meteoPoints[i].currentValue != NODATA)
-                        {
-                            validValues.push_back(myProject.meteoPoints[i].currentValue);
-                        }
-                    }
-                }
-                // no selection: all points
-                if (validValues.size() == 0)
-                {
-                    for (int i = 0; i < myProject.nrMeteoPoints; i++)
-                    {
-                        if (myProject.meteoPoints[i].active && myProject.meteoPoints[i].currentValue != NODATA)
-                        {
-                            validValues.push_back(myProject.meteoPoints[i].currentValue);
-                        }
-                    }
-                }
+                std::vector<float> validValues;
+                validValues.clear();
+                myProject.MeteoPointsToVector(&validValues);
 
                 if (validValues.size() != 0)
                 {
+                    float minValue = statistics::minList(validValues, int(validValues.size()));
+                    float maxValue = statistics::maxList(validValues, int(validValues.size()));
                     for (int i = 0; i < myProject.nrMeteoPoints; i++)
                     {
-                        if (statistics::minList(validValues, int(validValues.size())) == myProject.meteoPoints[i].currentValue)
+                        if (minValue == myProject.meteoPoints[i].currentValue)
                         {
-                            idMin = myProject.meteoPoints[i].id;
-                            nameMin = myProject.meteoPoints[i].name;
+                           idMin = myProject.meteoPoints[i].id;
+                           nameMin = myProject.meteoPoints[i].name;
                         }
-                        if (statistics::maxList(validValues, int(validValues.size())) == myProject.meteoPoints[i].currentValue)
+                        if (maxValue == myProject.meteoPoints[i].currentValue)
                         {
-                            idMax = myProject.meteoPoints[i].id;
-                            nameMax = myProject.meteoPoints[i].name;
+                           idMax = myProject.meteoPoints[i].id;
+                           nameMax = myProject.meteoPoints[i].name;
                         }
                     }
                 }
@@ -6973,5 +6955,32 @@ void MainWindow::on_actionShowInfo_triggered()
     helpStr += "\n\nhttps://github.com/ARPA-SIMC/PRAGA";
 
     myProject.logInfoGUI(helpStr);
+}
+
+
+void MainWindow::on_actionMark_macro_area_stations_triggered()
+{
+    if (! myProject.interpolationSettings.getUseGlocalDetrending()) return;
+    if (! myProject.loadGlocalAreasMap()) return;
+    if (! myProject.loadGlocalStationsAndCells(false)) return;
+
+    FormText formWidth("Insert macroarea number");
+    if (formWidth.result() == QDialog::Rejected)
+        return;
+
+    QString numberString = formWidth.getText();
+    if (numberString == "")
+        return;
+
+    bool isValid;
+    int areaNr = numberString.toInt(&isValid);
+
+    if (! isValid)
+        myProject.logError("Invalid number: " + numberString);
+    myProject.setMarkedPointsOfMacroArea(areaNr);
+
+    redrawMeteoPoints(currentPointsVisualization, true);
+
+    return;
 }
 

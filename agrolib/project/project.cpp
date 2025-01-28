@@ -2382,6 +2382,12 @@ bool Project::loadGlocalWeightMaps(std::vector<Crit3DMacroArea> &myAreas, bool i
         nrRows = meteoGridDbHandler->gridStructure().header().nrRows;
     }
 
+    if (nrCols == 0 || nrRows == 0)
+    {
+        errorString = "DEM file missing. You can open it manually or add it in the .ini file.";
+        return false;
+    }
+
     unsigned nrAreasWithCells = 0;
 
     for (int i = 0; i < myAreas.size(); i++)
@@ -4645,6 +4651,31 @@ bool Project::setMarkedFromPointList(QString fileName)
     return true;
 }
 
+bool Project::setMarkedPointsOfMacroArea(int areaNumber)
+{
+    for (int i = 0; i < nrMeteoPoints; i++)
+    {
+        meteoPoints[i].marked = false;
+    }
+
+    std::vector <int> pointList;
+    if (areaNumber < 0 || areaNumber >= interpolationSettings.getMacroAreas().size())
+    {
+        logError("Invalid macro area number.");
+        return false;
+    }
+
+    pointList = interpolationSettings.getMacroAreas()[areaNumber].getMeteoPoints();
+
+    for (int j = 0; j < pointList.size(); j++)
+    {
+        if (meteoPoints[pointList[j]].currentValue != NODATA)
+            meteoPoints[pointList[j]].marked = true;
+    }
+
+    return true;
+}
+
 
 bool Project::deleteMeteoPoints(const QList<QString>& pointList)
 {
@@ -5662,3 +5693,29 @@ bool Project::assignAltitudeToAggregationPoints()
     return true;
 }
 
+
+void Project::MeteoPointsToVector(std::vector<float> *validValues)
+{
+    // user has selected a set of points
+    for (int i = 0; i < nrMeteoPoints; i++)
+    {
+        if (meteoPoints[i].active && meteoPoints[i].selected)
+        {
+            if (meteoPoints[i].currentValue != NODATA)
+            {
+                validValues->push_back(meteoPoints[i].currentValue);
+            }
+        }
+    }
+    // no selection: all points
+    if (validValues->size() == 0)
+    {
+        for (int i = 0; i < nrMeteoPoints; i++)
+        {
+            if (meteoPoints[i].active && meteoPoints[i].currentValue != NODATA)
+            {
+                validValues->push_back(meteoPoints[i].currentValue);
+            }
+        }
+    }
+}
