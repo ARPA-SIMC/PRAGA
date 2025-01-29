@@ -477,10 +477,12 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                 QAction *openPointStatisticsWidget = menu.addAction("Open point statistics widget");
 
                 QAction *openProxyGraph;
+                QAction *markMacroAreaStations;
                 if (myProject.meteoPointsLoaded && (myProject.interpolationSettings.getUseLocalDetrending() || myProject.interpolationSettings.getUseGlocalDetrending()))
                 {
                     menu.addSeparator();
                     openProxyGraph = menu.addAction("Open local proxy graph");
+                    markMacroAreaStations = menu.addAction("Mark all stations of this macroarea");
                 }
 
                 QAction *selection =  menu.exec(QCursor::pos());
@@ -513,6 +515,24 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                     {
                         callLocalProxyGraph(geoPoint);
                     }
+                    if (selection == markMacroAreaStations)
+                    {
+                        if (! myProject.interpolationSettings.getUseGlocalDetrending())
+                            return;
+
+                        if ( ! myProject.interpolationSettings.isGlocalReady(false))
+                        {
+                            if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false))
+                            {
+                                return;
+                            }
+                        }
+
+                        gis::Crit3DUtmPoint myUtm;
+                        gis::getUtmFromLatLon(myProject.gisSettings.utmZone, geoPoint, &myUtm);
+                        myProject.setMarkedPointsOfMacroArea(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
+                        redrawMeteoPoints(currentPointsVisualization, true);
+                    }
                     // TODO: other actions
 
                 }
@@ -535,8 +555,11 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             QMenu menu;
 
             QAction *openProxyGraph;
+            QAction *markMacroAreaStations;
             if (myProject.interpolationSettings.getUseLocalDetrending() || myProject.interpolationSettings.getUseGlocalDetrending())
                openProxyGraph = menu.addAction("Open local proxy graph");
+            if (myProject.interpolationSettings.getUseGlocalDetrending())
+                markMacroAreaStations = menu.addAction("Mark all stations of this macroarea");
 
             QAction *selection =  menu.exec(QCursor::pos());
 
@@ -545,6 +568,24 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                 if (selection == openProxyGraph)
                 {
                     callLocalProxyGraph(geoPoint);
+                }
+                else if (selection == markMacroAreaStations)
+                {
+                    if (! myProject.interpolationSettings.getUseGlocalDetrending())
+                        return;
+
+                    if ( ! myProject.interpolationSettings.isGlocalReady(false))
+                    {
+                        if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false))
+                        {
+                            return;
+                        }
+                    }
+
+                    gis::Crit3DUtmPoint myUtm;
+                    gis::getUtmFromLatLon(myProject.gisSettings.utmZone, geoPoint, &myUtm);
+                    myProject.setMarkedPointsOfMacroArea(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
+                    redrawMeteoPoints(currentPointsVisualization, true);
                 }
             }
         }
@@ -6960,9 +7001,14 @@ void MainWindow::on_actionShowInfo_triggered()
 
 void MainWindow::on_actionMark_macro_area_stations_triggered()
 {
-    if (! myProject.interpolationSettings.getUseGlocalDetrending()) return;
-    if (! myProject.loadGlocalAreasMap()) return;
-    if (! myProject.loadGlocalStationsAndCells(false)) return;
+
+    if (myProject.interpolationSettings.getUseGlocalDetrending() && ! myProject.interpolationSettings.isGlocalReady(false))
+    {
+        if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false))
+        {
+            return;
+        }
+    }
 
     FormText formWidth("Insert macroarea number");
     if (formWidth.result() == QDialog::Rejected)
