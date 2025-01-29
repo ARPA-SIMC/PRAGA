@@ -1789,6 +1789,8 @@ void MainWindow::addMeteoPoints()
         point->setDataset(myProject.meteoPoints[i].dataset);
         point->setAltitude(myProject.meteoPoints[i].point.z);
         point->setLapseRateCode(myProject.meteoPoints[i].lapseRateCode);
+        point->setRegion(myProject.meteoPoints[i].region);
+        point->setProvince(myProject.meteoPoints[i].province);
         point->setMunicipality(myProject.meteoPoints[i].municipality);
         point->setCurrentValue(qreal(myProject.meteoPoints[i].currentValue));
         point->setQuality(myProject.meteoPoints[i].quality);
