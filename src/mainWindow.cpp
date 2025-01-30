@@ -478,11 +478,14 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
                 QAction *openProxyGraph;
                 QAction *markMacroAreaStations;
+                QAction *addMacroAreaLR;
                 if (myProject.meteoPointsLoaded && (myProject.interpolationSettings.getUseLocalDetrending() || myProject.interpolationSettings.getUseGlocalDetrending()))
                 {
                     menu.addSeparator();
                     openProxyGraph = menu.addAction("Open local proxy graph");
-                    markMacroAreaStations = menu.addAction("Mark all stations of this macroarea");
+                    markMacroAreaStations = menu.addAction("Mark macroarea stations");
+                    addMacroAreaLR = menu.addAction("Plot macroarea lapse rate on global proxy widget");
+
                 }
 
                 QAction *selection =  menu.exec(QCursor::pos());
@@ -515,7 +518,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                     {
                         callLocalProxyGraph(geoPoint);
                     }
-                    if (selection == markMacroAreaStations)
+                    if (selection == markMacroAreaStations || selection == addMacroAreaLR)
                     {
                         if (! myProject.interpolationSettings.getUseGlocalDetrending())
                             return;
@@ -530,8 +533,27 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
                         gis::Crit3DUtmPoint myUtm;
                         gis::getUtmFromLatLon(myProject.gisSettings.utmZone, geoPoint, &myUtm);
-                        myProject.setMarkedPointsOfMacroArea(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
-                        redrawMeteoPoints(currentPointsVisualization, true);
+
+                        if (selection == markMacroAreaStations)
+                        {
+                            myProject.setMarkedPointsOfMacroArea(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
+                            redrawMeteoPoints(currentPointsVisualization, true);
+                        }
+                        else if (selection == addMacroAreaLR)
+                        {
+                            if (myProject.proxyWidget != nullptr)
+                            {
+                                QMessageBox::critical(nullptr, "proxy graph", "Proxy graph already open");
+                                return;
+                            }
+
+                            if (! myProject.meteoPointsLoaded)
+                            {
+                                QMessageBox::critical(nullptr, "proxy graph", "No meteo points DB open");
+                                return;
+                            }
+                            myProject.showProxyGraph(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
+                        }
                     }
                     // TODO: other actions
 
@@ -556,10 +578,14 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
             QAction *openProxyGraph;
             QAction *markMacroAreaStations;
+            QAction *addMacroAreaLR;
             if (myProject.interpolationSettings.getUseLocalDetrending() || myProject.interpolationSettings.getUseGlocalDetrending())
                openProxyGraph = menu.addAction("Open local proxy graph");
             if (myProject.interpolationSettings.getUseGlocalDetrending())
+            {
                 markMacroAreaStations = menu.addAction("Mark all stations of this macroarea");
+                addMacroAreaLR = menu.addAction("Plot macroarea lapse rate on global proxy widget");
+            }
 
             QAction *selection =  menu.exec(QCursor::pos());
 
@@ -569,7 +595,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                 {
                     callLocalProxyGraph(geoPoint);
                 }
-                else if (selection == markMacroAreaStations)
+                else if (selection == markMacroAreaStations || selection == addMacroAreaLR)
                 {
                     if (! myProject.interpolationSettings.getUseGlocalDetrending())
                         return;
@@ -584,8 +610,27 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
                     gis::Crit3DUtmPoint myUtm;
                     gis::getUtmFromLatLon(myProject.gisSettings.utmZone, geoPoint, &myUtm);
-                    myProject.setMarkedPointsOfMacroArea(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
-                    redrawMeteoPoints(currentPointsVisualization, true);
+
+                    if (selection == markMacroAreaStations)
+                    {
+                        myProject.setMarkedPointsOfMacroArea(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
+                        redrawMeteoPoints(currentPointsVisualization, true);
+                    }
+                    else if (selection == addMacroAreaLR)
+                    {
+                        if (myProject.proxyWidget != nullptr)
+                        {
+                            QMessageBox::critical(nullptr, "proxy graph", "Proxy graph already open");
+                            return;
+                        }
+
+                        if (! myProject.meteoPointsLoaded)
+                        {
+                            QMessageBox::critical(nullptr, "proxy graph", "No meteo points DB open");
+                            return;
+                        }
+                        myProject.showProxyGraph(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
+                    }
                 }
             }
         }
@@ -4332,7 +4377,7 @@ void MainWindow::on_action_Proxy_graph_triggered()
         return;
     }
 
-    return myProject.showProxyGraph();
+    return myProject.showProxyGraph(NODATA);
 }
 
 
