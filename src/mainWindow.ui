@@ -467,7 +467,7 @@
             <second>0</second>
             <year>1752</year>
             <month>8</month>
-            <day>19</day>
+            <day>18</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -3041,11 +3041,6 @@
   <action name="actionMark_macro_area_stations">
    <property name="text">
     <string>Mark macro area stations</string>
-   </property>
-  </action>
-  <action name="actionprova">
-   <property name="text">
-    <string>prova</string>
    </property>
   </action>
  </widget>
