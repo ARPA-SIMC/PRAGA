@@ -6004,7 +6004,6 @@ void MainWindow::on_actionStatistical_Summary_triggered()
         {
             if (myProject.meteoPointsLoaded && currentPointsVisualization != notShown)
             {
-                std::vector<float> validValues;
                 validValues.clear();
                 myProject.MeteoPointsToVector(&validValues);
 
