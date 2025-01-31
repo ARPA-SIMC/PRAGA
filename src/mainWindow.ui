@@ -467,7 +467,7 @@
             <second>0</second>
             <year>1752</year>
             <month>8</month>
-            <day>18</day>
+            <day>17</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -718,6 +718,9 @@
           </property>
           <property name="value">
            <number>66</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
          <widget class="QLabel" name="labelMeteoGridScale">
@@ -1039,6 +1042,9 @@
           <property name="value">
            <number>66</number>
           </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
          </widget>
          <widget class="QWidget" name="widgetColorLegendRaster" native="true">
           <property name="geometry">
@@ -1173,6 +1179,9 @@
           </property>
           <property name="value">
            <number>33</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
          <widget class="QPushButton" name="netCDFButtonVariable">
