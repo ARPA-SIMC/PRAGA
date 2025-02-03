@@ -1433,6 +1433,7 @@ void MainWindow::drawMeteoPoints()
     ui->menuSearch_points->setEnabled(true);
     ui->menuMark_points->setEnabled(true);
     ui->menuActive_points->setEnabled(true);
+    ui->menuSelected_points->setEnabled(true);
     ui->menuDeactive_points->setEnabled(true);
     ui->menuDelete_points->setEnabled(true);
     ui->menuDelete_data->setEnabled(true);
@@ -3607,6 +3608,7 @@ void MainWindow::closeMeteoPoints()
 
         ui->actionMeteopointRectangleSelection->setEnabled(false);
         ui->menuActive_points->setEnabled(false);
+        ui->menuSelected_points->setEnabled(false);
         ui->menuDeactive_points->setEnabled(false);
         ui->menuDelete_points->setEnabled(false);
         ui->menuDelete_data->setEnabled(false);
@@ -7076,4 +7078,32 @@ void MainWindow::on_actionMark_macro_area_stations_triggered()
     return;
 }
 
+
+
+void MainWindow::on_actionAll_Selected_triggered()
+{
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        myProject.meteoPoints[i].selected = true;
+    }
+
+    redrawMeteoPoints(currentPointsVisualization, true);
+}
+
+
+void MainWindow::on_actionNone_Selected_triggered()
+{
+    myProject.clearSelectedPoints();
+    redrawMeteoPoints(currentPointsVisualization, false);
+}
+
+
+void MainWindow::on_actionFrom_point_list_Selected_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open point list file"), "", tr("text files (*.txt)"));
+    if (fileName == "") return;
+
+    if (myProject.setSelectedStatePointList(fileName, true))
+        redrawMeteoPoints(currentPointsVisualization, true);
+}
 
