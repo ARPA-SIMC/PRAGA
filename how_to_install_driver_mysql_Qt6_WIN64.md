@@ -46,3 +46,11 @@ cmake --install .
 8) *libmariadb.dll* must be in a path visible to the executable, it can be copied into the folder
 ``` <Qt_installation_path>\<your platform>\bin ```  
 When you distribute your application, remember to include *libmariadb.dll* in your installation package. It must be placed in the same folder as the application executable.
+
+
+### Microsoft Visual Studio 2022 & Qt 6.8.1 (Edit 14.01.2025)
+
+Since Microsoft Visual Studio 2019 might be hard to obtain, for users that have Microsoft Visual Studio 2022 it is recommended to download Qt 6.8. The steps to follow are the same as the ones above, with a slight modification to be applied to steps 6-7. When running qt-cmake this argument must be added:
+```
+-DQT_GENERATE_SBOM=OFF
+```

@@ -39,7 +39,7 @@
 #include "dialogExportDataGrid.h"
 #include "dialogSelectWell.h"
 #include "squareMarker.h"
-
+#include "gis.h"
 
 extern PragaProject myProject;
 
@@ -477,10 +477,15 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                 QAction *openPointStatisticsWidget = menu.addAction("Open point statistics widget");
 
                 QAction *openProxyGraph;
+                QAction *markMacroAreaStations;
+                QAction *addMacroAreaLR;
                 if (myProject.meteoPointsLoaded && (myProject.interpolationSettings.getUseLocalDetrending() || myProject.interpolationSettings.getUseGlocalDetrending()))
                 {
                     menu.addSeparator();
                     openProxyGraph = menu.addAction("Open local proxy graph");
+                    markMacroAreaStations = menu.addAction("Mark macroarea stations");
+                    addMacroAreaLR = menu.addAction("Plot macroarea lapse rate on global proxy widget");
+
                 }
 
                 QAction *selection =  menu.exec(QCursor::pos());
@@ -513,6 +518,43 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                     {
                         callLocalProxyGraph(geoPoint);
                     }
+                    if (selection == markMacroAreaStations || selection == addMacroAreaLR)
+                    {
+                        if (! myProject.interpolationSettings.getUseGlocalDetrending())
+                            return;
+
+                        if ( ! myProject.interpolationSettings.isGlocalReady(false))
+                        {
+                            if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false))
+                            {
+                                return;
+                            }
+                        }
+
+                        gis::Crit3DUtmPoint myUtm;
+                        gis::getUtmFromLatLon(myProject.gisSettings.utmZone, geoPoint, &myUtm);
+
+                        if (selection == markMacroAreaStations)
+                        {
+                            myProject.setMarkedPointsOfMacroArea(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
+                            redrawMeteoPoints(currentPointsVisualization, true);
+                        }
+                        else if (selection == addMacroAreaLR)
+                        {
+                            if (myProject.proxyWidget != nullptr)
+                            {
+                                QMessageBox::critical(nullptr, "proxy graph", "Proxy graph already open");
+                                return;
+                            }
+
+                            if (! myProject.meteoPointsLoaded)
+                            {
+                                QMessageBox::critical(nullptr, "proxy graph", "No meteo points DB open");
+                                return;
+                            }
+                            myProject.showProxyGraph(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
+                        }
+                    }
                     // TODO: other actions
 
                 }
@@ -535,8 +577,15 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             QMenu menu;
 
             QAction *openProxyGraph;
+            QAction *markMacroAreaStations;
+            QAction *addMacroAreaLR;
             if (myProject.interpolationSettings.getUseLocalDetrending() || myProject.interpolationSettings.getUseGlocalDetrending())
                openProxyGraph = menu.addAction("Open local proxy graph");
+            if (myProject.interpolationSettings.getUseGlocalDetrending())
+            {
+                markMacroAreaStations = menu.addAction("Mark all stations of this macroarea");
+                addMacroAreaLR = menu.addAction("Plot macroarea lapse rate on global proxy widget");
+            }
 
             QAction *selection =  menu.exec(QCursor::pos());
 
@@ -545,6 +594,43 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                 if (selection == openProxyGraph)
                 {
                     callLocalProxyGraph(geoPoint);
+                }
+                else if (selection == markMacroAreaStations || selection == addMacroAreaLR)
+                {
+                    if (! myProject.interpolationSettings.getUseGlocalDetrending())
+                        return;
+
+                    if ( ! myProject.interpolationSettings.isGlocalReady(false))
+                    {
+                        if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false))
+                        {
+                            return;
+                        }
+                    }
+
+                    gis::Crit3DUtmPoint myUtm;
+                    gis::getUtmFromLatLon(myProject.gisSettings.utmZone, geoPoint, &myUtm);
+
+                    if (selection == markMacroAreaStations)
+                    {
+                        myProject.setMarkedPointsOfMacroArea(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
+                        redrawMeteoPoints(currentPointsVisualization, true);
+                    }
+                    else if (selection == addMacroAreaLR)
+                    {
+                        if (myProject.proxyWidget != nullptr)
+                        {
+                            QMessageBox::critical(nullptr, "proxy graph", "Proxy graph already open");
+                            return;
+                        }
+
+                        if (! myProject.meteoPointsLoaded)
+                        {
+                            QMessageBox::critical(nullptr, "proxy graph", "No meteo points DB open");
+                            return;
+                        }
+                        myProject.showProxyGraph(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
+                    }
                 }
             }
         }
@@ -1789,6 +1875,8 @@ void MainWindow::addMeteoPoints()
         point->setDataset(myProject.meteoPoints[i].dataset);
         point->setAltitude(myProject.meteoPoints[i].point.z);
         point->setLapseRateCode(myProject.meteoPoints[i].lapseRateCode);
+        point->setRegion(myProject.meteoPoints[i].region);
+        point->setProvince(myProject.meteoPoints[i].province);
         point->setMunicipality(myProject.meteoPoints[i].municipality);
         point->setCurrentValue(qreal(myProject.meteoPoints[i].currentValue));
         point->setQuality(myProject.meteoPoints[i].quality);
@@ -2580,7 +2668,7 @@ void MainWindow::showCVResult()
                     }
                 }
             }
-            else if (! myProject.interpolationSettings.getUseLocalDetrending())
+            else if (! myProject.interpolationSettings.getUseLocalDetrending() && ! myProject.interpolationSettings.getUseGlocalDetrending())
             {
                 std::vector<std::vector<double>> par = myProject.interpolationSettings.getFittingParameters();
                 for (int i=0; i < proxyNr; i++)
@@ -4291,7 +4379,7 @@ void MainWindow::on_action_Proxy_graph_triggered()
         return;
     }
 
-    return myProject.showProxyGraph();
+    return myProject.showProxyGraph(NODATA);
 }
 
 
@@ -5891,23 +5979,24 @@ void MainWindow::on_actionClimateMeteoGrid_triggered()
 
 void MainWindow::on_actionStatistical_Summary_triggered()
 {
-    if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
+    if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded && ! myProject.dataRaster.isLoaded)
     {
-        myProject.logError(ERROR_STR_MISSING_POINT_GRID);
+        myProject.logWarning(ERROR_STR_MISSING_POINT_GRID);
         return;
     }
 
-    QDialog myDialog;
-    myDialog.setWindowTitle("Statistics");
+    FormSelectionSource inputForm(myProject.meteoPointsLoaded, myProject.meteoGridLoaded, myProject.dataRaster.isLoaded);
 
-    QTextBrowser textBrowser;
-    FormSelectionSource inputSelected;
+    if (inputForm.result() != QDialog::Accepted)
+        return;
+    int inputId = inputForm.getSourceSelectionId();
+    inputForm.close();
 
-    if (inputSelected.result() != QDialog::Accepted) return;
-    int inputId = inputSelected.getSourceSelectionId();
-
-    std::string idMin, idMax, nameMin, nameMax;
+    std::string idMin, idMax, nameMin, nameMax, errorStdStr;
     std::vector <float> validValues;
+    int nrValidCells = NODATA;
+    float avgValue = NODATA;
+    float area = NODATA;
 
     switch(inputId)
     {
@@ -5915,51 +6004,37 @@ void MainWindow::on_actionStatistical_Summary_triggered()
         {
             if (myProject.meteoPointsLoaded && currentPointsVisualization != notShown)
             {
-                for (int i = 0; i < myProject.nrMeteoPoints; i++)
-                {
-                    if (myProject.meteoPoints[i].active && myProject.meteoPoints[i].selected)
-                    {
-                        if (myProject.meteoPoints[i].currentValue != NODATA)
-                        {
-                            validValues.push_back(myProject.meteoPoints[i].currentValue);
-                        }
-                    }
-                }
-                if (validValues.size() == 0)
-                    for (int i = 0; i < myProject.nrMeteoPoints; i++)
-                    {
-                        if (myProject.meteoPoints[i].active && myProject.meteoPoints[i].currentValue != NODATA)
-                        {
-                            validValues.push_back(myProject.meteoPoints[i].currentValue);
-                        }
-                    }
+                validValues.clear();
+                myProject.MeteoPointsToVector(&validValues);
 
                 if (validValues.size() != 0)
                 {
+                    float minValue = statistics::minList(validValues, int(validValues.size()));
+                    float maxValue = statistics::maxList(validValues, int(validValues.size()));
                     for (int i = 0; i < myProject.nrMeteoPoints; i++)
                     {
-                        if (statistics::minList(validValues, int(validValues.size())) == myProject.meteoPoints[i].currentValue)
+                        if (minValue == myProject.meteoPoints[i].currentValue)
                         {
-                            idMin = myProject.meteoPoints[i].id;
-                            nameMin = myProject.meteoPoints[i].name;
+                           idMin = myProject.meteoPoints[i].id;
+                           nameMin = myProject.meteoPoints[i].name;
                         }
-                        if (statistics::maxList(validValues, int(validValues.size())) == myProject.meteoPoints[i].currentValue)
+                        if (maxValue == myProject.meteoPoints[i].currentValue)
                         {
-                            idMax = myProject.meteoPoints[i].id;
-                            nameMax = myProject.meteoPoints[i].name;
+                           idMax = myProject.meteoPoints[i].id;
+                           nameMax = myProject.meteoPoints[i].name;
                         }
                     }
                 }
                 else
                 {
-                        myProject.errorString = "No active points present.";
+                        myProject.errorString = "No valid value.";
                         myProject.logError();
                         return;
                 }
             }
             else
             {
-                    myProject.errorString = "No MeteoPoints loaded";
+                    myProject.errorString = "No MeteoPoints loaded.";
                     myProject.logError();
                     return;
              }
@@ -5979,7 +6054,6 @@ void MainWindow::on_actionStatistical_Summary_triggered()
                             {
                                 case showCurrentVariable:
                                 {
-
                                     if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue != NODATA)
                                     {
                                         validValues.push_back(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->currentValue);
@@ -6045,31 +6119,67 @@ void MainWindow::on_actionStatistical_Summary_triggered()
                     myProject.errorString = "No MeteoGrid loaded";
                     myProject.logError();
                     return;
-             }
+            }
             break;
         }
 
-        case NODATA:
+        case 3:     //interpolationRaster
+        {
+            if (! gis::rasterSummary(&(myProject.dataRaster), nrValidCells, avgValue, errorStdStr))
+            {
+                QString errorString = QString::fromStdString(errorStdStr);
+                myProject.logError(errorString);
+                return;
+            }
+
+            if (nrValidCells == 0)
+            {
+                myProject.logWarning("The raster selected has no valid values.");
+                return;
+            }
+
+            gis::updateMinMaxRasterGrid(&(myProject.dataRaster));
+
+            // [m2] -> [km 2]
+            area = nrValidCells * myProject.dataRaster.header->cellSize * myProject.dataRaster.header->cellSize / 1000000;
+            break;
+        }
+
+        default:
         {
             return;
         }
     }
 
-    textBrowser.setText(QString("Variable: " + QString::fromStdString(getVariableString(myProject.getCurrentVariable()))));
-    textBrowser.append(QString("Number of cells: " + QString::number(validValues.size())));
-    textBrowser.append(QString("Average: " + QString::number(statistics::mean(validValues))));
-    textBrowser.append(QString("Standard deviation: " + QString::number(statistics::standardDeviation(validValues, int(validValues.size())))));
-    textBrowser.append(QString("Maximum: ") + QString::number(statistics::maxList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMax) + ", id " + QString::fromStdString(idMax));
-    textBrowser.append(QString("Minimum: " + QString::number(statistics::minList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMin) + ", id " + QString::fromStdString(idMin)));
+    // Statistics dialog
+    QDialog myDialog;
+    myDialog.setWindowTitle("Statistics");
+    QTextBrowser textBrowser;
+
+    if (inputId != 3)
+    {
+        textBrowser.setText("Variable: " + QString::fromStdString(getVariableString(myProject.getCurrentVariable())));
+        textBrowser.append("Number of cells: " + QString::number(validValues.size()));
+        textBrowser.append("Average value: " + QString::number(statistics::mean(validValues)));
+        textBrowser.append("Standard deviation: " + QString::number(statistics::standardDeviation(validValues, int(validValues.size()))));
+        textBrowser.append("Maximum: " + QString::number(statistics::maxList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMax) + ", id " + QString::fromStdString(idMax));
+        textBrowser.append("Minimum: " + QString::number(statistics::minList(validValues, int(validValues.size()))) + " at " + QString::fromStdString(nameMin) + ", id " + QString::fromStdString(idMin));
+    }
+    else
+    {
+        textBrowser.append("Interpolation raster");
+        textBrowser.append("Number of pixels: " + QString::number(nrValidCells));
+        textBrowser.append("Valid area: " + QString::number(area) + " Km2");
+        textBrowser.append("Average value: " + QString::number(avgValue));
+        textBrowser.append("Minimum: " + QString::number(myProject.dataRaster.minimum));
+        textBrowser.append("Maximum: " + QString::number(myProject.dataRaster.maximum));
+    }
 
     QVBoxLayout mainLayout;
     mainLayout.addWidget(&textBrowser);
-
-    myDialog.setLayout(&mainLayout);
     myDialog.setFixedSize(500,170);
+    myDialog.setLayout(&mainLayout);
     myDialog.exec();
-
-    return;
 }
 
 
@@ -6912,6 +7022,58 @@ void MainWindow::on_actionHide_supplemental_stations_toggled(bool state)
 {
     hideSupplementals = state;
     redrawMeteoPoints(currentPointsVisualization, true);
+}
+
+void MainWindow::on_actionShowPointsCVResidual_triggered()
+{
+    redrawMeteoPoints(showCVResidual, true);
+}
+
+void MainWindow::on_actionShowInfo_triggered()
+{
+    QString helpStr = "*** " + myProject.getVersion() + " ***";
+    helpStr += "\n\nARPAE Emilia-Romagna\nHydro-Meteo-Climate Service";
+    helpStr += "\n\nAUTHORS:";
+    helpStr += "\n- Gabriele Antolini   gantolini@arpae.it";
+    helpStr += "\n- Fausto Tomei         ftomei@arpae.it";
+    helpStr += "\n- Antonio Volta        avolta@arpae.it";
+    helpStr += "\n- Laura Costantini    laura.costantini0@gmail.com";
+    helpStr += "\n- Caterina Toscano    ctoscano@arpae.it";
+    helpStr += "\n\nhttps://github.com/ARPA-SIMC/PRAGA";
+
+    myProject.logInfoGUI(helpStr);
+}
+
+
+void MainWindow::on_actionMark_macro_area_stations_triggered()
+{
+
+    if (myProject.interpolationSettings.getUseGlocalDetrending() && ! myProject.interpolationSettings.isGlocalReady(false))
+    {
+        if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false))
+        {
+            return;
+        }
+    }
+
+    FormText formWidth("Insert macroarea number");
+    if (formWidth.result() == QDialog::Rejected)
+        return;
+
+    QString numberString = formWidth.getText();
+    if (numberString == "")
+        return;
+
+    bool isValid;
+    int areaNr = numberString.toInt(&isValid);
+
+    if (! isValid)
+        myProject.logError("Invalid number: " + numberString);
+    myProject.setMarkedPointsOfMacroArea(areaNr);
+
+    redrawMeteoPoints(currentPointsVisualization, true);
+
+    return;
 }
 
 
