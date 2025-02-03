@@ -7090,3 +7090,20 @@ void MainWindow::on_actionAll_Selected_triggered()
     redrawMeteoPoints(currentPointsVisualization, true);
 }
 
+
+void MainWindow::on_actionNone_Selected_triggered()
+{
+    myProject.clearSelectedPoints();
+    redrawMeteoPoints(currentPointsVisualization, false);
+}
+
+
+void MainWindow::on_actionFrom_point_list_Selected_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open point list file"), "", tr("text files (*.txt)"));
+    if (fileName == "") return;
+
+    if (myProject.setSelectedStatePointList(fileName, true))
+        redrawMeteoPoints(currentPointsVisualization, true);
+}
+
