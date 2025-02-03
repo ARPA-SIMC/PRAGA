@@ -3609,11 +3609,14 @@ void MainWindow::closeMeteoPoints()
         ui->actionMeteopointRectangleSelection->setEnabled(false);
         ui->menuActive_points->setEnabled(false);
         ui->menuSelected_points->setEnabled(false);
+        ui->menuSearch_points->setEnabled(false);
+        ui->menuMark_points->setEnabled(false);
         ui->menuDeactive_points->setEnabled(false);
         ui->menuDelete_points->setEnabled(false);
         ui->menuDelete_data->setEnabled(false);
         ui->menuShift_data->setEnabled(false);
         ui->actionMeteopointDataCount->setEnabled(false);
+        ui->actionMeteoPointsClear_selection->setEnabled(false);
 
         showPointsGroup->setEnabled(false);
         this->ui->menuShowPointsAnomaly->setEnabled(false);
@@ -7104,13 +7107,15 @@ void MainWindow::on_actionFrom_point_list_Selected_triggered()
     if (fileName == "") return;
 
     if (myProject.setSelectedStatePointList(fileName))
+    {
         redrawMeteoPoints(currentPointsVisualization, true);
+    }
 }
 
 
 void MainWindow::on_actionWith_Criteria_Selected_triggered()
 {
-    if (myProject.setSelectedStateWithCriteria(true))
+    if (myProject.setSelectedStateWithCriteria())
     {
         redrawMeteoPoints(currentPointsVisualization, true);
     }
