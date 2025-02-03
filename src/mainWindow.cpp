@@ -6002,12 +6002,12 @@ void MainWindow::on_actionStatistical_Summary_triggered()
 
     switch(inputId)
     {
-        case 1:     //point
+        case 1:     // point
         {
             if (myProject.meteoPointsLoaded && currentPointsVisualization != notShown)
             {
                 validValues.clear();
-                myProject.MeteoPointsToVector(&validValues);
+                myProject.getMeteoPointsCurrentValues(validValues);
 
                 if (validValues.size() != 0)
                 {
@@ -7103,7 +7103,16 @@ void MainWindow::on_actionFrom_point_list_Selected_triggered()
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open point list file"), "", tr("text files (*.txt)"));
     if (fileName == "") return;
 
-    if (myProject.setSelectedStatePointList(fileName, true))
+    if (myProject.setSelectedStatePointList(fileName))
         redrawMeteoPoints(currentPointsVisualization, true);
+}
+
+
+void MainWindow::on_actionWith_Criteria_Selected_triggered()
+{
+    if (myProject.setSelectedStateWithCriteria(true))
+    {
+        redrawMeteoPoints(currentPointsVisualization, true);
+    }
 }
 
