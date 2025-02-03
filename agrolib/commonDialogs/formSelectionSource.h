@@ -8,7 +8,7 @@
         Q_OBJECT
 
     public:
-        FormSelectionSource();
+        FormSelectionSource(bool pointVisible, bool gridVisible, bool interpolationVisible);
 
         int getSourceSelectionId();
 
