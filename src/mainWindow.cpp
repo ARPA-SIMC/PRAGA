@@ -541,12 +541,6 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                         }
                         else if (selection == addMacroAreaLR)
                         {
-                            if (myProject.proxyWidget != nullptr)
-                            {
-                                QMessageBox::critical(nullptr, "proxy graph", "Proxy graph already open");
-                                return;
-                            }
-
                             if (! myProject.meteoPointsLoaded)
                             {
                                 QMessageBox::critical(nullptr, "proxy graph", "No meteo points DB open");
@@ -618,12 +612,6 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                     }
                     else if (selection == addMacroAreaLR)
                     {
-                        if (myProject.proxyWidget != nullptr)
-                        {
-                            QMessageBox::critical(nullptr, "proxy graph", "Proxy graph already open");
-                            return;
-                        }
-
                         if (! myProject.meteoPointsLoaded)
                         {
                             QMessageBox::critical(nullptr, "proxy graph", "No meteo points DB open");
