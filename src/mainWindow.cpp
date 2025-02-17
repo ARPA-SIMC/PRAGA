@@ -541,12 +541,6 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                         }
                         else if (selection == addMacroAreaLR)
                         {
-                            if (myProject.proxyWidget != nullptr)
-                            {
-                                QMessageBox::critical(nullptr, "proxy graph", "Proxy graph already open");
-                                return;
-                            }
-
                             if (! myProject.meteoPointsLoaded)
                             {
                                 QMessageBox::critical(nullptr, "proxy graph", "No meteo points DB open");
@@ -618,12 +612,6 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                     }
                     else if (selection == addMacroAreaLR)
                     {
-                        if (myProject.proxyWidget != nullptr)
-                        {
-                            QMessageBox::critical(nullptr, "proxy graph", "Proxy graph already open");
-                            return;
-                        }
-
                         if (! myProject.meteoPointsLoaded)
                         {
                             QMessageBox::critical(nullptr, "proxy graph", "No meteo points DB open");
@@ -3609,11 +3597,14 @@ void MainWindow::closeMeteoPoints()
         ui->actionMeteopointRectangleSelection->setEnabled(false);
         ui->menuActive_points->setEnabled(false);
         ui->menuSelected_points->setEnabled(false);
+        ui->menuSearch_points->setEnabled(false);
+        ui->menuMark_points->setEnabled(false);
         ui->menuDeactive_points->setEnabled(false);
         ui->menuDelete_points->setEnabled(false);
         ui->menuDelete_data->setEnabled(false);
         ui->menuShift_data->setEnabled(false);
         ui->actionMeteopointDataCount->setEnabled(false);
+        ui->actionMeteoPointsClear_selection->setEnabled(false);
 
         showPointsGroup->setEnabled(false);
         this->ui->menuShowPointsAnomaly->setEnabled(false);
@@ -6002,12 +5993,12 @@ void MainWindow::on_actionStatistical_Summary_triggered()
 
     switch(inputId)
     {
-        case 1:     //point
+        case 1:     // point
         {
             if (myProject.meteoPointsLoaded && currentPointsVisualization != notShown)
             {
                 validValues.clear();
-                myProject.MeteoPointsToVector(&validValues);
+                myProject.getMeteoPointsCurrentValues(validValues);
 
                 if (validValues.size() != 0)
                 {
@@ -7103,7 +7094,18 @@ void MainWindow::on_actionFrom_point_list_Selected_triggered()
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open point list file"), "", tr("text files (*.txt)"));
     if (fileName == "") return;
 
-    if (myProject.setSelectedStatePointList(fileName, true))
+    if (myProject.setSelectedStatePointList(fileName))
+    {
         redrawMeteoPoints(currentPointsVisualization, true);
+    }
+}
+
+
+void MainWindow::on_actionWith_Criteria_Selected_triggered()
+{
+    if (myProject.setSelectedStateWithCriteria())
+    {
+        redrawMeteoPoints(currentPointsVisualization, true);
+    }
 }
 

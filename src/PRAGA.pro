@@ -5,7 +5,7 @@
 #
 #-----------------------------------------------------
 
-QT       += core gui widgets charts network sql xml
+QT       += widgets charts network sql xml
 greaterThan(QT_MAJOR_VERSION, 5): QT += core5compat
 
 TARGET = PRAGA
