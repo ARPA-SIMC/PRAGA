@@ -698,13 +698,16 @@ void Crit3D_Hydrall::cumulatedResults()
 {
     // taken from Hydrall Model, Magnani UNIBO
     // Cumulate hourly values of gas exchange
-    deltaTime.absorbedPAR = simulationStepInSeconds*(sunlit.absorbedPAR+shaded.absorbedPAR);  //absorbed PAR (mol m-2 yr-1)
+    deltaTime.absorbedPAR = simulationStepInSeconds*(sunlit.absorbedPAR+shaded.absorbedPAR);  //absorbed PAR (mol m-2)
     deltaTime.grossAssimilation = simulationStepInSeconds * treeAssimilationRate ; // canopy gross assimilation (mol m-2)
     deltaTime.respiration = simulationStepInSeconds * Crit3D_Hydrall::plantRespiration() ;
     deltaTime.netAssimilation = deltaTime.grossAssimilation- deltaTime.respiration ;
-    deltaTime.netAssimilation = deltaTime.netAssimilation*12/1000.0/CARBONFACTOR ;
+    deltaTime.netAssimilation = deltaTime.netAssimilation*12/1000.0 ; //CARBONFACTOR DA METTERE dopo convert to kg DM m-2
 
-    //statePlant.stateGrowth.cumulatedBiomass += deltaTime.netAssimilation ; TODO stand biomass
+    statePlant.treeNetPrimaryProduction += deltaTime.netAssimilation ;
+
+    //understorey
+
 
     deltaTime.transpiration = 0.;
 
@@ -812,11 +815,170 @@ bool Crit3D_Hydrall::growthStand()
     // understorey update
     statePlant.understoreycumulatedBiomassFoliage = statePlant.understoreycumulatedBiomass * (1.-understoreyAllocationCoefficientToRoot);    //understorey growth: foliage...
     statePlant.understoreycumulatedBiomassRoot = statePlant.understoreycumulatedBiomass * understoreyAllocationCoefficientToRoot;         //...and roots
+
     // canopy update
     statePlant.treecumulatedBiomassFoliage -= (statePlant.treecumulatedBiomassFoliage/plant.foliageLongevity);
     statePlant.treecumulatedBiomassSapwood -= (statePlant.treecumulatedBiomassSapwood/plant.sapwoodLongevity);
     statePlant.treecumulatedBiomassRoot -= (statePlant.treecumulatedBiomassRoot/plant.fineRootLongevity);
 
 
+    double store;
+    //annual stand growth
+    if (isFirstYearSimulation)
+    {
+        annualGrossStandGrowth = statePlant.treeNetPrimaryProduction / CARBONFACTOR; //kg DM m-2
+        store = 0;
+    }
+    else
+    {
+        annualGrossStandGrowth = (store + statePlant.treeNetPrimaryProduction) / 2 / CARBONFACTOR;
+        store = (store + statePlant.treeNetPrimaryProduction) / 2;
+    }
+
+    if (isFirstYearSimulation)
+    {
+        //optimal
+    }
+    else
+    {
+        double allocationCoeffientFoliageOld = allocationCoefficient.toFoliage;
+        double allocationCoeffientFineRootsOld = allocationCoefficient.toFineRoots;
+        double allocationCoeffientSapwoodOld = allocationCoefficient.toSapwood;
+
+        //optimal
+
+        allocationCoefficient.toFoliage = (allocationCoeffientFoliageOld + allocationCoefficient.toFoliage) / 2;
+        allocationCoefficient.toFineRoots = (allocationCoeffientFineRootsOld + allocationCoefficient.toFineRoots) / 2;
+        allocationCoefficient.toSapwood = (allocationCoeffientSapwoodOld + allocationCoefficient.toSapwood) / 2;
+    }
+
+    if (annualGrossStandGrowth * allocationCoefficient.toFoliage > statePlant.treecumulatedBiomassFoliage/(plant.foliageLongevity - 1))
+
+    isFirstYearSimulation = false;
     return true;
+}
+
+
+void Crit3D_Hydrall::resetStandVariables()
+{
+    statePlant.treeNetPrimaryProduction = 0;
+}
+
+void Crit3D_Hydrall::optimal()
+{
+    double allocationCoefficientFoliageOld;
+    double increment;
+    double incrementStart = 5e-2;
+    bool sol = 0;
+    double allocationCoefficientFoliage0;
+    double bisectionMethodIntervalALLF;
+    int jmax = 40;
+    double accuracy = 1e-3;
+
+    for (int j = 0; j < 3; j++)
+    {
+        allocationCoefficientFoliageOld = 1;
+        increment = incrementStart / std::pow(10, j);
+        allocationCoefficient.toFoliage = 1;
+
+        while(! sol && allocationCoefficient.toFoliage > -EPSILON)
+        {
+            rootfind(allocationCoefficient.toFoliage, allocationCoefficient.toFineRoots, allocationCoefficient.toSapwood, sol);
+
+            if (sol)
+                break;
+
+            allocationCoefficientFoliageOld = allocationCoefficient.toFoliage;
+            allocationCoefficient.toFoliage -= increment;
+
+        }
+        if (sol)
+            break;
+    }
+
+    if (sol)
+    {
+        //find optimal allocation coefficients by bisection technique
+
+        double allocationCoefficientFoliageMid,  allocationCoefficientFineRootsMid, allocationCoefficientSapwoodMid;
+        bool solmid = 0;
+
+        //set starting point and range
+        allocationCoefficientFoliage0 = allocationCoefficient.toFoliage;
+        bisectionMethodIntervalALLF = allocationCoefficientFoliageOld - allocationCoefficient.toFoliage;
+
+        //bisection loop
+        int j = 0;
+        while (std::abs(bisectionMethodIntervalALLF) > accuracy && j < jmax)
+        {
+            bisectionMethodIntervalALLF /= 2;
+            allocationCoefficientFoliageMid = allocationCoefficientFoliage0 + bisectionMethodIntervalALLF;
+
+            rootfind(allocationCoefficientFoliageMid, allocationCoefficientFineRootsMid, allocationCoefficientSapwoodMid, solmid);
+
+            if (solmid)
+            {
+                allocationCoefficientFoliage0 = allocationCoefficientFoliageMid;
+                allocationCoefficient.toFoliage = allocationCoefficientFoliageMid;
+                allocationCoefficient.toFineRoots = allocationCoefficientFineRootsMid;
+                allocationCoefficient.toSapwood = allocationCoefficientSapwoodMid;
+            }
+
+            j++;
+        }
+    }
+}
+
+void Crit3D_Hydrall::rootfind(double &allf, double &allr, double &alls, bool &sol)
+{
+    //search for a solution to hydraulic constraint
+    double foliageBiomassNew, heightNew;
+
+    //new foliage biomass of tree after growth
+    if (allf < 0) allf = 0;
+
+    foliageBiomassNew = statePlant.treecumulatedBiomassFoliage + (allf*annualGrossStandGrowth);
+
+    //new tree height after growth
+    if (allf*annualGrossStandGrowth > statePlant.treecumulatedBiomassFoliage/(plant.foliageLongevity-1)) {
+        heightNew = plant.height + (allf*annualGrossStandGrowth-statePlant.treecumulatedBiomassFoliage/(plant.foliageLongevity-1)/plant.foliageDensity);
+    } else {
+        heightNew = plant.height;
+    }
+
+    //soil hydraulic conductivity
+    double ksl;
+
+    //specific hydraulic conductivity of soil+roots
+    double soilRootsSpecificConductivity = 1/(1/KR + 1/ksl);
+    double dum = 0.5151 + 0.0242*soil.temperature;
+    if (dum < 0.5151) dum = 0.5151;
+    soilRootsSpecificConductivity *= dum; //adjust for temp effects on water viscosity
+
+    //new sapwood specific conductivity
+    double sapwoodSpecificConductivity = KSMAX * (1-std::exp(-0.69315*heightNew/H50)); //adjust for height effects
+    dum = 0.5151 + 0.0242*weatherVariable.meanDailyTemp;
+    if (dum < 0.5151) dum = 0.5151;
+    sapwoodSpecificConductivity *= dum;     //adjust for temp effects on water viscosity
+
+    //optimal coefficient of allocation to fine roots and sapwood for set allocation to foliage
+    double quadraticEqCoefficient = std::sqrt(soilRootsSpecificConductivity/sapwoodSpecificConductivity*plant.sapwoodLongevity/plant.fineRootLongevity*RHOS); //TODO: check if rhos or ros
+    allr = (statePlant.treecumulatedBiomassSapwood - quadraticEqCoefficient*heightNew*statePlant.treecumulatedBiomassRoot +
+            annualGrossStandGrowth*(1-allf))/annualGrossStandGrowth/(1+quadraticEqCoefficient*heightNew);
+
+    if (allr < EPSILON) allr = EPSILON; //bracket ALLR between (1-ALLF) and a small value
+    if (allr > (1-allf)) allr = 1-allf;
+
+    alls = 1 - allf - allr;
+    if (alls < EPSILON) alls = EPSILON; //bracket ALLS between 1 and a small value
+    if (alls > 1) alls = 1;
+
+    //resulting fine root and sapwood biomass
+
+
+    //resulting leaf specific resistance (MPa s m2 m-3)
+
+    //resulting minimum leaf water potential
+
+    //check if given value of ALLF satisfies optimality constraint
 }

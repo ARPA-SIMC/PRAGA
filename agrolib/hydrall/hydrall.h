@@ -83,7 +83,7 @@
 
     struct TstatePlant
     {
-        double treecumulatedBiomass;
+        double treeNetPrimaryProduction;
         double treecumulatedBiomassFoliage;
         double treecumulatedBiomassRoot;
         double treecumulatedBiomassSapwood;
@@ -117,6 +117,7 @@
         //double meanDailyTemperature;
         double vaporPressureDeficit;
         double last30DaysTAvg;
+        double meanDailyTemp;
 
 
     };
@@ -136,6 +137,7 @@
         double foliageLongevity;
         double sapwoodLongevity;
         double fineRootLongevity;
+        double foliageDensity;
 
 
     };
@@ -218,6 +220,13 @@
         double fineRoot ;
     };
 
+    struct TallocationCoefficient {
+
+        double toFoliage;
+        double toFineRoots;
+        double toSapwood;
+    };
+
 
     class Crit3DHydrallMaps
     {
@@ -238,11 +247,13 @@
     class Crit3D_Hydrall{
     public:
 
-        // Crit3D_Hydrall();
-        // ~Crit3D_Hydrall();
+        //Crit3D_Hydrall();
+        //~Crit3D_Hydrall();
 
         void initialize();
-        bool writeHydrallMaps;
+        bool firstDayOfMonth;
+        int firstMonthVegetativeSeason;
+        bool isFirstYearSimulation;
 
         TbigLeaf sunlit,shaded, understorey;
         TweatherVariable weatherVariable;
@@ -256,11 +267,14 @@
         ThydrallNitrogen nitrogenContent;
         ThydrallBiomass treeBiomass, understoreyBiomass;
         TstatePlant statePlant;
+        TallocationCoefficient allocationCoefficient;
 
 
         double elevation;
         int simulationStepInSeconds;
         double leafAreaIndex;
+
+        double annualGrossStandGrowth;
 
         //gasflux results
         std::vector<double> treeTranspirationRate;          //molH2O m^-2 s^-1
@@ -294,6 +308,9 @@
         double soilTemperatureModel();
         double temperatureMoistureFunction(double temperature);
         bool growthStand();
+        void resetStandVariables();
+        void optimal();
+        void rootfind(double &allf, double &allr, double &alls, bool &sol);
 
     };
 
