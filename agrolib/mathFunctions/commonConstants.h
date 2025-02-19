@@ -109,7 +109,8 @@
     #define BOUNDARY_SOLUTEFLUX 30
     #define BOUNDARY_NONE 99
 
-    #define RELAXATION 1
+    #define GAUSS_SEIDEL 1
+    #define JACOBI 2
 
     // --------------- heat model -----------------
     #define SAVE_HEATFLUXES_NONE 0
@@ -159,6 +160,10 @@
     #define	MO2		0.032
     // [kg mol-1] mass of molecular nitrogen (N2)
     #define	MN2		0.028
+    // [kg mol-1] mass of carbon (C)
+    #define MC      0.012
+    // [kg mol-1] mass of air
+    #define M_AIR    0.029
     // [K] zero Celsius
     #define	ZEROCELSIUS	273.15
     // [] ratio molecular weight of water vapour/dry air
@@ -171,7 +176,7 @@
     // [K m-1] constant lapse rate of moist air
     #define LAPSE_RATE_MOIST_AIR 0.0065
     // [Pa] standard atmospheric pressure at sea level
-    #define P0 101300.
+    #define P0 101325.
     // [K] temperature at reference pressure level (P0)
     #define TP0 293.16
     // [g s-2] surface tension at 25 degC
@@ -208,7 +213,7 @@
     #define	 VAPOR_DIFFUSIVITY0 0.0000212
 
     // [Pa] default atmospheric pressure at sea level
-    #define SEA_LEVEL_PRESSURE 101325.
+    //#define SEA_LEVEL_PRESSURE 101325.
 
     #define ALBEDO_WATER 0.05
     #define ALBEDO_SOIL 0.15
@@ -220,16 +225,16 @@
 
     // --------------------MATH---------------------
     #ifndef PI
-        #define PI 3.141592653589793238462643383
+        #define PI 3.1415926535898
     #endif
     #ifndef EPSILON
-        #define EPSILON 0.0000001
+        #define EPSILON 0.000001
     #endif
     #define EULER 2.718281828459
     #define DEG_TO_RAD 0.0174532925
     #define RAD_TO_DEG 57.2957795
     #define SQRT_2 1.41421356237
-    #define GOLDEN_SECTION 1.6180339887498948482
+    #define GOLDEN_SECTION 1.6180339887499
 
     #define MINIMUM_PERCENTILE_DATA 3
 

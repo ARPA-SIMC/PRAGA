@@ -2382,6 +2382,12 @@ bool Project::loadGlocalWeightMaps(std::vector<Crit3DMacroArea> &myAreas, bool i
         nrRows = meteoGridDbHandler->gridStructure().header().nrRows;
     }
 
+    if (nrCols == 0 || nrRows == 0)
+    {
+        errorString = "DEM file missing. You can open it manually or add it in the .ini file.";
+        return false;
+    }
+
     unsigned nrAreasWithCells = 0;
 
     for (int i = 0; i < myAreas.size(); i++)
@@ -2704,9 +2710,15 @@ bool Project::computeStatisticsCrossValidation()
 
 bool Project::interpolationCv(meteoVariable myVar, const Crit3DTime& myTime)
 {
-    // TODO local detrending
 
     if (! checkInterpolation(myVar)) return false;
+
+    // check glocal
+    if (interpolationSettings.getUseGlocalDetrending() && ! interpolationSettings.isGlocalReady(false))
+    {
+        if (! loadGlocalAreasMap()) return false;
+        if (! loadGlocalStationsAndCells(false)) return false;
+    }
 
     // check variables
     if ( interpolationSettings.getUseDewPoint() &&
@@ -2754,12 +2766,24 @@ bool Project::interpolationCv(meteoVariable myVar, const Crit3DTime& myTime)
         return false;
     }
 
-    if (! interpolationSettings.getUseLocalDetrending())
+    if (! interpolationSettings.getUseLocalDetrending() && ! interpolationSettings.getUseGlocalDetrending())
     {
         if (! computeResiduals(myVar, meteoPoints, nrMeteoPoints, interpolationPoints, &interpolationSettings, meteoSettings, interpolationSettings.getUseExcludeStationsOutsideDEM(), true))
             return false;
     }
-    else
+    else if (interpolationSettings.getUseGlocalDetrending())
+    {
+        if(!setMultipleDetrendingHeightTemperatureRange(&interpolationSettings))
+        {
+            errorString = "Error in function preInterpolation: \n couldn't set temperature ranges for height proxy.";
+            return false;
+        }
+
+        if (! computeResidualsGlocalDetrending(myVar, myTime, meteoPoints, nrMeteoPoints, interpolationPoints,
+                                             &interpolationSettings, meteoSettings, &climateParameters, true, true))
+            return false;
+    }
+    else if (interpolationSettings.getUseLocalDetrending())
     {
         if(!setMultipleDetrendingHeightTemperatureRange(&interpolationSettings))
         {
@@ -3004,7 +3028,7 @@ bool Project::interpolationDemGlocalDetrending(meteoVariable myVar, const Crit3D
 
             if (! areaCells.empty())
             {
-                macroAreaDetrending(myArea, myVar, interpolationPoints, subsetInterpolationPoints, elevationPos);
+                macroAreaDetrending(myArea, myVar, interpolationSettings, meteoSettings, meteoPoints, interpolationPoints, subsetInterpolationPoints, elevationPos);
                 // calculate value for every cell
                 for (unsigned cellIndex = 0; cellIndex < areaCells.size(); cellIndex = cellIndex + 2)
                 {
@@ -3028,6 +3052,8 @@ bool Project::interpolationDemGlocalDetrending(meteoVariable myVar, const Crit3D
                             else
                                 myRaster->value[row][col] += interpolatedValue*areaCells[cellIndex+1];
                         }
+                        else
+                            return false;
                     }
                 }
             }
@@ -3401,7 +3427,7 @@ bool Project::interpolationGrid(meteoVariable myVar, const Crit3DTime& myTime)
 
             if (!areaCells.empty())
             {
-                macroAreaDetrending(myArea, myVar, interpolationPoints, subsetInterpolationPoints, elevationPos);
+                macroAreaDetrending(myArea, myVar, interpolationSettings, meteoSettings, meteoPoints, interpolationPoints, subsetInterpolationPoints, elevationPos);
                 unsigned nrCols = meteoGridDbHandler->meteoGrid()->gridStructure().header().nrCols;
                 //calculate value for every cell
                 for (unsigned cellIndex = 0; cellIndex < areaCells.size(); cellIndex = cellIndex + 2)
@@ -3435,8 +3461,13 @@ bool Project::interpolationGrid(meteoVariable myVar, const Crit3DTime& myTime)
                                     proxyIndex++;
                                 }
                             }
-                            interpolatedValue = interpolate(subsetInterpolationPoints, &interpolationSettings, meteoSettings, myVar, myX, myY, myZ, proxyValues, true)
+
+                            double temp = interpolate(subsetInterpolationPoints, &interpolationSettings, meteoSettings, myVar, myX, myY, myZ, proxyValues, true);
+                            if (! isEqual(temp, NODATA))
+                                interpolatedValue = interpolate(subsetInterpolationPoints, &interpolationSettings, meteoSettings, myVar, myX, myY, myZ, proxyValues, true)
                                                 * areaCells[cellIndex + 1];
+                            else
+                                return false;
                         }
                         if (freq == hourly)
                         {
@@ -3473,70 +3504,6 @@ bool Project::interpolationGrid(meteoVariable myVar, const Crit3DTime& myTime)
     }
 
     return true;
-}
-
-
-void Project::macroAreaDetrending(Crit3DMacroArea myArea, meteoVariable myVar, std::vector <Crit3DInterpolationDataPoint> interpolationPoints, std::vector <Crit3DInterpolationDataPoint> &subsetInterpolationPoints, int elevationPos)
-{
-    //take the parameters+combination for that area
-    interpolationSettings.setFittingParameters(myArea.getParameters());
-    interpolationSettings.setCurrentCombination(myArea.getCombination());
-
-    //find the fitting functions vector based on the length of the parameters vector for every proxy
-    std::vector<std::function<double (double, std::vector<double> &)> > fittingFunction;
-    for (int l = 0; l < myArea.getParameters().size(); l++)
-    {
-        if (myArea.getParameters()[l].size() == 2)
-            fittingFunction.push_back(functionLinear_intercept);
-        else if (myArea.getParameters()[l].size() == 4)
-            fittingFunction.push_back(lapseRatePiecewise_two);
-        else if (myArea.getParameters()[l].size() == 5)
-            fittingFunction.push_back(lapseRatePiecewise_three);
-        else if (myArea.getParameters()[l].size() == 6)
-            fittingFunction.push_back(lapseRatePiecewise_three_free);
-    }
-
-    interpolationSettings.setFittingFunction(fittingFunction);
-
-    // create vector of macro area interpolation points
-    std::vector<int> temp = myArea.getMeteoPoints();
-    for (int l = 0; l < temp.size(); l++)
-    {
-        for (int k = 0; k < interpolationPoints.size(); k++)
-        {
-            if (interpolationPoints[k].index == temp[l])
-            {
-                subsetInterpolationPoints.push_back(interpolationPoints[k]);
-            }
-        }
-    }
-
-    //detrending
-    if (elevationPos != NODATA && myArea.getCombination().isProxyActive(elevationPos) && myArea.getCombination().isProxySignificant(elevationPos))
-    {
-        detrendingElevation(elevationPos, subsetInterpolationPoints, &interpolationSettings);
-    }
-
-    detrendingOtherProxies(elevationPos, subsetInterpolationPoints, &interpolationSettings);
-
-    Crit3DMeteoPoint* myMeteoPoints = new Crit3DMeteoPoint[unsigned(myArea.getMeteoPointsNr())];
-    std::vector<int> meteoPointsList = myArea.getMeteoPoints();
-
-    for (unsigned i = 0; i < meteoPointsList.size(); i++)
-    {
-        myMeteoPoints[i] = meteoPoints[meteoPointsList[i]];
-    }
-
-    if (interpolationSettings.getUseTD() && getUseTdVar(myVar))
-    {
-        topographicDistanceOptimize(myVar, myMeteoPoints, myArea.getMeteoPointsNr(),
-                                    subsetInterpolationPoints, &interpolationSettings, meteoSettings);
-    }
-
-    myMeteoPoints->clear();
-    delete[] myMeteoPoints;
-
-    return;
 }
 
 
@@ -4424,7 +4391,7 @@ void Project::deleteProxyWidget()
 }
 
 
-void Project::showProxyGraph()
+void Project::showProxyGraph(int macroAreaNumber)
 {
     Crit3DMeteoPoint* meteoPointsSelected;
     int nSelected = 0;
@@ -4437,7 +4404,7 @@ void Project::showProxyGraph()
     }
     if (nSelected == 0)
     {
-        proxyWidget = new Crit3DProxyWidget(&interpolationSettings, meteoPoints, nrMeteoPoints, currentFrequency, currentDate, currentHour, quality, &qualityInterpolationSettings, meteoSettings, &climateParameters, checkSpatialQuality);
+        proxyWidget = new Crit3DProxyWidget(&interpolationSettings, meteoPoints, nrMeteoPoints, currentFrequency, currentDate, currentHour, quality, &qualityInterpolationSettings, meteoSettings, &climateParameters, checkSpatialQuality, macroAreaNumber);
     }
     else
     {
@@ -4451,7 +4418,7 @@ void Project::showProxyGraph()
                 posMpSelected = posMpSelected + 1;
             }
         }
-        proxyWidget = new Crit3DProxyWidget(&interpolationSettings, meteoPointsSelected, nSelected, currentFrequency, currentDate, currentHour, quality, &qualityInterpolationSettings, meteoSettings, &climateParameters, checkSpatialQuality);
+        proxyWidget = new Crit3DProxyWidget(&interpolationSettings, meteoPointsSelected, nSelected, currentFrequency, currentDate, currentHour, quality, &qualityInterpolationSettings, meteoSettings, &climateParameters, checkSpatialQuality, macroAreaNumber);
     }
     QObject::connect(proxyWidget, SIGNAL(closeProxyWidget()), this, SLOT(deleteProxyWidget()));
     return;
@@ -4580,7 +4547,8 @@ bool Project::setActiveStateWithCriteria(bool isActive)
         return false;
     }
 
-    DialogSelectionMeteoPoint dialogPointSelection(isActive, meteoPointsDbHandler);
+    bool isSelect = false;
+    DialogSelectionMeteoPoint dialogPointSelection(isActive, isSelect, meteoPointsDbHandler);
     if (dialogPointSelection.result() != QDialog::Accepted)
         return false;
 
@@ -4686,6 +4654,31 @@ bool Project::setMarkedFromPointList(QString fileName)
                 meteoPoints[i].marked = true;
             }
         }
+    }
+
+    return true;
+}
+
+bool Project::setMarkedPointsOfMacroArea(int areaNumber)
+{
+    for (int i = 0; i < nrMeteoPoints; i++)
+    {
+        meteoPoints[i].marked = false;
+    }
+
+    std::vector <int> pointList;
+    if (areaNumber < 0 || areaNumber >= interpolationSettings.getMacroAreas().size())
+    {
+        logError("Invalid macro area number.");
+        return false;
+    }
+
+    pointList = interpolationSettings.getMacroAreas()[areaNumber].getMeteoPoints();
+
+    for (int j = 0; j < pointList.size(); j++)
+    {
+        if (meteoPoints[pointList[j]].currentValue != NODATA)
+            meteoPoints[pointList[j]].marked = true;
     }
 
     return true;
@@ -5708,3 +5701,165 @@ bool Project::assignAltitudeToAggregationPoints()
     return true;
 }
 
+
+void Project::getMeteoPointsCurrentValues(std::vector<float> &validValues)
+{
+    // user has selected a set of points
+    for (int i = 0; i < nrMeteoPoints; i++)
+    {
+        if (meteoPoints[i].active && meteoPoints[i].selected)
+        {
+            if (meteoPoints[i].currentValue != NODATA)
+            {
+                validValues.push_back(meteoPoints[i].currentValue);
+            }
+        }
+    }
+
+    // no selection: all points
+    if (validValues.size() == 0)
+    {
+        for (int i = 0; i < nrMeteoPoints; i++)
+        {
+            if (meteoPoints[i].active && meteoPoints[i].currentValue != NODATA)
+            {
+                validValues.push_back(meteoPoints[i].currentValue);
+            }
+        }
+    }
+}
+
+
+bool Project::setSelectedStatePointList(QString fileName)
+{
+    QList<QString> pointList = readListSingleColumn(fileName, errorString);
+    if (! selectPointList(pointList))
+    {
+        logWarning("No points to select.");
+        return false;
+    }
+
+    return true;
+}
+
+
+bool Project::selectPointList(const QList<QString> &pointList)
+{
+    if (pointList.size() == 0)
+        return false;
+
+    int nrValidPoints = 0;
+    for (int i = 0; i < nrMeteoPoints; i++)
+    {
+        if (pointList.contains(QString::fromStdString(meteoPoints[i].id)))
+        {
+            meteoPoints[i].selected = true;
+            nrValidPoints++;
+        }
+    }
+
+    return (nrValidPoints > 0);
+}
+
+
+bool Project::setSelectedStateWithCriteria()
+{
+    if (! meteoPointsLoaded)
+    {
+        logError(ERROR_STR_MISSING_DB);
+        return false;
+    }
+
+    bool isActive = false;
+    bool isSelect = true;
+    DialogSelectionMeteoPoint dialogPointSelection(isActive, isSelect, meteoPointsDbHandler);
+    if (dialogPointSelection.result() != QDialog::Accepted)
+    {
+        return false;
+    }
+
+    QString selection = dialogPointSelection.getSelection();
+    QString operation = dialogPointSelection.getOperation();
+    QString item = dialogPointSelection.getItem();
+
+    QString condition;
+    QList<QString> selectedPointsList;
+
+    if (operation == "Like")
+    {
+        condition = selection + " " + operation + " '%" + item + "%'";
+    }
+    else
+    {
+        condition = selection + " " + operation + " '" + item + "'";
+    }
+
+    if (selection != "DEM distance [m]")
+    {
+        if (! meteoPointsDbHandler->getPointListWithCriteria(selectedPointsList, condition))
+        {
+            logError(meteoPointsDbHandler->getErrorString());
+            return false;
+        }
+    }
+    else
+    {
+        if (! DEM.isLoaded)
+        {
+            logError(ERROR_STR_MISSING_DEM);
+            return false;
+        }
+        setProgressBar("Checking distance...", nrMeteoPoints);
+        for (int i = 0; i < nrMeteoPoints; i++)
+        {
+            updateProgressBar(i);
+            if (!meteoPoints[i].selected)
+            {
+                float distance = gis::closestDistanceFromGrid(meteoPoints[i].point, DEM);
+                if (operation == "=")
+                {
+                    if (isEqual(distance, item.toFloat()))
+                    {
+                        selectedPointsList.append(QString::fromStdString(meteoPoints[i].id));
+                    }
+                }
+                else if (operation == "!=")
+                {
+                    if (! isEqual(distance, item.toFloat()))
+                    {
+                        selectedPointsList.append(QString::fromStdString(meteoPoints[i].id));
+                    }
+                }
+                else if (operation == ">")
+                {
+                    if (distance > item.toFloat())
+                    {
+                        selectedPointsList.append(QString::fromStdString(meteoPoints[i].id));
+                    }
+                }
+                else if (operation == "<")
+                {
+                    if (distance < item.toFloat())
+                    {
+                        selectedPointsList.append(QString::fromStdString(meteoPoints[i].id));
+                    }
+                }
+            }
+        }
+        closeProgressBar();
+    }
+
+    if (selectedPointsList.isEmpty())
+    {
+        logWarning("No point matches your requirements.");
+        return false;
+    }
+
+    if (! selectPointList(selectedPointsList))
+    {
+        logWarning("No points to select");
+        return false;
+    }
+
+    return true;
+}

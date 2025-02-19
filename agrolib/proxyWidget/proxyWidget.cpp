@@ -1,3 +1,4 @@
+#include "dialogChangeAxis.h"
 #include "meteo.h"
 #include "proxyWidget.h"
 #include "utilities.h"
@@ -9,16 +10,18 @@
 
 #include <QLayout>
 #include <QDate>
+#include <QColorDialog>
 
 
-Crit3DProxyWidget::Crit3DProxyWidget(Crit3DInterpolationSettings* interpolationSettings, Crit3DMeteoPoint *meteoPoints, int nrMeteoPoints, frequencyType currentFrequency, QDate currentDate, int currentHour, Crit3DQuality *quality, Crit3DInterpolationSettings* SQinterpolationSettings, Crit3DMeteoSettings *meteoSettings, Crit3DClimateParameters *climateParam, bool checkSpatialQuality)
-:interpolationSettings(interpolationSettings), meteoPoints(meteoPoints), nrMeteoPoints(nrMeteoPoints), currentFrequency(currentFrequency), currentDate(currentDate), currentHour(currentHour), quality(quality), SQinterpolationSettings(SQinterpolationSettings), meteoSettings(meteoSettings), climateParam(climateParam), checkSpatialQuality(checkSpatialQuality)
+
+Crit3DProxyWidget::Crit3DProxyWidget(Crit3DInterpolationSettings* interpolationSettings, Crit3DMeteoPoint *meteoPoints, int nrMeteoPoints, frequencyType currentFrequency, QDate currentDate, int currentHour, Crit3DQuality *quality, Crit3DInterpolationSettings* SQinterpolationSettings, Crit3DMeteoSettings *meteoSettings, Crit3DClimateParameters *climateParam, bool checkSpatialQuality, int macroAreaNumber)
+    :interpolationSettings(interpolationSettings), meteoPoints(meteoPoints), nrMeteoPoints(nrMeteoPoints), currentFrequency(currentFrequency), currentDate(currentDate), currentHour(currentHour), quality(quality), SQinterpolationSettings(SQinterpolationSettings), meteoSettings(meteoSettings), climateParam(climateParam), checkSpatialQuality(checkSpatialQuality), macroAreaNumber(macroAreaNumber)
 {
     this->setWindowTitle("Proxy analysis over " + QString::number(nrMeteoPoints) +  " points");
     this->resize(1024, 700);
     this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     this->setAttribute(Qt::WA_DeleteOnClose);
-    
+
     // layout
     QVBoxLayout *mainLayout = new QVBoxLayout();
     QGroupBox *horizontalGroupBox = new QGroupBox();
@@ -98,6 +101,8 @@ Crit3DProxyWidget::Crit3DProxyWidget(Crit3DInterpolationSettings* interpolationS
     selectionOptionBoxLayout->addWidget(&modelLR);
     selectionOptionBoxLayout->addWidget(&climatologicalLR);
 
+    if (macroAreaNumber != NODATA) modelLR.setEnabled(false);
+
     selectionOptionEditLayout->addWidget(r2Label);
     selectionOptionEditLayout->addWidget(&r2);
     selectionOptionEditLayout->addStretch(150);
@@ -128,7 +133,10 @@ Crit3DProxyWidget::Crit3DProxyWidget(Crit3DInterpolationSettings* interpolationS
     QMenuBar* menuBar = new QMenuBar();
     QMenu *editMenu = new QMenu("Edit");
     QAction* updateStations = new QAction(tr("&Update"), this);
+    QAction* changeLeftAxis = new QAction(tr("&Change axis left"), this);
+
     editMenu->addAction(updateStations);
+    editMenu->addAction(changeLeftAxis);
 
     menuBar->addMenu(editMenu);
     mainLayout->setMenuBar(menuBar);
@@ -141,6 +149,8 @@ Crit3DProxyWidget::Crit3DProxyWidget(Crit3DInterpolationSettings* interpolationS
     connect(&modelLR, &QCheckBox::toggled, [=](int toggled){ this->modelLRClicked(toggled); });
     connect(&detrended, &QCheckBox::toggled, [=](){ this->plot(); });
     connect(updateStations, &QAction::triggered, this, [=](){ this->plot(); });
+    connect(changeLeftAxis, &QAction::triggered, this, &Crit3DProxyWidget::on_actionChangeLeftAxis);
+
 
     if (currentFrequency != noFrequency)
     {
@@ -380,6 +390,11 @@ void Crit3DProxyWidget::plot()
     {
         modelLRClicked(1);
     }
+
+    if (macroAreaNumber != NODATA)
+    {
+        addMacroAreaLR();
+    }
 }
 
 
@@ -474,7 +489,7 @@ void Crit3DProxyWidget::modelLRClicked(int toggled)
                 }
                 lapseRate.setText(QString("%1").arg(regressionSlope*1000, 0, 'f', 2));
             }
-            else if (interpolationSettings->getUseMultipleDetrending() && ! interpolationSettings->getUseLocalDetrending())
+            else if (interpolationSettings->getUseMultipleDetrending() && ! interpolationSettings->getUseLocalDetrending() && ! interpolationSettings->getUseGlocalDetrending())
             {
                 std::string errorStr;
 
@@ -541,3 +556,60 @@ void Crit3DProxyWidget::modelLRClicked(int toggled)
     }
 }
 
+void Crit3DProxyWidget::on_actionChangeLeftAxis()
+{
+
+    DialogChangeAxis changeAxisDialog(1, false);
+    if (changeAxisDialog.result() == QDialog::Accepted)
+    {
+        //axisY_sx->setMin(changeAxisDialog.getMinVal());
+        //axisY_sx->setMax(changeAxisDialog.getMaxVal());
+        chartView->axisY->setMin(floor(changeAxisDialog.getMinVal()));
+        chartView->axisY->setMax(ceil(changeAxisDialog.getMaxVal()));
+    }
+}
+
+
+void Crit3DProxyWidget::addMacroAreaLR()
+{
+    //controllo is glocal ready viene fatto a monte
+    chartView->cleanModelLapseRate();
+    r2.clear();
+    lapseRate.clear();
+    if (macroAreaNumber < interpolationSettings->getMacroAreas().size())
+    {
+        std::string errorStr;
+        setMultipleDetrendingHeightTemperatureRange(interpolationSettings);
+        glocalDetrendingFitting(outInterpolationPoints, interpolationSettings, myVar,errorStr);
+
+        //plot
+        std::vector<std::vector<double>> myParameters = interpolationSettings->getMacroAreas()[macroAreaNumber].getParameters();
+
+        if (myParameters.empty()) return;
+        if (myParameters.front().size() < 4) return; //elevation is not significant
+
+        double xMin = getZmin(outInterpolationPoints);
+        double xMax = getZmax(outInterpolationPoints);
+        QList<QPointF> point_vector;
+        QPointF point;
+
+        std::vector <double> xVector;
+        for (int m = xMin; m < xMax; m += 5)
+            xVector.push_back(m);
+
+        for (int p = 0; p < int(xVector.size()); p++)
+        {
+            point.setX(xVector[p]);
+            if (myParameters.front().size() == 4)
+                point.setY(lapseRatePiecewise_two(xVector[p], myParameters.front()));
+            else if (myParameters.front().size() == 5)
+                point.setY(lapseRatePiecewise_three(xVector[p], myParameters.front()));
+            else if (myParameters.front().size() == 6)
+                point.setY(lapseRatePiecewise_three_free(xVector[p], myParameters.front()));
+            point_vector.append(point);
+        }
+
+        chartView->drawModelLapseRate(point_vector);
+    }
+    return;
+}

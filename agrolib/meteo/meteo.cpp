@@ -792,10 +792,10 @@ bool setColorScale(meteoVariable variable, Crit3DColorScale *colorScale)
         case snowFall: case snowWaterEquivalent: case snowLiquidWaterContent: case snowMelt:
         case dailyWaterTableDepth:
             setPrecipitationScale(colorScale);
-            if (variable == snowFall || variable == snowWaterEquivalent
+            if (variable == precipitation || variable == snowFall || variable == snowWaterEquivalent
                 || variable == snowLiquidWaterContent || variable == snowMelt)
             {
-                colorScale->setHideOutliers(true);
+                colorScale->setHideMinimum(true);
                 colorScale->setTransparent(true);
             }
             break;  

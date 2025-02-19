@@ -11,9 +11,7 @@
 
     double arithmeticMean(double v1, double v2);
 
-    bool GaussSeidelRelaxation (int myApproximation, double myResidualTolerance, int myProcess);
-
-    bool JacobiRelaxation (int approximation, double toleranceThreshold, int process);
+    bool solveLinearSystem(int approximation, double residualTolerance, int computationType);
 
 #endif  // SOLVER_H
 

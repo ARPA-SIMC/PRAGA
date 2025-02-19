@@ -1,13 +1,15 @@
-# Note: define srcarchivename in Travis build only.
-%{!?srcarchivename: %global srcarchivename PRAGA-%{version}}
+%global releaseno 1
+
+# Note: define srcarchivename in CI build only.
+%{!?srcarchivename: %global srcarchivename %{name}-%{version}-%{releaseno}}
 
 Name:           PRAGA
-Version:        2.0.0
-Release:        1%{?dist}
+Version:        2.0.2
+Release:        %{releaseno}%{?dist}
 Summary:        PRogram for AGrometeorological Analysis
 
 URL:            https://github.com/ARPA-SIMC/PRAGA
-Source0:        https://github.com/ARPA-SIMC/PRAGA/archive/v%{version}.tar.gz#/%{srcarchivename}.tar.gz
+Source0:        https://github.com/ARPA-SIMC/PRAGA/archive/v%{version}-%{releaseno}.tar.gz#/%{srcarchivename}.tar.gz
 License:        GPL
 
 BuildRequires:  qt5-qtbase
@@ -55,6 +57,21 @@ cp -a src/PRAGA %{buildroot}/%{_bindir}/
 
 
 %changelog
+* Wed Jan 22 2025 Fausto Tomei <ftomei@arpae.it> - 2.0.2-1
+- Release 2.0.2
+
+* Tue Jan 21 2025 Fausto Tomei <ftomei@arpae.it> - 2.0.1-3
+- Release 2.0.1
+
+* Tue Jan 21 2025 Fausto Tomei <ftomei@arpae.it> - 2.0.1-2
+- Release 2.0.1
+
+* Fri Jan 17 2025 Fausto Tomei <ftomei@arpae.it> - 2.0.1-1
+- Release 2.0.1
+
+* Tue Jan 14 2025 Fausto Tomei <ftomei@arpae.it> - 2.0.0-2
+- Release 2.0.0
+
 * Tue Jan 07 2025 Fausto Tomei <ftomei@arpae.it> - 2.0.0-1
 - Release 2.0.0
 

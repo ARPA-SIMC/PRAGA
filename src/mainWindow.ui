@@ -293,7 +293,7 @@
         <number>0</number>
        </property>
        <property name="sizeConstraint">
-        <enum>QLayout::SetNoConstraint</enum>
+        <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
        </property>
        <property name="leftMargin">
         <number>9</number>
@@ -339,9 +339,6 @@
          </property>
          <property name="title">
           <string notr="true"/>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
          <widget class="QLabel" name="labelVariable">
           <property name="geometry">
@@ -441,7 +438,7 @@
            </font>
           </property>
           <property name="inputMethodHints">
-           <set>Qt::ImhDigitsOnly|Qt::ImhPreferNumbers</set>
+           <set>Qt::InputMethodHint::ImhNone</set>
           </property>
           <property name="dateTime">
            <datetime>
@@ -470,7 +467,7 @@
             <second>0</second>
             <year>1752</year>
             <month>8</month>
-            <day>23</day>
+            <day>16</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -481,7 +478,7 @@
            </date>
           </property>
           <property name="currentSection">
-           <enum>QDateTimeEdit::YearSection</enum>
+           <enum>QDateTimeEdit::Section::YearSection</enum>
           </property>
           <property name="displayFormat">
            <string>yyyy-MM-dd</string>
@@ -723,7 +720,7 @@
            <number>66</number>
           </property>
           <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <enum>Qt::Orientation::Horizontal</enum>
           </property>
          </widget>
          <widget class="QLabel" name="labelMeteoGridScale">
@@ -1009,9 +1006,6 @@
          <property name="title">
           <string notr="true">Raster</string>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
          <widget class="QSlider" name="rasterOpacitySlider">
           <property name="enabled">
            <bool>false</bool>
@@ -1049,7 +1043,7 @@
            <number>66</number>
           </property>
           <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <enum>Qt::Orientation::Horizontal</enum>
           </property>
          </widget>
          <widget class="QWidget" name="widgetColorLegendRaster" native="true">
@@ -1187,7 +1181,7 @@
            <number>33</number>
           </property>
           <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <enum>Qt::Orientation::Horizontal</enum>
           </property>
          </widget>
          <widget class="QPushButton" name="netCDFButtonVariable">
@@ -1514,6 +1508,9 @@
     </item>
     <item>
      <widget class="QWidget" name="widgetMap" native="true">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="minimumSize">
        <size>
         <width>600</width>
@@ -1545,7 +1542,7 @@
      <x>0</x>
      <y>0</y>
      <width>1276</width>
-     <height>23</height>
+     <height>28</height>
     </rect>
    </property>
    <property name="palette">
@@ -1795,10 +1792,23 @@
      <addaction name="actionCompute_daily_from_Hourly_all"/>
      <addaction name="actionCompute_daily_from_Hourly_selected"/>
     </widget>
+    <widget class="QMenu" name="menuSelected_points">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Select points</string>
+     </property>
+     <addaction name="actionAll_Selected"/>
+     <addaction name="actionNone_Selected"/>
+     <addaction name="actionFrom_point_list_Selected"/>
+     <addaction name="actionWith_Criteria_Selected"/>
+    </widget>
     <addaction name="actionMeteopointQualitySpatial"/>
     <addaction name="actionMeteopointRectangleSelection"/>
-    <addaction name="actionMeteoPointsClear_selection"/>
     <addaction name="separator"/>
+    <addaction name="menuSelected_points"/>
+    <addaction name="actionMeteoPointsClear_selection"/>
     <addaction name="menuSearch_points"/>
     <addaction name="menuMark_points"/>
     <addaction name="separator"/>
@@ -1830,6 +1840,8 @@
     </widget>
     <addaction name="menuSettingsMap"/>
     <addaction name="actionSettingsParameters"/>
+    <addaction name="separator"/>
+    <addaction name="actionShowInfo"/>
    </widget>
    <widget class="QMenu" name="menuInterpolation">
     <property name="title">
@@ -1975,6 +1987,7 @@
      <addaction name="actionShowPointsElab"/>
      <addaction name="menuShowPointsAnomaly"/>
      <addaction name="actionShowPointsClimate"/>
+     <addaction name="actionMark_macro_area_stations"/>
     </widget>
     <widget class="QMenu" name="menuShowGrid">
      <property name="title">
@@ -3043,6 +3056,36 @@
   <action name="actionElaboration_Hourly_data">
    <property name="text">
     <string>Hourly data...</string>
+   </property>
+  </action>
+  <action name="actionShowInfo">
+   <property name="text">
+    <string>Info...</string>
+   </property>
+  </action>
+  <action name="actionMark_macro_area_stations">
+   <property name="text">
+    <string>Mark macro area stations</string>
+   </property>
+  </action>
+  <action name="actionAll_Selected">
+   <property name="text">
+    <string>All</string>
+   </property>
+  </action>
+  <action name="actionNone_Selected">
+   <property name="text">
+    <string>None</string>
+   </property>
+  </action>
+  <action name="actionFrom_point_list_Selected">
+   <property name="text">
+    <string>From point list</string>
+   </property>
+  </action>
+  <action name="actionWith_Criteria_Selected">
+   <property name="text">
+    <string>With Criteria...</string>
    </property>
   </action>
  </widget>

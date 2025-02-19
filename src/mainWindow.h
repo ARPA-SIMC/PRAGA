@@ -326,6 +326,20 @@
 
         void on_actionElaboration_Hourly_data_triggered();
 
+        void on_actionShowPointsCVResidual_triggered();
+
+        void on_actionShowInfo_triggered();
+
+        void on_actionMark_macro_area_stations_triggered();
+
+        void on_actionAll_Selected_triggered();
+
+        void on_actionNone_Selected_triggered();
+
+        void on_actionFrom_point_list_Selected_triggered();
+
+        void on_actionWith_Criteria_Selected_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
