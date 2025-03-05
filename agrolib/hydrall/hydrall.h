@@ -17,6 +17,8 @@
     #define FORM   0.5          // stem form factor
     #define RHOF   0.1          // [KgDM m-3] foliage density
     #define RHOS   750          // [KgDM m-3] default wood-stem density
+    #define LAIMIN 0.1          //[-]
+    #define LAIMAX 1            //[-]
 
     // Hydraulic properties
     #define H50     0.4         // height for 50% maturation of xylem cells (m) [not relevant]
@@ -80,6 +82,11 @@
 
     #define NOT_INITIALIZED_VINE -1
 
+    struct Tstate
+    {
+        double standBiomass;
+        double rootBiomass;
+    };
 
     struct TstatePlant
     {
@@ -144,7 +151,8 @@
         double psiLeafCritical;
         double psiLeafMinimum;
         double transpirationPerUnitFoliageAreaCritical;
-
+        double leafAreaIndexCanopy;
+        double leafAreaIndexCanopyMax;
 
     };
 
@@ -160,6 +168,7 @@
         std::vector <double> fieldCapacity;
         std::vector <double> saturation;
         std::vector <double> hydraulicConductivity;
+        std::vector <double> satHydraulicConductivity;
         std::vector <double> nodeThickness;
 
 
@@ -215,6 +224,8 @@
         double respiration ;
         double transpirationGrass;
         double transpirationNoStress;
+        double evaporation;
+        double evapoTranspiration;
     };
 
     struct ThydrallNitrogen {
@@ -248,6 +259,7 @@
         gis::Crit3DRasterGrid* rootBiomassMap;
         gis::Crit3DRasterGrid* mapLAI;
         gis::Crit3DRasterGrid* mapLast30DaysTavg;
+        gis::Crit3DRasterGrid treeSpeciesMap;
 
         Crit3DHydrallMaps();
         ~Crit3DHydrallMaps();
@@ -265,6 +277,7 @@
         int firstMonthVegetativeSeason;
         bool isFirstYearSimulation;
 
+        Tstate stateVariable;
         TbigLeaf sunlit,shaded, understorey;
         TweatherVariable weatherVariable;
         TenvironmentalVariable environmentalVariable;
@@ -282,7 +295,13 @@
 
         double elevation;
         int simulationStepInSeconds;
-        double leafAreaIndex;
+        double understoreyLeafAreaIndexMax;
+        double cover = 1; // TODO
+
+        std::vector<double> waterContentProfile;
+        std::vector<double> stressCoefficientProfile;
+        std::vector<double> rootDensityProfile;
+
 
         double annualGrossStandGrowth;
 
@@ -294,14 +313,15 @@
 
 
         void radiationAbsorption();
+        void setSoilVariables(int iLayer, int currentNode,float checkFlag, int horizonIndex, double waterContent, double waterContentFC, double waterContentWP, int firstRootLayer, int lastRootLayer, double rootDensity);
         void setHourlyVariables(double temp, double irradiance , double prec , double relativeHumidity , double windSpeed, double directIrradiance, double diffuseIrradiance, double cloudIndex, double atmosphericPressure, double CO2, double sunElevation);
         bool setWeatherVariables(double temp, double irradiance , double prec , double relativeHumidity , double windSpeed, double directIrradiance, double diffuseIrradiance, double cloudIndex, double atmosphericPressure);
         void setDerivedWeatherVariables(double directIrradiance, double diffuseIrradiance, double cloudIndex);
         void setPlantVariables(double chlorophyllContent);
-        bool computeHydrallPoint(Crit3DDate myDate, double myTemperature, double myElevation, int secondPerStep, double &AGBiomass, double &rootBiomass);
-        double getCO2(Crit3DDate myDate, double myTemperature, double myElevation);
+        bool computeHydrallPoint(Crit3DDate myDate, double myTemperature, double myElevation, int secondPerStep);
+        double getCO2(Crit3DDate myDate, double myTemperature);
         //double getPressureFromElevation(double myTemperature, double myElevation);
-        double getLAI();
+        double computeLAI(Crit3DDate myDate);
         double meanLastMonthTemperature(double previousLastMonthTemp, double simulationStepInSeconds, double myInstantTemp);
         double photosynthesisAndTranspiration();
         double photosynthesisAndTranspirationUnderstorey();
@@ -315,12 +335,16 @@
         void carbonWaterFluxesProfile();
         void cumulatedResults();
         double plantRespiration();
+        double computeEvaporation();
         double soilTemperatureModel();
         double temperatureMoistureFunction(double temperature);
         bool growthStand();
         void resetStandVariables();
         void optimal();
         void rootfind(double &allf, double &allr, double &alls, bool &sol);
+
+        void setStateVariables(Crit3DHydrallMaps &stateMap, int row, int col);
+        void getStateVariables(Crit3DHydrallMaps &stateMap, int row, int col);
 
     };
 
