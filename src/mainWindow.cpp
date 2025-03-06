@@ -2488,6 +2488,18 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
         }
     }
 
+    if (myProject.clima->offset() == NODATA)
+    {
+        ui->label_offset->setVisible(false);
+        ui->lineEditOffset->setVisible(false);
+    }
+    else
+    {
+        ui->label_offset->setVisible(true);
+        ui->lineEditOffset->setVisible(true);
+        ui->lineEditOffset->setText(QString::number(myProject.clima->offset()));
+    }
+
     // check variable (daily or hourly)
     meteoVariable var = myProject.clima->variable();
     std::string varStr = "";
@@ -2529,6 +2541,7 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
     ui->lineEditElab2->setReadOnly(true);
     ui->lineEditVariable->setReadOnly(true);
     ui->lineEditPeriod->setReadOnly(true);
+    ui->lineEditOffset->setReadOnly(true);
     ui->groupBoxElaboration->show();
 }
 
@@ -6491,6 +6504,7 @@ void MainWindow::on_actionCompute_drought_triggered()
         {
             ui->lineEditVariable->setText(indexStr);
         }
+        ui->lineEditOffset->setVisible(false);
         ui->lineEditElab2->setVisible(false);
         ui->lineEditPeriod->setText("reference period: " + QString::number(refYearStart) + "÷" + QString::number(refYearEnd));
         ui->lineEditElab1->setReadOnly(true);
