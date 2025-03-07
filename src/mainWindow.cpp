@@ -2245,6 +2245,7 @@ void MainWindow::on_actionAnomaly_triggered()
     return;
 }
 
+
 void MainWindow::on_actionClimate_triggered()
 {
     if (!myProject.meteoPointsLoaded && !myProject.meteoGridLoaded)
