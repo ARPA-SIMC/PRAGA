@@ -536,7 +536,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
                         if (selection == markMacroAreaStations)
                         {
-                            myProject.setMarkedPointsOfMacroArea(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
+                            myProject.setMarkedPointsOfMacroArea(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)), viewNotActivePoints);
                             redrawMeteoPoints(currentPointsVisualization, true);
                         }
                         else if (selection == addMacroAreaLR)
@@ -607,7 +607,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
                     if (selection == markMacroAreaStations)
                     {
-                        myProject.setMarkedPointsOfMacroArea(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
+                        myProject.setMarkedPointsOfMacroArea(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)), viewNotActivePoints);
                         redrawMeteoPoints(currentPointsVisualization, true);
                     }
                     else if (selection == addMacroAreaLR)
@@ -2489,6 +2489,18 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
         }
     }
 
+    if (myProject.clima->offset() == NODATA)
+    {
+        ui->label_offset->setVisible(false);
+        ui->lineEditOffset->setVisible(false);
+    }
+    else
+    {
+        ui->label_offset->setVisible(true);
+        ui->lineEditOffset->setVisible(true);
+        ui->lineEditOffset->setText(QString::number(myProject.clima->offset()));
+    }
+
     // check variable (daily or hourly)
     meteoVariable var = myProject.clima->variable();
     std::string varStr = "";
@@ -2530,6 +2542,7 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
     ui->lineEditElab2->setReadOnly(true);
     ui->lineEditVariable->setReadOnly(true);
     ui->lineEditPeriod->setReadOnly(true);
+    ui->lineEditOffset->setReadOnly(true);
     ui->groupBoxElaboration->show();
 }
 
@@ -6492,6 +6505,7 @@ void MainWindow::on_actionCompute_drought_triggered()
         {
             ui->lineEditVariable->setText(indexStr);
         }
+        ui->lineEditOffset->setVisible(false);
         ui->lineEditElab2->setVisible(false);
         ui->lineEditPeriod->setText("reference period: " + QString::number(refYearStart) + "÷" + QString::number(refYearEnd));
         ui->lineEditElab1->setReadOnly(true);
@@ -7063,7 +7077,7 @@ void MainWindow::on_actionMark_macro_area_stations_triggered()
 
     if (! isValid)
         myProject.logError("Invalid number: " + numberString);
-    myProject.setMarkedPointsOfMacroArea(areaNr);
+    myProject.setMarkedPointsOfMacroArea(areaNr, viewNotActivePoints);
 
     redrawMeteoPoints(currentPointsVisualization, true);
 
