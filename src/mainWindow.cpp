@@ -536,7 +536,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
                         if (selection == markMacroAreaStations)
                         {
-                            myProject.setMarkedPointsOfMacroArea(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
+                            myProject.setMarkedPointsOfMacroArea(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)), viewNotActivePoints);
                             redrawMeteoPoints(currentPointsVisualization, true);
                         }
                         else if (selection == addMacroAreaLR)
@@ -607,7 +607,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
                     if (selection == markMacroAreaStations)
                     {
-                        myProject.setMarkedPointsOfMacroArea(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
+                        myProject.setMarkedPointsOfMacroArea(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)), viewNotActivePoints);
                         redrawMeteoPoints(currentPointsVisualization, true);
                     }
                     else if (selection == addMacroAreaLR)
@@ -7077,7 +7077,7 @@ void MainWindow::on_actionMark_macro_area_stations_triggered()
 
     if (! isValid)
         myProject.logError("Invalid number: " + numberString);
-    myProject.setMarkedPointsOfMacroArea(areaNr);
+    myProject.setMarkedPointsOfMacroArea(areaNr, viewNotActivePoints);
 
     redrawMeteoPoints(currentPointsVisualization, true);
 
