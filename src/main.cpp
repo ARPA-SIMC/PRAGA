@@ -29,7 +29,7 @@ bool checkEnvironmentConsole(QString pragaHome)
         return false;
     }
 
-    if (!QDir(pragaHome).exists())
+    if (! QDir(pragaHome).exists())
     {
         QString error = "\nWrong environment!\n"
                         "Set correct $PRAGA_HOME variable:\n"
@@ -89,32 +89,33 @@ int main(int argc, char *argv[])
     QString pragaHome = myEnvironment.value("PRAGA_HOME");
     QString display = myEnvironment.value("DISPLAY");
 
-    // only for Linux headless
+    // only for headless Linux
     if (QSysInfo::productType() != "windows" && QSysInfo::productType() != "osx")
     {
         if (myProject.modality == MODE_GUI && display.isEmpty())
         {
-            // server headless, switch modality
+            // server headless (computers without a local interface): switch modality
             myProject.modality = MODE_CONSOLE;
         }
     }
 
-    // start GUI
     if (myProject.modality == MODE_GUI)
     {
+        // go to GUI starting point
         return mainGUI(argc, argv, pragaHome, myProject);
     }
 
     QCoreApplication myApp(argc, argv);
 
-    // only for Windows without right to set environment
+    // only for Windows - without the right to set the environment
     if (QSysInfo::productType() == "windows" && pragaHome == "")
     {
+        // search default praga home
         QString appPath = myApp.applicationDirPath();
         pragaHome = searchDefaultPragaPath(appPath, myProject);
     }
 
-    if (!checkEnvironmentConsole(pragaHome))
+    if (! checkEnvironmentConsole(pragaHome))
         return PRAGA_ENV_ERROR;
 
     if (! myProject.start(pragaHome))
