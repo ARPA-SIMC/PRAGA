@@ -212,7 +212,7 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
     }
     catch (...)
     {
-        QMessageBox::information(nullptr, "WARNING", "Exception catch in keyPressEvent.");
+        myProject.logWarning("Exception catch in keyPressEvent.");
     }
 }
 
@@ -331,6 +331,29 @@ void MainWindow::resizeEvent(QResizeEvent *event)
 }
 
 
+QPoint MainWindow::getMapPos(const QPoint& pos)
+{
+    QPoint mapPos;
+    int dx = ui->widgetMap->x();
+    int dy = ui->widgetMap->y() + ui->menuBar->height();
+    mapPos.setX(pos.x() - dx - MAPBORDER);
+    mapPos.setY(pos.y() - dy - MAPBORDER);
+    return mapPos;
+}
+
+
+bool MainWindow::isInsideMap(const QPoint& pos)
+{
+    if (pos.x() > 0 && pos.y() > 0 &&
+        pos.x() < (mapView->width() - MAPBORDER*2) &&
+        pos.y() < (mapView->height() - MAPBORDER*2) )
+    {
+        return true;
+    }
+    else return false;
+}
+
+
 bool MainWindow::updateSelection(const QPoint& pos)
 {
     if (rubberBand == nullptr || !rubberBand->isActive || !rubberBand->isVisible() )
@@ -434,7 +457,7 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent * event)
     }
     catch (...)
     {
-        QMessageBox::information(nullptr, "WARNING", "Exception catch in mouseDoubleClickEvent");
+        myProject.logWarning("Exception catch in mouseDoubleClickEvent");
     }
 }
 
@@ -543,7 +566,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                         {
                             if (! myProject.meteoPointsLoaded)
                             {
-                                QMessageBox::critical(nullptr, "proxy graph", "No meteo points DB open");
+                                myProject.logError(ERROR_STR_MISSING_DB);
                                 return;
                             }
                             myProject.showProxyGraph(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
@@ -614,7 +637,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                     {
                         if (! myProject.meteoPointsLoaded)
                         {
-                            QMessageBox::critical(nullptr, "proxy graph", "No meteo points DB open");
+                            myProject.logError(ERROR_STR_MISSING_DB);
                             return;
                         }
                         myProject.showProxyGraph(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
@@ -680,7 +703,7 @@ void MainWindow::updateMaps()
     }
     catch (...)
     {
-        QMessageBox::information(nullptr, "WARNING", "Exception catch in updateMaps function.");
+        myProject.logWarning("Exception catch in updateMaps function.");
     }
 }
 
@@ -798,11 +821,22 @@ void MainWindow::disableAllButton(bool toggled)
     }
 }
 
+
+void MainWindow::on_actionFileMeteopointArkimetLoadVM_triggered()
+{
+    if(myProject.nrMeteoPoints == 0)
+    {
+        myProject.logWarning(ERROR_STR_MISSING_DB);
+        return;
+    }
+}
+
+
 void MainWindow::on_actionFileMeteopointArkimetDownload_triggered()
 {
     if(myProject.nrMeteoPoints == 0)
     {
-        QMessageBox::information(nullptr, "DB not existing", "Create or Open a meteo points database before download");
+        myProject.logWarning(ERROR_STR_MISSING_DB);
         return;
     }
 
@@ -832,29 +866,6 @@ void MainWindow::on_actionFileMeteopointArkimetDownload_triggered()
     }
 
     this->loadMeteoPoints(myProject.meteoPointsDbHandler->getDbName());
-}
-
-
-QPoint MainWindow::getMapPos(const QPoint& pos)
-{
-    QPoint mapPos;
-    int dx = ui->widgetMap->x();
-    int dy = ui->widgetMap->y() + ui->menuBar->height();
-    mapPos.setX(pos.x() - dx - MAPBORDER);
-    mapPos.setY(pos.y() - dy - MAPBORDER);
-    return mapPos;
-}
-
-
-bool MainWindow::isInsideMap(const QPoint& pos)
-{
-    if (pos.x() > 0 && pos.y() > 0 &&
-        pos.x() < (mapView->width() - MAPBORDER*2) &&
-        pos.y() < (mapView->height() - MAPBORDER*2) )
-    {
-        return true;
-    }
-    else return false;
 }
 
 
@@ -1224,7 +1235,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
     {
         if (! myProject.netCDF.isLoaded())
         {
-            QMessageBox::information(nullptr, "No NetCDF file", "Open a NetCDF grid before.");
+            myProject.logWarning(ERROR_STR_MISSING_NETCDF);
             return;
         }
 
@@ -1269,7 +1280,10 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
             {
                 std::stringstream buffer;
                 if (! myProject.netCDF.exportDataSeries(idVar, geoPoint, getCrit3DTime(firstTime), getCrit3DTime(lastTime), &buffer))
-                    QMessageBox::information(nullptr, "ERROR", QString::fromStdString(buffer.str()));
+                {
+                    myProject.logError(QString::fromStdString(buffer.str()));
+                    return;
+                }
                 else
                 {
                     QString fileName = QFileDialog::getSaveFileName(nullptr, "Save data series", "", "csv files (*.csv)");
@@ -1281,6 +1295,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
             }
         }
     }
+
 
     void MainWindow::on_actionFileMeteogridExportNetcdf_triggered()
     {
@@ -1319,7 +1334,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
     {
         if (! myProject.netCDF.isLoaded())
         {
-            QMessageBox::information(nullptr, "No NetCDF", "Open NetCDF file before.");
+            myProject.logWarning(ERROR_STR_MISSING_NETCDF);
             return;
         }
 
@@ -1338,7 +1353,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
     {
         if (! myProject.netCDF.isLoaded())
         {
-            QMessageBox::information(nullptr, "No NetCDF", "Open NetCDF file before.");
+            myProject.logWarning(ERROR_STR_MISSING_NETCDF);
             return;
         }
 
@@ -1351,7 +1366,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
     {
         if (! myProject.netCDF.isLoaded())
         {
-            QMessageBox::information(nullptr, "No NetCDF", "Open NetCDF file before.");
+            myProject.logWarning(ERROR_STR_MISSING_NETCDF);
             return;
         }
 
@@ -1943,7 +1958,7 @@ void MainWindow::callLocalProxyGraph(const gis::Crit3DGeoPoint point)
 {
     if(myProject.getCurrentFrequency() == noFrequency)
     {
-        QMessageBox::critical(nullptr, "proxy graph", "Select data frequency (daily or hourly)");
+        myProject.logError("Select data frequency (daily or hourly)");
         return;
     }
 
@@ -2952,7 +2967,7 @@ void MainWindow::on_actionSpatialAggregationNewDB_triggered()
     QFileInfo dbFileInfo(dbFile.fileName());
     if (dbFile.exists())
     {
-        if (!dbFile.remove())
+        if (! dbFile.remove())
         {
             myProject.logError("Remove file failed: " + dbName + "\n" + dbFile.errorString());
             return;
@@ -2969,14 +2984,14 @@ void MainWindow::on_actionSpatialAggregationNewDB_triggered()
     QString rasterName = QFileDialog::getOpenFileName(this, tr("Open raster"), "", tr("files (*.flt)"));
     if (rasterName.isEmpty() || ! rasterName.contains(".flt"))
     {
-        myProject.logError("Load raster before.");
+        myProject.logError(ERROR_STR_MISSING_DEM);
         return;
     }
     QFileInfo rasterFileInfo(rasterName);
 
     if (dbFileInfo.absolutePath() != rasterFileInfo.absolutePath())
     {
-        QMessageBox::information(nullptr, "Raster will be copied at db path", "Raster and db should be in the same folder");
+        myProject.logWarning("Raster and aggregation db should be in the same folder");
         QString rasterCopiedFlt = dbFileInfo.absolutePath() + "/" + rasterFileInfo.baseName() + ".flt";
         QString rasterCopiedHdr = dbFileInfo.absolutePath() + "/" + rasterFileInfo.baseName() + ".hdr";
         QString rasterHdr = rasterFileInfo.absolutePath() + "/" + rasterFileInfo.baseName() + ".hdr";
@@ -3162,7 +3177,7 @@ void MainWindow::on_actionFileOpenProject_triggered()
     }
     else
     {
-        QMessageBox::critical(nullptr, "Could not open project", myProject.errorString);
+        myProject.logError("Error in opening project: " + myProject.errorString);
 
         this->mapView->centerOn(startCenter->lonLat());
         if (myProject.loadPragaProject(myProject.getApplicationPath() + "default.ini")) drawProject();
@@ -3256,14 +3271,14 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
     // check meteo points
     if (myProject.meteoPointsDbHandler == nullptr)
     {
-        myProject.logError("No meteo points DB open");
+        myProject.logError(ERROR_STR_MISSING_DB);
         return;
     }
 
     // check meteo grid
     if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr)
     {
-        myProject.logError("No meteo grid open");
+        myProject.logError(ERROR_STR_MISSING_GRID);
         return;
     }
 
@@ -3320,7 +3335,7 @@ void MainWindow::on_actionInterpolationOutputPointsPeriod_triggered()
     // check meteo points
     if (! myProject.meteoPointsLoaded)
     {
-        myProject.logError("Open meteo points DB before.");
+        myProject.logError(ERROR_STR_MISSING_DB);
         return;
     }
 
@@ -3432,7 +3447,7 @@ void MainWindow::on_actionInterpolationCVPeriod_triggered()
     // check meteo points
     if (myProject.meteoPointsDbHandler == nullptr)
     {
-        myProject.logError("No meteo points DB open");
+        myProject.logError(ERROR_STR_MISSING_DB);
         return;
     }
 
@@ -3670,7 +3685,7 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
     // check meteo point
     if (myProject.meteoPointsDbHandler == nullptr)
     {
-        myProject.logError("No meteo points DB open");
+        myProject.logError(ERROR_STR_MISSING_DB);
         return;
     }
 
@@ -3823,7 +3838,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
     // check meteo grid
     if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr)
     {
-        myProject.logError("Open meteo grid before.");
+        myProject.logError(ERROR_STR_MISSING_GRID);
         return;
     }
 
@@ -3847,7 +3862,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
         return;
 
     myProject.setProgressBar("Loading data...", dateFiles.size());
-    QString warning;
+    QString warningStr;
 
     for (int i=0; i < dateFiles.size(); i++)
     {
@@ -3856,7 +3871,7 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
         {
             if (! myProject.errorString.isEmpty())
             {
-                warning += dateFiles[i] + "\n" + myProject.errorString + "\n";
+                warningStr += dateFiles[i] + "\n" + myProject.errorString + "\n";
             }
         }
         else
@@ -3882,10 +3897,11 @@ void MainWindow::on_actionImport_data_XML_grid_triggered()
     }
 
     myProject.closeProgressBar();
-    if (!warning.isEmpty())
+    if (! warningStr.isEmpty())
     {
-        QMessageBox::warning(nullptr, " Not valid or missing values: ", warning);
+        myProject.logWarning("Not valid or missing values: " + warningStr);
     }
+
     delete myProject.inOutData;
     QString xmlName = myProject.dbGridXMLFileName;
     closeMeteoGrid();
@@ -3898,7 +3914,7 @@ void MainWindow::on_actionFileMeteopointProperties_import_triggered()
     // check meteo point
     if (myProject.meteoPointsDbHandler == nullptr)
     {
-        myProject.logError("Open a meteo points DB before.");
+        myProject.logError(ERROR_STR_MISSING_DB);
         return;
     }
 
@@ -3943,7 +3959,7 @@ void MainWindow::on_actionFileMeteopointData_XMLimport_triggered()
     // check meteo point
     if (myProject.meteoPointsDbHandler == nullptr)
     {
-        myProject.logError("Open a meteo points DB before");
+        myProject.logError(ERROR_STR_MISSING_DB);
         return;
     }
 
@@ -3965,7 +3981,7 @@ void MainWindow::on_actionFileMeteopointData_XMLimport_triggered()
         return;
 
     myProject.setProgressBar("Loading data...", dateFiles.size());
-    QString warning;
+    QString warningStr;
 
     for (int i=0; i < dateFiles.size(); i++)
     {
@@ -3975,7 +3991,7 @@ void MainWindow::on_actionFileMeteopointData_XMLimport_triggered()
         {
             if (! myProject.errorString.isEmpty())
             {
-                warning += dateFiles[i] + "\n" + myProject.errorString + "\n";
+                warningStr += dateFiles[i] + "\n" + myProject.errorString + "\n";
             }
         }
         else
@@ -4003,9 +4019,9 @@ void MainWindow::on_actionFileMeteopointData_XMLimport_triggered()
 
     myProject.closeProgressBar();
 
-    if (!warning.isEmpty())
+    if (! warningStr.isEmpty())
     {
-        QMessageBox::warning(nullptr, "WARNING", warning);
+        myProject.logWarning(warningStr);
     }
 
     delete myProject.inOutData;
@@ -4363,26 +4379,26 @@ void MainWindow::on_action_Proxy_graph_triggered()
 {
     if (myProject.proxyWidget != nullptr)
     {
-        QMessageBox::critical(nullptr, "proxy graph", "Proxy graph already open");
+        myProject.logError("Proxy graph already open");
         return;
     }
 
     if (! myProject.meteoPointsLoaded)
     {
-        QMessageBox::critical(nullptr, "proxy graph", "No meteo points DB open");
+        myProject.logError(ERROR_STR_MISSING_DB);
         return;
     }
 
     std::vector<Crit3DProxy> proxy = myProject.interpolationSettings.getCurrentProxy();
     if (proxy.size() == 0)
     {
-        QMessageBox::critical(nullptr, "proxy graph", "No proxy loaded");
+        myProject.logError("No proxy loaded");
         return;
     }
 
     if(myProject.getCurrentFrequency() == noFrequency)
     {
-        QMessageBox::critical(nullptr, "proxy graph", "Select data frequency (daily or hourly)");
+        myProject.logError("Select data frequency (daily or hourly)");
         return;
     }
 
@@ -4500,7 +4516,7 @@ void MainWindow::on_actionFileMeteogridExportRaster_triggered()
 {
     if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr)
     {
-        QMessageBox::information(nullptr, "No Meteo Grid", "Open meteo grid before.");
+        myProject.logWarning(ERROR_STR_MISSING_GRID);
         return;
     }
 
@@ -4533,7 +4549,7 @@ void MainWindow::on_actionFileMeteopointArkimetUpdatePointProperties_triggered()
 {
     if (! myProject.meteoPointsDbHandler)
     {
-        myProject.logError("Open meteo point db before.");
+        myProject.logError(ERROR_STR_MISSING_DB);
         return;
     }
     QList<Crit3DMeteoPoint> listMeteoPoints;
@@ -4708,12 +4724,12 @@ void MainWindow::on_actionFileMeteopointArkimetUpdatePointProperties_triggered()
     {
         if (log == "")
         {
-            QMessageBox::information(nullptr, "Everything already updated", "Nothing changed");
+            myProject.logWarning("Everything already updated");
             return;
         }
         else
         {
-            log = log + "All other stations are already updated";
+            log += "\nAll other stations are already updated";
             myProject.logInfo(log);
         }
     }
@@ -4734,9 +4750,10 @@ void MainWindow::on_actionFileMeteopointArkimetUpdateMeteopoints_triggered()
 {
     if (! myProject.meteoPointsDbHandler)
     {
-        myProject.logError("Open meteo point db before.");
+        myProject.logError(ERROR_STR_MISSING_DB);
         return;
     }
+
     QString dbName = myProject.meteoPointsDbHandler->getDbName();
     QList<QString> datasetsList = myProject.meteoPointsDbHandler->getDatasetsActive();
     DialogSelectDataset selectDialog(datasetsList);
@@ -4802,7 +4819,7 @@ void MainWindow::on_actionFileMeteopointArkimetUpdateMeteopoints_triggered()
         }
         else
         {
-            QMessageBox::information(nullptr, "Update meteo points", "No stations to add");
+            myProject.logWarning("No stations to add");
         }
     }
     return;
@@ -4812,7 +4829,7 @@ void MainWindow::on_actionFileMeteopointArkimetUpdateDatasets_triggered()
 {
     if (! myProject.meteoPointsDbHandler)
     {
-        myProject.logError("Open meteo point db before.");
+        myProject.logError(ERROR_STR_MISSING_DB);
         return;
     }
     QString dbName = myProject.meteoPointsDbHandler->getDbName();
@@ -4912,9 +4929,9 @@ void MainWindow::on_actionExport_MeteoPoints_toCsv_triggered()
     if (csvFileName != "")
     {
         QFile myFile(csvFileName);
-        if (!myFile.open(QIODevice::WriteOnly | QFile::Truncate))
+        if (! myFile.open(QIODevice::WriteOnly | QFile::Truncate))
         {
-            QMessageBox::information(nullptr, "Error", "Open CSV failed: " + csvFileName + "\n ");
+            myProject.logError("Open CSV failed: " + csvFileName + "\n ");
             return;
         }
 
@@ -4925,7 +4942,7 @@ void MainWindow::on_actionExport_MeteoPoints_toCsv_triggered()
         myStream << header << "\n";
         for (int i = 0; i < myProject.nrMeteoPoints; i++)
         {
-            if (!isEqual(myProject.meteoPoints[i].currentValue, NODATA))
+            if (! isEqual(myProject.meteoPoints[i].currentValue, NODATA))
             {
                 myStream << QString::fromStdString(myProject.meteoPoints[i].id)
                          << "," << QString::fromStdString(myProject.meteoPoints[i].name)
@@ -5036,7 +5053,7 @@ void MainWindow::on_actionFileMeteogridDelete_triggered()
 {
     if (myProject.meteoGridDbHandler == nullptr)
     {
-        QMessageBox::information(nullptr, "No Meteo Grid", "Open meteo grid before.");
+        myProject.logWarning(ERROR_STR_MISSING_GRID);
         return;
     }
     QMessageBox::StandardButton reply;
@@ -5058,7 +5075,7 @@ void MainWindow::on_actioFileMeteogrid_Load_current_data_triggered()
 {
     if (myProject.meteoGridDbHandler == nullptr)
     {
-        QMessageBox::information(nullptr, "No Meteo Grid", "Open meteo grid before.");
+        myProject.logWarning(ERROR_STR_MISSING_GRID);
         return;
     }
 
@@ -5073,13 +5090,13 @@ bool MainWindow::checkMeteoGridColorScale()
 {
     if (! this->meteoGridObj->isLoaded)
     {
-        QMessageBox::information(nullptr, "No Meteo Grid", "Open meteo grid before.");
+        myProject.logWarning(ERROR_STR_MISSING_GRID);
         return false;
     }
 
     if (this->currentGridVisualization == notShown || this->currentGridVisualization == showLocation)
     {
-        QMessageBox::information(nullptr, "Wrong visualization", "Show variable or elaboration data before.");
+        myProject.logWarning("Show variable or elaboration data before.");
         return false;
     }
 
@@ -5146,7 +5163,7 @@ bool MainWindow::checkDEMColorScale()
 {
     if (! myProject.DEM.isLoaded)
     {
-        QMessageBox::information(nullptr, "Missing DEM", "Open Digital Elevation Map before.");
+        myProject.logWarning(ERROR_STR_MISSING_DEM);
         return false;
     }
 
@@ -5536,7 +5553,7 @@ void MainWindow::on_actionInterpolationMeteogridGriddingTaskRemove_triggered()
 
     if (taskList.size() == 0)
     {
-        QMessageBox::information(nullptr, "Gridding task", "No gridding task in DB Grid");
+        myProject.logWarning("No gridding task in DB Grid");
         return;
     }
 
@@ -5812,7 +5829,7 @@ void MainWindow::on_actionCompute_daily_from_Hourly_selected_triggered()
 
     if (idPointList.isEmpty())
     {
-        myProject.logError("No meteo points selected.");
+        myProject.logError("No meteo point selected.");
         return;
     }
 
@@ -5972,15 +5989,9 @@ void MainWindow::on_actionClimateMeteoGrid_triggered()
             {
                 myProject.deleteClimate(isMeteoGrid, climaSelected);
             }
-
         }
-        else
-        {
-            return;
-        }
-
+        else return;
     }
-    return;
 }
 
 
@@ -6558,7 +6569,7 @@ void MainWindow::on_actionFileMeteogrid_ExportDailyData_triggered()
 {
     if (! myProject.meteoGridLoaded || myProject.meteoGridDbHandler == nullptr)
     {
-        QMessageBox::information(nullptr, "No Meteo Grid", "Open meteo grid before.");
+        myProject.logWarning(ERROR_STR_MISSING_GRID);
         return;
     }
 
@@ -6601,7 +6612,7 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
     // check meteo point
     if (myProject.meteoPointsDbHandler == nullptr)
     {
-        myProject.logError("Open a meteo points DB before");
+        myProject.logError(ERROR_STR_MISSING_DB);
         return;
     }
 
@@ -6647,7 +6658,7 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
             myProject.updateProgressBar(i);
             if (!myProject.loadXMLExportData(QString::fromStdString(myProject.meteoPoints[i].id), myFirstTime, myLastTime))
             {
-                    QMessageBox::critical(nullptr, "Error", myProject.errorString);
+                    myProject.logError();
                     myProject.closeProgressBar();
                     delete myProject.inOutData;
                     return;
@@ -6663,7 +6674,7 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
             myProject.updateProgressBar(i);
             if (!myProject.loadXMLExportData(pointSelected[i], myFirstTime, myLastTime))
             {
-                    QMessageBox::critical(nullptr, "Error", myProject.errorString);
+                    myProject.logError();
                     myProject.closeProgressBar();
                     delete myProject.inOutData;
                     return;
@@ -6719,7 +6730,7 @@ void MainWindow::on_actionFileMeteogridData_XMLexport_triggered()
             {
                     if ( !myProject.loadXMLExportDataGrid(QString::fromStdString(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id), myFirstTime, myLastTime ))
                     {
-                        QMessageBox::critical(nullptr, "Error", myProject.errorString);
+                        myProject.logError();
                         myProject.closeProgressBar();
                         delete myProject.inOutData;
                         return;
@@ -7004,7 +7015,7 @@ void MainWindow::on_actionInterpolationWriteGlocalWeightMaps_triggered()
 
     if (! myProject.interpolationSettings.getMacroAreasMap()->isLoaded)
     {
-        myProject.logError("Load a zone grid before");
+        myProject.logError("Load a zone grid before.");
         return;
     }
 
@@ -7123,4 +7134,5 @@ void MainWindow::on_actionWith_Criteria_Selected_triggered()
         redrawMeteoPoints(currentPointsVisualization, true);
     }
 }
+
 

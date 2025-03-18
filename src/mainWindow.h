@@ -340,6 +340,8 @@
 
         void on_actionWith_Criteria_Selected_triggered();
 
+        void on_actionFileMeteopointArkimetLoadVM_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
