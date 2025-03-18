@@ -3109,7 +3109,7 @@ void MainWindow::on_actionSpatialAggregationFromGrid_hourly_triggered()
         return;
 
     float myThreshold = NODATA;
-    meteoComputation elab1MeteoComp = noMeteoComp;
+    meteoComputation elab1MeteoComp = average;
     meteoVariable variable = zoneDialog.getVariable();
     bool isShowInfo = true;
 
