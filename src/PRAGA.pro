@@ -10,6 +10,8 @@ greaterThan(QT_MAJOR_VERSION, 5): QT += core5compat
 
 TARGET = PRAGA
 TEMPLATE = app
+VERSION = 2.0.3
+
 
 INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/crit3dDate ../agrolib/mathFunctions ../agrolib/phenology ../agrolib/meteo ../agrolib/gis  \
