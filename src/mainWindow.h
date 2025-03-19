@@ -78,7 +78,7 @@
         void on_frequencyButton_clicked();
 
         void enableAllDataset(bool toggled);
-        void disableAllButton(bool toggled);
+        void disableAllDataset(bool toggled);
 
         void on_actionMeteopointQualitySpatial_triggered();
 
@@ -399,7 +399,7 @@
         QActionGroup *showNetcdfGroup;
 
         QList<QCheckBox*> datasetCheckbox;
-        QCheckBox* all;
+        QCheckBox* allDatasets;
 
         void setTileSource(WebTileSource::WebTileType tileType);
         QString selectArkimetDataset(QDialog* datasetDialog);

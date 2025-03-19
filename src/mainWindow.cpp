@@ -810,13 +810,14 @@ void MainWindow::enableAllDataset(bool toggled)
     }
 }
 
-void MainWindow::disableAllButton(bool toggled)
+
+void MainWindow::disableAllDataset(bool toggled)
 {
-    if (!toggled)
+    if (! toggled)
     {
-        if (all->isChecked())
+        if (allDatasets->isChecked())
         {
-            all->setChecked(false);
+            allDatasets->setChecked(false);
         }
     }
 }
@@ -829,6 +830,22 @@ void MainWindow::on_actionFileMeteopointArkimetLoadVM_triggered()
         myProject.logWarning(ERROR_STR_MISSING_DB);
         return;
     }
+
+    QList<QString> fileList = QFileDialog::getOpenFileNames(
+                            this,
+                            "Select one or more VM files to open",
+                            "",
+                            "Files (*.VM2 *.csv *.txt)");
+    if (fileList.isEmpty())
+        return;
+
+    if (! myProject.readVmArkimetData(fileList, daily))
+    {
+        myProject.logError();
+        return;
+    }
+
+    loadMeteoPoints(myProject.meteoPointsDbHandler->getDbName());
 }
 
 
@@ -849,7 +866,7 @@ void MainWindow::on_actionFileMeteopointArkimetDownload_triggered()
     {
         QDate firstDate = downloadDialog.getFirstDate();
         QDate lastDate = downloadDialog.getLastDate();
-        if (!downloadDialog.getVarD().isEmpty())
+        if (! downloadDialog.getVarD().isEmpty())
         {
             if (! myProject.downloadDailyDataArkimet(downloadDialog.getVarD(), downloadDialog.getPrec0024(), firstDate, lastDate, true))
              {
@@ -3531,17 +3548,17 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
 
     for (int i = 0; i < dataset.size(); i++)
     {
-        QCheckBox* dat = new QCheckBox(dataset[i]);
-        layout.addWidget(dat);
+        QCheckBox* newDataset = new QCheckBox(dataset[i]);
+        layout.addWidget(newDataset);
 
-        datasetCheckbox.append(dat);
+        datasetCheckbox.append(newDataset);
     }
 
-    all = new QCheckBox("ALL");
+    allDatasets = new QCheckBox("ALL");
     layout.addSpacing(30);
-    layout.addWidget(all);
+    layout.addWidget(allDatasets);
 
-    connect(all, SIGNAL(toggled(bool)), this, SLOT(enableAllDataset(bool)));
+    connect(allDatasets, SIGNAL(toggled(bool)), this, SLOT(enableAllDataset(bool)));
 
     for (int i = 0; i < dataset.size(); i++)
     {
@@ -3582,7 +3599,7 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
     }
 
     delete buttonBox;
-    delete all;
+    delete allDatasets;
 }
 
 
@@ -3968,7 +3985,7 @@ void MainWindow::on_actionFileMeteopointData_XMLimport_triggered()
         return;
 
     bool isGrid = false;
-    if (!myProject.parserXMLImportExportData(fileName, isGrid))
+    if (! myProject.parserXMLImportExportData(fileName, isGrid))
         return;
 
     QList<QString> dateFiles = QFileDialog::getOpenFileNames(
