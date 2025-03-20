@@ -7136,3 +7136,57 @@ void MainWindow::on_actionWith_Criteria_Selected_triggered()
 }
 
 
+void MainWindow::on_actionLoad_macro_areas_file_triggered()
+{
+    if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded)
+    {
+       myProject.logWarning(ERROR_STR_MISSING_POINT_GRID);
+       return;
+    }
+
+    QString defaultPath = myProject.getDefaultPath() + PATH_GEO;
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file with macro areas"), defaultPath,
+                                                    tr("ESRI FLT (*.flt)"));
+    if (fileName.isEmpty())
+        return;
+
+    QFileInfo fileInfo(fileName);
+    myProject.glocalMapName = (fileInfo.path() + "/" + fileInfo.baseName());
+
+    myProject.logInfoGUI("Loading macro area file...");
+
+    if (! myProject.loadGlocalAreasMap())
+    {
+        myProject.closeLogInfo();
+        myProject.logWarning();
+        return;
+    }
+    myProject.closeLogInfo();
+}
+
+
+void MainWindow::on_actionLoad_stations_file_triggered()
+{
+    if (! myProject.meteoPointsLoaded && ! myProject.meteoGridLoaded)
+    {
+       myProject.logWarning(ERROR_STR_MISSING_POINT_GRID);
+       return;
+    }
+
+    QString defaultPath = myProject.getDefaultPath() + PATH_GEO;
+    myProject.glocalPointsName = QFileDialog::getOpenFileName(this, tr("Open file with stations"), defaultPath,
+                                                    tr("Comma separated values (*.csv)"));
+    if (myProject.glocalPointsName.isEmpty())
+        return;
+
+    myProject.logInfoGUI("Loading stations file...");
+
+    if (! myProject.loadGlocalStationsAndCells(myProject.meteoGridLoaded))
+    {
+        myProject.closeLogInfo();
+        myProject.logWarning();
+        return;
+    }
+    myProject.closeLogInfo();
+}
+

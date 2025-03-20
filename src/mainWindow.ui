@@ -293,7 +293,7 @@
         <number>0</number>
        </property>
        <property name="sizeConstraint">
-        <enum>QLayout::SetDefaultConstraint</enum>
+        <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
        </property>
        <property name="leftMargin">
         <number>9</number>
@@ -438,7 +438,7 @@
            </font>
           </property>
           <property name="inputMethodHints">
-           <set>Qt::ImhNone</set>
+           <set>Qt::InputMethodHint::ImhNone</set>
           </property>
           <property name="dateTime">
            <datetime>
@@ -467,7 +467,7 @@
             <second>0</second>
             <year>1752</year>
             <month>8</month>
-            <day>14</day>
+            <day>13</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -478,7 +478,7 @@
            </date>
           </property>
           <property name="currentSection">
-           <enum>QDateTimeEdit::YearSection</enum>
+           <enum>QDateTimeEdit::Section::YearSection</enum>
           </property>
           <property name="displayFormat">
            <string>yyyy-MM-dd</string>
@@ -720,7 +720,7 @@
            <number>66</number>
           </property>
           <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <enum>Qt::Orientation::Horizontal</enum>
           </property>
          </widget>
          <widget class="QLabel" name="labelMeteoGridScale">
@@ -1043,7 +1043,7 @@
            <number>66</number>
           </property>
           <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <enum>Qt::Orientation::Horizontal</enum>
           </property>
          </widget>
          <widget class="QWidget" name="widgetColorLegendRaster" native="true">
@@ -1181,7 +1181,7 @@
            <number>33</number>
           </property>
           <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+           <enum>Qt::Orientation::Horizontal</enum>
           </property>
          </widget>
          <widget class="QPushButton" name="netCDFButtonVariable">
@@ -1537,7 +1537,7 @@
      <x>0</x>
      <y>0</y>
      <width>1276</width>
-     <height>28</height>
+     <height>23</height>
     </rect>
    </property>
    <property name="palette">
@@ -1683,6 +1683,13 @@
      <addaction name="actionFileOutputPointsOpen"/>
      <addaction name="actionFileOutputPointsClose"/>
     </widget>
+    <widget class="QMenu" name="menuMacro_areas_file">
+     <property name="title">
+      <string>Macro areas file</string>
+     </property>
+     <addaction name="actionLoad_stations_file"/>
+     <addaction name="actionLoad_macro_areas_file"/>
+    </widget>
     <addaction name="menuProject"/>
     <addaction name="separator"/>
     <addaction name="menuOpen_DEM"/>
@@ -1694,6 +1701,8 @@
     <addaction name="menuMeteogrid"/>
     <addaction name="separator"/>
     <addaction name="menuFileNetCDF"/>
+    <addaction name="separator"/>
+    <addaction name="menuMacro_areas_file"/>
     <addaction name="separator"/>
     <addaction name="actionOpenShell"/>
    </widget>
@@ -3088,6 +3097,16 @@
   <action name="actionFileMeteopointArkimetLoadVM">
    <property name="text">
     <string>Load VM data...</string>
+   </property>
+  </action>
+  <action name="actionLoad_stations_file">
+   <property name="text">
+    <string>Load stations file</string>
+   </property>
+  </action>
+  <action name="actionLoad_macro_areas_file">
+   <property name="text">
+    <string>Load macro areas file</string>
    </property>
   </action>
  </widget>
