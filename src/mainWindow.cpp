@@ -502,12 +502,14 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                 QAction *openProxyGraph;
                 QAction *markMacroAreaStations;
                 QAction *addMacroAreaLR;
+                QAction *unmarkStations;
                 if (myProject.meteoPointsLoaded && (myProject.interpolationSettings.getUseLocalDetrending() || myProject.interpolationSettings.getUseGlocalDetrending()))
                 {
                     menu.addSeparator();
                     openProxyGraph = menu.addAction("Open local proxy graph");
                     markMacroAreaStations = menu.addAction("Mark macroarea stations");
                     addMacroAreaLR = menu.addAction("Plot macroarea lapse rate on global proxy widget");
+                    unmarkStations = menu.addAction("Unmark stations");
 
                 }
 
@@ -543,6 +545,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                     }
                     if (selection == markMacroAreaStations || selection == addMacroAreaLR)
                     {
+                        //check must be done for both actions
                         if (! myProject.interpolationSettings.getUseGlocalDetrending())
                             return;
 
@@ -550,8 +553,15 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                         {
                             if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false))
                             {
+                                myProject.logError("Error in loading glocal files.");
                                 return;
                             }
+                        }
+
+                        if (! myProject.meteoPointsLoaded)
+                        {
+                            myProject.logError(ERROR_STR_MISSING_DB);
+                            return;
                         }
 
                         gis::Crit3DUtmPoint myUtm;
@@ -564,13 +574,17 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                         }
                         else if (selection == addMacroAreaLR)
                         {
-                            if (! myProject.meteoPointsLoaded)
-                            {
-                                myProject.logError(ERROR_STR_MISSING_DB);
-                                return;
-                            }
                             myProject.showProxyGraph(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
                         }
+                    }
+                    if (selection == unmarkStations)
+                    {
+                        for (int i = 0; i < myProject.nrMeteoPoints; i++)
+                        {
+                            myProject.meteoPoints[i].marked = false;
+                        }
+
+                        redrawMeteoPoints(currentPointsVisualization, true);
                     }
                     // TODO: other actions
 
@@ -596,12 +610,14 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
             QAction *openProxyGraph;
             QAction *markMacroAreaStations;
             QAction *addMacroAreaLR;
+            QAction *unmarkStations;
             if (myProject.interpolationSettings.getUseLocalDetrending() || myProject.interpolationSettings.getUseGlocalDetrending())
                openProxyGraph = menu.addAction("Open local proxy graph");
             if (myProject.interpolationSettings.getUseGlocalDetrending())
             {
                 markMacroAreaStations = menu.addAction("Mark all stations of this macroarea");
                 addMacroAreaLR = menu.addAction("Plot macroarea lapse rate on global proxy widget");
+                unmarkStations = menu.addAction("Unmark stations");
             }
 
             QAction *selection =  menu.exec(QCursor::pos());
@@ -642,6 +658,15 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                         }
                         myProject.showProxyGraph(int(gis::getValueFromXY(*(myProject.interpolationSettings.getMacroAreasMap()), myUtm.x, myUtm.y)));
                     }
+                }
+                else if (selection == unmarkStations)
+                {
+                    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+                    {
+                        myProject.meteoPoints[i].marked = false;
+                    }
+
+                    redrawMeteoPoints(currentPointsVisualization, true);
                 }
             }
         }
