@@ -78,7 +78,7 @@
         void on_frequencyButton_clicked();
 
         void enableAllDataset(bool toggled);
-        void disableAllButton(bool toggled);
+        void disableAllDataset(bool toggled);
 
         void on_actionMeteopointQualitySpatial_triggered();
 
@@ -340,6 +340,12 @@
 
         void on_actionWith_Criteria_Selected_triggered();
 
+        void on_actionFileMeteopointArkimetLoadVM_triggered();
+
+        void on_actionLoad_stations_file_triggered();
+
+        void on_actionLoad_macro_areas_file_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
@@ -397,7 +403,7 @@
         QActionGroup *showNetcdfGroup;
 
         QList<QCheckBox*> datasetCheckbox;
-        QCheckBox* all;
+        QCheckBox* allDatasets;
 
         void setTileSource(WebTileSource::WebTileType tileType);
         QString selectArkimetDataset(QDialog* datasetDialog);
