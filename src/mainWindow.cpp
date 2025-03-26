@@ -864,7 +864,29 @@ void MainWindow::on_actionFileMeteopointArkimetLoadVM_triggered()
     if (fileList.isEmpty())
         return;
 
-    if (! myProject.readVmArkimetData(fileList, daily))
+    // check prec
+    bool isPrec0024 = true;
+    QDialog precDialog;
+    precDialog.setFixedWidth(350);
+    precDialog.setWindowTitle("Choose daily precipitation time");
+    QVBoxLayout precLayout;
+    QRadioButton prec00("00-24");
+    QRadioButton prec08("08-08");
+
+    QDialogButtonBox confirm(QDialogButtonBox::Ok);
+
+    precDialog.connect(&confirm, SIGNAL(accepted()), &precDialog, SLOT(accept()));
+
+    precLayout.addWidget(&prec00);
+    precLayout.addWidget(&prec08);
+    precLayout.addWidget(&confirm);
+    precDialog.setLayout(&precLayout);
+    precDialog.exec();
+
+    if (prec08.isChecked())
+        isPrec0024 = false;
+
+    if (! myProject.readVmArkimetData(fileList, daily, isPrec0024))
     {
         myProject.logError();
         return;
@@ -4316,7 +4338,7 @@ void MainWindow::on_actionDeleteData_Active_triggered()
         return;
     }
 
-    if (!myProject.deleteMeteoPointsData(pointList))
+    if (! myProject.deleteMeteoPointsData(pointList))
     {
         myProject.logError("Failed to delete data.");
     }
@@ -4350,7 +4372,7 @@ void MainWindow::on_actionDeleteData_notActive_triggered()
         return;
     }
 
-    if (!myProject.deleteMeteoPointsData(pointList))
+    if (! myProject.deleteMeteoPointsData(pointList))
     {
         myProject.logError("Failed to delete data.");
     }
@@ -4384,7 +4406,7 @@ void MainWindow::on_actionDeleteData_selected_triggered()
         return;
     }
 
-    if (!myProject.deleteMeteoPointsData(pointList))
+    if (! myProject.deleteMeteoPointsData(pointList))
     {
         myProject.logError("Failed to delete data.");
     }
