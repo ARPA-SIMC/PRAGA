@@ -7256,3 +7256,36 @@ void MainWindow::on_actionLoad_stations_file_triggered()
     myProject.closeLogInfo();
 }
 
+
+void MainWindow::on_actionInterpolationGlocalCreateWeightMaps_triggered()
+{
+    if (!myProject.loadGlocalAreasMap())
+    {
+        myProject.logError("Error loading zone grid " + myProject.glocalMapName);
+        return;
+    }
+
+    if (! myProject.interpolationSettings.getMacroAreasMap()->isLoaded)
+    {
+        myProject.logError("Load a zone grid before.");
+        return;
+    }
+
+    FormText formWidth("Insert window width");
+    if (formWidth.result() == QDialog::Rejected)
+        return;
+
+    QString widthString = formWidth.getText();
+    if (widthString == "")
+        return;
+
+    bool isValid;
+    float width = widthString.toFloat(&isValid);
+    if (! isValid)
+        myProject.logError("Invalid width: " + widthString);
+
+    myProject.logInfoGUI("Writing glocal weight maps...");
+    if (! myProject.writeGlocalWeightsMaps(width))
+        myProject.logError();
+    myProject.closeLogInfo();
+}

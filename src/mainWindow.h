@@ -346,6 +346,8 @@
 
         void on_actionLoad_macro_areas_file_triggered();
 
+        void on_actionInterpolationGlocalCreateWeightMaps_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
