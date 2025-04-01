@@ -7,7 +7,7 @@ SUBDIRS =       ../agrolib/crit3dDate  ../agrolib/mathFunctions   ../agrolib/gis
                 ../agrolib/commonDialogs ../agrolib/commonChartElements ../agrolib/inOutDataXML \
                 ../agrolib/waterTable ../agrolib/project ../agrolib/meteoWidget \
                 ../agrolib/proxyWidget ../agrolib/pointStatisticsWidget ../agrolib/homogeneityWidget ../agrolib/synchronicityWidget \
-                ../agrolib/graphics ../agrolib/pragaDialogs ../agrolib/pragaProject \
+                ../agrolib/graphics ../src/pragaDialogs ../src/pragaProject \
                 ../src/PRAGA.pro
 
 CONFIG += ordered

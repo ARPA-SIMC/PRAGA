@@ -27,8 +27,9 @@ win32:{
     TARGET = pragaDialogs
 }
 
-INCLUDEPATH +=  ../mathFunctions ../crit3dDate ../gis ../meteo ../phenology ../interpolation  \
-                ../dbMeteoPoints ../dbMeteoGrid ../climate ../project
+INCLUDEPATH +=  ../../agrolib/mathFunctions ../../agrolib/crit3dDate ../../agrolib/gis ../../agrolib/meteo  \
+                ../../agrolib/phenology ../../agrolib/interpolation  ../../agrolib/dbMeteoPoints \
+                ../../agrolib/dbMeteoGrid ../../agrolib/climate ../../agrolib/project
 
 SOURCES += \
     dialogAddMissingStation.cpp \

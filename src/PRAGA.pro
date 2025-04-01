@@ -20,8 +20,8 @@ INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/proxyWidget ../agrolib/pointStatisticsWidget ../agrolib/homogeneityWidget \
                 ../agrolib/synchronicityWidget ../agrolib/climate ../agrolib/netcdfHandler  \
                 ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/commonChartElements \
-                ../agrolib/pragaDialogs ../agrolib/inOutDataXML ../agrolib/waterTable \
-                ../agrolib/project ../agrolib/pragaProject
+                ../agrolib/inOutDataXML ../agrolib/waterTable ../agrolib/project \
+                pragaProject pragaDialogs
 
 CONFIG += debug_and_release
 
@@ -31,9 +31,9 @@ DEFINES += NETCDF
 
 
 CONFIG(debug, debug|release) {
-    LIBS += -L../agrolib/pragaProject/debug -lpragaProject
+    LIBS += -LpragaProject/debug -lpragaProject
+    LIBS += -LpragaDialogs/debug -lpragaDialogs
     LIBS += -L../agrolib/project/debug -lproject
-    LIBS += -L../agrolib/pragaDialogs/debug -lpragaDialogs
     LIBS += -L../agrolib/commonDialogs/debug -lcommonDialogs
     LIBS += -L../agrolib/climate/debug -lclimate
     LIBS += -L../agrolib/phenology/debug -lphenology
@@ -72,11 +72,11 @@ CONFIG(debug, debug|release) {
     LIBS += -L../agrolib/mathFunctions/debug -lmathFunctions
 
 } else {
-    LIBS += -L../agrolib/pragaProject/release -lpragaProject
+    LIBS += -LpragaProject/release -lpragaProject
+    LIBS += -LpragaDialogs/release -lpragaDialogs
+    LIBS += -L../agrolib/project/release -lproject
     LIBS += -L../agrolib/graphics/release -lgraphics
     LIBS += -L../mapGraphics/release -lMapGraphics
-    LIBS += -L../agrolib/project/release -lproject
-    LIBS += -L../agrolib/pragaDialogs/release -lpragaDialogs
     LIBS += -L../agrolib/commonDialogs/release -lcommonDialogs
     LIBS += -L../agrolib/climate/release -lclimate
     LIBS += -L../agrolib/phenology/release -lphenology

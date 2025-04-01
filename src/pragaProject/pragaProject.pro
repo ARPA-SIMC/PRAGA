@@ -29,11 +29,14 @@ win32:{
     TARGET = pragaProject
 }
 
-INCLUDEPATH +=  ../crit3dDate ../mathFunctions ../phenology ../meteo ../gis  \
-                ../drought ../interpolation ../solarRadiation ../utilities  \
-                ../outputPoints ../dbMeteoPoints ../dbMeteoGrid ../meteoWidget  \
-                ../proxyWidget ../pointStatisticsWidget ../homogeneityWidget ../synchronicityWidget ../climate ../netcdfHandler  \
-                ../graphics ../commonDialogs ../commonChartElements ../pragaDialogs ../inOutDataXML ../waterTable ../project
+INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/phenology ../../agrolib/meteo \
+                ../../agrolib/gis ../../agrolib/drought ../../agrolib/interpolation ../../agrolib/solarRadiation \
+                ../../agrolib/utilities ../../agrolib/outputPoints ../../agrolib/dbMeteoPoints ../../agrolib/dbMeteoGrid  \
+                ../../agrolib/meteoWidget ../../agrolib/proxyWidget ../../agrolib/pointStatisticsWidget  \
+                ../../agrolib/homogeneityWidget ../../agrolib/synchronicityWidget ../../agrolib/climate  \
+                ../../agrolib/netcdfHandler ../../agrolib/graphics ../../agrolib/commonDialogs \
+                ../../agrolib/commonChartElements ../../agrolib/inOutDataXML ../../agrolib/waterTable ../../agrolib/project \
+                ../pragaDialogs
 
 
 SOURCES += \
