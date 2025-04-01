@@ -293,7 +293,7 @@
         <number>0</number>
        </property>
        <property name="sizeConstraint">
-        <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
+        <enum>QLayout::SetDefaultConstraint</enum>
        </property>
        <property name="leftMargin">
         <number>9</number>
@@ -438,7 +438,7 @@
            </font>
           </property>
           <property name="inputMethodHints">
-           <set>Qt::InputMethodHint::ImhNone</set>
+           <set>Qt::ImhNone</set>
           </property>
           <property name="dateTime">
            <datetime>
@@ -467,7 +467,7 @@
             <second>0</second>
             <year>1752</year>
             <month>8</month>
-            <day>13</day>
+            <day>8</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -478,7 +478,7 @@
            </date>
           </property>
           <property name="currentSection">
-           <enum>QDateTimeEdit::Section::YearSection</enum>
+           <enum>QDateTimeEdit::YearSection</enum>
           </property>
           <property name="displayFormat">
            <string>yyyy-MM-dd</string>
@@ -720,7 +720,7 @@
            <number>66</number>
           </property>
           <property name="orientation">
-           <enum>Qt::Orientation::Horizontal</enum>
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
          <widget class="QLabel" name="labelMeteoGridScale">
@@ -1043,7 +1043,7 @@
            <number>66</number>
           </property>
           <property name="orientation">
-           <enum>Qt::Orientation::Horizontal</enum>
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
          <widget class="QWidget" name="widgetColorLegendRaster" native="true">
@@ -1181,7 +1181,7 @@
            <number>33</number>
           </property>
           <property name="orientation">
-           <enum>Qt::Orientation::Horizontal</enum>
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
          <widget class="QPushButton" name="netCDFButtonVariable">
@@ -1891,13 +1891,19 @@
      <addaction name="actionInterpolationCVCurrentTime"/>
      <addaction name="actionInterpolationCVPeriod"/>
     </widget>
+    <widget class="QMenu" name="menuGlocal">
+     <property name="title">
+      <string>Glocal</string>
+     </property>
+     <addaction name="actionInterpolationGlocalCreateWeightMaps"/>
+    </widget>
     <addaction name="actionInterpolationDem"/>
     <addaction name="menuInterpolationMeteogrid"/>
     <addaction name="menuInterpolation_to_output_points"/>
     <addaction name="menuInterpolationCV"/>
     <addaction name="actionInterpolationSettings"/>
     <addaction name="separator"/>
-    <addaction name="actionInterpolationWriteGlocalWeightMaps"/>
+    <addaction name="menuGlocal"/>
     <addaction name="menuTopographicDistanceMaps"/>
     <addaction name="actionInterpolationTopographicIndex"/>
     <addaction name="separator"/>
@@ -3096,7 +3102,7 @@
   </action>
   <action name="actionFileMeteopointArkimetLoadVM">
    <property name="text">
-    <string>Load VM data...</string>
+    <string>Import daily data VM2...</string>
    </property>
   </action>
   <action name="actionLoad_stations_file">
@@ -3107,6 +3113,21 @@
   <action name="actionLoad_macro_areas_file">
    <property name="text">
     <string>Load macro areas file</string>
+   </property>
+  </action>
+  <action name="actionInterpolationGlocalCreateWeightMaps">
+   <property name="text">
+    <string>Create weight maps...</string>
+   </property>
+  </action>
+  <action name="actionInterpolationGlocalSelectZoneMap">
+   <property name="text">
+    <string>Select zone map...</string>
+   </property>
+  </action>
+  <action name="actionInterpolationGlocalSelectStationLists">
+   <property name="text">
+    <string>Select stations list...</string>
    </property>
   </action>
  </widget>
