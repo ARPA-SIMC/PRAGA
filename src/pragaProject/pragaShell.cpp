@@ -30,6 +30,7 @@ QList<QString> getPragaCommandList()
     cmdList.append("Netcdf          | ExportNetcdf");
     cmdList.append("SaveLogProc     | SaveLogProceduresGrid");
     cmdList.append("XMLToNetcdf     | ExportXMLElabToNetcdf");
+    cmdList.append("ComputeRadList  | ComputeRadiationList");
     //cmdList.append("LoadForecast  | LoadForecastData");
 
     return cmdList;
@@ -162,6 +163,11 @@ int PragaProject::executePragaCommand(QList<QString> argumentList, bool* isComma
     {
         *isCommandFound = true;
         return cmdSaveLogDataProceduresGrid(this, argumentList);
+    }
+    else if (command == "COMPUTERADLIST" || "COMPUTERADIATIONLIST")
+    {
+        *isCommandFound = true;
+        return cmdComputeRadiationList(this, argumentList);
     }
     else
     {
@@ -1180,6 +1186,36 @@ int pragaShell(PragaProject* myProject)
         QDate date = QDate::fromString(dateStr, "dd/MM/yyyy");
 
         if (!myProject->saveLogProceduresGrid(nameProc, date))
+        {
+            return PRAGA_ERROR;
+        }
+
+        return PRAGA_OK;
+    }
+
+    int cmdComputeRadiationList(PragaProject* myProject, QList<QString> argumentList)
+    {
+        if (argumentList.size() < 3)
+        {
+            myProject->errorString = "Missing list file or land use";
+            return PRAGA_INVALID_COMMAND;
+        }
+
+        QString fileName, landUse;
+
+        for (int i = 1; i < argumentList.size(); i++)
+        {
+            if (argumentList.at(i).left(3) == "-f:")
+            {
+                fileName = argumentList[i].right(argumentList[i].length()-3);
+            }
+            else if (argumentList.at(i).left(4) == "-lu:")
+            {
+                landUse = argumentList[i].right(argumentList[i].length()-4);
+            }
+        }
+
+        if (! myProject->computeRadiationList(fileName, landUse))
         {
             return PRAGA_ERROR;
         }

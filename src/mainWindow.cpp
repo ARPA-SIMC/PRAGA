@@ -2750,7 +2750,7 @@ void MainWindow::showCVResult()
                     }
                 }
             }
-            else if (! myProject.interpolationSettings.getUseLocalDetrending() && ! myProject.interpolationSettings.getUseGlocalDetrending())
+            else if (myProject.interpolationSettings.getUseMultipleDetrending() && ! myProject.interpolationSettings.getUseLocalDetrending() && ! myProject.interpolationSettings.getUseGlocalDetrending())
             {
                 std::vector<std::vector<double>> par = myProject.interpolationSettings.getFittingParameters();
                 for (int i=0; i < proxyNr; i++)

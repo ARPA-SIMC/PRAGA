@@ -26,6 +26,7 @@
     int cmdCleanClimatePoint(PragaProject* myProject);
     int cmdDroughtIndexPoint(PragaProject* myProject, QList<QString> argumentList);
     int cmdSaveLogDataProceduresGrid(PragaProject* myProject, QList<QString> argumentList);
+    int cmdComputeRadiationList(PragaProject* myProject, QList<QString> argumentList);
     //bool cmdLoadForecast(PragaProject* myProject, QList<QString> argumentList);
 
     #ifdef NETCDF

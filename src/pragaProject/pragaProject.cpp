@@ -5160,6 +5160,122 @@ bool PragaProject::saveLogProceduresGrid(QString nameProc, QDate date)
     return true;
 }
 
+bool PragaProject::computeRadiationList(QString fileName, QString landUse)
+{
+
+    if (! meteoPointsLoaded)
+    {
+        logError("No meteo point");
+        return false;
+    }
+
+    //non aggiungo il log, sarà quello del progetto?
+    //fileName corrisoppnde a EI_list.txt
+
+    QFile myFile(fileName);
+    if (!myFile.open(QIODevice::ReadOnly))
+    {
+        logError("Open input file failed:\n" + fileName + "\n" + myFile.errorString());
+        return false;
+    }
+
+    if (landUse == "INDUSTRIAL" || landUse == "IND")
+    {
+        radSettings.setLinkeMode(PARAM_MODE_MONTHLY);
+        radSettings.setLandUse(LAND_USE_INDUSTRIAL);
+    }
+    else if (landUse == "MOUNTAIN" || landUse == "MOUNTAINOUS")
+    {
+        radSettings.setLinkeMode(PARAM_MODE_MONTHLY);
+        radSettings.setLandUse(LAND_USE_MOUNTAIN);
+    }
+    else if (landUse == "CITY" || landUse == "URBAN")
+    {
+        radSettings.setLinkeMode(PARAM_MODE_MONTHLY);
+        radSettings.setLandUse(LAND_USE_CITY);
+    }
+    else if (landUse == "RURAL" || landUse == "COUNTRY")
+    {
+        radSettings.setLinkeMode(PARAM_MODE_MONTHLY);
+        radSettings.setLandUse(LAND_USE_RURAL);
+    }
+    else
+    {
+        logInfo("Unrecognized land use, using fixed Linke value");
+        radSettings.setLinkeMode(PARAM_MODE_FIXED);
+        radSettings.setLinke(4.);
+    }
+
+    QTextStream myStream (&myFile);
+    QList<QString> line;
+
+    if (myStream.atEnd())
+    {
+        logError("Empty imput file");
+        myFile.close();
+        return false;
+    }
+
+    //parser di tutto il file
+    std::vector<TelabRadPoint> radPointsList;
+    TelabRadPoint temp;
+    int row = 1;
+    while(!myStream.atEnd())
+    {
+        line = myStream.readLine().split(';');
+        if (line.size() < 8)
+        {
+            logInfo("Error parsing row nr. " + QString::number(row) + ". Parsing following line.");
+            row++;
+            continue;
+        }
+        else
+        {
+            QString outputFile = getCompleteFileName(line[0] + "_out.txt", PATH_PROJECT);
+
+            bool isLatOk, isLonOk, isHeightOk, isAspectOk, isSlopeOk;
+            temp.radPoint.lat = line[1].toFloat(&isLatOk);
+            temp.radPoint.lon = line[2].toFloat(&isLonOk);
+            temp.radPoint.height = line[3].toFloat(&isHeightOk);
+            temp.radPoint.aspect = line[4].toFloat(&isAspectOk);
+            temp.radPoint.slope = line[5].toFloat(&isSlopeOk);
+
+            if (!(isLatOk && isLonOk && isHeightOk && isAspectOk && isSlopeOk))
+            {
+                logInfo("Error parsing row nr. " + QString::number(row) + ". Parsing following line.");
+                row++;
+                continue;
+            }
+
+            QString iniTimeString = line[6];
+            QString endTimeString = line[7];
+
+            temp.iniDate.setDate(iniTimeString.mid(0, 4).toInt(), iniTimeString.mid(4, 2).toInt(), iniTimeString.mid(6,2).toInt());
+            temp.endDate.setDate(endTimeString.mid(0, 4).toInt(), endTimeString.mid(4, 2).toInt(), endTimeString.mid(6,2).toInt());
+
+            temp.iniHour = iniTimeString.mid(8,2).toInt();
+            temp.endHour = endTimeString.mid(8,2).toInt();
+
+            if (temp.endDate < temp.iniDate || (temp.endDate == temp.iniDate && temp.iniHour > temp.endHour))
+            {
+                logInfo("Error parsing time in row nr. " + QString::number(row) + ". Parsing following line.");
+                row++;
+                continue;
+            }
+
+            radPointsList.push_back(temp);
+            row++;
+        }
+    }
+
+    //tutti i punti salvati eccetto nome file QString o std::string?
+
+
+
+
+    return true;
+}
+
 
 // --------------------------- OUTPUT METEO POINTS ----------------------------------
 
