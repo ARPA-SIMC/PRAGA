@@ -9,10 +9,6 @@
         #include "project.h"
     #endif
 
-    #ifndef METEOMAPS_H
-        #include "meteoMaps.h"
-    #endif
-
     #ifndef PRAGAMETEOMAPS_H
         #include "pragaMeteoMaps.h"
     #endif

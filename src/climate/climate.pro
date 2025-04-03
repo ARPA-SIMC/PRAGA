@@ -1,7 +1,7 @@
 #-----------------------------------------------------
 #
 #   climate library
-#   This project is part of CRITERIA-3D distribution
+#   This project is part of ARPAE PRAGA distribution
 #
 #-----------------------------------------------------
 
@@ -27,8 +27,9 @@ win32:{
 }
 
 
-INCLUDEPATH +=  ../crit3dDate ../mathFunctions ../gis ../meteo ../interpolation \
-                ../utilities ../dbMeteoPoints ../dbMeteoGrid ../phenology
+INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/meteo  \
+                ../../agrolib/interpolation ../../agrolib/utilities ../../agrolib/dbMeteoPoints ../../agrolib/dbMeteoGrid \
+                ../phenology
 
 SOURCES += \
     climate.cpp \

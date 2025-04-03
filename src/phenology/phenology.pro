@@ -1,7 +1,7 @@
 #------------------------------------------------------
 #
 #   phenology (library)
-#   this project is part of ARPAE agrolib distribution
+#   this project is part of ARPAE PRAGA distribution
 #
 #------------------------------------------------------
 
@@ -13,7 +13,7 @@ CONFIG += staticlib
 DEFINES += PHENOLOGY_LIBRARY
 DEFINES += _CRT_SECURE_NO_WARNINGS
 
-INCLUDEPATH +=  ../mathFunctions ../crit3dDate
+INCLUDEPATH +=  ../../agrolib/mathFunctions ../../agrolib/crit3dDate
 
 CONFIG += debug_and_release
 CONFIG += c++14 c++17

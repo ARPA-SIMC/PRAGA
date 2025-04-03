@@ -1,10 +1,9 @@
-#----------------------------------------------------
+#-------------------------------------------------------
 #
 #   Point Statistics Widget library
-#   This project is part of CRITERIA-3D distribution
+#   This project is part of ARPAE agrolib distribution
 #
-#
-#----------------------------------------------------
+#-------------------------------------------------------
 
 QT  += widgets charts sql xml
 
@@ -32,7 +31,10 @@ win32:{
     TARGET = pointStatisticsWidget
 }
 
-INCLUDEPATH += ../crit3dDate ../mathFunctions ../gis ../meteo ../utilities ../dbMeteoPoints ../dbMeteoGrid ../phenology ../climate ../commonDialogs ../commonChartElements ../interpolation
+INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/meteo \
+                ../../agrolib/utilities ../../agrolib/interpolation ../../agrolib/dbMeteoPoints ../../agrolib/dbMeteoGrid \
+                ../../agrolib/commonDialogs ../../agrolib/commonChartElements  \
+                ../phenology ../climate
 
 
 SOURCES += \

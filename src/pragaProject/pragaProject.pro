@@ -1,9 +1,8 @@
 #-----------------------------------------------------
 #
 #   pragaProject library
-#   contains project modules for PRAGA executable
 #
-#   This project is part of agrolib distribution
+#   This project is part of ARPAE PRAGA distribution
 #
 #-----------------------------------------------------
 
@@ -29,14 +28,14 @@ win32:{
     TARGET = pragaProject
 }
 
-INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/phenology ../../agrolib/meteo \
-                ../../agrolib/gis ../../agrolib/drought ../../agrolib/interpolation ../../agrolib/solarRadiation \
-                ../../agrolib/utilities ../../agrolib/outputPoints ../../agrolib/dbMeteoPoints ../../agrolib/dbMeteoGrid  \
-                ../../agrolib/meteoWidget ../../agrolib/proxyWidget ../../agrolib/pointStatisticsWidget  \
-                ../../agrolib/homogeneityWidget ../../agrolib/synchronicityWidget ../../agrolib/climate  \
+INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/meteo \
+                ../../agrolib/gis ../../agrolib/interpolation ../../agrolib/solarRadiation \
+                ../../agrolib/utilities ../../agrolib/outputPoints ../../agrolib/dbMeteoPoints \
+                ../../agrolib/dbMeteoGrid ../../agrolib/meteoWidget ../../agrolib/proxyWidget  \
                 ../../agrolib/netcdfHandler ../../agrolib/graphics ../../agrolib/commonDialogs \
                 ../../agrolib/commonChartElements ../../agrolib/inOutDataXML ../../agrolib/waterTable ../../agrolib/project \
-                ../pragaDialogs
+                ../drought ../phenology ../climate ../pointStatisticsWidget ../homogeneityWidget \
+                ../synchronicityWidget ../pragaDialogs
 
 
 SOURCES += \
