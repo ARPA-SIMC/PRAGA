@@ -163,7 +163,7 @@
         bool computeClimatePointXML(QString xmlName);
         bool cleanClimatePoint();
         bool saveLogProceduresGrid(QString nameProc, QDate date);
-        bool computeRadiationList(QString fileName, QString landUse);
+        bool computeRadiationList(QString fileName, bool isDownloadNeeded);
 
         bool dailyZoneAggregationMeteoGrid(meteoVariable variable, const QString& aggregationString, float threshold,
                                            gis::Crit3DRasterGrid* zoneGrid, std::vector<int> &idZoneVector, std::vector<float> &outputSeries,

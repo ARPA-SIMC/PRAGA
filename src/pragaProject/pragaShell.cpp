@@ -1195,13 +1195,14 @@ int pragaShell(PragaProject* myProject)
 
     int cmdComputeRadiationList(PragaProject* myProject, QList<QString> argumentList)
     {
-        if (argumentList.size() < 3)
+        if (argumentList.size() < 2)
         {
-            myProject->errorString = "Missing list file or land use";
+            myProject->errorString = "Missing list file";
             return PRAGA_INVALID_COMMAND;
         }
 
-        QString fileName, landUse;
+        QString fileName;
+        bool isDownloadNeeded = false;
 
         for (int i = 1; i < argumentList.size(); i++)
         {
@@ -1209,13 +1210,13 @@ int pragaShell(PragaProject* myProject)
             {
                 fileName = argumentList[i].right(argumentList[i].length()-3);
             }
-            else if (argumentList.at(i).left(4) == "-lu:")
+            else if (argumentList.at(i) == "-d")
             {
-                landUse = argumentList[i].right(argumentList[i].length()-4);
+                isDownloadNeeded = true;
             }
         }
 
-        if (! myProject->computeRadiationList(fileName, landUse))
+        if (! myProject->computeRadiationList(fileName, isDownloadNeeded))
         {
             return PRAGA_ERROR;
         }

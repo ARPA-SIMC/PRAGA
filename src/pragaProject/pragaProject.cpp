@@ -5160,7 +5160,7 @@ bool PragaProject::saveLogProceduresGrid(QString nameProc, QDate date)
     return true;
 }
 
-bool PragaProject::computeRadiationList(QString fileName, QString landUse)
+bool PragaProject::computeRadiationList(QString fileName, bool isDownloadNeeded)
 {
 
     if (! meteoPointsLoaded)
@@ -5179,7 +5179,7 @@ bool PragaProject::computeRadiationList(QString fileName, QString landUse)
         return false;
     }
 
-    if (landUse == "INDUSTRIAL" || landUse == "IND")
+    /*if (landUse == "INDUSTRIAL" || landUse == "IND")
     {
         radSettings.setLinkeMode(PARAM_MODE_MONTHLY);
         radSettings.setLandUse(LAND_USE_INDUSTRIAL);
@@ -5204,7 +5204,7 @@ bool PragaProject::computeRadiationList(QString fileName, QString landUse)
         logInfo("Unrecognized land use, using fixed Linke value");
         radSettings.setLinkeMode(PARAM_MODE_FIXED);
         radSettings.setLinke(4.);
-    }
+    }*/
 
     QTextStream myStream (&myFile);
     QList<QString> line;
@@ -5231,7 +5231,7 @@ bool PragaProject::computeRadiationList(QString fileName, QString landUse)
         }
         else
         {
-            QString outputFile = getCompleteFileName(line[0] + "_out.txt", PATH_PROJECT);
+            temp.fileName = getCompleteFileName(line[0] + "_out.txt", PATH_PROJECT).toStdString();
 
             bool isLatOk, isLonOk, isHeightOk, isAspectOk, isSlopeOk;
             temp.radPoint.lat = line[1].toFloat(&isLatOk);
@@ -5250,8 +5250,8 @@ bool PragaProject::computeRadiationList(QString fileName, QString landUse)
             QString iniTimeString = line[6];
             QString endTimeString = line[7];
 
-            temp.iniDate.setDate(iniTimeString.mid(0, 4).toInt(), iniTimeString.mid(4, 2).toInt(), iniTimeString.mid(6,2).toInt());
-            temp.endDate.setDate(endTimeString.mid(0, 4).toInt(), endTimeString.mid(4, 2).toInt(), endTimeString.mid(6,2).toInt());
+            temp.iniDate.setDate(iniTimeString.mid(6,2).toInt(), iniTimeString.mid(4, 2).toInt(), iniTimeString.mid(0, 4).toInt());
+            temp.endDate.setDate(endTimeString.mid(6,2).toInt(), endTimeString.mid(4, 2).toInt(), endTimeString.mid(0, 4).toInt());
 
             temp.iniHour = iniTimeString.mid(8,2).toInt();
             temp.endHour = endTimeString.mid(8,2).toInt();
@@ -5268,7 +5268,31 @@ bool PragaProject::computeRadiationList(QString fileName, QString landUse)
         }
     }
 
-    //tutti i punti salvati eccetto nome file QString o std::string?
+    //
+    if(isDownloadNeeded)
+    {
+        //download data
+    }
+
+    TelabRadPoint myPoint;
+    for (int i = 0; i < radPointsList.size(); i++)
+    {
+        myPoint = radPointsList[i];
+        Crit3DDate myDay = myPoint.iniDate;
+        int myHour = myPoint.iniHour;
+
+        //ciclo su giorno e ora
+        while (!(myDay > myPoint.endDate) && !(myDay == myPoint.endDate && myHour > myPoint.endHour))
+        {
+            //calcoli
+            myHour++;
+            if (myHour >= 24)
+            {
+                myHour -= 24;
+                myDay = myDay.addDays(1);
+            }
+        }
+    }
 
 
 
