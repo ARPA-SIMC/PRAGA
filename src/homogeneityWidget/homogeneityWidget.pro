@@ -1,7 +1,7 @@
 #----------------------------------------------------
 #
 #   Homogeneity Widget library
-#   This project is part of PRAGA distribution
+#   This project is part of ARPAE PRAGA distribution
 #
 #
 #----------------------------------------------------
@@ -32,8 +32,10 @@ win32:{
     TARGET = homogeneityWidget
 }
 
-INCLUDEPATH += ../crit3dDate ../mathFunctions ../gis ../meteo ../utilities ../dbMeteoPoints ../dbMeteoGrid ../phenology ../climate ../commonDialogs ../commonChartElements ../interpolation
-
+INCLUDEPATH += ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/meteo \
+            ../../agrolib/utilities ../../agrolib/dbMeteoPoints ../../agrolib/dbMeteoGrid  \
+            ../../agrolib/commonDialogs ../../agrolib/commonChartElements ../../agrolib/interpolation \
+            ../phenology ../climate
 
 SOURCES += \
     annualSeriesChartView.cpp \

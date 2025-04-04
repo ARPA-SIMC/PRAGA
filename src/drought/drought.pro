@@ -1,7 +1,7 @@
 #-----------------------------------------------------
 #
 #   drought library
-#   This project is part of CRITERIA-3D distribution
+#   This project is part of ARPAE PRAGA distribution
 #
 #-----------------------------------------------------
 
@@ -26,7 +26,8 @@ win32:{
     TARGET = drought
 }
 
-INCLUDEPATH += ../crit3dDate ../mathFunctions ../gis ../meteo ../interpolation ../dbMeteoPoints
+INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis  \
+                ../../agrolib/meteo ../../agrolib/interpolation ../../agrolib/dbMeteoPoints
 
 SOURCES +=   \
     drought.cpp

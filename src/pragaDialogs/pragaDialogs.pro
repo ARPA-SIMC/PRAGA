@@ -3,7 +3,7 @@
 #   pragaDialogs library
 #   contains dialogs for PRAGA executable
 #
-#   This project is part of agrolib distribution
+#   This project is part of ARPAE PRAGA distribution
 #
 #------------------------------------------------------
 
@@ -28,8 +28,8 @@ win32:{
 }
 
 INCLUDEPATH +=  ../../agrolib/mathFunctions ../../agrolib/crit3dDate ../../agrolib/gis ../../agrolib/meteo  \
-                ../../agrolib/phenology ../../agrolib/interpolation  ../../agrolib/dbMeteoPoints \
-                ../../agrolib/dbMeteoGrid ../../agrolib/climate ../../agrolib/project
+                ../../agrolib/interpolation  ../../agrolib/dbMeteoPoints ../../agrolib/dbMeteoGrid  ../../agrolib/project \
+                ../phenology ../climate
 
 SOURCES += \
     dialogAddMissingStation.cpp \
