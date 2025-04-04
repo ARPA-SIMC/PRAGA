@@ -5179,32 +5179,6 @@ bool PragaProject::computeRadiationList(QString fileName, bool isDownloadNeeded)
         return false;
     }
 
-    /*if (landUse == "INDUSTRIAL" || landUse == "IND")
-    {
-        radSettings.setLinkeMode(PARAM_MODE_MONTHLY);
-        radSettings.setLandUse(LAND_USE_INDUSTRIAL);
-    }
-    else if (landUse == "MOUNTAIN" || landUse == "MOUNTAINOUS")
-    {
-        radSettings.setLinkeMode(PARAM_MODE_MONTHLY);
-        radSettings.setLandUse(LAND_USE_MOUNTAIN);
-    }
-    else if (landUse == "CITY" || landUse == "URBAN")
-    {
-        radSettings.setLinkeMode(PARAM_MODE_MONTHLY);
-        radSettings.setLandUse(LAND_USE_CITY);
-    }
-    else if (landUse == "RURAL" || landUse == "COUNTRY")
-    {
-        radSettings.setLinkeMode(PARAM_MODE_MONTHLY);
-        radSettings.setLandUse(LAND_USE_RURAL);
-    }
-    else
-    {
-        logInfo("Unrecognized land use, using fixed Linke value");
-        radSettings.setLinkeMode(PARAM_MODE_FIXED);
-        radSettings.setLinke(4.);
-    }*/
 
     QTextStream myStream (&myFile);
     QList<QString> line;
