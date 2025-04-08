@@ -7,6 +7,7 @@
 #include "download.h"
 #include "dbAggregationsHandler.h"
 #include "spatialControl.h"
+#include "transmissivity.h"
 #include "utilities.h"
 #include "project.h"
 #include "aggregation.h"
@@ -5267,6 +5268,17 @@ bool PragaProject::computeRadiationList(QString fileName)
     }
 
     TelabRadPoint myPoint;
+    Crit3DTime myTime, mySolarTime;
+    double solarHour;
+
+    std::vector <Crit3DInterpolationDataPoint> interpolationPoints;
+    std::string errorStdStr;
+    std::vector<double> myProxyValues; //???sistemare
+
+    TsunPosition sunPosition;
+    int intervalWidth;
+    double myTemperature, myPressure, myTransmissivity;
+
     for (int i = 0; i < radPointsList.size(); i++)
     {
         myPoint = radPointsList[i];
@@ -5276,52 +5288,84 @@ bool PragaProject::computeRadiationList(QString fileName)
         //ciclo su giorno e ora
         while (!(myDate > myPoint.endDate) && !(myDate == myPoint.endDate && myHour > myPoint.endHour))
         {
-            //calcoli
-            Crit3DTime myTime;
+            //solar time is saved in mySolarTime variable
+
             myTime.date = myDate;
             myTime.time = myHour * 3600;
-            double mySolarTime = myHour - 0.5;
+            mySolarTime.date = myDate;
+            solarHour = myHour - 0.5;
+
             if (gisSettings.isUTC)
-                mySolarTime = mySolarTime + gisSettings.utmZone;
-            Crit3DDate mySolarDate = myDate;
-            if(mySolarTime < 0)
-            {
-                mySolarTime = mySolarTime + 24;
-                mySolarDate = myDate.addDays(-1);
-            }
-            else if (mySolarTime > 24)
-            {
-                mySolarTime = mySolarTime - 24;
-                mySolarDate = myDate.addDays(1);
-            }
+                solarHour = solarHour + gisSettings.utmZone;
 
-            std::vector <Crit3DInterpolationDataPoint> interpolationPoints;
-            std::string errorStdStr;
-            std::vector<double> myProxyValues;
+            if(solarHour < 0)
+            {
+                solarHour += 24;
+                mySolarTime.date = mySolarTime.date.addDays(-1);
+            }
+            else if (solarHour > 24)
+            {
+                solarHour -= 24;
+                mySolarTime.date = mySolarTime.date.addDays(1);
+            }
+            mySolarTime.time = solarHour * 3600;
 
-            if (! checkAndPassDataToInterpolation(quality, airTemperature, meteoPoints, nrMeteoPoints, myTime,
+            myProxyValues.clear();
+            myProxyValues.push_back(myPoint.radPoint.height);
+            interpolationPoints.clear();
+
+            //air temperature
+            if (! checkAndPassDataToInterpolation(quality, airTemperature, meteoPoints, nrMeteoPoints, mySolarTime,
                                                  &qualityInterpolationSettings, &interpolationSettings, meteoSettings,
                                                  &climateParameters, interpolationPoints,
                                                  checkSpatialQuality, errorStdStr))
                 return false;
 
-            //interpolate
-            double myTemperature = interpolate(interpolationPoints, &interpolationSettings, meteoSettings, airTemperature, myPoint.radPoint.lat, myPoint.radPoint.lon,
+            if (! preInterpolation(interpolationPoints, &interpolationSettings, meteoSettings, &climateParameters,
+                                  meteoPoints, nrMeteoPoints, airTemperature, myTime, errorStdStr))
+            {
+                return false;
+            }
+
+            myTemperature = interpolate(interpolationPoints, &interpolationSettings, meteoSettings, airTemperature, myPoint.radPoint.lat, myPoint.radPoint.lon,
                                       myPoint.radPoint.height, myProxyValues, false);
 
 
             //pressione ? ? ?
-            double myPressure = 1000;
-            TsunPosition sunPosition;
+            myPressure = PRESSURE_SEALEVEL;
 
-            radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
+
+            //potential radiation & transmissivity
+            radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, mySolarTime,
                                             radSettings.getLinke(), radSettings.getAlbedo(), radSettings.getClearSky(),
                                             radSettings.getClearSky(), &sunPosition, &(myPoint.radPoint), DEM);
 
+            intervalWidth = radiation::estimateTransmissivityWindow(&radSettings, DEM, DEM.getCenter(), mySolarTime, int(HOUR_SECONDS));
 
+            if (! computeTransmissivity(&radSettings, meteoPoints, nrMeteoPoints, intervalWidth, mySolarTime, DEM))
+                return false;
 
+            interpolationPoints.clear();
 
-            //radiation::computeRadiationRsun
+            if (! checkAndPassDataToInterpolation(quality, atmTransmissivity, meteoPoints, nrMeteoPoints, mySolarTime,
+                                                 &qualityInterpolationSettings, &interpolationSettings, meteoSettings,
+                                                 &climateParameters, interpolationPoints,
+                                                 checkSpatialQuality, errorStdStr))
+                return false;
+
+            if (! preInterpolation(interpolationPoints, &interpolationSettings, meteoSettings, &climateParameters,
+                                  meteoPoints, nrMeteoPoints, atmTransmissivity, myTime, errorStdStr))
+            {
+                return false;
+            }
+
+            myTransmissivity = interpolate(interpolationPoints, &interpolationSettings, meteoSettings, atmTransmissivity, myPoint.radPoint.lat,
+                                                  myPoint.radPoint.lon, myPoint.radPoint.height, myProxyValues, false);
+
+            //radiation
+            radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, mySolarTime,
+                                            radSettings.getLinke(), radSettings.getAlbedo(), radSettings.getClearSky(),
+                                            myTransmissivity, &sunPosition, &(myPoint.radPoint), DEM);
 
 
             myHour++;
@@ -5332,10 +5376,6 @@ bool PragaProject::computeRadiationList(QString fileName)
             }
         }
     }
-
-
-
-
     return true;
 }
 
