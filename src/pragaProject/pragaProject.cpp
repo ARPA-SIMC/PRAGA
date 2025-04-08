@@ -5306,10 +5306,17 @@ bool PragaProject::computeRadiationList(QString fileName)
                 return false;
 
             //interpolate
-            double temp = interpolate(interpolationPoints, &interpolationSettings, meteoSettings, airTemperature, myPoint.radPoint.lat, myPoint.radPoint.lon,
+            double myTemperature = interpolate(interpolationPoints, &interpolationSettings, meteoSettings, airTemperature, myPoint.radPoint.lat, myPoint.radPoint.lon,
                                       myPoint.radPoint.height, myProxyValues, false);
 
 
+            //pressione ? ? ?
+            double myPressure = 1000;
+            TsunPosition sunPosition;
+
+            radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
+                                            radSettings.getLinke(), radSettings.getAlbedo(), radSettings.getClearSky(),
+                                            radSettings.getClearSky(), &sunPosition, &(myPoint.radPoint), DEM);
 
 
 
