@@ -50,7 +50,7 @@ popd
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p %{buildroot}/%{_bindir}/
-cp -a src/PRAGA %{buildroot}/%{_bindir}/
+cp -a bin/PRAGA %{buildroot}/%{_bindir}/
 
 %files
 %{_bindir}/PRAGA
