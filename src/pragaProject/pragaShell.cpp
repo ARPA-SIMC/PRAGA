@@ -1202,7 +1202,6 @@ int pragaShell(PragaProject* myProject)
         }
 
         QString fileName;
-        bool isDownloadNeeded = false;
 
         for (int i = 1; i < argumentList.size(); i++)
         {
@@ -1210,13 +1209,9 @@ int pragaShell(PragaProject* myProject)
             {
                 fileName = argumentList[i].right(argumentList[i].length()-3);
             }
-            else if (argumentList.at(i) == "-d")
-            {
-                isDownloadNeeded = true;
-            }
         }
 
-        if (! myProject->computeRadiationList(fileName, isDownloadNeeded))
+        if (! myProject->computeRadiationList(fileName))
         {
             return PRAGA_ERROR;
         }

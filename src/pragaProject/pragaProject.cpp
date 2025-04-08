@@ -6,6 +6,7 @@
 #include "dbClimate.h"
 #include "download.h"
 #include "dbAggregationsHandler.h"
+#include "spatialControl.h"
 #include "utilities.h"
 #include "project.h"
 #include "aggregation.h"
@@ -5160,7 +5161,7 @@ bool PragaProject::saveLogProceduresGrid(QString nameProc, QDate date)
     return true;
 }
 
-bool PragaProject::computeRadiationList(QString fileName, bool isDownloadNeeded)
+bool PragaProject::computeRadiationList(QString fileName)
 {
 
     if (! meteoPointsLoaded)
@@ -5194,6 +5195,10 @@ bool PragaProject::computeRadiationList(QString fileName, bool isDownloadNeeded)
     std::vector<TelabRadPoint> radPointsList;
     TelabRadPoint temp;
     int row = 1;
+    Crit3DDate loadIniDate, loadEndDate;
+    loadIniDate.setNullDate();
+    loadEndDate.setNullDate();
+
     while(!myStream.atEnd())
     {
         line = myStream.readLine().split(';');
@@ -5227,6 +5232,18 @@ bool PragaProject::computeRadiationList(QString fileName, bool isDownloadNeeded)
             temp.iniDate.setDate(iniTimeString.mid(6,2).toInt(), iniTimeString.mid(4, 2).toInt(), iniTimeString.mid(0, 4).toInt());
             temp.endDate.setDate(endTimeString.mid(6,2).toInt(), endTimeString.mid(4, 2).toInt(), endTimeString.mid(0, 4).toInt());
 
+            if (loadIniDate.isNullDate())
+            {
+                loadIniDate = temp.iniDate;
+                loadEndDate = temp.endDate;
+            }
+
+            if (loadIniDate > temp.iniDate)
+                loadIniDate = temp.iniDate;
+
+            if (loadEndDate < temp.endDate)
+                loadEndDate = temp.endDate;
+
             temp.iniHour = iniTimeString.mid(8,2).toInt();
             temp.endHour = endTimeString.mid(8,2).toInt();
 
@@ -5243,27 +5260,68 @@ bool PragaProject::computeRadiationList(QString fileName, bool isDownloadNeeded)
     }
 
     //
-    if(isDownloadNeeded)
+    for (int i=0; i < nrMeteoPoints; i++)
     {
-        //download data
+        if (!meteoPointsDbHandler->loadHourlyData(loadIniDate, loadEndDate, meteoPoints[i]))
+            return false;
     }
 
     TelabRadPoint myPoint;
     for (int i = 0; i < radPointsList.size(); i++)
     {
         myPoint = radPointsList[i];
-        Crit3DDate myDay = myPoint.iniDate;
+        Crit3DDate myDate = myPoint.iniDate;
         int myHour = myPoint.iniHour;
 
         //ciclo su giorno e ora
-        while (!(myDay > myPoint.endDate) && !(myDay == myPoint.endDate && myHour > myPoint.endHour))
+        while (!(myDate > myPoint.endDate) && !(myDate == myPoint.endDate && myHour > myPoint.endHour))
         {
             //calcoli
+            Crit3DTime myTime;
+            myTime.date = myDate;
+            myTime.time = myHour * 3600;
+            double mySolarTime = myHour - 0.5;
+            if (gisSettings.isUTC)
+                mySolarTime = mySolarTime + gisSettings.utmZone;
+            Crit3DDate mySolarDate = myDate;
+            if(mySolarTime < 0)
+            {
+                mySolarTime = mySolarTime + 24;
+                mySolarDate = myDate.addDays(-1);
+            }
+            else if (mySolarTime > 24)
+            {
+                mySolarTime = mySolarTime - 24;
+                mySolarDate = myDate.addDays(1);
+            }
+
+            std::vector <Crit3DInterpolationDataPoint> interpolationPoints;
+            std::string errorStdStr;
+            std::vector<double> myProxyValues;
+
+            if (! checkAndPassDataToInterpolation(quality, airTemperature, meteoPoints, nrMeteoPoints, myTime,
+                                                 &qualityInterpolationSettings, &interpolationSettings, meteoSettings,
+                                                 &climateParameters, interpolationPoints,
+                                                 checkSpatialQuality, errorStdStr))
+                return false;
+
+            //interpolate
+            double temp = interpolate(interpolationPoints, &interpolationSettings, meteoSettings, airTemperature, myPoint.radPoint.lat, myPoint.radPoint.lon,
+                                      myPoint.radPoint.height, myProxyValues, false);
+
+
+
+
+
+
+            //radiation::computeRadiationRsun
+
+
             myHour++;
             if (myHour >= 24)
             {
                 myHour -= 24;
-                myDay = myDay.addDays(1);
+                myDate = myDate.addDays(1);
             }
         }
     }
