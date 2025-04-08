@@ -5278,12 +5278,15 @@ bool PragaProject::computeRadiationList(QString fileName)
     TsunPosition sunPosition;
     int intervalWidth;
     double myTemperature, myPressure, myTransmissivity;
+    double utmX, utmY;
 
     for (int i = 0; i < radPointsList.size(); i++)
     {
         myPoint = radPointsList[i];
         Crit3DDate myDate = myPoint.iniDate;
         int myHour = myPoint.iniHour;
+
+        gis::getUtmFromLatLon(gisSettings, myPoint.radPoint.lat, myPoint.radPoint.lon, &utmX, &utmY);
 
         //ciclo su giorno e ora
         while (!(myDate > myPoint.endDate) && !(myDate == myPoint.endDate && myHour > myPoint.endHour))
@@ -5296,7 +5299,7 @@ bool PragaProject::computeRadiationList(QString fileName)
             solarHour = myHour - 0.5;
 
             if (gisSettings.isUTC)
-                solarHour = solarHour + gisSettings.utmZone;
+                solarHour = solarHour + gisSettings.utmZone; //due volte?
 
             if(solarHour < 0)
             {
@@ -5327,7 +5330,8 @@ bool PragaProject::computeRadiationList(QString fileName)
                 return false;
             }
 
-            myTemperature = interpolate(interpolationPoints, &interpolationSettings, meteoSettings, airTemperature, myPoint.radPoint.lat, myPoint.radPoint.lon,
+
+            myTemperature = interpolate(interpolationPoints, &interpolationSettings, meteoSettings, airTemperature, utmX, utmY,
                                       myPoint.radPoint.height, myProxyValues, false);
 
 
@@ -5359,8 +5363,8 @@ bool PragaProject::computeRadiationList(QString fileName)
                 return false;
             }
 
-            myTransmissivity = interpolate(interpolationPoints, &interpolationSettings, meteoSettings, atmTransmissivity, myPoint.radPoint.lat,
-                                                  myPoint.radPoint.lon, myPoint.radPoint.height, myProxyValues, false);
+            myTransmissivity = interpolate(interpolationPoints, &interpolationSettings, meteoSettings, atmTransmissivity, utmX,
+                                                  utmY, myPoint.radPoint.height, myProxyValues, false);
 
             //radiation
             radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, mySolarTime,
