@@ -16,7 +16,7 @@ bool checkEnvironmentGUI(QString pragaHome)
         return false;
     }
 
-    if (!QDir(pragaHome).exists())
+    if (! QDir(pragaHome).exists())
     {
         QString warning = pragaHome + "  doesn't exist!"
                           "\nSet correct $PRAGA_HOME in the environment variables:"
@@ -74,7 +74,7 @@ int mainGUI(int argc, char *argv[], QString pragaHome, PragaProject& myProject)
         pragaHome = searchDefaultPragaPath(appPath, myProject);
     }
 
-    if (!checkEnvironmentGUI(pragaHome))
+    if (! checkEnvironmentGUI(pragaHome))
     {
         QString appPath = myApp.applicationDirPath();
         pragaHome = searchDefaultPragaPath(appPath, myProject);
