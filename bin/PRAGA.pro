@@ -2,11 +2,13 @@
 #
 #   PRAGA
 #   PRogram for AGrometeorological Analysis
+#   This project is part of ARPAE PRAGA distribution
 #
 #-----------------------------------------------------
 
 QT       += widgets charts network sql xml
 greaterThan(QT_MAJOR_VERSION, 5): QT += core5compat
+
 
 TARGET = PRAGA
 TEMPLATE = app
@@ -20,7 +22,7 @@ INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/netcdfHandler ../agrolib/graphics ../agrolib/commonDialogs ../agrolib/commonChartElements \
                 ../agrolib/inOutDataXML ../agrolib/waterTable ../agrolib/project ../agrolib/proxyWidget \
                 ../src/phenology ../src/drought ../src/climate ../src/pointStatisticsWidget \
-				../src/homogeneityWidget ../src/synchronicityWidget ../src/pragaDialogs ../src/pragaProject
+                ../src/homogeneityWidget ../src/synchronicityWidget ../src/pragaDialogs ../src/pragaProject
 
 CONFIG += debug_and_release
 
@@ -121,7 +123,7 @@ HEADERS  += \
     mainGUI.h \
     mainWindow.h
 
-FORMS    += mainWindow.ui
+FORMS += mainWindow.ui
 
 RESOURCES += bull.ico
 
