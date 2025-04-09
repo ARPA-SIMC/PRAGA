@@ -5280,6 +5280,12 @@ bool PragaProject::computeRadiationList(QString fileName)
     double myTemperature, myPressure, myTransmissivity;
     double utmX, utmY;
 
+    interpolationSettings.setCurrentCombination(interpolationSettings.getSelectedCombination());
+
+    int proxyIndex = 0;
+    std::vector <gis::Crit3DRasterGrid*> meteoGridProxies;
+    if (! meteoGridAggregateProxy(meteoGridProxies)) return false;
+
     for (int i = 0; i < radPointsList.size(); i++)
     {
         myPoint = radPointsList[i];
@@ -5295,26 +5301,27 @@ bool PragaProject::computeRadiationList(QString fileName)
 
             myTime.date = myDate;
             myTime.time = myHour * 3600;
-            mySolarTime.date = myDate;
-            solarHour = myHour - 0.5;
-
-            if (gisSettings.isUTC)
-                solarHour = solarHour + gisSettings.utmZone; //due volte?
-
-            if(solarHour < 0)
-            {
-                solarHour += 24;
-                mySolarTime.date = mySolarTime.date.addDays(-1);
-            }
-            else if (solarHour > 24)
-            {
-                solarHour -= 24;
-                mySolarTime.date = mySolarTime.date.addDays(1);
-            }
-            mySolarTime.time = solarHour * 3600;
 
             myProxyValues.clear();
-            myProxyValues.push_back(myPoint.radPoint.height);
+            myProxyValues.resize(unsigned(interpolationSettings.getProxyNr()));
+
+            for (i=0; i < interpolationSettings.getProxyNr(); i++)
+            {
+                myProxyValues[i] = NODATA;
+
+                if (interpolationSettings.getSelectedCombination().isProxyActive(i))
+                {
+                    if (proxyIndex < meteoGridProxies.size())
+                    {
+                        float proxyValue = gis::getValueFromXY(*meteoGridProxies[proxyIndex], utmX, utmY);
+                        if (proxyValue != meteoGridProxies[proxyIndex]->header->flag)
+                            myProxyValues[i] = double(proxyValue);
+                    }
+
+                    proxyIndex++;
+                }
+            }
+
             interpolationPoints.clear();
 
             //air temperature
@@ -5336,22 +5343,22 @@ bool PragaProject::computeRadiationList(QString fileName)
 
 
             //pressione ? ? ?
-            myPressure = PRESSURE_SEALEVEL;
+            myPressure = PRESSURE_SEALEVEL; //pressureFromAltitude in Pa
 
 
             //potential radiation & transmissivity
-            radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, mySolarTime,
+            radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
                                             radSettings.getLinke(), radSettings.getAlbedo(), radSettings.getClearSky(),
                                             radSettings.getClearSky(), &sunPosition, &(myPoint.radPoint), DEM);
 
-            intervalWidth = radiation::estimateTransmissivityWindow(&radSettings, DEM, DEM.getCenter(), mySolarTime, int(HOUR_SECONDS));
+            intervalWidth = radiation::estimateTransmissivityWindow(&radSettings, DEM, DEM.getCenter(), myTime, int(HOUR_SECONDS));
 
-            if (! computeTransmissivity(&radSettings, meteoPoints, nrMeteoPoints, intervalWidth, mySolarTime, DEM))
+            if (! computeTransmissivity(&radSettings, meteoPoints, nrMeteoPoints, intervalWidth, myTime, DEM))
                 return false;
 
             interpolationPoints.clear();
 
-            if (! checkAndPassDataToInterpolation(quality, atmTransmissivity, meteoPoints, nrMeteoPoints, mySolarTime,
+            if (! checkAndPassDataToInterpolation(quality, atmTransmissivity, meteoPoints, nrMeteoPoints, myTime,
                                                  &qualityInterpolationSettings, &interpolationSettings, meteoSettings,
                                                  &climateParameters, interpolationPoints,
                                                  checkSpatialQuality, errorStdStr))
@@ -5367,7 +5374,7 @@ bool PragaProject::computeRadiationList(QString fileName)
                                                   utmY, myPoint.radPoint.height, myProxyValues, false);
 
             //radiation
-            radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, mySolarTime,
+            radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
                                             radSettings.getLinke(), radSettings.getAlbedo(), radSettings.getClearSky(),
                                             myTransmissivity, &sunPosition, &(myPoint.radPoint), DEM);
 
