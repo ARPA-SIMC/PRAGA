@@ -6,6 +6,7 @@
 #include "dbClimate.h"
 #include "download.h"
 #include "dbAggregationsHandler.h"
+#include "physics.h"
 #include "spatialControl.h"
 #include "transmissivity.h"
 #include "utilities.h"
@@ -5211,7 +5212,7 @@ bool PragaProject::computeRadiationList(QString fileName)
         }
         else
         {
-            temp.fileName = getCompleteFileName(line[0] + "_out.txt", PATH_PROJECT).toStdString();
+            temp.fileName = getCompleteFileName(line[0] + "_out.txt", "PROJECT/EnergyIntelligence/Output/").toStdString();
 
             bool isLatOk, isLonOk, isHeightOk, isAspectOk, isSlopeOk;
             temp.radPoint.lat = line[1].toFloat(&isLatOk);
@@ -5268,8 +5269,7 @@ bool PragaProject::computeRadiationList(QString fileName)
     }
 
     TelabRadPoint myPoint;
-    Crit3DTime myTime, mySolarTime;
-    double solarHour;
+    Crit3DTime myTime;
 
     std::vector <Crit3DInterpolationDataPoint> interpolationPoints;
     std::string errorStdStr;
@@ -5279,6 +5279,7 @@ bool PragaProject::computeRadiationList(QString fileName)
     int intervalWidth;
     double myTemperature, myPressure, myTransmissivity;
     double utmX, utmY;
+    double myPotentialRad;
 
     interpolationSettings.setCurrentCombination(interpolationSettings.getSelectedCombination());
 
@@ -5294,38 +5295,36 @@ bool PragaProject::computeRadiationList(QString fileName)
 
         gis::getUtmFromLatLon(gisSettings, myPoint.radPoint.lat, myPoint.radPoint.lon, &utmX, &utmY);
 
+        myProxyValues.clear();
+        myProxyValues.resize(unsigned(interpolationSettings.getProxyNr()));
+
+        for (i=0; i < interpolationSettings.getProxyNr(); i++)
+        {
+            myProxyValues[i] = NODATA;
+
+            if (interpolationSettings.getSelectedCombination().isProxyActive(i))
+            {
+                if (proxyIndex < meteoGridProxies.size())
+                {
+                    float proxyValue = gis::getValueFromXY(*meteoGridProxies[proxyIndex], utmX, utmY);
+                    if (proxyValue != meteoGridProxies[proxyIndex]->header->flag)
+                        myProxyValues[i] = double(proxyValue);
+                }
+
+                proxyIndex++;
+            }
+        }
+
         //ciclo su giorno e ora
         while (!(myDate > myPoint.endDate) && !(myDate == myPoint.endDate && myHour > myPoint.endHour))
         {
-            //solar time is saved in mySolarTime variable
-
             myTime.date = myDate;
             myTime.time = myHour * 3600;
-
-            myProxyValues.clear();
-            myProxyValues.resize(unsigned(interpolationSettings.getProxyNr()));
-
-            for (i=0; i < interpolationSettings.getProxyNr(); i++)
-            {
-                myProxyValues[i] = NODATA;
-
-                if (interpolationSettings.getSelectedCombination().isProxyActive(i))
-                {
-                    if (proxyIndex < meteoGridProxies.size())
-                    {
-                        float proxyValue = gis::getValueFromXY(*meteoGridProxies[proxyIndex], utmX, utmY);
-                        if (proxyValue != meteoGridProxies[proxyIndex]->header->flag)
-                            myProxyValues[i] = double(proxyValue);
-                    }
-
-                    proxyIndex++;
-                }
-            }
 
             interpolationPoints.clear();
 
             //air temperature
-            if (! checkAndPassDataToInterpolation(quality, airTemperature, meteoPoints, nrMeteoPoints, mySolarTime,
+            if (! checkAndPassDataToInterpolation(quality, airTemperature, meteoPoints, nrMeteoPoints, myTime,
                                                  &qualityInterpolationSettings, &interpolationSettings, meteoSettings,
                                                  &climateParameters, interpolationPoints,
                                                  checkSpatialQuality, errorStdStr))
@@ -5342,14 +5341,16 @@ bool PragaProject::computeRadiationList(QString fileName)
                                       myPoint.radPoint.height, myProxyValues, false);
 
 
-            //pressione ? ? ?
-            myPressure = PRESSURE_SEALEVEL; //pressureFromAltitude in Pa
+            //pressione
+            myPressure = pressureFromAltitude(myPoint.radPoint.height) / 100; //pressureFromAltitude in Pa
 
 
             //potential radiation & transmissivity
             radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
                                             radSettings.getLinke(), radSettings.getAlbedo(), radSettings.getClearSky(),
                                             radSettings.getClearSky(), &sunPosition, &(myPoint.radPoint), DEM);
+
+            myPotentialRad = myPoint.radPoint.global;
 
             intervalWidth = radiation::estimateTransmissivityWindow(&radSettings, DEM, DEM.getCenter(), myTime, int(HOUR_SECONDS));
 
@@ -5378,6 +5379,39 @@ bool PragaProject::computeRadiationList(QString fileName)
                                             radSettings.getLinke(), radSettings.getAlbedo(), radSettings.getClearSky(),
                                             myTransmissivity, &sunPosition, &(myPoint.radPoint), DEM);
 
+
+            QFile outputFile(QString::fromStdString(myPoint.fileName));
+
+            if (! outputFile.open(QIODevice::WriteOnly | QFile::Append))
+            {
+                return false;
+            }
+
+            QTextStream outStream(&outputFile);
+
+            QString dateString = QString::number(myTime.date.year);
+            if (myTime.date.month < 10)
+                dateString += "0";
+            dateString += QString::number(myTime.date.month);
+            if (myTime.date.day < 10)
+                dateString += "0";
+            dateString += QString::number(myTime.date.day);
+            if (myHour < 10)
+                dateString += "0";
+            dateString += QString::number(myHour);
+
+            outStream.setRealNumberPrecision(1);
+            outStream.setRealNumberNotation(QTextStream::FixedNotation);
+
+            outStream << dateString << "\t" << QString::number(myPoint.radPoint.beam, 'f', 1) << "\t"
+                      << QString::number(myPoint.radPoint.diffuse, 'f', 1) << "\t"
+                      << QString::number(myPoint.radPoint.reflected, 'f', 1) << "\t"
+                      << QString::number(myPoint.radPoint.global, 'f', 1) << "\t"
+                      << QString::number(myPotentialRad, 'f', 1) << "\t"
+                      << QString::number(myTemperature, 'f', 1) << "\t";
+
+            outStream << "\n";
+            outputFile.close();
 
             myHour++;
             if (myHour >= 24)
