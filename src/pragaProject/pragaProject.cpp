@@ -5343,6 +5343,7 @@ bool PragaProject::computeRadiationList(QString fileName)
 
             //pressione
             myPressure = pressureFromAltitude(myPoint.radPoint.height) / 100; //pressureFromAltitude in Pa
+            //myPressure = PRESSURE_SEALEVEL;
 
 
             //potential radiation & transmissivity
@@ -5399,9 +5400,6 @@ bool PragaProject::computeRadiationList(QString fileName)
             if (myHour < 10)
                 dateString += "0";
             dateString += QString::number(myHour);
-
-            outStream.setRealNumberPrecision(1);
-            outStream.setRealNumberNotation(QTextStream::FixedNotation);
 
             outStream << dateString << "\t" << QString::number(myPoint.radPoint.beam, 'f', 1) << "\t"
                       << QString::number(myPoint.radPoint.diffuse, 'f', 1) << "\t"
