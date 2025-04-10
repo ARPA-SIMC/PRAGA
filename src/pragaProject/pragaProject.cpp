@@ -5298,22 +5298,31 @@ bool PragaProject::computeRadiationList(QString fileName)
         myProxyValues.clear();
         myProxyValues.resize(unsigned(interpolationSettings.getProxyNr()));
 
-        for (i=0; i < interpolationSettings.getProxyNr(); i++)
+        for (int j =0; j < interpolationSettings.getProxyNr(); j++)
         {
-            myProxyValues[i] = NODATA;
+            myProxyValues[j] = NODATA;
 
-            if (interpolationSettings.getSelectedCombination().isProxyActive(i))
+            if (interpolationSettings.getSelectedCombination().isProxyActive(j))
             {
                 if (proxyIndex < meteoGridProxies.size())
                 {
                     float proxyValue = gis::getValueFromXY(*meteoGridProxies[proxyIndex], utmX, utmY);
                     if (proxyValue != meteoGridProxies[proxyIndex]->header->flag)
-                        myProxyValues[i] = double(proxyValue);
+                        myProxyValues[j] = double(proxyValue);
                 }
 
                 proxyIndex++;
             }
         }
+
+        QFile outputFile(QString::fromStdString(myPoint.fileName));
+
+        if (! outputFile.open(QIODevice::WriteOnly | QFile::Append))
+        {
+            return false;
+        }
+
+        QTextStream outStream(&outputFile);
 
         //ciclo su giorno e ora
         while (!(myDate > myPoint.endDate) && !(myDate == myPoint.endDate && myHour > myPoint.endHour))
@@ -5380,14 +5389,6 @@ bool PragaProject::computeRadiationList(QString fileName)
                                             radSettings.getLinke(), radSettings.getAlbedo(), radSettings.getClearSky(),
                                             myTransmissivity, &sunPosition, &(myPoint.radPoint), DEM);
 
-
-            QFile outputFile(QString::fromStdString(myPoint.fileName));
-
-            if (! outputFile.open(QIODevice::WriteOnly | QFile::Append))
-            {
-                return false;
-            }
-
             QTextStream outStream(&outputFile);
 
             QString dateString = QString::number(myTime.date.year);
@@ -5409,7 +5410,6 @@ bool PragaProject::computeRadiationList(QString fileName)
                       << QString::number(myTemperature, 'f', 1) << "\t";
 
             outStream << "\n";
-            outputFile.close();
 
             myHour++;
             if (myHour >= 24)
@@ -5418,6 +5418,8 @@ bool PragaProject::computeRadiationList(QString fileName)
                 myDate = myDate.addDays(1);
             }
         }
+
+        outputFile.close();
     }
     return true;
 }
