@@ -685,7 +685,7 @@ bool dailyCumulatedClimate(QString *myError, std::vector<float> &inputValues, Cr
     std::vector<float> cumulatedValues;
     std::vector< std::vector<float> > cumulatedAllDaysAllYears;
     std::vector<int> valuesYears;
-
+    std::vector<int> valuesLeapYears;
     Crit3DDate presentDate;
 
     QSqlDatabase db = clima->db();
@@ -710,6 +710,9 @@ bool dailyCumulatedClimate(QString *myError, std::vector<float> &inputValues, Cr
     //create vector of number of days for every (shifted year)
     for (int year = startDate.year; year < endDate.year; year++)
     {
+        valuesYears.push_back(year);
+        if (isLeapYear(year))
+            valuesLeapYears.push_back(year);
         daysOfYear.push_back(daysTo(currentDate, nextDate));
         currentDate.year++;
         nextDate.year++;
@@ -824,9 +827,13 @@ bool dailyCumulatedClimate(QString *myError, std::vector<float> &inputValues, Cr
             {
                 int index = statisticalElab(elab2, clima->yearStart(), cumulatedValuesPerDay, int(cumulatedValuesPerDay.size()),
                                             meteoSettings->getRainfallThreshold());
+
                 if (index != NODATA && index < valuesYears.size())
                 {
-                    result = valuesYears[index];
+                    if (i < 366)
+                        result = valuesYears[index];
+                    else
+                        result = valuesLeapYears[index];
                 }
                 else
                 {
