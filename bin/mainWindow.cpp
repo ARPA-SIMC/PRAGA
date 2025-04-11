@@ -489,6 +489,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         if (meteoGridObj->isLoaded && currentGridVisualization != notShown && meteoGridObj->getRowCol(geoPoint, &row, &col))
         {
             std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->id;
+            std::string dataset = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->dataset;
             std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->name;
 
             if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->active)
@@ -529,11 +530,11 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                 {
                     if (selection == openMeteoWidget)
                     {
-                        myProject.showMeteoWidgetGrid(id, false);
+                        myProject.showMeteoWidgetGrid(id, dataset, false);
                     }
                     if (selection == appendMeteoWidget)
                     {
-                        myProject.showMeteoWidgetGrid(id, true);
+                        myProject.showMeteoWidgetGrid(id, dataset, true);
                     }
                     else if (selection == openPointStatisticsWidget)
                     {
@@ -1995,7 +1996,7 @@ void MainWindow::callNewMeteoWidget(std::string id, std::string name, std::strin
     bool isAppend = false;
     if (isGrid)
     {
-        myProject.showMeteoWidgetGrid(id, isAppend);
+        myProject.showMeteoWidgetGrid(id, dataset, isAppend);
     }
     else
     {
@@ -2009,7 +2010,7 @@ void MainWindow::callAppendMeteoWidget(std::string id, std::string name, std::st
     bool isAppend = true;
     if (isGrid)
     {
-        myProject.showMeteoWidgetGrid(id, isAppend);
+        myProject.showMeteoWidgetGrid(id, dataset, isAppend);
     }
     else
     {
