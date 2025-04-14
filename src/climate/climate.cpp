@@ -5184,7 +5184,7 @@ bool appendXMLAnomaly(Crit3DAnomalyList *listXMLAnomaly, QString xmlFileName, QS
 bool monthlyAggregateDataGrid(Crit3DMeteoGridDbHandler* meteoGridDbHandler, QDate firstDate, QDate lastDate,
                               std::vector<meteoVariable> dailyMeteoVar,
                               Crit3DMeteoSettings* meteoSettings, Crit3DQuality* qualityCheck,
-                              Crit3DClimateParameters* climateParam, QString &myError)
+                              Crit3DClimateParameters* climateParam, QString &errorStr)
 {
     int nrMonths = (lastDate.year()-firstDate.year())*12+lastDate.month()-(firstDate.month()-1);
     bool isMeteoGrid = true;
@@ -5211,7 +5211,7 @@ bool monthlyAggregateDataGrid(Crit3DMeteoGridDbHandler* meteoGridDbHandler, QDat
 
                 for(int i = 0; i < dailyMeteoVar.size(); i++)
                 {
-                    if (preElaboration(nullptr, meteoGridDbHandler, meteoPointTemp, isMeteoGrid, dailyMeteoVar[i], noMeteoComp, firstDate, lastDate, outputValues, &percValue, meteoSettings, myError))
+                    if (preElaboration(nullptr, meteoGridDbHandler, meteoPointTemp, isMeteoGrid, dailyMeteoVar[i], noMeteoComp, firstDate, lastDate, outputValues, &percValue, meteoSettings, errorStr))
                     {
                         if (meteoPointTemp->computeMonthlyAggregate(getCrit3DDate(firstDate), getCrit3DDate(lastDate), dailyMeteoVar[i], meteoSettings, qualityCheck, climateParam))
                         {
@@ -5227,7 +5227,7 @@ bool monthlyAggregateDataGrid(Crit3DMeteoGridDbHandler* meteoGridDbHandler, QDat
                 meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->obsDataM = meteoPointTemp->obsDataM ;
                 if (! meteoVariableList.isEmpty())
                 {
-                    if (! meteoGridDbHandler->saveCellGridMonthlyData(&myError, QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->id), row, col, firstDate, lastDate, meteoVariableList))
+                    if (! meteoGridDbHandler->saveCellGridMonthlyData(errorStr, QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->id), row, col, firstDate, lastDate, meteoVariableList))
                     {
                         delete meteoPointTemp;
                         return false;

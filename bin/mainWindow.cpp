@@ -3723,6 +3723,8 @@ void MainWindow::closeMeteoGrid()
 {
     if (myProject.meteoGridLoaded)
     {
+        // set location
+        redrawMeteoGrid(showLocation, false);
         this->meteoGridObj->clear();
         emit this->meteoGridObj->redrawRequested();
         this->meteoGridLegend->setVisible(false);
@@ -5495,6 +5497,7 @@ void MainWindow::on_actionShiftDataSelected_triggered()
     redrawMeteoPoints(currentPointsVisualization, true);
 }
 
+
 void MainWindow::on_actionMeteoGridActiveAll_triggered()
 {
     if (myProject.meteoGridDbHandler == nullptr)
@@ -5505,21 +5508,21 @@ void MainWindow::on_actionMeteoGridActiveAll_triggered()
 
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, "Are you sure?" ,
-                                  "All meteo grid cells will be activated",
+                                  "All cells of the meteo grid will be activated",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes)
     {
-        if (!myProject.meteoGridDbHandler->activeAllCells(&myProject.errorString))
+        if (! myProject.meteoGridDbHandler->activeAllCells(myProject.errorString))
         {
-            myProject.logError("Failed to active all cells "+myProject.errorString);
+            myProject.logError("Unable to activate all cells: " + myProject.errorString);
             return;
         }
         QString xmlName = myProject.dbGridXMLFileName;
         closeMeteoGrid();
         loadMeteoGrid(xmlName);
     }
-
 }
+
 
 void MainWindow::on_actionMeteoGridActiveWith_DEM_triggered()
 {
