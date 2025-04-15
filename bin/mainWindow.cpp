@@ -6941,7 +6941,29 @@ void MainWindow::on_actionWaterTable_showParameters_triggered()
         myProject.logError("Compute all the wells parameters before.");
         return;
     }
-    // TO DO
+
+    for (unsigned int i = 0; i < myProject.wellPoints.size(); i++)
+    {
+        QString idStr = myProject.wellPoints[i].getId();
+        for (unsigned int j = 0; j < myProject.waterTableList.size(); i++)
+        {
+            if (myProject.waterTableList[j].getIdWell() == idStr)
+            {
+                QString text = "ID: " + idStr;
+                float r2 = myProject.waterTableList[j].getR2();
+                if (! isEqual(r2, NODATA))
+                {
+                    text += "\nR2: " + QString::number(r2);
+                    text += "\nH0: " + QString::number(myProject.waterTableList[j].getH0());
+                    text += "\nalpha: " + QString::number(myProject.waterTableList[j].getAlpha());
+                    text += "\nnr.Days: " + QString::number(myProject.waterTableList[j].getNrDaysPeriod());
+                }
+
+                wellsListObj[i]->SquareObject::setToolTip(text);
+                break;
+            }
+        }
+    }
 }
 
 
