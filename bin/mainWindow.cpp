@@ -6934,39 +6934,6 @@ void MainWindow::on_actionWaterTable_computeSingleWell_triggered()
 }
 
 
-void MainWindow::on_actionWaterTable_showParameters_triggered()
-{
-    if (myProject.waterTableList.size() == 0)
-    {
-        myProject.logError("Compute all the wells parameters before.");
-        return;
-    }
-
-    for (unsigned int i = 0; i < myProject.wellPoints.size(); i++)
-    {
-        QString idStr = myProject.wellPoints[i].getId();
-        for (unsigned int j = 0; j < myProject.waterTableList.size(); i++)
-        {
-            if (myProject.waterTableList[j].getIdWell() == idStr)
-            {
-                QString text = "ID: " + idStr;
-                float r2 = myProject.waterTableList[j].getR2();
-                if (! isEqual(r2, NODATA))
-                {
-                    text += "\nR2: " + QString::number(r2);
-                    text += "\nH0: " + QString::number(myProject.waterTableList[j].getH0());
-                    text += "\nalpha: " + QString::number(myProject.waterTableList[j].getAlpha());
-                    text += "\nnr.Days: " + QString::number(myProject.waterTableList[j].getNrDaysPeriod());
-                }
-
-                wellsListObj[i]->SquareObject::setToolTip(text);
-                break;
-            }
-        }
-    }
-}
-
-
 void MainWindow::on_actionWaterTable_showDepth_triggered()
 {
     if (myProject.waterTableList.size() == 0)
@@ -7007,19 +6974,37 @@ void MainWindow::on_actionWaterTable_computeAllWells_triggered()
 
     for (int i = 0; i < myProject.wellPoints.size(); i++)
     {
-        QString id = myProject.wellPoints[i].getId();
+        QString idStr = myProject.wellPoints[i].getId();
         if (myProject.wellPoints[i].getObsDepthNr() == 0)
         {
-            myProject.logInfo("The well " + id + " has not data. Import data before.");
+            myProject.logInfo("The well " + idStr + " has not data. Import data before.");
             continue;
         }
 
         if (! myProject.waterTableComputeSingleWell(i))
         {
-            myProject.logInfo("Error in computing well: " + id);
+            myProject.logInfo("Error in computing well: " + idStr);
             continue;
         }
 
+        for (unsigned int j = 0; j < myProject.waterTableList.size(); i++)
+        {
+            if (myProject.waterTableList[j].getIdWell() == idStr)
+            {
+                QString text = "ID: " + idStr;
+                float r2 = myProject.waterTableList[j].getR2();
+                if (! isEqual(r2, NODATA))
+                {
+                    text += "\n R2: " + QString::number(r2);
+                    text += "\n H0: " + QString::number(myProject.waterTableList[j].getH0());
+                    text += "\n alpha: " + QString::number(myProject.waterTableList[j].getAlpha());
+                    text += "\n nr.Days: " + QString::number(myProject.waterTableList[j].getNrDaysPeriod());
+                }
+
+                wellsListObj[i]->SquareObject::setToolTip(text);
+                break;
+            }
+        }
         myProject.updateProgressBar(i);
     }
 

@@ -467,7 +467,7 @@
             <second>0</second>
             <year>1752</year>
             <month>8</month>
-            <day>8</day>
+            <day>7</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1537,7 +1537,7 @@
      <x>0</x>
      <y>0</y>
      <width>1276</width>
-     <height>23</height>
+     <height>28</height>
     </rect>
    </property>
    <property name="palette">
@@ -2096,7 +2096,6 @@
      </property>
      <addaction name="actionWaterTable_showId"/>
      <addaction name="actionWaterTable_showLocation"/>
-     <addaction name="actionWaterTable_showParameters"/>
      <addaction name="actionWaterTable_showDepth"/>
     </widget>
     <addaction name="menuWaterTableData"/>
@@ -2979,11 +2978,6 @@
   <action name="actionWaterTable_showLocation">
    <property name="text">
     <string>Location</string>
-   </property>
-  </action>
-  <action name="actionWaterTable_showParameters">
-   <property name="text">
-    <string>Wells parameters...</string>
    </property>
   </action>
   <action name="actionWaterTable_showDepth">

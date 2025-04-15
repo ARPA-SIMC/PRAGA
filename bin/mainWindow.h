@@ -290,23 +290,15 @@
 
         void on_actionFileMeteogridData_XMLexport_triggered();
 
+        // WATERTABLE
         void on_actionWaterTable_importLocation_triggered();
-
         void on_actionWaterTable_importDepth_triggered();
-
-        void on_actionWaterTable_showLocation_triggered();
-
         void on_actionWaterTable_computeSingleWell_triggered();
-
-        void on_actionWaterTable_showParameters_triggered();
-
-        void on_actionWaterTable_showDepth_triggered();
-
-        void on_actionWaterTable_Hide_triggered();
-
         void on_actionWaterTable_computeAllWells_triggered();
-
+        void on_actionWaterTable_showLocation_triggered();
+        void on_actionWaterTable_showDepth_triggered();
         void on_actionWaterTable_showId_triggered();
+        void on_actionWaterTable_Hide_triggered();
 
         void on_actionSpatialAggregationAssignAltitude_triggered();
 
