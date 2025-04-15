@@ -6987,24 +6987,17 @@ void MainWindow::on_actionWaterTable_computeAllWells_triggered()
             continue;
         }
 
-        for (unsigned int j = 0; j < myProject.waterTableList.size(); i++)
+        if (myProject.waterTableList.last().getIdWell() == idStr)
         {
-            if (myProject.waterTableList[j].getIdWell() == idStr)
-            {
-                QString text = "ID: " + idStr;
-                float r2 = myProject.waterTableList[j].getR2();
-                if (! isEqual(r2, NODATA))
-                {
-                    text += "\n R2: " + QString::number(r2);
-                    text += "\n H0: " + QString::number(myProject.waterTableList[j].getH0());
-                    text += "\n alpha: " + QString::number(myProject.waterTableList[j].getAlpha());
-                    text += "\n nr.Days: " + QString::number(myProject.waterTableList[j].getNrDaysPeriod());
-                }
+            QString text = "ID: " + idStr;
+            text += "\n R2: " + QString::number(myProject.waterTableList.last().getR2(),'f', 2);
+            text += "\n H0: " + QString::number(myProject.waterTableList.last().getH0(),'f', 2);
+            text += "\n alpha: " + QString::number(myProject.waterTableList.last().getAlpha(),'f', 2);
+            text += "\n nr.Days: " + QString::number(myProject.waterTableList.last().getNrDaysPeriod());
 
-                wellsListObj[i]->SquareObject::setToolTip(text);
-                break;
-            }
+            wellsListObj[i]->SquareObject::setToolTip(text);
         }
+
         myProject.updateProgressBar(i);
     }
 
