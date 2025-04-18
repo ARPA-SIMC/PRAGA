@@ -489,6 +489,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         if (meteoGridObj->isLoaded && currentGridVisualization != notShown && meteoGridObj->getRowCol(geoPoint, &row, &col))
         {
             std::string id = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->id;
+            std::string dataset = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->dataset;
             std::string name = myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->name;
 
             if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[unsigned(row)][unsigned(col)]->active)
@@ -529,11 +530,11 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                 {
                     if (selection == openMeteoWidget)
                     {
-                        myProject.showMeteoWidgetGrid(id, false);
+                        myProject.showMeteoWidgetGrid(id, dataset, false);
                     }
                     if (selection == appendMeteoWidget)
                     {
-                        myProject.showMeteoWidgetGrid(id, true);
+                        myProject.showMeteoWidgetGrid(id, dataset, true);
                     }
                     else if (selection == openPointStatisticsWidget)
                     {
@@ -1995,7 +1996,7 @@ void MainWindow::callNewMeteoWidget(std::string id, std::string name, std::strin
     bool isAppend = false;
     if (isGrid)
     {
-        myProject.showMeteoWidgetGrid(id, isAppend);
+        myProject.showMeteoWidgetGrid(id, dataset, isAppend);
     }
     else
     {
@@ -2009,7 +2010,7 @@ void MainWindow::callAppendMeteoWidget(std::string id, std::string name, std::st
     bool isAppend = true;
     if (isGrid)
     {
-        myProject.showMeteoWidgetGrid(id, isAppend);
+        myProject.showMeteoWidgetGrid(id, dataset, isAppend);
     }
     else
     {
@@ -3722,6 +3723,8 @@ void MainWindow::closeMeteoGrid()
 {
     if (myProject.meteoGridLoaded)
     {
+        // set location
+        redrawMeteoGrid(showLocation, false);
         this->meteoGridObj->clear();
         emit this->meteoGridObj->redrawRequested();
         this->meteoGridLegend->setVisible(false);
@@ -5494,6 +5497,7 @@ void MainWindow::on_actionShiftDataSelected_triggered()
     redrawMeteoPoints(currentPointsVisualization, true);
 }
 
+
 void MainWindow::on_actionMeteoGridActiveAll_triggered()
 {
     if (myProject.meteoGridDbHandler == nullptr)
@@ -5504,21 +5508,21 @@ void MainWindow::on_actionMeteoGridActiveAll_triggered()
 
     QMessageBox::StandardButton reply;
     reply = QMessageBox::question(this, "Are you sure?" ,
-                                  "All meteo grid cells will be activated",
+                                  "All cells of the meteo grid will be activated",
                                   QMessageBox::Yes|QMessageBox::No);
     if (reply == QMessageBox::Yes)
     {
-        if (!myProject.meteoGridDbHandler->activeAllCells(&myProject.errorString))
+        if (! myProject.meteoGridDbHandler->activeAllCells(myProject.errorString))
         {
-            myProject.logError("Failed to active all cells "+myProject.errorString);
+            myProject.logError("Unable to activate all cells: " + myProject.errorString);
             return;
         }
         QString xmlName = myProject.dbGridXMLFileName;
         closeMeteoGrid();
         loadMeteoGrid(xmlName);
     }
-
 }
+
 
 void MainWindow::on_actionMeteoGridActiveWith_DEM_triggered()
 {
@@ -6930,17 +6934,6 @@ void MainWindow::on_actionWaterTable_computeSingleWell_triggered()
 }
 
 
-void MainWindow::on_actionWaterTable_showParameters_triggered()
-{
-    if (myProject.waterTableList.size() == 0)
-    {
-        myProject.logError("Compute all the wells parameters before.");
-        return;
-    }
-    // TO DO
-}
-
-
 void MainWindow::on_actionWaterTable_showDepth_triggered()
 {
     if (myProject.waterTableList.size() == 0)
@@ -6981,17 +6974,28 @@ void MainWindow::on_actionWaterTable_computeAllWells_triggered()
 
     for (int i = 0; i < myProject.wellPoints.size(); i++)
     {
-        QString id = myProject.wellPoints[i].getId();
+        QString idStr = myProject.wellPoints[i].getId();
         if (myProject.wellPoints[i].getObsDepthNr() == 0)
         {
-            myProject.logInfo("The well " + id + " has not data. Import data before.");
+            myProject.logInfo("The well " + idStr + " has not data. Import data before.");
             continue;
         }
 
         if (! myProject.waterTableComputeSingleWell(i))
         {
-            myProject.logInfo("Error in computing well: " + id);
+            myProject.logInfo("Error in computing well: " + idStr);
             continue;
+        }
+
+        if (myProject.waterTableList.last().getIdWell() == idStr)
+        {
+            QString text = " ID: " + idStr;
+            text += "\n R2: " + QString::number(myProject.waterTableList.last().getR2(),'f', 2);
+            text += "\n H0: " + QString::number(myProject.waterTableList.last().getH0(),'f', 2);
+            text += "\n alpha: " + QString::number(myProject.waterTableList.last().getAlpha(),'f', 2);
+            text += "\n nr. days: " + QString::number(myProject.waterTableList.last().getNrDaysPeriod());
+            text += "\n avg daily CWB: " + QString::number(myProject.waterTableList.last().getAvgDailyCWB(),'f', 2);
+            wellsListObj[i]->SquareObject::setToolTip(text);
         }
 
         myProject.updateProgressBar(i);
