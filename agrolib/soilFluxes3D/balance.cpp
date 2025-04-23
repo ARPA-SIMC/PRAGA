@@ -41,8 +41,8 @@
 Tbalance balanceCurrentTimeStep, balancePreviousTimeStep, balanceCurrentPeriod, balanceWholePeriod;
 double CourantWater = 0.0;
 
-static double bestMBRerror;
-static bool isHalfTimeStepForced = false;
+static double _bestMBRerror;
+static bool _isHalfTimeStepForced = false;
 
 
 inline void doubleTimeStep()
@@ -61,8 +61,6 @@ void halveTimeStep()
 
 void InitializeBalanceWater()
 {
-     bestMBRerror = 100.;
-
      balanceWholePeriod.storageWater = computeTotalWaterContent();
      balanceCurrentTimeStep.storageWater = balanceWholePeriod.storageWater;
      balancePreviousTimeStep.storageWater = balanceWholePeriod.storageWater;
@@ -152,8 +150,8 @@ void computeMassBalance(double deltaT)
 
     balanceCurrentTimeStep.waterMBE = dStorage - balanceCurrentTimeStep.sinkSourceWater;            // [m3]
 
-    // minimum reference water storage: 0.1% of current storage, minimum 1 liter
-    double minRefWaterStorage = MAXVALUE(balanceCurrentTimeStep.storageWater * 1e-3, 0.001);        // [m3]
+    // minimum reference water storage: 0.01% of current storage, minimum 1 l
+    double minRefWaterStorage = MAXVALUE(balanceCurrentTimeStep.storageWater * 1e-4, 0.001);        // [m3]
 
     // reference water for computation of mass balance ratio
     double referenceWater = MAXVALUE(fabs(balanceCurrentTimeStep.sinkSourceWater), minRefWaterStorage);   // [m3]
@@ -247,48 +245,50 @@ void acceptStep(double deltaT)
 
 bool waterBalance(double deltaT, int approxNr)
 {
-	computeMassBalance(deltaT);
+    setForcedHalvedTime(false);
+
+    computeMassBalance(deltaT);
 	double MBRerror = fabs(balanceCurrentTimeStep.waterMBR);
 
-	isHalfTimeStepForced = false;
-
-    // error is better than previuosly
-    if (approxNr == 0 || MBRerror < bestMBRerror)
-	{
-		saveBestStep();
-		bestMBRerror = MBRerror;
-	}
-
-    // best case
+    // good error: step is accepted
     if (MBRerror < myParameters.MBRThreshold)
     {
         acceptStep(deltaT);
+        // best case: system is stable, double time step
         if (approxNr <= 2 && CourantWater < 0.5 && MBRerror < (myParameters.MBRThreshold * 0.5))
         {
-            /*! system is stable: double time step */
             doubleTimeStep();
         }
         return true;
     }
 
-    // worst case: error is high or last approximation
-    if ( MBRerror > (bestMBRerror * 2.0) || approxNr == (myParameters.maxApproximationsNumber-1) )
+    // first approximation or error is better than previuos one
+    if (approxNr == 0 || MBRerror < _bestMBRerror)
+	{
+		saveBestStep();
+        _bestMBRerror = MBRerror;
+	}
+
+    // system is unstable or last approximation
+    int lastApproximation = myParameters.maxApproximationsNumber-1;
+    if (MBRerror > (_bestMBRerror * 2.0) || approxNr == lastApproximation)
     {
         if (deltaT > myParameters.delta_t_min)
         {
             halveTimeStep();
-            isHalfTimeStepForced = true;
+            setForcedHalvedTime(true);
             return false;
         }
         else
         {
+            // worst case: forced to accept the time step, restore best error
             restoreBestStep(deltaT);
             acceptStep(deltaT);
             return true;
         }
     }
 
-    // default
+    // move to the next approximation
     return false;
 }
 
@@ -316,14 +316,13 @@ void updateBalanceWaterWholePeriod()
 }
 
 
-
 bool getForcedHalvedTime()
 {
-    return (isHalfTimeStepForced);
+    return (_isHalfTimeStepForced);
 }
 
 void setForcedHalvedTime(bool isForced)
 {
-    isHalfTimeStepForced = isForced;
+    _isHalfTimeStepForced = isForced;
 }
 
