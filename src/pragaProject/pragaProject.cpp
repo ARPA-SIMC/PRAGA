@@ -5222,21 +5222,15 @@ bool PragaProject::computeRadiationList(QString fileName)
         }
         else
         {
-            temp.fileName = getCompleteFileName(line[0] + "_out.txt", "PROJECT/EnergyIntelligence/Output/").toStdString();
+            QString tempPath = PATH_PROJECT;
+            tempPath += "EnergyIntelligence/Output/";
+            temp.fileName = getCompleteFileName(line[0] + "_out.txt", tempPath).toStdString();
 
-            bool isLatOk, isLonOk, isHeightOk, isAspectOk, isSlopeOk;
-            temp.radPoint.lat = line[1].toFloat(&isLatOk);
-            temp.radPoint.lon = line[2].toFloat(&isLonOk);
-            temp.radPoint.height = line[3].toFloat(&isHeightOk);
-            temp.radPoint.aspect = line[4].toFloat(&isAspectOk);
-            temp.radPoint.slope = line[5].toFloat(&isSlopeOk);
-
-            if (!(isLatOk && isLonOk && isHeightOk && isAspectOk && isSlopeOk))
-            {
-                logInfo("Error parsing row nr. " + QString::number(row) + ". Parsing following line.");
-                row++;
-                continue;
-            }
+            temp.radPoint.lat = line[1].toFloat();
+            temp.radPoint.lon = line[2].toFloat();
+            temp.radPoint.height = line[3].toFloat();
+            temp.radPoint.aspect = line[4].toFloat();
+            temp.radPoint.slope = line[5].toFloat();
 
             QString iniTimeString = line[6];
             QString endTimeString = line[7];
@@ -5259,13 +5253,6 @@ bool PragaProject::computeRadiationList(QString fileName)
             temp.iniHour = iniTimeString.mid(8,2).toInt();
             temp.endHour = endTimeString.mid(8,2).toInt();
 
-            if (temp.endDate < temp.iniDate || (temp.endDate == temp.iniDate && temp.iniHour > temp.endHour))
-            {
-                logInfo("Error parsing time in row nr. " + QString::number(row) + ". Parsing following line.");
-                row++;
-                continue;
-            }
-
             radPointsList.push_back(temp);
             row++;
         }
@@ -5275,7 +5262,10 @@ bool PragaProject::computeRadiationList(QString fileName)
     for (int i=0; i < nrMeteoPoints; i++)
     {
         if (!meteoPointsDbHandler->loadHourlyData(loadIniDate, loadEndDate, meteoPoints[i]))
+        {
+            logError("Error loading hourly data.");
             return false;
+        }
     }
 
     TelabRadPoint myPoint;
@@ -5283,7 +5273,7 @@ bool PragaProject::computeRadiationList(QString fileName)
 
     std::vector <Crit3DInterpolationDataPoint> interpolationPoints;
     std::string errorStdStr;
-    std::vector<double> myProxyValues; //???sistemare
+    std::vector<double> myProxyValues;
 
     TsunPosition sunPosition;
     int intervalWidth;
@@ -5291,45 +5281,34 @@ bool PragaProject::computeRadiationList(QString fileName)
     double utmX, utmY;
     double myPotentialRad;
 
-    interpolationSettings.setCurrentCombination(interpolationSettings.getSelectedCombination());
-
-    int proxyIndex = 0;
-    std::vector <gis::Crit3DRasterGrid*> meteoGridProxies;
-    if (! meteoGridAggregateProxy(meteoGridProxies)) return false;
 
     for (int i = 0; i < radPointsList.size(); i++)
     {
+        //
         myPoint = radPointsList[i];
+
+        if (myPoint.endDate < myPoint.iniDate || (myPoint.endDate == myPoint.iniDate && myPoint.iniHour > myPoint.endHour))
+        {
+            logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
+            logInfo("Wrong dates");
+            continue;
+        }
+
         Crit3DDate myDate = myPoint.iniDate;
         int myHour = myPoint.iniHour;
 
         gis::getUtmFromLatLon(gisSettings, myPoint.radPoint.lat, myPoint.radPoint.lon, &utmX, &utmY);
 
         myProxyValues.clear();
-        myProxyValues.resize(unsigned(interpolationSettings.getProxyNr()));
-
-        for (int j =0; j < interpolationSettings.getProxyNr(); j++)
-        {
-            myProxyValues[j] = NODATA;
-
-            if (interpolationSettings.getSelectedCombination().isProxyActive(j))
-            {
-                if (proxyIndex < meteoGridProxies.size())
-                {
-                    float proxyValue = gis::getValueFromXY(*meteoGridProxies[proxyIndex], utmX, utmY);
-                    if (proxyValue != meteoGridProxies[proxyIndex]->header->flag)
-                        myProxyValues[j] = double(proxyValue);
-                }
-
-                proxyIndex++;
-            }
-        }
+        myProxyValues.push_back(DEM.getValueFromXY(utmX, utmY));
 
         QFile outputFile(QString::fromStdString(myPoint.fileName));
 
         if (! outputFile.open(QIODevice::WriteOnly | QFile::Append))
         {
-            return false;
+            logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
+            logInfo("Unable to find output folder or open file");
+            continue;
         }
 
         QTextStream outStream(&outputFile);
@@ -5338,27 +5317,27 @@ bool PragaProject::computeRadiationList(QString fileName)
         while (!(myDate > myPoint.endDate) && !(myDate == myPoint.endDate && myHour > myPoint.endHour))
         {
             myTime.date = myDate;
-            myTime.time = myHour * 3600;
+            myTime.time = (myHour-0.5) * 3600;
 
             interpolationPoints.clear();
 
             //air temperature
-            if (! checkAndPassDataToInterpolation(quality, airTemperature, meteoPoints, nrMeteoPoints, myTime,
-                                                 &qualityInterpolationSettings, &interpolationSettings, meteoSettings,
-                                                 &climateParameters, interpolationPoints,
-                                                 checkSpatialQuality, errorStdStr))
-                return false;
-
-            if (! preInterpolation(interpolationPoints, &interpolationSettings, meteoSettings, &climateParameters,
-                                  meteoPoints, nrMeteoPoints, airTemperature, myTime, errorStdStr))
+            if (checkAndPassDataToInterpolation(quality, airTemperature, meteoPoints, nrMeteoPoints, myTime,
+                                                &qualityInterpolationSettings, &interpolationSettings, meteoSettings,
+                                                &climateParameters, interpolationPoints,
+                                                checkSpatialQuality, errorStdStr) &&
+                preInterpolation(interpolationPoints, &interpolationSettings, meteoSettings, &climateParameters,
+                                 meteoPoints, nrMeteoPoints, airTemperature, myTime, errorStdStr))
             {
-                return false;
+                myTemperature = interpolate(interpolationPoints, &interpolationSettings, meteoSettings, airTemperature, utmX, utmY,
+                                            myPoint.radPoint.height, myProxyValues, false);
             }
-
-
-            myTemperature = interpolate(interpolationPoints, &interpolationSettings, meteoSettings, airTemperature, utmX, utmY,
-                                      myPoint.radPoint.height, myProxyValues, false);
-
+            else
+            {
+                logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
+                logInfo("Error interpolating temperature.");
+                continue;
+            }
 
             //pressione
             myPressure = pressureFromAltitude(myPoint.radPoint.height) / 100; //pressureFromAltitude in Pa
@@ -5375,29 +5354,41 @@ bool PragaProject::computeRadiationList(QString fileName)
             intervalWidth = radiation::estimateTransmissivityWindow(&radSettings, DEM, DEM.getCenter(), myTime, int(HOUR_SECONDS));
 
             if (! computeTransmissivity(&radSettings, meteoPoints, nrMeteoPoints, intervalWidth, myTime, DEM))
-                return false;
+            {
+                logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
+                logInfo("Error computing transmissivity.");
+                continue;
+            }
 
             interpolationPoints.clear();
 
-            if (! checkAndPassDataToInterpolation(quality, atmTransmissivity, meteoPoints, nrMeteoPoints, myTime,
-                                                 &qualityInterpolationSettings, &interpolationSettings, meteoSettings,
-                                                 &climateParameters, interpolationPoints,
-                                                 checkSpatialQuality, errorStdStr))
-                return false;
-
-            if (! preInterpolation(interpolationPoints, &interpolationSettings, meteoSettings, &climateParameters,
-                                  meteoPoints, nrMeteoPoints, atmTransmissivity, myTime, errorStdStr))
+            if (checkAndPassDataToInterpolation(quality, atmTransmissivity, meteoPoints, nrMeteoPoints, myTime,
+                                                &qualityInterpolationSettings, &interpolationSettings, meteoSettings,
+                                                &climateParameters, interpolationPoints,
+                                                checkSpatialQuality, errorStdStr) &&
+                preInterpolation(interpolationPoints, &interpolationSettings, meteoSettings, &climateParameters,
+                                 meteoPoints, nrMeteoPoints, atmTransmissivity, myTime, errorStdStr))
             {
-                return false;
+                myTransmissivity = interpolate(interpolationPoints, &interpolationSettings, meteoSettings, atmTransmissivity, utmX,
+                                               utmY, myPoint.radPoint.height, myProxyValues, false);
+            }
+            else
+            {
+                logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
+                logInfo("Error interpolating transmissivity.");
+                continue;
             }
 
-            myTransmissivity = interpolate(interpolationPoints, &interpolationSettings, meteoSettings, atmTransmissivity, utmX,
-                                                  utmY, myPoint.radPoint.height, myProxyValues, false);
 
             //radiation
-            radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
+            if (! radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
                                             radSettings.getLinke(), radSettings.getAlbedo(), radSettings.getClearSky(),
-                                            myTransmissivity, &sunPosition, &(myPoint.radPoint), DEM);
+                                            myTransmissivity, &sunPosition, &(myPoint.radPoint), DEM))
+            {
+                logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
+                logInfo("Error computing point radiation.");
+                continue;
+            }
 
             QTextStream outStream(&outputFile);
 
@@ -5429,6 +5420,7 @@ bool PragaProject::computeRadiationList(QString fileName)
             }
         }
 
+        logInfo("Elaboration finished for " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
         outputFile.close();
     }
     return true;

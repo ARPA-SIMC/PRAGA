@@ -6989,12 +6989,12 @@ void MainWindow::on_actionWaterTable_computeAllWells_triggered()
 
         if (myProject.waterTableList.last().getIdWell() == idStr)
         {
-            QString text = "ID: " + idStr;
+            QString text = " ID: " + idStr;
             text += "\n R2: " + QString::number(myProject.waterTableList.last().getR2(),'f', 2);
             text += "\n H0: " + QString::number(myProject.waterTableList.last().getH0(),'f', 2);
             text += "\n alpha: " + QString::number(myProject.waterTableList.last().getAlpha(),'f', 2);
-            text += "\n nr.Days: " + QString::number(myProject.waterTableList.last().getNrDaysPeriod());
-
+            text += "\n nr. days: " + QString::number(myProject.waterTableList.last().getNrDaysPeriod());
+            text += "\n avg daily CWB: " + QString::number(myProject.waterTableList.last().getAvgDailyCWB(),'f', 2);
             wellsListObj[i]->SquareObject::setToolTip(text);
         }
 
