@@ -866,7 +866,11 @@ void Crit3DHomogeneityWidget::findReferenceStations()
                 default:
                 {
                     float value = mpToBeComputed.getMeteoPointValueD(getCrit3DDate(myDate), myVar, meteoSettings);
-                    if (value == NODATA)
+                    if (value != NODATA)
+                    {
+                        meteoPointTemp.setMeteoPointValueD(getCrit3DDate(myDate), myVar, value);
+                    }
+                    else
                     {
                         // missing dato, check joit station
                         for (int j = 0; j<jointStationsListMpToBeComputed.size(); j++)
