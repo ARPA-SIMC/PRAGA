@@ -354,17 +354,17 @@ bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<fl
         {
             if (isLeapYear(i))
             {
-                nLeapYears = nLeapYears + 1;
+                nLeapYears++;
                 leapYear = i;
             }
-            totYears = totYears + 1;
+            totYears++;
         }
 
         float minPerc = meteoSettings->getMinimumPercentage();
 
         if (nLeapYears == 0)
         {
-            nDays = nDays - 1;
+            nDays--;
         }
 
         for (int i = 1; i<=nDays; i++)
