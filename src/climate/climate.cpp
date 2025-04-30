@@ -1166,10 +1166,27 @@ float loadHourlyVarSeries(Crit3DMeteoPointsDbHandler* meteoPointsDbHandler,
 }
 
 
+// compute daily Thom using Tavg e RHavg
+float thomDailyAvg(float tempAvg, float rhAvg)
+{
+    Crit3DQuality qualityCheck;
+    quality::qualityType qualityT = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureAvg, tempAvg);
+    quality::qualityType qualityRelHumAir = qualityCheck.syntacticQualitySingleValue(dailyAirRelHumidityAvg, rhAvg);
+
+
+    // TODO nella versione vb ammessi anche i qualitySuspectData, questo tipo per ora non è stato implementato
+    if ( qualityT == quality::accepted && qualityRelHumAir == quality::accepted )
+    {
+        return computeThomIndex(tempAvg, rhAvg);
+    }
+
+    return NODATA;
+}
+
+
 // compute daily Thom using Tmax e RHmin
 float thomDayTime(float tempMax, float relHumMinAir)
 {
-
     Crit3DQuality qualityCheck;
     quality::qualityType qualityT = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureMax, tempMax);
     quality::qualityType qualityRelHumMinAir = qualityCheck.syntacticQualitySingleValue(dailyAirRelHumidityMin, relHumMinAir);
@@ -1651,8 +1668,8 @@ bool elaborateDailyAggregatedVar(meteoVariable myVar, Crit3DMeteoPoint meteoPoin
     }
     else
         return false;
-
 }
+
 
 bool elaborateDailyAggrVarFromStartDate(meteoVariable myVar, Crit3DMeteoPoint meteoPoint, QDate first, QDate last, std::vector<float> &outputValues, float* percValue, Crit3DMeteoSettings* meteoSettings)
 {
@@ -1665,7 +1682,7 @@ bool elaborateDailyAggrVarFromStartDate(meteoVariable myVar, Crit3DMeteoPoint me
 frequencyType getAggregationFrequency(meteoVariable myVar)
 {
 
-    if (myVar == dailyThomHoursAbove || myVar == dailyThomAvg || myVar == dailyThomMax || myVar == dailyLeafWetness || myVar == dailyTemperatureHoursAbove)
+    if (myVar == dailyThomHoursAbove || myVar == dailyThomMax || myVar == dailyLeafWetness || myVar == dailyTemperatureHoursAbove)
     {
         return hourly;
     }
@@ -1677,13 +1694,12 @@ frequencyType getAggregationFrequency(meteoVariable myVar)
     {
         return noFrequency;
     }
-
 }
+
 
 bool elaborateDailyAggregatedVarFromDaily(meteoVariable myVar, Crit3DMeteoPoint meteoPoint, Crit3DMeteoSettings* meteoSettings,
                                           std::vector<float> &outputValues, float* percValue)
 {
-
     float res;
     int nrValidValues = 0;
     Crit3DDate date = meteoPoint.obsDataD[0].date;
@@ -1693,6 +1709,9 @@ bool elaborateDailyAggregatedVarFromDaily(meteoVariable myVar, Crit3DMeteoPoint 
     {
         switch(myVar)
         {
+        case dailyThomAvg:
+            res = thomDailyAvg(meteoPoint.obsDataD[index].tAvg, meteoPoint.obsDataD[index].rhAvg);
+            break;
         case dailyThomDaytime:
                 res = thomDayTime(meteoPoint.obsDataD[index].tMax, meteoPoint.obsDataD[index].rhMin);
             break;
@@ -2303,7 +2322,6 @@ bool preElaboration(Crit3DMeteoPointsDbHandler* meteoPointsDbHandler, Crit3DMete
             }
             break;
         }
-
         case dailyThomNighttime:
         {
             if (loadDailyVarSeries(meteoPointsDbHandler, meteoGridDbHandler, meteoPoint, isMeteoGrid, dailyAirRelHumidityMax, startDate, endDate, myError) > 0)
@@ -2315,7 +2333,18 @@ bool preElaboration(Crit3DMeteoPointsDbHandler* meteoPointsDbHandler, Crit3DMete
             }
             break;
         }
-        case dailyThomAvg: case dailyThomMax: case dailyThomHoursAbove:
+        case dailyThomAvg:
+        {
+            if (loadDailyVarSeries(meteoPointsDbHandler, meteoGridDbHandler, meteoPoint, isMeteoGrid, dailyAirTemperatureAvg, startDate, endDate, myError) > 0)
+            {
+                if (loadDailyVarSeries(meteoPointsDbHandler, meteoGridDbHandler, meteoPoint, isMeteoGrid, dailyAirRelHumidityAvg, startDate, endDate, myError)  > 0)
+                {
+                    myResult = elaborateDailyAggregatedVar(variable, *meteoPoint, outputValues, percValue, meteoSettings);
+                }
+            }
+            break;
+        }
+        case dailyThomMax: case dailyThomHoursAbove:
         {
             if (loadHourlyVarSeries(meteoPointsDbHandler, meteoGridDbHandler, meteoPoint, isMeteoGrid, airTemperature, QDateTime(startDate,QTime(1,0,0),Qt::UTC), QDateTime(endDate.addDays(1),QTime(0,0,0),Qt::UTC), myError) > 0)
             {
@@ -2326,6 +2355,7 @@ bool preElaboration(Crit3DMeteoPointsDbHandler* meteoPointsDbHandler, Crit3DMete
             }
             break;
         }
+
         case dailyBIC:
         {
             if (loadDailyVarSeries(meteoPointsDbHandler, meteoGridDbHandler, meteoPoint, isMeteoGrid, dailyReferenceEvapotranspirationHS, startDate, endDate, myError) > 0)

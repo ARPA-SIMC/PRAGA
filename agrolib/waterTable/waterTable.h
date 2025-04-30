@@ -29,20 +29,13 @@ class WaterTable
         void initializeWaterTable(const Well &myWell);
         void cleanAllVectors();
 
-        void setInputTMin(const std::vector<float> &inputTMin) { _inputTMin = inputTMin; }
-        void setInputTMax(const std::vector<float> &inputTMax) { _inputTMax = inputTMax; }
-        void setInputPrec(const std::vector<float> &inputPrec) { _inputPrec = inputPrec; }
-
-        void setMeteoSettings(const Crit3DMeteoSettings &meteoSettings) { _meteoSettings = meteoSettings; }
-        void setFirstMeteoDate(const QDate &myDate) { _firstMeteoDate = myDate; }
-        void setLastMeteoDate(const QDate &myDate) { _lastMeteoDate = myDate; }
-
         void setLatLon(double lat, double lon)
         {
             _well.setLatitude(lat);
             _well.setLongitude(lon);
         }
 
+        bool initializeMeteoData(const QDate &firstDate, const QDate &lastDate);
         bool setMeteoData(const QDate &date, float tmin, float tmax, float prec);
 
         void setParameters(int nrDaysPeriod, double alpha, double h0, double avgDailyCWB);
@@ -55,7 +48,7 @@ class WaterTable
         double computeCWB(const QDate &myDate, int nrDays);
         bool computeWaterTableIndices();
 
-        float getWaterTableDaily(const QDate &myDate);
+        double getWaterTableDaily(const QDate &myDate);
         float getWaterTableClimate(const QDate &myDate) const;
 
         bool computeWaterTableClimate(const QDate &currentDate, int yearFrom, int yearTo, float &myValue);

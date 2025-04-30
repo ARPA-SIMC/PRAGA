@@ -5182,16 +5182,12 @@ bool PragaProject::computeRadiationList(QString fileName)
         return false;
     }
 
-    //non aggiungo il log, sarà quello del progetto?
-    //fileName corrisoppnde a EI_list.txt
-
     QFile myFile(fileName);
     if (!myFile.open(QIODevice::ReadOnly))
     {
         logError("Open input file failed:\n" + fileName + "\n" + myFile.errorString());
         return false;
     }
-
 
     QTextStream myStream (&myFile);
     QList<QString> line;
@@ -5223,7 +5219,7 @@ bool PragaProject::computeRadiationList(QString fileName)
         else
         {
             QString tempPath = PATH_PROJECT;
-            tempPath += "EnergyIntelligence/Output/";
+            tempPath += "EnergyIntelligence/Output/"; //todo check
             temp.fileName = getCompleteFileName(line[0] + "_out.txt", tempPath).toStdString();
 
             temp.radPoint.lat = line[1].toFloat();
@@ -5258,7 +5254,7 @@ bool PragaProject::computeRadiationList(QString fileName)
         }
     }
 
-    //
+    //loading dei dati orari
     for (int i=0; i < nrMeteoPoints; i++)
     {
         if (!meteoPointsDbHandler->loadHourlyData(loadIniDate, loadEndDate, meteoPoints[i]))
@@ -5268,6 +5264,7 @@ bool PragaProject::computeRadiationList(QString fileName)
         }
     }
 
+    //elaborazione sui punti del file di input
     TelabRadPoint myPoint;
     Crit3DTime myTime;
 
@@ -5284,9 +5281,10 @@ bool PragaProject::computeRadiationList(QString fileName)
 
     for (int i = 0; i < radPointsList.size(); i++)
     {
-        //
+
         myPoint = radPointsList[i];
 
+        //check date
         if (myPoint.endDate < myPoint.iniDate || (myPoint.endDate == myPoint.iniDate && myPoint.iniHour > myPoint.endHour))
         {
             logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
@@ -5300,9 +5298,10 @@ bool PragaProject::computeRadiationList(QString fileName)
         gis::getUtmFromLatLon(gisSettings, myPoint.radPoint.lat, myPoint.radPoint.lon, &utmX, &utmY);
 
         myProxyValues.clear();
-        myProxyValues.push_back(DEM.getValueFromXY(utmX, utmY));
+        myProxyValues.push_back(myPoint.radPoint.height);
 
         QFile outputFile(QString::fromStdString(myPoint.fileName));
+        outputFile.remove();
 
         if (! outputFile.open(QIODevice::WriteOnly | QFile::Append))
         {
@@ -5346,7 +5345,7 @@ bool PragaProject::computeRadiationList(QString fileName)
 
             //potential radiation & transmissivity
             radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
-                                            radSettings.getLinke(), radSettings.getAlbedo(), radSettings.getClearSky(),
+                                            radSettings.getLinke(myTime.date.month-1), radSettings.getAlbedo(), radSettings.getClearSky(),
                                             radSettings.getClearSky(), &sunPosition, &(myPoint.radPoint), DEM);
 
             myPotentialRad = myPoint.radPoint.global;
@@ -5382,7 +5381,7 @@ bool PragaProject::computeRadiationList(QString fileName)
 
             //radiation
             if (! radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
-                                            radSettings.getLinke(), radSettings.getAlbedo(), radSettings.getClearSky(),
+                                            radSettings.getLinke(myTime.date.month-1), radSettings.getAlbedo(), radSettings.getClearSky(),
                                             myTransmissivity, &sunPosition, &(myPoint.radPoint), DEM))
             {
                 logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
