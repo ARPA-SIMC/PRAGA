@@ -375,7 +375,12 @@ bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<fl
             }
             else
             {
-                startD = getDateFromDoy(leapYear, i);
+                //startD = getDateFromDoy(leapYear, i);
+                if (!getDateFromDoy(leapYear,i,&startD))
+                {
+                    //startD = {31,12,leapYear};
+                    continue;
+                }
             }
             endD = startD;
 
