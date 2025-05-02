@@ -3543,10 +3543,23 @@ void MainWindow::on_actionInterpolationCVPeriod_triggered()
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
 
+    FormText formLoadInterval("Insert number of days for load interval");
+    if (formLoadInterval.result() == QDialog::Rejected)
+        return;
+
+    QString loadIntervalString = formLoadInterval.getText();
+    if (loadIntervalString == "")
+        return;
+
+    bool isValid;
+    int loadInterval = loadIntervalString.toInt(&isValid);
+    if (! isValid)
+        myProject.logError("Invalid width: " + loadIntervalString);
+
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save current CV output"), "", tr("text file (*.txt)"));
     if (fileName == "") return;
 
-    if (myProject.interpolationCrossValidationPeriod(myFirstTime.date(), myLastTime.date(), myVar, fileName))
+    if (myProject.interpolationCrossValidationPeriod(myFirstTime.date(), myLastTime.date(), myVar, fileName, loadInterval))
         myProject.closeLogInfo();
     else
         myProject.logError();

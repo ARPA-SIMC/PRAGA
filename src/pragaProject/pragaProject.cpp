@@ -3114,7 +3114,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     return true;
 }
 
-bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateFin, meteoVariable myVar, QString filename)
+bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateFin, meteoVariable myVar, QString filename, int nrDaysLoading)
 {
     // check meteo point
     if (! meteoPointsLoaded || nrMeteoPoints == 0)
@@ -3139,6 +3139,11 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
         return false;
     }
 
+    if (nrDaysLoading == NODATA)
+    {
+        nrDaysLoading = dateIni.daysTo(dateFin)+1;
+    }
+
     // order variables for derived computation
     std::string errString;
     int myHour;
@@ -3159,20 +3164,35 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
         return false;
     }
 
-    // loading point data
+    /*// loading point data
     logInfoGUI("Loading meteo points data from " + dateIni.addDays(-1).toString("yyyy-MM-dd") + " to " + dateFin.toString("yyyy-MM-dd"));
     // load one day before (for transmissivity)
     if (! loadMeteoPointsData(dateIni, dateFin, myFreq == hourly, myFreq == daily, false))
-        return false;
+        return false;*/
 
     Crit3DTime myTime;
 
     QTextStream cvOutput(&file);
     cvOutput << "Time,MAE,MBE,RMSE,NS,R2" << '\n';
+    QDate loadDateFin = QDate(1800, 1, 1);
 
     logInfoGUI("Cross validating " + QString::fromStdString(getMeteoVarName(myVar)) + " from " + dateIni.toString("yyyy-MM-dd") + " to " + dateFin.toString("yyyy-MM-dd"));
     while (myDate <= dateFin)
     {
+
+        // check if load needed
+        if (myDate == dateIni || myDate > loadDateFin)
+        {
+            loadDateFin = myDate.addDays(nrDaysLoading-1);
+            if (loadDateFin > dateFin) loadDateFin = dateFin;
+
+            logInfoGUI("Loading meteo points data from " + myDate.addDays(-1).toString("yyyy-MM-dd") + " to " + loadDateFin.toString("yyyy-MM-dd"));
+
+            // load one day before (for transmissivity)
+            if (! loadMeteoPointsData(myDate.addDays(-1), loadDateFin, myFreq == hourly, myFreq == daily, false))
+                return false;
+        }
+
         logInfoGUI(myDate.toString("yyyy-MM-dd"));
 
         if (getVarFrequency(myVar) == hourly)
@@ -3183,12 +3203,19 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
 
                 if (interpolationCv(myVar, myTime))
                 {
-                    cvOutput << getQDateTime(myTime).toString();
-                    cvOutput << "," << crossValidationStatistics.getMeanAbsoluteError();
-                    cvOutput << "," << crossValidationStatistics.getMeanBiasError();
-                    cvOutput << "," << crossValidationStatistics.getRootMeanSquareError();
-                    cvOutput << "," << crossValidationStatistics.getNashSutcliffeEfficiency();
-                    cvOutput << "," << crossValidationStatistics.getR2() << '\n';
+                    if (interpolationSettings.getUseGlocalDetrending())
+                    {
+                        cvOutput << getQDateTime(myTime).toString();
+                    }
+                    else
+                    {
+                        cvOutput << getQDateTime(myTime).toString();
+                        cvOutput << "," << crossValidationStatistics.getMeanAbsoluteError();
+                        cvOutput << "," << crossValidationStatistics.getMeanBiasError();
+                        cvOutput << "," << crossValidationStatistics.getRootMeanSquareError();
+                        cvOutput << "," << crossValidationStatistics.getNashSutcliffeEfficiency();
+                        cvOutput << "," << crossValidationStatistics.getR2() << '\n';
+                    }
                 }
             }
         }
@@ -3198,12 +3225,19 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
 
             if (interpolationCv(myVar, myTime))
             {
-                cvOutput << getQDateTime(myTime).date().toString();
-                cvOutput << "," << crossValidationStatistics.getMeanAbsoluteError();
-                cvOutput << "," << crossValidationStatistics.getMeanBiasError();
-                cvOutput << "," << crossValidationStatistics.getRootMeanSquareError();
-                cvOutput << "," << crossValidationStatistics.getNashSutcliffeEfficiency();
-                cvOutput << "," << crossValidationStatistics.getR2() << '\n';
+                if (interpolationSettings.getUseGlocalDetrending())
+                {
+                    cvOutput << getQDateTime(myTime).date().toString();
+                }
+                else
+                {
+                    cvOutput << getQDateTime(myTime).date().toString();
+                    cvOutput << "," << crossValidationStatistics.getMeanAbsoluteError();
+                    cvOutput << "," << crossValidationStatistics.getMeanBiasError();
+                    cvOutput << "," << crossValidationStatistics.getRootMeanSquareError();
+                    cvOutput << "," << crossValidationStatistics.getNashSutcliffeEfficiency();
+                    cvOutput << "," << crossValidationStatistics.getR2() << '\n';
+                }
             }
         }
 

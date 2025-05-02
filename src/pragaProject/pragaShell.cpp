@@ -603,6 +603,8 @@ int cmdInterpolationCrossValidation(PragaProject* myProject, QList<QString> argu
     std::string varString;
     meteoVariable meteoVar = noMeteoVar;
     QString fileName = "";
+    int loadInterval = NODATA;
+    bool parseLoadInterval;
 
     for (int i = 1; i < argumentList.size(); i++)
     {
@@ -628,6 +630,10 @@ int cmdInterpolationCrossValidation(PragaProject* myProject, QList<QString> argu
         {
             dateFin = QDate::currentDate().addDays(-1);
             dateIni = dateFin.addDays(-6);
+        }
+        else if (argumentList.at(i).left(3) == "-l:")
+        {
+            loadInterval = argumentList[i].right(argumentList[i].length()-3).toInt(&parseLoadInterval);
         }
     }
 
@@ -655,7 +661,13 @@ int cmdInterpolationCrossValidation(PragaProject* myProject, QList<QString> argu
         return PRAGA_INVALID_COMMAND;
     }
 
-    if (! myProject->interpolationCrossValidationPeriod(dateIni, dateFin, meteoVar, fileName))
+    if (! parseLoadInterval)
+    {
+        myProject->errorString = "Wrong interval for data loading.";
+        return PRAGA_INVALID_COMMAND;
+    }
+
+    if (! myProject->interpolationCrossValidationPeriod(dateIni, dateFin, meteoVar, fileName, loadInterval))
         return PRAGA_ERROR;
 
     return PRAGA_OK;
