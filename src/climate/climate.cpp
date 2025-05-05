@@ -343,8 +343,7 @@ bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<fl
         bool okAtLeastOne = false;
         int nLeapYears = 0;
         int totYears = 0;
-        int nDays = 366;
-        int leapYear;
+        int lastLeapYear;
         std::vector<float> allResults;
 
         Crit3DDate startD;
@@ -355,36 +354,29 @@ bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<fl
             if (isLeapYear(i))
             {
                 nLeapYears++;
-                leapYear = i;
+                lastLeapYear = i;
             }
             totYears++;
         }
 
         float minPerc = meteoSettings->getMinimumPercentage();
 
-        if (nLeapYears == 0)
-        {
-            nDays--;
-        }
-
-        for (int i = 1; i<=nDays; i++)
+        for (int doy = 1; doy<=366; doy++)
         {
             if (nLeapYears == 0)
             {
-                startD = getDateFromDoy(clima->yearStart(), i);
+                startD = getDateFromDoy(clima->yearStart(), doy);
             }
             else
             {
-                //startD = getDateFromDoy(leapYear, i);
-                if (!getDateFromDoy(leapYear,i,&startD))
+                if (! getDateFromDoy(lastLeapYear,doy,&startD))
                 {
-                    //startD = {31,12,leapYear};
                     continue;
                 }
             }
             endD = startD;
 
-            if (i == 366)
+            if (doy == 366)
             {
                 meteoSettings->setMinimumPercentage(minPerc * nLeapYears/totYears);
             }
