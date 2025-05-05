@@ -604,6 +604,7 @@ int cmdInterpolationCrossValidation(PragaProject* myProject, QList<QString> argu
     meteoVariable meteoVar = noMeteoVar;
     QString fileName = "";
     int loadInterval = NODATA;
+    QString glocalCVPointsName;
     bool parseLoadInterval;
 
     for (int i = 1; i < argumentList.size(); i++)
@@ -667,7 +668,7 @@ int cmdInterpolationCrossValidation(PragaProject* myProject, QList<QString> argu
         return PRAGA_INVALID_COMMAND;
     }
 
-    if (! myProject->interpolationCrossValidationPeriod(dateIni, dateFin, meteoVar, fileName, loadInterval))
+    if (! myProject->interpolationCrossValidationPeriod(dateIni, dateFin, meteoVar, fileName, loadInterval, glocalCVPointsName))
         return PRAGA_ERROR;
 
     return PRAGA_OK;

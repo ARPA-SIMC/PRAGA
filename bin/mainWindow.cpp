@@ -552,7 +552,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
                         if ( ! myProject.interpolationSettings.isGlocalReady(false))
                         {
-                            if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false))
+                            if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false, myProject.getCompleteFileName(myProject.glocalPointsName, PATH_GEO)))
                             {
                                 myProject.logError("Error in loading glocal files.");
                                 return;
@@ -636,7 +636,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
 
                     if ( ! myProject.interpolationSettings.isGlocalReady(false))
                     {
-                        if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false))
+                        if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false, myProject.getCompleteFileName(myProject.glocalPointsName, PATH_GEO)))
                         {
                             return;
                         }
@@ -3495,7 +3495,9 @@ void MainWindow::on_actionInterpolationCVCurrentTime_triggered()
     }
 
     bool isComputed = false;
-    isComputed = myProject.interpolationCv(currentVariable, myProject.getCrit3DCurrentTime());
+    QString glocalCVPointsName;
+
+    isComputed = myProject.interpolationCv(currentVariable, myProject.getCrit3DCurrentTime(), glocalCVPointsName);
 
     myProject.closeLogInfo();
 
@@ -3559,7 +3561,9 @@ void MainWindow::on_actionInterpolationCVPeriod_triggered()
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save current CV output"), "", tr("text file (*.txt)"));
     if (fileName == "") return;
 
-    if (myProject.interpolationCrossValidationPeriod(myFirstTime.date(), myLastTime.date(), myVar, fileName, loadInterval))
+    QString glocalCVPointsName;
+
+    if (myProject.interpolationCrossValidationPeriod(myFirstTime.date(), myLastTime.date(), myVar, fileName, loadInterval, glocalCVPointsName))
         myProject.closeLogInfo();
     else
         myProject.logError();
@@ -7152,7 +7156,7 @@ void MainWindow::on_actionMark_macro_area_stations_triggered()
 
     if (myProject.interpolationSettings.getUseGlocalDetrending() && ! myProject.interpolationSettings.isGlocalReady(false))
     {
-        if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false))
+        if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false, myProject.getCompleteFileName(myProject.glocalPointsName, PATH_GEO)))
         {
             return;
         }
@@ -7264,7 +7268,7 @@ void MainWindow::on_actionLoad_stations_file_triggered()
 
     myProject.logInfoGUI("Loading stations file...");
 
-    if (! myProject.loadGlocalStationsAndCells(myProject.meteoGridLoaded))
+    if (! myProject.loadGlocalStationsAndCells(myProject.meteoGridLoaded, myProject.getCompleteFileName(myProject.glocalPointsName, PATH_GEO)))
     {
         myProject.closeLogInfo();
         myProject.logWarning();

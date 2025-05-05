@@ -2774,7 +2774,7 @@ bool PragaProject::interpolationMeteoGrid(meteoVariable myVar, frequencyType myF
     if (interpolationSettings.getUseGlocalDetrending() && ! interpolationSettings.isGlocalReady(!interpolationSettings.getMeteoGridUpscaleFromDem()))
     {
         if (! loadGlocalAreasMap()) return false;
-        if (! loadGlocalStationsAndCells(!interpolationSettings.getMeteoGridUpscaleFromDem())) return false;
+        if (! loadGlocalStationsAndCells(!interpolationSettings.getMeteoGridUpscaleFromDem(), getCompleteFileName(glocalPointsName, PATH_GEO))) return false;
     }
 
     if (interpolationSettings.getMeteoGridUpscaleFromDem())
@@ -2987,7 +2987,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     if (interpolationSettings.getUseGlocalDetrending() && ! interpolationSettings.isGlocalReady(!interpolationSettings.getMeteoGridUpscaleFromDem()))
     {
         if (! loadGlocalAreasMap()) return false;
-        if (! loadGlocalStationsAndCells(!interpolationSettings.getMeteoGridUpscaleFromDem())) return false;
+        if (! loadGlocalStationsAndCells(!interpolationSettings.getMeteoGridUpscaleFromDem(), getCompleteFileName(glocalPointsName, PATH_GEO))) return false;
     }
 
     // save also derived variables
@@ -3114,8 +3114,8 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     return true;
 }
 
-bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateFin, meteoVariable myVar, QString filename, int nrDaysLoading)
-{
+bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateFin, meteoVariable myVar, QString filename, int nrDaysLoading, QString glocalCVPointsName)
+{    
     // check meteo point
     if (! meteoPointsLoaded || nrMeteoPoints == 0)
     {
@@ -3201,7 +3201,7 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
             {
                 myTime = getCrit3DTime(myDate, myHour);
 
-                if (interpolationCv(myVar, myTime))
+                if (interpolationCv(myVar, myTime, glocalCVPointsName))
                 {
                     if (interpolationSettings.getUseGlocalDetrending())
                     {
@@ -3223,7 +3223,7 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
         {
             myTime = getCrit3DTime(myDate, 0);
 
-            if (interpolationCv(myVar, myTime))
+            if (interpolationCv(myVar, myTime, glocalCVPointsName))
             {
                 if (interpolationSettings.getUseGlocalDetrending())
                 {
