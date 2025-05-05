@@ -69,7 +69,8 @@
 
     bool climateOnPoint(QString *myError, Crit3DMeteoPointsDbHandler* meteoPointsDbHandler, Crit3DMeteoGridDbHandler* meteoGridDbHandler, Crit3DClimate* clima, Crit3DMeteoPoint *meteoPointTemp, std::vector<float> &outputValues, bool isMeteoGrid, QDate startDate, QDate endDate, bool changeDataSet, Crit3DMeteoSettings *meteoSettings);
 
-    bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<float> &outputValues, Crit3DMeteoPoint* meteoPoint, meteoComputation elab1, meteoComputation elab2, Crit3DMeteoSettings *meteoSettings);
+    bool climateTemporalCycle(QString *errorStr, Crit3DClimate* clima, std::vector<float> &outputValues, Crit3DMeteoPoint* meteoPoint,
+                              meteoComputation elab1, meteoComputation elab2, Crit3DMeteoSettings* meteoSettings);
 
     bool dailyCumulatedClimate(QString *myError, std::vector<float> &inputValues, Crit3DClimate* clima, Crit3DMeteoPoint* meteoPoint, meteoComputation elab2, Crit3DMeteoSettings* meteoSettings);
 
@@ -136,7 +137,7 @@
 
     int getNumberClimateIndexFromElab(QString elab);
 
-    period getPeriodTypeFromString(QString periodStr);
+    climatePeriod getPeriodTypeFromString(QString periodStr);
 
     int nParameters(meteoComputation elab);
 

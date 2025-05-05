@@ -2,6 +2,8 @@
 
 #include "commonConstants.h"
 #include "crit3dClimate.h"
+#include "meteo.h"
+#include "crit3dClimateList.h"
 
 
 Crit3DClimate::Crit3DClimate()
@@ -215,12 +217,12 @@ void Crit3DClimate::setParam2(float param2)
     _param2 = param2;
 }
 
-period Crit3DClimate::periodType() const
+climatePeriod Crit3DClimate::periodType() const
 {
     return _periodType;
 }
 
-void Crit3DClimate::setPeriodType(const period &periodType)
+void Crit3DClimate::setPeriodType(const climatePeriod &periodType)
 {
     _periodType = periodType;
 }
@@ -285,12 +287,12 @@ void Crit3DClimate::setCurrentYearEnd(int currentYearEnd)
     _currentYearEnd = currentYearEnd;
 }
 
-period Crit3DClimate::getCurrentPeriodType() const
+climatePeriod Crit3DClimate::getCurrentPeriodType() const
 {
     return _currentPeriodType;
 }
 
-void Crit3DClimate::setCurrentPeriodType(const period &currentPeriodType)
+void Crit3DClimate::setCurrentPeriodType(const climatePeriod &currentPeriodType)
 {
     _currentPeriodType = currentPeriodType;
 }

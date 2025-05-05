@@ -84,12 +84,12 @@ void Crit3DClimateList::setListPeriodStr(const std::vector<QString> &listPeriodS
     _listPeriodStr = listPeriodStr;
 }
 
-std::vector<period> Crit3DClimateList::listPeriodType() const
+std::vector<climatePeriod> Crit3DClimateList::listPeriodType() const
 {
     return _listPeriodType;
 }
 
-void Crit3DClimateList::setListPeriodType(const std::vector<period> &listPeriodType)
+void Crit3DClimateList::setListPeriodType(const std::vector<climatePeriod> &listPeriodType)
 {
     _listPeriodType = listPeriodType;
 }
