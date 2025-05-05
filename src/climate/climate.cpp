@@ -323,6 +323,8 @@ bool climateOnPoint(QString *myError, Crit3DMeteoPointsDbHandler* meteoPointsDbH
 
 bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<float> &outputValues, Crit3DMeteoPoint* meteoPoint, meteoComputation elab1, meteoComputation elab2, Crit3DMeteoSettings* meteoSettings)
 {
+    const int REFERENCE_YEAR = 1999;
+
     QSqlDatabase db = clima->db();
     bool dataAlreadyLoaded = false;
 
@@ -341,45 +343,15 @@ bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<fl
         }
 
         bool okAtLeastOne = false;
-        int nLeapYears = 0;
-        int totYears = 0;
-        int lastLeapYear;
         std::vector<float> allResults;
 
         Crit3DDate startD;
-        Crit3DDate endD;
-
-        for (int i = clima->yearStart(); i<=clima->yearEnd(); i++)
-        {
-            if (isLeapYear(i))
-            {
-                nLeapYears++;
-                lastLeapYear = i;
-            }
-            totYears++;
-        }
 
         float minPerc = meteoSettings->getMinimumPercentage();
 
         for (int doy = 1; doy<=366; doy++)
         {
-            if (nLeapYears == 0)
-            {
-                startD = getDateFromDoy(clima->yearStart(), doy);
-            }
-            else
-            {
-                if (! getDateFromDoy(lastLeapYear,doy,&startD))
-                {
-                    continue;
-                }
-            }
-            endD = startD;
-
-            if (doy == 366)
-            {
-                meteoSettings->setMinimumPercentage(minPerc * nLeapYears/totYears);
-            }
+            startD = getDateFromDoy(REFERENCE_YEAR, doy);
 
             if (clima->param1IsClimate())
             {
@@ -396,19 +368,13 @@ bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<fl
                 }
             }
 
-            result = computeStatistic(outputValues, meteoPoint, clima, startD, endD, clima->nYears(), elab1, elab2, meteoSettings, dataAlreadyLoaded);
+            result = computeStatistic(outputValues, meteoPoint, clima, startD, startD, clima->nYears(), elab1, elab2, meteoSettings, dataAlreadyLoaded);
 
             if (! isEqual(result, NODATA))
             {
                 okAtLeastOne = true;
             }
             allResults.push_back(result);
-        }
-
-        // if there are no leap years, save NODATA into 366row
-        if (nLeapYears == 0)
-        {
-            allResults.push_back(NODATA);
         }
 
         meteoSettings->setMinimumPercentage(minPerc);
@@ -438,10 +404,10 @@ bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<fl
             int dayEnd;
             int month;
 
-            intervalDecade(i, clima->yearStart(), &dayStart, &dayEnd, &month);
+            intervalDecade(i, REFERENCE_YEAR, &dayStart, &dayEnd, &month);
 
-            Crit3DDate startD (dayStart, month, clima->yearStart());
-            Crit3DDate endD (dayEnd, month, clima->yearStart());
+            Crit3DDate startD (dayStart, month, REFERENCE_YEAR);
+            Crit3DDate endD (dayEnd, month, REFERENCE_YEAR);
 
             if (clima->param1IsClimate())
             {
@@ -484,7 +450,6 @@ bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<fl
 
         for (int i = 1; i<=12; i++)
         {
-
             Crit3DDate startD (1, i, clima->yearStart());
             QDate temp(clima->yearEnd(), i, 1);
             int dayEnd = temp.daysInMonth();
