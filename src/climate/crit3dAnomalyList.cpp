@@ -259,17 +259,17 @@ void Crit3DAnomalyList::insertPeriodStr(QString period)
     _listPeriodStr.push_back(period);
 }
 
-std::vector<period> Crit3DAnomalyList::listPeriodType() const
+std::vector<climatePeriod> Crit3DAnomalyList::listPeriodType() const
 {
     return _listPeriodType;
 }
 
-void Crit3DAnomalyList::setListPeriodType(const std::vector<period> &listPeriodType)
+void Crit3DAnomalyList::setListPeriodType(const std::vector<climatePeriod> &listPeriodType)
 {
     _listPeriodType = listPeriodType;
 }
 
-void Crit3DAnomalyList::insertPeriodType(period period)
+void Crit3DAnomalyList::insertPeriodType(climatePeriod period)
 {
     _listPeriodType.push_back(period);
 }
@@ -499,17 +499,17 @@ void Crit3DAnomalyList::insertRefPeriodStr(QString refPeriodStr)
     _listRefPeriodStr.push_back(refPeriodStr);
 }
 
-std::vector<period> Crit3DAnomalyList::listRefPeriodType() const
+std::vector<climatePeriod> Crit3DAnomalyList::listRefPeriodType() const
 {
     return _listRefPeriodType;
 }
 
-void Crit3DAnomalyList::setListRefPeriodType(const std::vector<period> &listRefPeriodType)
+void Crit3DAnomalyList::setListRefPeriodType(const std::vector<climatePeriod> &listRefPeriodType)
 {
     _listRefPeriodType = listRefPeriodType;
 }
 
-void Crit3DAnomalyList::insertRefPeriodType(period refPeriodType)
+void Crit3DAnomalyList::insertRefPeriodType(climatePeriod refPeriodType)
 {
     _listRefPeriodType.push_back(refPeriodType);
 }

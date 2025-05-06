@@ -321,81 +321,239 @@ bool climateOnPoint(QString *myError, Crit3DMeteoPointsDbHandler* meteoPointsDbH
     return false;
 }
 
-bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<float> &outputValues, Crit3DMeteoPoint* meteoPoint, meteoComputation elab1, meteoComputation elab2, Crit3DMeteoSettings* meteoSettings)
+
+bool climateTemporalCycle(QString *errorStr, Crit3DClimate* clima, std::vector<float> &outputValues, Crit3DMeteoPoint* meteoPoint,
+                          meteoComputation elab1, meteoComputation elab2, Crit3DMeteoSettings* meteoSettings)
 {
+    const int REFERENCE_YEAR = 1999;
+
     QSqlDatabase db = clima->db();
     bool dataAlreadyLoaded = false;
 
-    float result;
-    float paramValue;
-
     switch(clima->periodType())
     {
-
-    case dailyPeriod:
-    {
-        clima->setCurrentPeriodType(clima->periodType());
-        if ( clima->dailyCumulated() == true)
+        case dailyPeriod:
         {
-            return dailyCumulatedClimate(myError, outputValues, clima, meteoPoint, elab2, meteoSettings);
-        }
-
-        bool okAtLeastOne = false;
-        int nLeapYears = 0;
-        int totYears = 0;
-        int nDays = 366;
-        int leapYear;
-        std::vector<float> allResults;
-
-        Crit3DDate startD;
-        Crit3DDate endD;
-
-        for (int i = clima->yearStart(); i<=clima->yearEnd(); i++)
-        {
-            if (isLeapYear(i))
+            clima->setCurrentPeriodType(clima->periodType());
+            if ( clima->dailyCumulated() == true)
             {
-                nLeapYears++;
-                leapYear = i;
+                return dailyCumulatedClimate(errorStr, outputValues, clima, meteoPoint, elab2, meteoSettings);
             }
-            totYears++;
-        }
 
-        float minPerc = meteoSettings->getMinimumPercentage();
+            bool okAtLeastOne = false;
+            std::vector<float> allResults;
 
-        if (nLeapYears == 0)
-        {
-            nDays--;
-        }
-
-        for (int i = 1; i<=nDays; i++)
-        {
-            if (nLeapYears == 0)
+            for (int doy = 1; doy<=366; doy++)
             {
-                startD = getDateFromDoy(clima->yearStart(), i);
+                Crit3DDate startD = getDateFromDoy(REFERENCE_YEAR, doy);
+
+                if (clima->param1IsClimate())
+                {
+                    QString table = getTable(clima->param1ClimateField());
+                    int climateIndex = getClimateIndexFromElab(getQDate(startD), clima->param1ClimateField());
+                    if (climateIndex != NODATA)
+                    {
+                        float paramValue = readClimateElab(db, table, climateIndex, QString::fromStdString(meteoPoint->id), clima->param1ClimateField(), errorStr);
+                        clima->setParam1(paramValue);
+                    }
+                    else
+                    {
+                        clima->setParam1(NODATA);
+                    }
+                }
+
+                float result = computeStatistic(outputValues, meteoPoint, clima, startD, startD, clima->nYears(), elab1, elab2, meteoSettings, dataAlreadyLoaded);
+
+                if (! isEqual(result, NODATA))
+                {
+                    okAtLeastOne = true;
+                }
+                allResults.push_back(result);
+            }
+
+            // reset currentPeriod
+            clima->setCurrentPeriodType(noPeriodType);
+
+            if (okAtLeastOne)
+            {
+                return saveDailyElab(db, errorStr, QString::fromStdString(meteoPoint->id), allResults, clima->climateElab());
             }
             else
             {
-                //startD = getDateFromDoy(leapYear, i);
-                if (!getDateFromDoy(leapYear,i,&startD))
-                {
-                    //startD = {31,12,leapYear};
-                    continue;
-                }
+                *errorStr = "No results to save.";
+                return false;
             }
-            endD = startD;
+        }
 
-            if (i == 366)
+        case decadalPeriod:
+        {
+            bool okAtLeastOne = false;
+            std::vector<float> allResults;
+
+            for (int i = 1; i<=36; i++)
             {
-                meteoSettings->setMinimumPercentage(minPerc * nLeapYears/totYears);
+                int dayStart;
+                int dayEnd;
+                int month;
+
+                intervalDecade(i, REFERENCE_YEAR, &dayStart, &dayEnd, &month);
+
+                Crit3DDate startD(dayStart, month, REFERENCE_YEAR);
+                Crit3DDate endD(dayEnd, month, REFERENCE_YEAR);
+
+                if (clima->param1IsClimate())
+                {
+                    QString table = getTable(clima->param1ClimateField());
+                    int climateIndex = getClimateIndexFromElab(getQDate(startD), clima->param1ClimateField());
+                    if (climateIndex != NODATA)
+                    {
+                        float paramValue = readClimateElab(db, table, climateIndex, QString::fromStdString(meteoPoint->id), clima->param1ClimateField(), errorStr);
+                        clima->setParam1(paramValue);
+                    }
+                    else
+                    {
+                        clima->setParam1(NODATA);
+                    }
+                }
+
+                float result = computeStatistic(outputValues, meteoPoint, clima, startD, endD, clima->nYears(), elab1, elab2, meteoSettings, dataAlreadyLoaded);
+
+                if (result != NODATA)
+                {
+                    okAtLeastOne = true;
+                }
+                allResults.push_back(result);
             }
+            if (okAtLeastOne)
+            {
+                return saveDecadalElab(db, errorStr, QString::fromStdString(meteoPoint->id), allResults, clima->climateElab());
+            }
+            else
+            {
+                *errorStr = "no results to save";
+                return false;
+            }
+        }
+
+        case monthlyPeriod:
+        {
+            bool okAtLeastOne = false;
+            std::vector<float> allResults;
+
+            for (int m = 1; m<=12; m++)
+            {
+                Crit3DDate startD (1, m, REFERENCE_YEAR);
+                int lastDay = getDaysInMonth(m, REFERENCE_YEAR);
+                Crit3DDate endD (lastDay, m, REFERENCE_YEAR);
+
+                if (clima->param1IsClimate())
+                {
+                    QString table = getTable(clima->param1ClimateField());
+                    int climateIndex = getClimateIndexFromElab(getQDate(startD), clima->param1ClimateField());
+
+                    if (climateIndex != NODATA)
+                    {
+                        float paramValue = readClimateElab(db, table, climateIndex, QString::fromStdString(meteoPoint->id), clima->param1ClimateField(), errorStr);
+                        clima->setParam1(paramValue);
+                    }
+                    else
+                    {
+                        clima->setParam1(NODATA);
+                    }
+                }
+
+                float result = computeStatistic(outputValues, meteoPoint, clima, startD, endD, clima->nYears(), elab1, elab2, meteoSettings, dataAlreadyLoaded);
+
+                if (result != NODATA)
+                {
+                    okAtLeastOne = true;
+                }
+                allResults.push_back(result);
+            }
+            if (okAtLeastOne)
+            {
+                return saveMonthlyElab(db, errorStr, QString::fromStdString(meteoPoint->id), allResults, clima->climateElab());
+            }
+            else
+            {
+                *errorStr = "no results to save";
+                return false;
+            }
+        }
+
+        case seasonalPeriod:
+        {
+            bool okAtLeastOne = false;
+            std::vector<float> allResults;
+
+            for (int season = 1; season<=4; season++)
+            {
+                int monthEnd;
+                int seasonalNPeriodYears ;
+
+                if (season<4)
+                {
+                    monthEnd = season*3+2;
+                    seasonalNPeriodYears = 0;
+                }
+                else
+                {
+                    monthEnd = 2;
+                    seasonalNPeriodYears = -1;
+                }
+
+                int lastDay = getDaysInMonth(monthEnd, REFERENCE_YEAR);
+                Crit3DDate startD (1, season*3, REFERENCE_YEAR);
+                Crit3DDate endD (lastDay, monthEnd, REFERENCE_YEAR);
+
+                if (clima->param1IsClimate())
+                {
+                    QString table = getTable(clima->param1ClimateField());
+                    int climateIndex = getClimateIndexFromElab(getQDate(startD), clima->param1ClimateField());
+
+                    if (climateIndex != NODATA)
+                    {
+                        float paramValue = readClimateElab(db, table, climateIndex, QString::fromStdString(meteoPoint->id), clima->param1ClimateField(), errorStr);
+                        clima->setParam1(paramValue);
+                    }
+                    else
+                    {
+                        clima->setParam1(NODATA);
+                    }
+                }
+
+                float result = computeStatistic(outputValues, meteoPoint, clima, startD, endD, seasonalNPeriodYears, elab1, elab2, meteoSettings, dataAlreadyLoaded);
+
+                if (result != NODATA)
+                {
+                    okAtLeastOne = true;
+                }
+                allResults.push_back(result);
+            }
+            if (okAtLeastOne)
+            {
+                return saveSeasonalElab(db, errorStr, QString::fromStdString(meteoPoint->id), allResults, clima->climateElab());
+            }
+            else
+            {
+                *errorStr = "no results to save";
+                return false;
+            }
+        }
+
+        case annualPeriod:
+        {
+            Crit3DDate startD (1, 1, REFERENCE_YEAR);
+            Crit3DDate endD (31, 12, REFERENCE_YEAR);
 
             if (clima->param1IsClimate())
             {
                 QString table = getTable(clima->param1ClimateField());
                 int climateIndex = getClimateIndexFromElab(getQDate(startD), clima->param1ClimateField());
+
                 if (climateIndex != NODATA)
                 {
-                    paramValue = readClimateElab(db, table, climateIndex, QString::fromStdString(meteoPoint->id), clima->param1ClimateField(), myError);
+                    float paramValue = readClimateElab(db, table, climateIndex, QString::fromStdString(meteoPoint->id), clima->param1ClimateField(), errorStr);
                     clima->setParam1(paramValue);
                 }
                 else
@@ -404,109 +562,31 @@ bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<fl
                 }
             }
 
-            result = computeStatistic(outputValues, meteoPoint, clima, startD, endD, clima->nYears(), elab1, elab2, meteoSettings, dataAlreadyLoaded);
-
-            if (! isEqual(result, NODATA))
-            {
-                okAtLeastOne = true;
-            }
-            allResults.push_back(result);
-        }
-
-        // if there are no leap years, save NODATA into 366row
-        if (nLeapYears == 0)
-        {
-            allResults.push_back(NODATA);
-        }
-
-        meteoSettings->setMinimumPercentage(minPerc);
-
-        // reset currentPeriod
-        clima->setCurrentPeriodType(noPeriodType);
-
-        if (okAtLeastOne)
-        {
-            return saveDailyElab(db, myError, QString::fromStdString(meteoPoint->id), allResults, clima->climateElab());
-        }
-        else
-        {
-            *myError = "no results to save";
-            return false;
-        }
-
-    }
-    case decadalPeriod:
-    {
-        bool okAtLeastOne = false;
-        std::vector<float> allResults;
-
-        for (int i = 1; i<=36; i++)
-        {
-            int dayStart;
-            int dayEnd;
-            int month;
-
-            intervalDecade(i, clima->yearStart(), &dayStart, &dayEnd, &month);
-
-            Crit3DDate startD (dayStart, month, clima->yearStart());
-            Crit3DDate endD (dayEnd, month, clima->yearStart());
-
-            if (clima->param1IsClimate())
-            {
-                QString table = getTable(clima->param1ClimateField());
-                int climateIndex = getClimateIndexFromElab(getQDate(startD), clima->param1ClimateField());
-                if (climateIndex != NODATA)
-                {
-                    paramValue = readClimateElab(db, table, climateIndex, QString::fromStdString(meteoPoint->id), clima->param1ClimateField(), myError);
-                    clima->setParam1(paramValue);
-                }
-                else
-                {
-                    clima->setParam1(NODATA);
-                }
-            }
-
-            result = computeStatistic(outputValues, meteoPoint, clima, startD, endD, clima->nYears(), elab1, elab2, meteoSettings, dataAlreadyLoaded);
+            float result = computeStatistic(outputValues, meteoPoint, clima, startD, endD, clima->nYears(), elab1, elab2, meteoSettings, dataAlreadyLoaded);
 
             if (result != NODATA)
             {
-                okAtLeastOne = true;
+                return saveAnnualElab(db, errorStr, QString::fromStdString(meteoPoint->id), result, clima->climateElab());
             }
-            allResults.push_back(result);
+            else
+            {
+                *errorStr = "no results to save";
+                return false;
+            }
         }
-        if (okAtLeastOne)
+
+        case genericPeriod:
         {
-            return saveDecadalElab(db, myError, QString::fromStdString(meteoPoint->id), allResults, clima->climateElab());
-        }
-        else
-        {
-            *myError = "no results to save";
-            return false;
-        }
-    }
-
-    case monthlyPeriod:
-    {
-        bool okAtLeastOne = false;
-        std::vector<float> allResults;
-
-        for (int i = 1; i<=12; i++)
-        {
-
-            Crit3DDate startD (1, i, clima->yearStart());
-            QDate temp(clima->yearEnd(), i, 1);
-            int dayEnd = temp.daysInMonth();
-
-            Crit3DDate endD (dayEnd, i, clima->yearStart());
+            Crit3DDate startD = getCrit3DDate(clima->genericPeriodDateStart());
+            Crit3DDate endD = getCrit3DDate(clima->genericPeriodDateEnd());
 
             if (clima->param1IsClimate())
             {
                 QString table = getTable(clima->param1ClimateField());
                 int climateIndex = getClimateIndexFromElab(getQDate(startD), clima->param1ClimateField());
-
                 if (climateIndex != NODATA)
                 {
-                    paramValue = readClimateElab(db, table, climateIndex, QString::fromStdString(meteoPoint->id), clima->param1ClimateField(), myError);
+                    float paramValue = readClimateElab(db, table, climateIndex, QString::fromStdString(meteoPoint->id), clima->param1ClimateField(), errorStr);
                     clima->setParam1(paramValue);
                 }
                 else
@@ -514,168 +594,27 @@ bool climateTemporalCycle(QString *myError, Crit3DClimate* clima, std::vector<fl
                     clima->setParam1(NODATA);
                 }
             }
-
-            result = computeStatistic(outputValues, meteoPoint, clima, startD, endD, clima->nYears(), elab1, elab2, meteoSettings, dataAlreadyLoaded);
-
-            if (result != NODATA)
-            {
-                okAtLeastOne = true;
-            }
-            allResults.push_back(result);
-        }
-        if (okAtLeastOne)
-        {
-            return saveMonthlyElab(db, myError, QString::fromStdString(meteoPoint->id), allResults, clima->climateElab());
-        }
-        else
-        {
-            *myError = "no results to save";
-            return false;
-        }
-    }
-
-    case seasonalPeriod:
-    {
-        bool okAtLeastOne = false;
-        std::vector<float> allResults;
-
-        for (int i = 1; i<=4; i++)
-        {
-
-            int monthEnd;
-            int dayEnd;
-            int seasonalNPeriodYears ;
-
-            if (i<4)
-            {
-                monthEnd = i*3+2;
-                seasonalNPeriodYears = 0;
-            }
-            else
-            {
-                monthEnd = 2;
-                seasonalNPeriodYears = -1;
-            }
-
-            QDate temp(clima->yearEnd(), monthEnd, 1);
-
-            dayEnd = temp.daysInMonth();
-
-            Crit3DDate startD (1, i*3, clima->yearStart());
-            Crit3DDate endD (dayEnd, monthEnd, clima->yearEnd());
-
-            if (clima->param1IsClimate())
-            {
-                QString table = getTable(clima->param1ClimateField());
-                int climateIndex = getClimateIndexFromElab(getQDate(startD), clima->param1ClimateField());
-
-                if (climateIndex != NODATA)
-                {
-                    paramValue = readClimateElab(db, table, climateIndex, QString::fromStdString(meteoPoint->id), clima->param1ClimateField(), myError);
-                    clima->setParam1(paramValue);
-                }
-                else
-                {
-                    clima->setParam1(NODATA);
-                }
-            }
-
-            result = computeStatistic(outputValues, meteoPoint, clima, startD, endD, seasonalNPeriodYears, elab1, elab2, meteoSettings, dataAlreadyLoaded);
+            float result = computeStatistic(outputValues, meteoPoint, clima, startD, endD, clima->nYears(), elab1, elab2, meteoSettings, dataAlreadyLoaded);
 
             if (result != NODATA)
             {
-                okAtLeastOne = true;
-            }
-            allResults.push_back(result);
-        }
-        if (okAtLeastOne)
-        {
-            return saveSeasonalElab(db, myError, QString::fromStdString(meteoPoint->id), allResults, clima->climateElab());
-        }
-        else
-        {
-            *myError = "no results to save";
-            return false;
-        }
-
-    }
-
-    case annualPeriod:
-    {
-
-        Crit3DDate startD (1, 1, clima->yearStart());
-        Crit3DDate endD (31, 12, clima->yearStart());
-
-        if (clima->param1IsClimate())
-        {
-            QString table = getTable(clima->param1ClimateField());
-            int climateIndex = getClimateIndexFromElab(getQDate(startD), clima->param1ClimateField());
-
-            if (climateIndex != NODATA)
-            {
-                paramValue = readClimateElab(db, table, climateIndex, QString::fromStdString(meteoPoint->id), clima->param1ClimateField(), myError);
-                clima->setParam1(paramValue);
+                return saveGenericElab(db, errorStr, QString::fromStdString(meteoPoint->id), result, clima->climateElab());
             }
             else
             {
-                clima->setParam1(NODATA);
+                *errorStr = "no results to save";
+                return false;
             }
         }
-
-        result = computeStatistic(outputValues, meteoPoint, clima, startD, endD, clima->nYears(), elab1, elab2, meteoSettings, dataAlreadyLoaded);
-
-        if (result != NODATA)
-        {
-            return saveAnnualElab(db, myError, QString::fromStdString(meteoPoint->id), result, clima->climateElab());
-        }
-        else
-        {
-            *myError = "no results to save";
-            return false;
-        }
-    }
-
-    case genericPeriod:
-    {
-
-        Crit3DDate startD = getCrit3DDate(clima->genericPeriodDateStart());
-        Crit3DDate endD = getCrit3DDate(clima->genericPeriodDateEnd());
-
-        if (clima->param1IsClimate())
-        {
-            QString table = getTable(clima->param1ClimateField());
-            int climateIndex = getClimateIndexFromElab(getQDate(startD), clima->param1ClimateField());
-            if (climateIndex != NODATA)
-            {
-                paramValue = readClimateElab(db, table, climateIndex, QString::fromStdString(meteoPoint->id), clima->param1ClimateField(), myError);
-                clima->setParam1(paramValue);
-            }
-            else
-            {
-                clima->setParam1(NODATA);
-            }
-        }
-        result = computeStatistic(outputValues, meteoPoint, clima, startD, endD, clima->nYears(), elab1, elab2, meteoSettings, dataAlreadyLoaded);
-
-        if (result != NODATA)
-        {
-            return saveGenericElab(db, myError, QString::fromStdString(meteoPoint->id), result, clima->climateElab());
-        }
-        else
-        {
-            *myError = "no results to save";
-            return false;
-        }
-    }
 
     default:
-    {
-        *myError = "period not valid";
-        return false;
-    }
-
+        {
+            *errorStr = "period not valid";
+            return false;
+        }
     }
 }
+
 
 bool dailyCumulatedClimate(QString *myError, std::vector<float> &inputValues, Crit3DClimate* clima, Crit3DMeteoPoint* meteoPoint, meteoComputation elab2, Crit3DMeteoSettings* meteoSettings)
 {
@@ -697,27 +636,24 @@ bool dailyCumulatedClimate(QString *myError, std::vector<float> &inputValues, Cr
     float minPerc = meteoSettings->getMinimumPercentage();
     float param2 = clima->param2();
 
-    Crit3DDate startDate, endDate;
-
-    //
-    int totalDays;
-
-    endDate = startDate = getDateFromDoy(clima->yearStart(), clima->offset()+1);
-    endDate.year += (clima->yearEnd() - clima->yearStart() + 1);
-    totalDays = daysTo(startDate, endDate);
+    Crit3DDate startDate = getDateFromDoyGeneric(clima->yearStart(), clima->offset());
+    Crit3DDate endDate = startDate;
+    int nrYears = clima->yearEnd() - clima->yearStart() + 1;
+    endDate.year += nrYears;
+    int totalDays = daysTo(startDate, endDate);
 
     Crit3DDate currentDate = startDate;
     Crit3DDate nextDate = startDate;
     nextDate.year += 1;
-    std::vector <int> daysOfYear;
-
 
     //create vector of number of days for every (shifted year)
+    std::vector <int> daysOfYear;
     for (int year = startDate.year; year < endDate.year; year++)
     {
         valuesYears.push_back(year);
         if (isLeapYear(year))
             valuesLeapYears.push_back(year);
+
         daysOfYear.push_back(daysTo(currentDate, nextDate));
         currentDate.year++;
         nextDate.year++;
@@ -1363,10 +1299,8 @@ float dailyLeafWetnessComputation(TObsDataH* hourlyValues, float minimumPercenta
 }
 
 
-
 float computeWinkler(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DDate finishDate, float minimumPercentage)
 {
-
     float computeWinkler = 0;
 
     Crit3DQuality qualityCheck;
@@ -1375,17 +1309,15 @@ float computeWinkler(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DD
     bool checkData;
     float Tavg;
 
-
     int numberOfDays = difference(firstDate, finishDate) +1;
 
-    Crit3DDate presentDate = firstDate;
+    Crit3DDate currentDate = firstDate;
     for (int i = 0; i < numberOfDays; i++)
     {
-        index = difference(meteoPoint->obsDataD[0].date, presentDate);
+        index = difference(meteoPoint->obsDataD[0].date, currentDate);
         checkData = false;
         if (index >= 0 && index < meteoPoint->nrObsDataDaysD)
         {
-
             // TO DO nella versione vb il check prevede anche l'immissione del parametro height
             quality::qualityType qualityTavg = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureAvg, meteoPoint->obsDataD[index].tAvg);
             if (qualityTavg == quality::accepted)
@@ -1402,9 +1334,7 @@ float computeWinkler(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DD
                     Tavg = (meteoPoint->obsDataD[index].tMin + meteoPoint->obsDataD[index].tMax)/2;
                     checkData = true;
                 }
-
             }
-
         }
         if (checkData)
         {
@@ -1419,8 +1349,9 @@ float computeWinkler(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DD
             computeWinkler = computeWinkler + Tavg;
             count = count + 1;
         }
-        presentDate = presentDate.addDays(1);
+        ++currentDate;
     }
+
     if (numberOfDays != 0)
     {
         if ( (float(count) / float(numberOfDays) * 100.f) < minimumPercentage )
@@ -1430,8 +1361,8 @@ float computeWinkler(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DD
     }
 
     return computeWinkler;
-
 }
+
 
 float computeLastDayBelowThreshold(std::vector<float> &inputValues, Crit3DDate firstDateDailyVar, Crit3DDate firstDate, Crit3DDate finishDate, float param1)
 {
@@ -1453,13 +1384,13 @@ float computeLastDayBelowThreshold(std::vector<float> &inputValues, Crit3DDate f
         presentDate = presentDate.addDays(-1);
     }
 
-
     return lastDay;
 }
 
+
 float computeHuglin(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DDate finishDate, float minimumPercentage)
 {
-    float computeHuglin = 0;
+    float Huglin = 0;
 
     const int threshold = 10;
     const float K = 1.04f;                      //coeff. K di Huglin lunghezza giorno (=1.04 per ER)
@@ -1471,17 +1402,15 @@ float computeHuglin(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DDa
     float Tavg;
     float Tmax;
 
-
     int numberOfDays = difference(firstDate, finishDate) +1;
 
-    Crit3DDate presentDate = firstDate;
+    Crit3DDate currentDate = firstDate;
     for (int i = 0; i < numberOfDays; i++)
     {
-        index = difference(meteoPoint->obsDataD[0].date, presentDate);
+        index = difference(meteoPoint->obsDataD[0].date, currentDate);
         checkData = false;
         if (index >= 0 && index < meteoPoint->nrObsDataDaysD)
         {
-
             // TO DO nella versione vb il check prevede anche l'immissione del parametro height
             quality::qualityType qualityTavg = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureAvg, meteoPoint->obsDataD[index].tAvg);
             quality::qualityType qualityTmax = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureMax, meteoPoint->obsDataD[index].tMax);
@@ -1500,26 +1429,25 @@ float computeHuglin(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DDa
                     Tavg = (meteoPoint->obsDataD[index].tMin + Tmax)/2;
                     checkData = true;
                 }
-
             }
-
         }
         if (checkData)
         {
-            computeHuglin = computeHuglin + K * ((Tavg - threshold) + (Tmax - threshold)) / 2;
+            Huglin += K * ((Tavg - threshold) + (Tmax - threshold)) / 2;
             count = count + 1;
         }
-        presentDate = presentDate.addDays(1);
+        ++currentDate;
     }
+
     if (numberOfDays != 0)
     {
-        if ( (float(count) / float(numberOfDays) * 100.f) < minimumPercentage )
+        if ( ((float)count / (float)numberOfDays * 100.f) < minimumPercentage )
         {
-            computeHuglin = NODATA;
+            return NODATA;
         }
     }
 
-    return computeHuglin;
+    return Huglin;
 }
 
 
@@ -2718,9 +2646,11 @@ void extractValidValuesWithThreshold(std::vector<float> &outputValues, float myT
 }
 
 
-// nYears = 0          same year
-// nYears = 1,2,3...   betweend years 1,2,3...
-float computeStatistic(std::vector<float> &inputValues, Crit3DMeteoPoint* meteoPoint, Crit3DClimate *clima, Crit3DDate firstDate, Crit3DDate lastDate, int nYears, meteoComputation elab1, meteoComputation elab2, Crit3DMeteoSettings* meteoSettings, bool dataAlreadyLoaded)
+// nYears = 0           same year
+// nYears = -1, +1      beetwen years
+float computeStatistic(std::vector<float> &inputValues, Crit3DMeteoPoint* meteoPoint, Crit3DClimate *clima,
+                       Crit3DDate firstDate, Crit3DDate lastDate, int nYears,
+                       meteoComputation elab1, meteoComputation elab2, Crit3DMeteoSettings* meteoSettings, bool dataAlreadyLoaded)
 {
     std::vector<float> values;
     std::vector<float> valuesSecondElab;
@@ -2743,9 +2673,10 @@ float computeStatistic(std::vector<float> &inputValues, Crit3DMeteoPoint* meteoP
     {
         switch(elab1)
         {
+            // check: non ha date corrette se chiamato da climate su un solo anno (caso che non dovrebbe esistere)
             case lastDayBelowThreshold:
             {
-                return computeLastDayBelowThreshold(inputValues, meteoPoint->obsDataD[0].date ,firstDate, lastDate, param1);
+                return computeLastDayBelowThreshold(inputValues, meteoPoint->obsDataD[0].date, firstDate, lastDate, param1);
             }
             case winkler:
             {
@@ -2767,24 +2698,24 @@ float computeStatistic(std::vector<float> &inputValues, Crit3DMeteoPoint* meteoP
             {
                 int dayOfYear = getDoyFromDate(firstDate);
 
-                for (int presentYear = firstYear; presentYear <= lastYear; presentYear++)
+                for (int currentYear = firstYear; currentYear <= lastYear; currentYear++)
                 {
                     if ( (clima->getCurrentPeriodType() == dailyPeriod) )
                     {
-                        firstDate = getDateFromDoy(presentYear, dayOfYear);
+                        firstDate = getDateFromDoy(currentYear, dayOfYear);
                     }
-                    firstDate.year = presentYear;
-                    lastDate.year = presentYear;
+                    firstDate.year = currentYear;
+                    lastDate.year = currentYear;
 
                     if (nYears != NODATA)
                     {
                         if (nYears < 0)
                         {
-                            firstDate.year = (presentYear + nYears);
+                            firstDate.year = (currentYear + nYears);
                         }
                         else if (nYears > 0)
                         {
-                            lastDate.year = (presentYear + nYears);
+                            lastDate.year = (currentYear + nYears);
                         }
                     }
 
@@ -2800,7 +2731,6 @@ float computeStatistic(std::vector<float> &inputValues, Crit3DMeteoPoint* meteoP
                     presentDate = firstDate;
                     for (int i = 0; i < numberOfDays; i++)
                     {
-
                         float value = NODATA;
 
                         if (meteoPoint->obsDataD[0].date > presentDate)
@@ -2832,7 +2762,6 @@ float computeStatistic(std::vector<float> &inputValues, Crit3DMeteoPoint* meteoP
                         nValues = nValues + 1;
 
                         presentDate = presentDate.addDays(1);
-
                     }
                 }
 
@@ -2847,162 +2776,160 @@ float computeStatistic(std::vector<float> &inputValues, Crit3DMeteoPoint* meteoP
             }
         }
     }
+
     // secondary elab
-    else
+    int nTotYears = 0;
+    int nValidYears = 0;
+    valuesSecondElab.clear();
+
+    int dayOfYear = getDoyFromDate(firstDate);
+
+    for (int currentYear = firstYear; currentYear <= lastYear; currentYear++)
     {
-        int nTotYears = 0;
-        int nValidYears = 0;
-        valuesSecondElab.clear();
-
-        int dayOfYear = getDoyFromDate(firstDate);
-
-        for (int presentYear = firstYear; presentYear <= lastYear; presentYear++)
+        if ( (clima->getCurrentPeriodType() == dailyPeriod) )
         {
+            firstDate = getDateFromDoy(currentYear, dayOfYear);
+        }
 
-            if ( (clima->getCurrentPeriodType() == dailyPeriod) )
+        firstDate.year = currentYear;
+        lastDate.year = currentYear;
+
+        if (nYears < 0)
+        {
+            firstDate.year = (currentYear + nYears);
+        }
+        else if (nYears > 0)
+        {
+            lastDate.year = (currentYear + nYears);
+        }
+        primary = NODATA;
+
+        nValues = 0;
+        nValidValues = 0;
+        values.clear();
+
+        switch(elab1)
+        {
+            case lastDayBelowThreshold:
             {
-                firstDate = getDateFromDoy(presentYear, dayOfYear);
+                primary = computeLastDayBelowThreshold(inputValues, meteoPoint->obsDataD[0].date, firstDate, lastDate, param1);
+                break;
             }
-
-            firstDate.year = presentYear;
-            lastDate.year = presentYear;
-
-            if (nYears < 0)
+            case winkler:
             {
-                firstDate.year = (presentYear + nYears);
+                primary = computeWinkler(meteoPoint, firstDate, lastDate, meteoSettings->getMinimumPercentage());
+                break;
             }
-            else if (nYears > 0)
+            case huglin:
             {
-                lastDate.year = (presentYear + nYears);
+                primary = computeHuglin(meteoPoint, firstDate, lastDate, meteoSettings->getMinimumPercentage());
+                break;
             }
-            primary = NODATA;
-
-            nValues = 0;
-            nValidValues = 0;
-            values.clear();
-
-            switch(elab1)
+            case fregoni:
             {
-                case lastDayBelowThreshold:
+                primary = computeFregoni(meteoPoint, firstDate, lastDate, meteoSettings->getMinimumPercentage());
+                break;
+            }
+            case correctedDegreeDaysSum:
+            {
+                primary = computeCorrectedSum(meteoPoint, firstDate, lastDate, param1, meteoSettings->getMinimumPercentage());
+                break;
+            }
+            default:
+            {
+                if ( (clima->getCurrentPeriodType() == dailyPeriod) )
                 {
-                    primary = computeLastDayBelowThreshold(inputValues, meteoPoint->obsDataD[0].date ,firstDate, lastDate, param1);
-                    break;
+                    numberOfDays = 1;
                 }
-                case winkler:
+                else
                 {
-                    primary = computeWinkler(meteoPoint, firstDate, lastDate, meteoSettings->getMinimumPercentage());
-                    break;
+                    numberOfDays = difference(firstDate, lastDate) +1;
                 }
-                case huglin:
+                presentDate = firstDate;
+                for (int i = 0; i < numberOfDays; i++)
                 {
-                    primary = computeHuglin(meteoPoint, firstDate, lastDate, meteoSettings->getMinimumPercentage());
-                    break;
-                }
-                case fregoni:
-                {
-                    primary = computeFregoni(meteoPoint, firstDate, lastDate, meteoSettings->getMinimumPercentage());
-                    break;
-                }
-                case correctedDegreeDaysSum:
-                {
-                    primary = computeCorrectedSum(meteoPoint, firstDate, lastDate, param1, meteoSettings->getMinimumPercentage());
-                    break;
-                }
-                default:
-                {
+                    float value = NODATA;
 
-                    if ( (clima->getCurrentPeriodType() == dailyPeriod) )
+                    if (meteoPoint->obsDataD[0].date > presentDate)
                     {
-                        numberOfDays = 1;
+                        value = NODATA;
                     }
                     else
                     {
-                        numberOfDays = difference(firstDate, lastDate) +1;
+                        index = difference(meteoPoint->obsDataD[0].date, presentDate);
+                        if (index >= 0 && index < inputValues.size())
+                        {
+                            value = inputValues.at(index);
+                        }
                     }
-                    presentDate = firstDate;
-                    for (int i = 0; i < numberOfDays; i++)
+
+                    if (int(value) != NODATA)
                     {
-                        float value = NODATA;
-
-                        if (meteoPoint->obsDataD[0].date > presentDate)
-                        {
-                            value = NODATA;
-                        }
-                        else
-                        {
-                            index = difference(meteoPoint->obsDataD[0].date, presentDate);
-                            if (index >= 0 && index < inputValues.size())
-                            {
-                                value = inputValues.at(index);
-                            }
-                        }
-
-                        if (int(value) != NODATA)
-                        {
-                            values.push_back(value);
-                            nValidValues = nValidValues + 1;
-                        }
-
-
-                        nValues = nValues + 1;
-                        presentDate = presentDate.addDays(1);
-
+                        values.push_back(value);
+                        nValidValues = nValidValues + 1;
                     }
 
-                    if (nValidValues > 0)
-                    {
-                        if (float(nValidValues) / float(nValues) * 100.f >= meteoSettings->getMinimumPercentage())
-                        {
-                            primary = statisticalElab(elab1, param1, values, nValidValues, meteoSettings->getRainfallThreshold());
-                        }
-                    }
-
-                    break;
-
+                    nValues = nValues + 1;
+                    presentDate = presentDate.addDays(1);
                 }
-            }
 
-            if (primary != NODATA)
-            {
-                valuesSecondElab.push_back(primary);
-                valuesYearsPrimaryElab.push_back(presentYear);
-                nValidYears = nValidYears + 1;
-            }
-
-            nTotYears = nTotYears + 1;
-
-        } // end for
-
-        if (nTotYears == 0)
-        {
-            return NODATA;
-        }
-        else if (float(nValidYears) / float(nTotYears) * 100.f < meteoSettings->getMinimumPercentage())
-        {
-            return NODATA;
-        }
-        else
-        {
-            switch(elab2)
-            {
-                case yearMax: case yearMin:
+                if (nValidValues > 0)
                 {
-                    int index = statisticalElab(elab2, firstYear, valuesSecondElab, nValidYears, meteoSettings->getRainfallThreshold());
-                    if (index != NODATA && index < valuesYearsPrimaryElab.size())
+                    if (float(nValidValues) / float(nValues) * 100.f >= meteoSettings->getMinimumPercentage())
                     {
-                        return valuesYearsPrimaryElab[index];
+                        primary = statisticalElab(elab1, param1, values, nValidValues, meteoSettings->getRainfallThreshold());
                     }
-                    else
-                        return NODATA;
                 }
-                case trend:
-                    return statisticalElab(elab2, firstYear, valuesSecondElab, nValidYears, meteoSettings->getRainfallThreshold());
-                default:
-                    return statisticalElab(elab2, param2, valuesSecondElab, nValidYears, meteoSettings->getRainfallThreshold());
+
+                break;
             }
+        }
+
+        if (primary != NODATA)
+        {
+            valuesSecondElab.push_back(primary);
+            valuesYearsPrimaryElab.push_back(currentYear);
+            nValidYears = nValidYears + 1;
+        }
+
+        nTotYears = nTotYears + 1;
+
+    } // end year cycle
+
+    if (nTotYears == 0)
+    {
+        return NODATA;
+    }
+    if (float(nValidYears) / float(nTotYears) * 100.f < meteoSettings->getMinimumPercentage())
+    {
+        return NODATA;
+    }
+
+    switch(elab2)
+    {
+        case yearMax: case yearMin:
+        {
+            int index = statisticalElab(elab2, firstYear, valuesSecondElab, nValidYears, meteoSettings->getRainfallThreshold());
+            if (index != NODATA && index < valuesYearsPrimaryElab.size())
+            {
+                return valuesYearsPrimaryElab[index];
+            }
+            else
+            {
+                return NODATA;
+            }
+        }
+        case trend:
+        {
+            return statisticalElab(elab2, firstYear, valuesSecondElab, nValidYears, meteoSettings->getRainfallThreshold());
+        }
+        default:
+        {
+            return statisticalElab(elab2, param2, valuesSecondElab, nValidYears, meteoSettings->getRainfallThreshold());
         }
     }
 }
+
 
 QString getTable(QString elab)
 {
@@ -3019,7 +2946,7 @@ int getClimateIndexFromElab(QDate myDate, QString elab)
     QList<QString> words = elab.split('_');
     QString periodTypeStr = words[2];
 
-    period periodType = getPeriodTypeFromString(periodTypeStr);
+    climatePeriod periodType = getPeriodTypeFromString(periodTypeStr);
 
     switch(periodType)
     {
@@ -3044,7 +2971,7 @@ int getNumberClimateIndexFromElab(QString elab)
     QList<QString> words = elab.split('_');
     QString periodTypeStr = words[2];
 
-    period periodType = getPeriodTypeFromString(periodTypeStr);
+    climatePeriod periodType = getPeriodTypeFromString(periodTypeStr);
 
     switch(periodType)
     {
@@ -3063,7 +2990,7 @@ int getNumberClimateIndexFromElab(QString elab)
     }
 }
 
-period getPeriodTypeFromString(QString periodStr)
+climatePeriod getPeriodTypeFromString(QString periodStr)
 {
 
     if (periodStr == "Daily")
@@ -4171,7 +4098,7 @@ bool parseXMLPeriodType(QDomNode ancestor, QString attributePeriod, Crit3DElabLi
                         QString* period, QString *myError)
 {
 
-    enum period periodType;
+    climatePeriod periodType;
     if (ancestor.toElement().attribute(attributePeriod).toUpper() == "GENERIC")
     {
         *period = "Generic";
@@ -4890,15 +4817,16 @@ bool appendXMLElaboration(Crit3DElabList *listXMLElab, QString xmlFileName, QStr
     output << xmlDoc.toString();
     outputFile.close();
     return true;
-
 }
+
 
 void createXMLFile(QString xmlFileName, QString *myError)
 {
     QFile xmlFile(xmlFileName);
-    if (!xmlFile.open(QFile::WriteOnly | QFile::Text ))
+
+    if (! xmlFile.open(QFile::WriteOnly | QFile::Text ))
     {
-        qDebug() << "Already opened or there is another issue";
+        *myError = "Already opened or there is another issue";
         xmlFile.close();
     }
     QTextStream xmlContent(&xmlFile);
@@ -4907,6 +4835,7 @@ void createXMLFile(QString xmlFileName, QString *myError)
 
     xmlFile.close();
 }
+
 
 bool appendXMLAnomaly(Crit3DAnomalyList *listXMLAnomaly, QString xmlFileName, QString *myError)
 {

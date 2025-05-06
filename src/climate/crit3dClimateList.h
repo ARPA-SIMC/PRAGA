@@ -10,7 +10,7 @@
     #include "QDate"
 
 
-    enum period{ dailyPeriod, decadalPeriod, monthlyPeriod, seasonalPeriod, annualPeriod, genericPeriod, noPeriodType};
+    enum climatePeriod{ dailyPeriod, decadalPeriod, monthlyPeriod, seasonalPeriod, annualPeriod, genericPeriod, noPeriodType};
 
     const std::map<std::string, meteoComputation> MapMeteoComputation = {
       { "average", average },
@@ -69,8 +69,8 @@
         std::vector<QString> listPeriodStr() const;
         void setListPeriodStr(const std::vector<QString> &listPeriodStr);
 
-        std::vector<period> listPeriodType() const;
-        void setListPeriodType(const std::vector<period> &listPeriodType);
+        std::vector<climatePeriod> listPeriodType() const;
+        void setListPeriodType(const std::vector<climatePeriod> &listPeriodType);
 
         std::vector<QDate> listGenericPeriodDateStart() const;
         void setListGenericPeriodDateStart(const std::vector<QDate> &listGenericPeriodDateStart);
@@ -116,7 +116,7 @@
         std::vector<int> _listYearEnd;
         std::vector<meteoVariable> _listVariable;
         std::vector<QString> _listPeriodStr;
-        std::vector<period> _listPeriodType;
+        std::vector<climatePeriod> _listPeriodType;
         std::vector<QDate> _listGenericPeriodDateStart;
         std::vector<QDate> _listGenericPeriodDateEnd;
         std::vector<int> _listNYears;
