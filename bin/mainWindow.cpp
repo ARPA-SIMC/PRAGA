@@ -3468,6 +3468,24 @@ void MainWindow::on_actionInterpolationOutputPointsPeriod_triggered()
 
 void MainWindow::on_actionInterpolationCVCurrentTime_triggered()
 {
+    QString glocalCVPointsName;
+    if (myProject.interpolationSettings.getUseGlocalDetrending())
+    {
+        QMessageBox msgBox;
+        msgBox.setText("Cross validation with glocal detrending");
+        msgBox.setInformativeText("Do you want to load a different .csv stations file?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        int ret = msgBox.exec();
+        if (ret == QMessageBox::Yes)
+        {
+            QString defaultPath = myProject.getDefaultPath() + PATH_GEO;
+            glocalCVPointsName = QFileDialog::getOpenFileName(this, tr("Open file with stations"), defaultPath,
+                                                            tr("Comma separated values (*.csv)"));
+            if (glocalCVPointsName.isEmpty())
+                return;
+        }
+    }
+
     myProject.logInfoGUI("Cross validation...");
 
     meteoVariable currentVariable;
@@ -3495,7 +3513,7 @@ void MainWindow::on_actionInterpolationCVCurrentTime_triggered()
     }
 
     bool isComputed = false;
-    QString glocalCVPointsName;
+
 
     isComputed = myProject.interpolationCv(currentVariable, myProject.getCrit3DCurrentTime(), glocalCVPointsName);
 
@@ -3562,6 +3580,14 @@ void MainWindow::on_actionInterpolationCVPeriod_triggered()
     if (fileName == "") return;
 
     QString glocalCVPointsName;
+    if (myProject.interpolationSettings.getUseGlocalDetrending())
+    {
+        QString defaultPath = myProject.getDefaultPath() + PATH_GEO;
+        glocalCVPointsName = QFileDialog::getOpenFileName(this, tr("Open file with stations"), defaultPath,
+                                                        tr("Comma separated values (*.csv)"));
+        if (glocalCVPointsName.isEmpty())
+            return;
+    }
 
     if (myProject.interpolationCrossValidationPeriod(myFirstTime.date(), myLastTime.date(), myVar, fileName, loadInterval, glocalCVPointsName))
         myProject.closeLogInfo();

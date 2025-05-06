@@ -636,6 +636,10 @@ int cmdInterpolationCrossValidation(PragaProject* myProject, QList<QString> argu
         {
             loadInterval = argumentList[i].right(argumentList[i].length()-3).toInt(&parseLoadInterval);
         }
+        else if (argumentList.at(i).left(3) == "-g:")
+        {
+            glocalCVPointsName = argumentList[i].right(argumentList[i].length()-3);
+        }
     }
 
     if (meteoVar == noMeteoVar)
