@@ -636,27 +636,24 @@ bool dailyCumulatedClimate(QString *myError, std::vector<float> &inputValues, Cr
     float minPerc = meteoSettings->getMinimumPercentage();
     float param2 = clima->param2();
 
-    Crit3DDate startDate, endDate;
-
-    //
-    int totalDays;
-
-    endDate = startDate = getDateFromDoy(clima->yearStart(), clima->offset()+1);
-    endDate.year += (clima->yearEnd() - clima->yearStart() + 1);
-    totalDays = daysTo(startDate, endDate);
+    Crit3DDate startDate = getDateFromDoyGeneric(clima->yearStart(), clima->offset());
+    Crit3DDate endDate = startDate;
+    int nrYears = clima->yearEnd() - clima->yearStart() + 1;
+    endDate.year += nrYears;
+    int totalDays = daysTo(startDate, endDate);
 
     Crit3DDate currentDate = startDate;
     Crit3DDate nextDate = startDate;
     nextDate.year += 1;
-    std::vector <int> daysOfYear;
-
 
     //create vector of number of days for every (shifted year)
+    std::vector <int> daysOfYear;
     for (int year = startDate.year; year < endDate.year; year++)
     {
         valuesYears.push_back(year);
         if (isLeapYear(year))
             valuesLeapYears.push_back(year);
+
         daysOfYear.push_back(daysTo(currentDate, nextDate));
         currentDate.year++;
         nextDate.year++;
@@ -2676,6 +2673,7 @@ float computeStatistic(std::vector<float> &inputValues, Crit3DMeteoPoint* meteoP
     {
         switch(elab1)
         {
+            // check: non ha date corrette se chiamato da climate su un solo anno (caso che non dovrebbe esistere)
             case lastDayBelowThreshold:
             {
                 return computeLastDayBelowThreshold(inputValues, meteoPoint->obsDataD[0].date, firstDate, lastDate, param1);
