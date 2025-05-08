@@ -3486,6 +3486,19 @@ void MainWindow::on_actionInterpolationCVCurrentTime_triggered()
         }
     }
 
+    // check glocal
+    if (myProject.interpolationSettings.getUseGlocalDetrending() && (! myProject.interpolationSettings.isGlocalReady(false) || ! glocalCVPointsName.isEmpty()))
+    {
+        myProject.loadGlocalAreasMap();
+        if (glocalCVPointsName.isEmpty())
+        {
+            myProject.loadGlocalStationsAndCells(false, myProject.getCompleteFileName(myProject.glocalPointsName, PATH_GEO));
+        }
+        else {
+            myProject.loadGlocalStationsAndCells(false, myProject.getCompleteFileName(glocalCVPointsName, PATH_GEO));
+        }
+    }
+
     myProject.logInfoGUI("Cross validation...");
 
     meteoVariable currentVariable;
@@ -3568,26 +3581,34 @@ void MainWindow::on_actionInterpolationCVPeriod_triggered()
         return;
 
     QString loadIntervalString = formLoadInterval.getText();
-    if (loadIntervalString == "")
-        return;
+
+
 
     bool isValid;
     int loadInterval = loadIntervalString.toInt(&isValid);
     if (! isValid)
-        myProject.logError("Invalid width: " + loadIntervalString);
-
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save current CV output"), "", tr("text file (*.txt)"));
-    if (fileName == "") return;
+        myProject.logError("Invalid number of days: " + loadIntervalString);
 
     QString glocalCVPointsName;
     if (myProject.interpolationSettings.getUseGlocalDetrending())
     {
-        QString defaultPath = myProject.getDefaultPath() + PATH_GEO;
-        glocalCVPointsName = QFileDialog::getOpenFileName(this, tr("Open file with stations"), defaultPath,
-                                                        tr("Comma separated values (*.csv)"));
-        if (glocalCVPointsName.isEmpty())
-            return;
+        QMessageBox msgBox;
+        msgBox.setText("Cross validation with glocal detrending");
+        msgBox.setInformativeText("Do you want to load a different .csv stations file?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        int ret = msgBox.exec();
+        if (ret == QMessageBox::Yes)
+        {
+            QString defaultPath = myProject.getDefaultPath() + PATH_GEO;
+            glocalCVPointsName = QFileDialog::getOpenFileName(this, tr("Open file with stations"), defaultPath,
+                                                            tr("Comma separated values (*.csv)"));
+            if (glocalCVPointsName.isEmpty())
+                return;
+        }
     }
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save current CV output"), "", tr("text file (*.txt)"));
+    if (fileName == "") return;
 
     if (myProject.interpolationCrossValidationPeriod(myFirstTime.date(), myLastTime.date(), myVar, fileName, loadInterval, glocalCVPointsName))
         myProject.closeLogInfo();

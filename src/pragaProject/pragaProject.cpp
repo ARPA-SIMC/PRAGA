@@ -3173,8 +3173,28 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
     Crit3DTime myTime;
 
     QTextStream cvOutput(&file);
-    cvOutput << "Time,MAE,MBE,RMSE,NS,R2" << '\n';
+    if (! interpolationSettings.getUseGlocalDetrending())
+    {
+        cvOutput << "Time,MAE,MBE,RMSE,NS,R2" << '\n';
+    }
+    else
+    {
+        cvOutput << "Time,nrArea,MAE,MBE,RMSE,NS,R2" << "\n";
+    }
     QDate loadDateFin = QDate(1800, 1, 1);
+
+    // check glocal
+    if (interpolationSettings.getUseGlocalDetrending() && (! interpolationSettings.isGlocalReady(false) || ! glocalCVPointsName.isEmpty()))
+    {
+        if (! loadGlocalAreasMap()) return false;
+        if (glocalCVPointsName.isEmpty())
+        {
+            if (! loadGlocalStationsAndCells(false, getCompleteFileName(glocalPointsName, PATH_GEO))) return false;
+        }
+        else {
+            if (! loadGlocalStationsAndCells(false, getCompleteFileName(glocalCVPointsName, PATH_GEO))) return false;
+        }
+    }
 
     logInfoGUI("Cross validating " + QString::fromStdString(getMeteoVarName(myVar)) + " from " + dateIni.toString("yyyy-MM-dd") + " to " + dateFin.toString("yyyy-MM-dd"));
     while (myDate <= dateFin)
@@ -3205,7 +3225,16 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
                 {
                     if (interpolationSettings.getUseGlocalDetrending())
                     {
-                        cvOutput << getQDateTime(myTime).toString();
+                        for (int j = 0; j < glocalCrossValidationStatistics.size(); j++)
+                        {
+                            cvOutput << getQDateTime(myTime).toString();
+                            cvOutput << "," << interpolationSettings.getMacroAreaNumber()[j];
+                            cvOutput << "," << glocalCrossValidationStatistics[j].getMeanAbsoluteError();
+                            cvOutput << "," << glocalCrossValidationStatistics[j].getMeanBiasError();
+                            cvOutput << "," << glocalCrossValidationStatistics[j].getRootMeanSquareError();
+                            cvOutput << "," << glocalCrossValidationStatistics[j].getNashSutcliffeEfficiency();
+                            cvOutput << "," << glocalCrossValidationStatistics[j].getR2() << '\n';
+                        }
                     }
                     else
                     {
@@ -3227,7 +3256,16 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
             {
                 if (interpolationSettings.getUseGlocalDetrending())
                 {
-                    cvOutput << getQDateTime(myTime).date().toString();
+                    for (int j = 0; j < glocalCrossValidationStatistics.size(); j++)
+                    {
+                        cvOutput << getQDateTime(myTime).toString();
+                        cvOutput << "," << interpolationSettings.getMacroAreaNumber()[j];
+                        cvOutput << "," << glocalCrossValidationStatistics[j].getMeanAbsoluteError();
+                        cvOutput << "," << glocalCrossValidationStatistics[j].getMeanBiasError();
+                        cvOutput << "," << glocalCrossValidationStatistics[j].getRootMeanSquareError();
+                        cvOutput << "," << glocalCrossValidationStatistics[j].getNashSutcliffeEfficiency();
+                        cvOutput << "," << glocalCrossValidationStatistics[j].getR2() << '\n';
+                    }
                 }
                 else
                 {
