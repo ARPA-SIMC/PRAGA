@@ -821,27 +821,29 @@ bool dailyCumulatedClimate(QString *myError, std::vector<float> &inputValues, Cr
 
 
 float loadDailyVarSeries(Crit3DMeteoPointsDbHandler *meteoPointsDbHandler,
-        Crit3DMeteoGridDbHandler *meteoGridDbHandler, Crit3DMeteoPoint* meteoPoint, bool isMeteoGrid,
-        meteoVariable variable, QDate first, QDate last, QString &myError)
+                         Crit3DMeteoGridDbHandler *meteoGridDbHandler, Crit3DMeteoPoint* meteoPoint, bool isMeteoGrid,
+                         meteoVariable variable, const QDate &firstDate, const QDate &lastDate, QString &errorString)
 {
     std::vector<float> dailyValues;
     QDate firstDateDB;
+
+    errorString = "";
 
     if (isMeteoGrid)
     {
         if (meteoGridDbHandler->gridStructure().isFixedFields())
         {
-            dailyValues = meteoGridDbHandler->loadGridDailyVarFixedFields(QString::fromStdString(meteoPoint->id), variable, first, last, firstDateDB, myError);
+            dailyValues = meteoGridDbHandler->loadGridDailyVarFixedFields(QString::fromStdString(meteoPoint->id), variable, firstDate, lastDate, firstDateDB, errorString);
         }
         else
         {
-            dailyValues = meteoGridDbHandler->loadGridDailyVar(QString::fromStdString(meteoPoint->id), variable, first, last, firstDateDB, myError);
+            dailyValues = meteoGridDbHandler->loadGridDailyVar(QString::fromStdString(meteoPoint->id), variable, firstDate, lastDate, firstDateDB, errorString);
         }
     }
     else
     {
         // meteoPoint
-        dailyValues = meteoPointsDbHandler->loadDailyVar(variable, getCrit3DDate(first), getCrit3DDate(last), *meteoPoint, firstDateDB);
+        dailyValues = meteoPointsDbHandler->loadDailyVar(variable, getCrit3DDate(firstDate), getCrit3DDate(lastDate), *meteoPoint, firstDateDB);
     }
 
     // No data
@@ -857,7 +859,7 @@ float loadDailyVarSeries(Crit3DMeteoPointsDbHandler *meteoPointsDbHandler,
     }
 
     Crit3DQuality qualityCheck;
-    int nrRequestedValues = first.daysTo(last) +1;
+    int nrRequestedValues = firstDate.daysTo(lastDate) +1;
     Crit3DDate currentDate = getCrit3DDate(firstDateDB);
     int nrValidValues = 0;
 
@@ -1713,6 +1715,7 @@ bool elaborateDailyAggregatedVarFromDaily(meteoVariable myVar, Crit3DMeteoPoint 
                     res = NODATA;
                 }
             }
+
             meteoPoint.obsDataD[index].dd_heating = res;
             break;
         }
@@ -1722,7 +1725,7 @@ bool elaborateDailyAggregatedVarFromDaily(meteoVariable myVar, Crit3DMeteoPoint 
             if (qualityTavg == quality::accepted)
             {
                 res = 0;
-                if ( meteoPoint.obsDataD[index].tAvg > DDCOOLING_THRESHOLD)
+                if (meteoPoint.obsDataD[index].tAvg > DDCOOLING_THRESHOLD)
                 {
                     res = meteoPoint.obsDataD[index].tAvg - DDCOOLING_SUBTRACTION;
                 }
@@ -1754,7 +1757,7 @@ bool elaborateDailyAggregatedVarFromDaily(meteoVariable myVar, Crit3DMeteoPoint 
 
         if (res != NODATA)
         {
-            nrValidValues += 1;
+            nrValidValues++;
         }
 
         outputValues.push_back(res);
@@ -1762,11 +1765,8 @@ bool elaborateDailyAggregatedVarFromDaily(meteoVariable myVar, Crit3DMeteoPoint 
     }
 
     *percValue = nrValidValues / meteoPoint.nrObsDataDaysD;
-    if (nrValidValues > 0)
-        return true;
-    else
-        return false;
 
+    return (nrValidValues > 0);
 }
 
 

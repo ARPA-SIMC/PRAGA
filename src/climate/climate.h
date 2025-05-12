@@ -107,9 +107,9 @@
                         QDate startDate, QDate endDate, std::vector<float> &outputValues, float* percValue,
                         Crit3DMeteoSettings *meteoSettings, QString &myError);
 
-    float loadDailyVarSeries(Crit3DMeteoPointsDbHandler *meteoPointsDbHandler,
-                        Crit3DMeteoGridDbHandler *meteoGridDbHandler, Crit3DMeteoPoint* meteoPoint,
-                        bool isMeteoGrid, meteoVariable variable, QDate first, QDate last, QString &myError);
+    float loadDailyVarSeries(Crit3DMeteoPointsDbHandler *meteoPointsDbHandler, Crit3DMeteoGridDbHandler *meteoGridDbHandler,
+                             Crit3DMeteoPoint* meteoPoint, bool isMeteoGrid, meteoVariable variable,
+                             const QDate &firstDate, const QDate &lastDate, QString &errorString);
 
     float loadDailyVarSeries_SaveOutput(Crit3DMeteoPointsDbHandler *meteoPointsDbHandler,
                         Crit3DMeteoGridDbHandler *meteoGridDbHandler, Crit3DMeteoPoint &meteoPoint, bool isMeteoGrid,
