@@ -45,9 +45,9 @@ public:
     void setListPeriodStr(const std::vector<QString> &listPeriodStr);
     void insertPeriodStr(QString period);
 
-    std::vector<period> listPeriodType() const;
-    void setListPeriodType(const std::vector<period> &listPeriodType);
-    void insertPeriodType(period period);
+    std::vector<climatePeriod> listPeriodType() const;
+    void setListPeriodType(const std::vector<climatePeriod> &listPeriodType);
+    void insertPeriodType(climatePeriod period);
 
     std::vector<QDate> listDateStart() const;
     void setListDateStart(const std::vector<QDate> &listDateStart);
@@ -106,7 +106,7 @@ private:
     std::vector<int> _listYearEnd;
     std::vector<meteoVariable> _listVariable;
     std::vector<QString> _listPeriodStr;
-    std::vector<period> _listPeriodType;
+    std::vector<climatePeriod> _listPeriodType;
     std::vector<QDate> _listDateStart;
     std::vector<QDate> _listDateEnd;
     std::vector<int> _listNYears;

@@ -78,8 +78,8 @@
         float param2() const;
         void setParam2(float param2);
 
-        period periodType() const;
-        void setPeriodType(const period &periodType);
+        climatePeriod periodType() const;
+        void setPeriodType(const climatePeriod &periodType);
 
         QString periodStr() const;
         void setPeriodStr(const QString &periodStr);
@@ -99,8 +99,8 @@
         int getCurrentYearEnd() const;
         void setCurrentYearEnd(int currentYearEnd);
 
-        period getCurrentPeriodType() const;
-        void setCurrentPeriodType(const period &currentPeriodType);
+        climatePeriod getCurrentPeriodType() const;
+        void setCurrentPeriodType(const climatePeriod &currentPeriodType);
 
         Crit3DClimateList *getListElab() const;
         void setListElab(Crit3DClimateList *value);
@@ -123,7 +123,7 @@
         QString _climateElab;
         int _yearStart;
         int _yearEnd;
-        period _periodType;
+        climatePeriod _periodType;
         meteoVariable _variable;
         QString _periodStr;
         QDate _genericPeriodDateStart;
@@ -144,7 +144,7 @@
         Crit3DElaborationSettings *elabSettings;
 
         meteoVariable _currentVar;
-        period _currentPeriodType;
+        climatePeriod _currentPeriodType;
         QString _currentElab1;
         int _currentYearStart;
         int _currentYearEnd;

@@ -224,6 +224,8 @@ Crit3DHomogeneityWidget::Crit3DHomogeneityWidget(Crit3DMeteoPointsDbHandler* met
     stationsTable.adjustSize();
     stationsTable.horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     stationsTable.resizeColumnsToContents();
+    stationsTable.setSelectionBehavior(QAbstractItemView::SelectItems);
+    stationsTable.setSelectionMode(QAbstractItemView::ContiguousSelection);
     selectStationsLayout->addWidget(&stationsTable);
 
     execute.setText("Execute");
@@ -1564,5 +1566,3 @@ void Crit3DHomogeneityWidget::checkValueAndMerge(Crit3DMeteoPoint meteoPointGet,
     }
     }
 }
-
-

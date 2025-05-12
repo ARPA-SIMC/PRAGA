@@ -529,9 +529,9 @@ int cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QList<QString> argume
     return PRAGA_OK;
 }
 
+
 int cmdMonthlyIntegrationVariablesGrid(PragaProject* myProject, QList<QString> argumentList)
 {
-
     // default date
     QDate first = QDate::currentDate();
     QDate last = first.addDays(9);
@@ -582,7 +582,7 @@ int cmdMonthlyIntegrationVariablesGrid(PragaProject* myProject, QList<QString> a
         return PRAGA_INVALID_COMMAND;
     }
 
-    if (! myProject->monthlyAggregateVariablesGrid(first, last, variables))
+    if (! myProject->monthlyAggregateVariablesGrid(first, last, variables, false))
     {
         myProject->logError();
         return PRAGA_ERROR;
@@ -590,6 +590,7 @@ int cmdMonthlyIntegrationVariablesGrid(PragaProject* myProject, QList<QString> a
 
     return PRAGA_OK;
 }
+
 
 int cmdInterpolationCrossValidation(PragaProject* myProject, QList<QString> argumentList)
 {
@@ -603,6 +604,9 @@ int cmdInterpolationCrossValidation(PragaProject* myProject, QList<QString> argu
     std::string varString;
     meteoVariable meteoVar = noMeteoVar;
     QString fileName = "";
+    int loadInterval = NODATA;
+    QString glocalCVPointsName;
+    bool parseLoadInterval;
 
     for (int i = 1; i < argumentList.size(); i++)
     {
@@ -628,6 +632,14 @@ int cmdInterpolationCrossValidation(PragaProject* myProject, QList<QString> argu
         {
             dateFin = QDate::currentDate().addDays(-1);
             dateIni = dateFin.addDays(-6);
+        }
+        else if (argumentList.at(i).left(3) == "-l:")
+        {
+            loadInterval = argumentList[i].right(argumentList[i].length()-3).toInt(&parseLoadInterval);
+        }
+        else if (argumentList.at(i).left(3) == "-g:")
+        {
+            glocalCVPointsName = argumentList[i].right(argumentList[i].length()-3);
         }
     }
 
@@ -655,7 +667,13 @@ int cmdInterpolationCrossValidation(PragaProject* myProject, QList<QString> argu
         return PRAGA_INVALID_COMMAND;
     }
 
-    if (! myProject->interpolationCrossValidationPeriod(dateIni, dateFin, meteoVar, fileName))
+    if (! parseLoadInterval)
+    {
+        myProject->errorString = "Wrong interval for data loading.";
+        return PRAGA_INVALID_COMMAND;
+    }
+
+    if (! myProject->interpolationCrossValidationPeriod(dateIni, dateFin, meteoVar, fileName, loadInterval, glocalCVPointsName))
         return PRAGA_ERROR;
 
     return PRAGA_OK;

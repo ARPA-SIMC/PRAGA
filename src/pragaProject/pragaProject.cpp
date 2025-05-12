@@ -2774,7 +2774,7 @@ bool PragaProject::interpolationMeteoGrid(meteoVariable myVar, frequencyType myF
     if (interpolationSettings.getUseGlocalDetrending() && ! interpolationSettings.isGlocalReady(!interpolationSettings.getMeteoGridUpscaleFromDem()))
     {
         if (! loadGlocalAreasMap()) return false;
-        if (! loadGlocalStationsAndCells(!interpolationSettings.getMeteoGridUpscaleFromDem())) return false;
+        if (! loadGlocalStationsAndCells(!interpolationSettings.getMeteoGridUpscaleFromDem(), getCompleteFileName(glocalPointsName, PATH_GEO))) return false;
     }
 
     if (interpolationSettings.getMeteoGridUpscaleFromDem())
@@ -2987,7 +2987,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     if (interpolationSettings.getUseGlocalDetrending() && ! interpolationSettings.isGlocalReady(!interpolationSettings.getMeteoGridUpscaleFromDem()))
     {
         if (! loadGlocalAreasMap()) return false;
-        if (! loadGlocalStationsAndCells(!interpolationSettings.getMeteoGridUpscaleFromDem())) return false;
+        if (! loadGlocalStationsAndCells(!interpolationSettings.getMeteoGridUpscaleFromDem(), getCompleteFileName(glocalPointsName, PATH_GEO))) return false;
     }
 
     // save also derived variables
@@ -3114,8 +3114,11 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     return true;
 }
 
-bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateFin, meteoVariable myVar, QString filename)
-{
+bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateFin, meteoVariable myVar, QString filename, int nrDaysLoading, QString glocalCVPointsName)
+{    
+
+    logInfoGUI("Starting up...");
+
     // check meteo point
     if (! meteoPointsLoaded || nrMeteoPoints == 0)
     {
@@ -3139,6 +3142,11 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
         return false;
     }
 
+    if (nrDaysLoading == NODATA)
+    {
+        nrDaysLoading = dateIni.daysTo(dateFin)+1;
+    }
+
     // order variables for derived computation
     std::string errString;
     int myHour;
@@ -3159,20 +3167,55 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
         return false;
     }
 
-    // loading point data
+    /*// loading point data
     logInfoGUI("Loading meteo points data from " + dateIni.addDays(-1).toString("yyyy-MM-dd") + " to " + dateFin.toString("yyyy-MM-dd"));
     // load one day before (for transmissivity)
     if (! loadMeteoPointsData(dateIni, dateFin, myFreq == hourly, myFreq == daily, false))
-        return false;
+        return false;*/
 
     Crit3DTime myTime;
 
     QTextStream cvOutput(&file);
-    cvOutput << "Time,MAE,MBE,RMSE,NS,R2" << '\n';
+    if (! interpolationSettings.getUseGlocalDetrending())
+    {
+        cvOutput << "Time,MAE,MBE,RMSE,NS,R2" << '\n';
+    }
+    else
+    {
+        cvOutput << "Time,nrArea,MAE,MBE,RMSE,NS,R2" << "\n";
+    }
+    QDate loadDateFin = QDate(1800, 1, 1);
+
+    // check glocal
+    if (interpolationSettings.getUseGlocalDetrending() && (! interpolationSettings.isGlocalReady(false) || ! glocalCVPointsName.isEmpty()))
+    {
+        if (! loadGlocalAreasMap()) return false;
+        if (glocalCVPointsName.isEmpty())
+        {
+            if (! loadGlocalStationsAndCells(false, getCompleteFileName(glocalPointsName, PATH_GEO))) return false;
+        }
+        else {
+            if (! loadGlocalStationsAndCells(false, getCompleteFileName(glocalCVPointsName, PATH_GEO))) return false;
+        }
+    }
 
     logInfoGUI("Cross validating " + QString::fromStdString(getMeteoVarName(myVar)) + " from " + dateIni.toString("yyyy-MM-dd") + " to " + dateFin.toString("yyyy-MM-dd"));
     while (myDate <= dateFin)
     {
+
+        // check if load needed
+        if (myDate == dateIni || myDate > loadDateFin)
+        {
+            loadDateFin = myDate.addDays(nrDaysLoading-1);
+            if (loadDateFin > dateFin) loadDateFin = dateFin;
+
+            logInfoGUI("Loading meteo points data from " + myDate.addDays(-1).toString("yyyy-MM-dd") + " to " + loadDateFin.toString("yyyy-MM-dd"));
+
+            // load one day before (for transmissivity)
+            if (! loadMeteoPointsData(myDate.addDays(-1), loadDateFin, myFreq == hourly, myFreq == daily, false))
+                return false;
+        }
+
         logInfoGUI(myDate.toString("yyyy-MM-dd"));
 
         if (getVarFrequency(myVar) == hourly)
@@ -3181,14 +3224,30 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
             {
                 myTime = getCrit3DTime(myDate, myHour);
 
-                if (interpolationCv(myVar, myTime))
+                if (interpolationCv(myVar, myTime, glocalCVPointsName))
                 {
-                    cvOutput << getQDateTime(myTime).toString();
-                    cvOutput << "," << crossValidationStatistics.getMeanAbsoluteError();
-                    cvOutput << "," << crossValidationStatistics.getMeanBiasError();
-                    cvOutput << "," << crossValidationStatistics.getRootMeanSquareError();
-                    cvOutput << "," << crossValidationStatistics.getNashSutcliffeEfficiency();
-                    cvOutput << "," << crossValidationStatistics.getR2() << '\n';
+                    if (interpolationSettings.getUseGlocalDetrending())
+                    {
+                        for (int j = 0; j < glocalCrossValidationStatistics.size(); j++)
+                        {
+                            cvOutput << getQDateTime(myTime).toString();
+                            cvOutput << "," << interpolationSettings.getMacroAreaNumber()[j];
+                            cvOutput << "," << glocalCrossValidationStatistics[j].getMeanAbsoluteError();
+                            cvOutput << "," << glocalCrossValidationStatistics[j].getMeanBiasError();
+                            cvOutput << "," << glocalCrossValidationStatistics[j].getRootMeanSquareError();
+                            cvOutput << "," << glocalCrossValidationStatistics[j].getNashSutcliffeEfficiency();
+                            cvOutput << "," << glocalCrossValidationStatistics[j].getR2() << '\n';
+                        }
+                    }
+                    else
+                    {
+                        cvOutput << getQDateTime(myTime).toString();
+                        cvOutput << "," << crossValidationStatistics.getMeanAbsoluteError();
+                        cvOutput << "," << crossValidationStatistics.getMeanBiasError();
+                        cvOutput << "," << crossValidationStatistics.getRootMeanSquareError();
+                        cvOutput << "," << crossValidationStatistics.getNashSutcliffeEfficiency();
+                        cvOutput << "," << crossValidationStatistics.getR2() << '\n';
+                    }
                 }
             }
         }
@@ -3196,14 +3255,30 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
         {
             myTime = getCrit3DTime(myDate, 0);
 
-            if (interpolationCv(myVar, myTime))
+            if (interpolationCv(myVar, myTime, glocalCVPointsName))
             {
-                cvOutput << getQDateTime(myTime).date().toString();
-                cvOutput << "," << crossValidationStatistics.getMeanAbsoluteError();
-                cvOutput << "," << crossValidationStatistics.getMeanBiasError();
-                cvOutput << "," << crossValidationStatistics.getRootMeanSquareError();
-                cvOutput << "," << crossValidationStatistics.getNashSutcliffeEfficiency();
-                cvOutput << "," << crossValidationStatistics.getR2() << '\n';
+                if (interpolationSettings.getUseGlocalDetrending())
+                {
+                    for (int j = 0; j < glocalCrossValidationStatistics.size(); j++)
+                    {
+                        cvOutput << getQDateTime(myTime).toString();
+                        cvOutput << "," << interpolationSettings.getMacroAreaNumber()[j];
+                        cvOutput << "," << glocalCrossValidationStatistics[j].getMeanAbsoluteError();
+                        cvOutput << "," << glocalCrossValidationStatistics[j].getMeanBiasError();
+                        cvOutput << "," << glocalCrossValidationStatistics[j].getRootMeanSquareError();
+                        cvOutput << "," << glocalCrossValidationStatistics[j].getNashSutcliffeEfficiency();
+                        cvOutput << "," << glocalCrossValidationStatistics[j].getR2() << '\n';
+                    }
+                }
+                else
+                {
+                    cvOutput << getQDateTime(myTime).date().toString();
+                    cvOutput << "," << crossValidationStatistics.getMeanAbsoluteError();
+                    cvOutput << "," << crossValidationStatistics.getMeanBiasError();
+                    cvOutput << "," << crossValidationStatistics.getRootMeanSquareError();
+                    cvOutput << "," << crossValidationStatistics.getNashSutcliffeEfficiency();
+                    cvOutput << "," << crossValidationStatistics.getR2() << '\n';
+                }
             }
         }
 
@@ -4410,7 +4485,8 @@ bool PragaProject::loadXMLExportDataGrid(QString code, QDateTime myFirstTime, QD
     return true;
 }
 
-bool PragaProject::monthlyAggregateVariablesGrid(const QDate &firstDate, const QDate &lastDate, QList<meteoVariable> &variablesList)
+
+bool PragaProject::monthlyAggregateVariablesGrid(const QDate &firstDate, const QDate &lastDate, QList<meteoVariable> &variablesList, bool showInfo)
 {
     // check meteo grid
     if (! meteoGridLoaded)
@@ -4436,9 +4512,27 @@ bool PragaProject::monthlyAggregateVariablesGrid(const QDate &firstDate, const Q
         }
     }
 
-    if (! monthlyAggregateDataGrid(meteoGridDbHandler, firstDate, lastDate, dailyMeteoVar, meteoSettings,
-                                  quality, &climateParameters, errorString))
-        return false;
+    int stepInfo;
+    if (showInfo)
+    {
+        stepInfo = setProgressBar("Compute monthly data...", meteoGridDbHandler->meteoGrid()->gridStructure().header().nrRows);
+    }
+
+    for (int row = 0; row < meteoGridDbHandler->meteoGrid()->gridStructure().header().nrRows; row++)
+    {
+        if (showInfo)
+        {
+            if ((row % stepInfo) == 0) updateProgressBar(row);
+        }
+
+        for (int col = 0; col < meteoGridDbHandler->meteoGrid()->gridStructure().header().nrCols; col++)
+        {
+            monthlyAggregateDataSingleCell(meteoGridDbHandler, row, col, firstDate, lastDate, dailyMeteoVar,
+                                           meteoSettings, quality, &climateParameters, errorString);
+        }
+    }
+
+    if (showInfo) closeProgressBar();
 
     meteoGridDbHandler->updateMeteoGridDate(errorString);
 
@@ -5182,16 +5276,12 @@ bool PragaProject::computeRadiationList(QString fileName)
         return false;
     }
 
-    //non aggiungo il log, sarà quello del progetto?
-    //fileName corrisoppnde a EI_list.txt
-
     QFile myFile(fileName);
     if (!myFile.open(QIODevice::ReadOnly))
     {
         logError("Open input file failed:\n" + fileName + "\n" + myFile.errorString());
         return false;
     }
-
 
     QTextStream myStream (&myFile);
     QList<QString> line;
@@ -5222,8 +5312,12 @@ bool PragaProject::computeRadiationList(QString fileName)
         }
         else
         {
-            QString tempPath = PATH_PROJECT;
-            tempPath += "EnergyIntelligence/Output/";
+            QString tempPath = projectPragaFolder + "/Output/";
+            QDir pathDir(tempPath);
+            if (! pathDir.exists())
+            {
+                QDir().mkdir(tempPath);
+            }
             temp.fileName = getCompleteFileName(line[0] + "_out.txt", tempPath).toStdString();
 
             temp.radPoint.lat = line[1].toFloat();
@@ -5258,7 +5352,7 @@ bool PragaProject::computeRadiationList(QString fileName)
         }
     }
 
-    //
+    //loading dei dati orari
     for (int i=0; i < nrMeteoPoints; i++)
     {
         if (!meteoPointsDbHandler->loadHourlyData(loadIniDate, loadEndDate, meteoPoints[i]))
@@ -5268,6 +5362,7 @@ bool PragaProject::computeRadiationList(QString fileName)
         }
     }
 
+    //elaborazione sui punti del file di input
     TelabRadPoint myPoint;
     Crit3DTime myTime;
 
@@ -5284,9 +5379,10 @@ bool PragaProject::computeRadiationList(QString fileName)
 
     for (int i = 0; i < radPointsList.size(); i++)
     {
-        //
+
         myPoint = radPointsList[i];
 
+        //check date
         if (myPoint.endDate < myPoint.iniDate || (myPoint.endDate == myPoint.iniDate && myPoint.iniHour > myPoint.endHour))
         {
             logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
@@ -5300,9 +5396,10 @@ bool PragaProject::computeRadiationList(QString fileName)
         gis::getUtmFromLatLon(gisSettings, myPoint.radPoint.lat, myPoint.radPoint.lon, &utmX, &utmY);
 
         myProxyValues.clear();
-        myProxyValues.push_back(DEM.getValueFromXY(utmX, utmY));
+        myProxyValues.push_back(myPoint.radPoint.height);
 
         QFile outputFile(QString::fromStdString(myPoint.fileName));
+        outputFile.remove();
 
         if (! outputFile.open(QIODevice::WriteOnly | QFile::Append))
         {
@@ -5346,7 +5443,7 @@ bool PragaProject::computeRadiationList(QString fileName)
 
             //potential radiation & transmissivity
             radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
-                                            radSettings.getLinke(), radSettings.getAlbedo(), radSettings.getClearSky(),
+                                            radSettings.getLinke(myTime.date.month-1), radSettings.getAlbedo(), radSettings.getClearSky(),
                                             radSettings.getClearSky(), &sunPosition, &(myPoint.radPoint), DEM);
 
             myPotentialRad = myPoint.radPoint.global;
@@ -5382,7 +5479,7 @@ bool PragaProject::computeRadiationList(QString fileName)
 
             //radiation
             if (! radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
-                                            radSettings.getLinke(), radSettings.getAlbedo(), radSettings.getClearSky(),
+                                            radSettings.getLinke(myTime.date.month-1), radSettings.getAlbedo(), radSettings.getClearSky(),
                                             myTransmissivity, &sunPosition, &(myPoint.radPoint), DEM))
             {
                 logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));

@@ -111,7 +111,7 @@
         bool interpolationMeteoGrid(meteoVariable myVar, frequencyType myFrequency, const Crit3DTime& myTime);
         bool interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, QList <meteoVariable> aggrVariables,
                                           QList<meteoVariable> derivedVariables, int nrDaysLoading, int nrDaysSaving);
-        bool interpolationCrossValidationPeriod(QDate dateIni, QDate dateFin, meteoVariable myVar, QString filename);
+        bool interpolationCrossValidationPeriod(QDate dateIni, QDate dateFin, meteoVariable myVar, QString filename, int nrDaysLoading, QString glocalCVPointsName);
         bool saveGrid(meteoVariable myVar, frequencyType myFrequency, const Crit3DTime& myTime, bool showInfo);
         bool timeAggregateGridVarHourlyInDaily(meteoVariable dailyVar, Crit3DDate dateIni, Crit3DDate dateFin);
         bool timeAggregateGrid(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, bool loadData, bool saveData);
@@ -142,7 +142,7 @@
         bool loadXMLImportData(QString fileName);
         bool loadXMLExportData(QString code, QDateTime myFirstTime, QDateTime myLastTime);
         bool loadXMLExportDataGrid(QString code, QDateTime myFirstTime, QDateTime myLastTime);
-        bool monthlyAggregateVariablesGrid(const QDate &firstDate, const QDate &lastDate, QList <meteoVariable> &variablesList);
+        bool monthlyAggregateVariablesGrid(const QDate &firstDate, const QDate &lastDate, QList <meteoVariable> &variablesList, bool showInfo);
         bool computeDroughtIndexGrid(droughtIndex index, int firstYear, int lastYear, QDate date, int timescale, meteoVariable myVar);
         bool computeDroughtIndexPoint(droughtIndex index, int timescale, int refYearStart, int refYearEnd);
         bool computeDroughtIndexPointGUI(droughtIndex index, int timescale, int refYearStart, int refYearEnd, QDate myDate);

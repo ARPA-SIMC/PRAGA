@@ -183,17 +183,17 @@ void Crit3DElabList::insertPeriodStr(QString period)
     _listPeriodStr.push_back(period);
 }
 
-std::vector<period> Crit3DElabList::listPeriodType() const
+std::vector<climatePeriod> Crit3DElabList::listPeriodType() const
 {
     return _listPeriodType;
 }
 
-void Crit3DElabList::setListPeriodType(const std::vector<period> &listPeriodType)
+void Crit3DElabList::setListPeriodType(const std::vector<climatePeriod> &listPeriodType)
 {
     _listPeriodType = listPeriodType;
 }
 
-void Crit3DElabList::insertPeriodType(period period)
+void Crit3DElabList::insertPeriodType(climatePeriod period)
 {
     _listPeriodType.push_back(period);
 }
