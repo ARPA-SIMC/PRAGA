@@ -3116,6 +3116,9 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
 bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateFin, meteoVariable myVar, QString filename, int nrDaysLoading, QString glocalCVPointsName)
 {    
+
+    logInfoGUI("Starting up...");
+
     // check meteo point
     if (! meteoPointsLoaded || nrMeteoPoints == 0)
     {
@@ -5290,8 +5293,12 @@ bool PragaProject::computeRadiationList(QString fileName)
         }
         else
         {
-            QString tempPath = PATH_PROJECT;
-            tempPath += "EnergyIntelligence/Output/"; //todo check
+            QString tempPath = projectPragaFolder + "/Output/";
+            QDir pathDir(tempPath);
+            if (! pathDir.exists())
+            {
+                QDir().mkdir(tempPath);
+            }
             temp.fileName = getCompleteFileName(line[0] + "_out.txt", tempPath).toStdString();
 
             temp.radPoint.lat = line[1].toFloat();
