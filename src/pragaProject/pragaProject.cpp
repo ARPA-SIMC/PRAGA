@@ -4485,7 +4485,8 @@ bool PragaProject::loadXMLExportDataGrid(QString code, QDateTime myFirstTime, QD
     return true;
 }
 
-bool PragaProject::monthlyAggregateVariablesGrid(const QDate &firstDate, const QDate &lastDate, QList<meteoVariable> &variablesList)
+
+bool PragaProject::monthlyAggregateVariablesGrid(const QDate &firstDate, const QDate &lastDate, QList<meteoVariable> &variablesList, bool showInfo)
 {
     // check meteo grid
     if (! meteoGridLoaded)
@@ -4511,9 +4512,27 @@ bool PragaProject::monthlyAggregateVariablesGrid(const QDate &firstDate, const Q
         }
     }
 
-    if (! monthlyAggregateDataGrid(meteoGridDbHandler, firstDate, lastDate, dailyMeteoVar, meteoSettings,
-                                  quality, &climateParameters, errorString))
-        return false;
+    int stepInfo;
+    if (showInfo)
+    {
+        stepInfo = setProgressBar("Compute monthly data...", meteoGridDbHandler->meteoGrid()->gridStructure().header().nrRows);
+    }
+
+    for (int row = 0; row < meteoGridDbHandler->meteoGrid()->gridStructure().header().nrRows; row++)
+    {
+        if (showInfo)
+        {
+            if ((row % stepInfo) == 0) updateProgressBar(row);
+        }
+
+        for (int col = 0; col < meteoGridDbHandler->meteoGrid()->gridStructure().header().nrCols; col++)
+        {
+            monthlyAggregateDataSingleCell(meteoGridDbHandler, row, col, firstDate, lastDate, dailyMeteoVar,
+                                           meteoSettings, quality, &climateParameters, errorString);
+        }
+    }
+
+    if (showInfo) closeProgressBar();
 
     meteoGridDbHandler->updateMeteoGridDate(errorString);
 

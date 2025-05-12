@@ -529,9 +529,9 @@ int cmdHourlyDerivedVariablesGrid(PragaProject* myProject, QList<QString> argume
     return PRAGA_OK;
 }
 
+
 int cmdMonthlyIntegrationVariablesGrid(PragaProject* myProject, QList<QString> argumentList)
 {
-
     // default date
     QDate first = QDate::currentDate();
     QDate last = first.addDays(9);
@@ -582,7 +582,7 @@ int cmdMonthlyIntegrationVariablesGrid(PragaProject* myProject, QList<QString> a
         return PRAGA_INVALID_COMMAND;
     }
 
-    if (! myProject->monthlyAggregateVariablesGrid(first, last, variables))
+    if (! myProject->monthlyAggregateVariablesGrid(first, last, variables, false))
     {
         myProject->logError();
         return PRAGA_ERROR;
@@ -590,6 +590,7 @@ int cmdMonthlyIntegrationVariablesGrid(PragaProject* myProject, QList<QString> a
 
     return PRAGA_OK;
 }
+
 
 int cmdInterpolationCrossValidation(PragaProject* myProject, QList<QString> argumentList)
 {
