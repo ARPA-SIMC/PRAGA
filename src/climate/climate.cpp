@@ -5155,6 +5155,7 @@ bool monthlyAggregateDataSingleCell(Crit3DMeteoGridDbHandler* meteoGridDbHandler
     // copy id and lat to tmpMeteoPoint
     tmpMeteoPoint->id = meteoPoint->id;
     tmpMeteoPoint->latitude = meteoPoint->latitude;
+    tmpMeteoPoint->point = meteoPoint->point;
     // tmpMeteoPoint should be init
     tmpMeteoPoint->nrObsDataDaysH = 0;
     tmpMeteoPoint->nrObsDataDaysD = 0;
