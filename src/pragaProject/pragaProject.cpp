@@ -4524,11 +4524,13 @@ bool PragaProject::monthlyAggregateVariablesGrid(const QDate &firstDate, const Q
         {
             if ((row % stepInfo) == 0) updateProgressBar(row);
         }
-
         for (int col = 0; col < meteoGridDbHandler->meteoGrid()->gridStructure().header().nrCols; col++)
         {
-            monthlyAggregateDataSingleCell(meteoGridDbHandler, row, col, firstDate, lastDate, dailyMeteoVar,
+            if (meteoGridDbHandler->meteoGrid()->meteoPointPointer(row, col)->active)
+            {
+                monthlyAggregateDataSingleCell(meteoGridDbHandler, row, col, firstDate, lastDate, dailyMeteoVar,
                                            meteoSettings, quality, &climateParameters, errorString);
+            }
         }
     }
 
