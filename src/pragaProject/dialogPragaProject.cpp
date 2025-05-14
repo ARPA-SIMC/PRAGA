@@ -8,6 +8,7 @@
 #include <QDialogButtonBox>
 
 
+
 DialogPragaProject::DialogPragaProject(PragaProject *myProject) : DialogProject(myProject)
 {
     project_ = myProject;
