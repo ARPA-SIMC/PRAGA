@@ -5908,11 +5908,8 @@ void MainWindow::on_actionCompute_monthly_data_from_daily_triggered()
         }
     }
 
-    myProject.logInfoGUI("Compute monthly data...");
-    bool isOk = myProject.monthlyAggregateVariablesGrid(firstDate, lastDate, varToCompute);
-    myProject.closeLogInfo();
-
-    if (! isOk)
+    bool isShowInfo = true;
+    if (! myProject.monthlyAggregateVariablesGrid(firstDate, lastDate, varToCompute, isShowInfo))
     {
         myProject.logError("Failed to compute monthly data.\n" + myProject.errorString);
     }

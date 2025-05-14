@@ -3116,6 +3116,9 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 
 bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateFin, meteoVariable myVar, QString filename, int nrDaysLoading, QString glocalCVPointsName)
 {    
+
+    logInfoGUI("Starting up...");
+
     // check meteo point
     if (! meteoPointsLoaded || nrMeteoPoints == 0)
     {
@@ -4482,7 +4485,8 @@ bool PragaProject::loadXMLExportDataGrid(QString code, QDateTime myFirstTime, QD
     return true;
 }
 
-bool PragaProject::monthlyAggregateVariablesGrid(const QDate &firstDate, const QDate &lastDate, QList<meteoVariable> &variablesList)
+
+bool PragaProject::monthlyAggregateVariablesGrid(const QDate &firstDate, const QDate &lastDate, QList<meteoVariable> &variablesList, bool showInfo)
 {
     // check meteo grid
     if (! meteoGridLoaded)
@@ -4508,9 +4512,27 @@ bool PragaProject::monthlyAggregateVariablesGrid(const QDate &firstDate, const Q
         }
     }
 
-    if (! monthlyAggregateDataGrid(meteoGridDbHandler, firstDate, lastDate, dailyMeteoVar, meteoSettings,
-                                  quality, &climateParameters, errorString))
-        return false;
+    int stepInfo;
+    if (showInfo)
+    {
+        stepInfo = setProgressBar("Compute monthly data...", meteoGridDbHandler->meteoGrid()->gridStructure().header().nrRows);
+    }
+
+    for (int row = 0; row < meteoGridDbHandler->meteoGrid()->gridStructure().header().nrRows; row++)
+    {
+        if (showInfo)
+        {
+            if ((row % stepInfo) == 0) updateProgressBar(row);
+        }
+
+        for (int col = 0; col < meteoGridDbHandler->meteoGrid()->gridStructure().header().nrCols; col++)
+        {
+            monthlyAggregateDataSingleCell(meteoGridDbHandler, row, col, firstDate, lastDate, dailyMeteoVar,
+                                           meteoSettings, quality, &climateParameters, errorString);
+        }
+    }
+
+    if (showInfo) closeProgressBar();
 
     meteoGridDbHandler->updateMeteoGridDate(errorString);
 
@@ -5290,8 +5312,12 @@ bool PragaProject::computeRadiationList(QString fileName)
         }
         else
         {
-            QString tempPath = PATH_PROJECT;
-            tempPath += "EnergyIntelligence/Output/"; //todo check
+            QString tempPath = projectPragaFolder + "/Output/";
+            QDir pathDir(tempPath);
+            if (! pathDir.exists())
+            {
+                QDir().mkdir(tempPath);
+            }
             temp.fileName = getCompleteFileName(line[0] + "_out.txt", tempPath).toStdString();
 
             temp.radPoint.lat = line[1].toFloat();

@@ -1566,5 +1566,3 @@ void Crit3DHomogeneityWidget::checkValueAndMerge(Crit3DMeteoPoint meteoPointGet,
     }
     }
 }
-
-
