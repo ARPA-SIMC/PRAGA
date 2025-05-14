@@ -885,7 +885,7 @@ float loadHourlyVarSeries_SaveOutput(Crit3DMeteoPointsDbHandler *meteoPointsDbHa
 {
     std::vector<float> hourlyValues;
     QDateTime firstDateTimeDB;
-    firstDateTimeDB.setTimeSpec(Qt::UTC);
+    firstDateTimeDB.setTimeZone(QTimeZone::utc());
 
     if (isMeteoGrid)
     {
@@ -913,7 +913,7 @@ float loadHourlyVarSeries_SaveOutput(Crit3DMeteoPointsDbHandler *meteoPointsDbHa
     int nrValidValues = 0;
 
     // fills the missing initial output data
-    firstDateTimeDB.setTimeSpec(Qt::UTC);
+    firstDateTimeDB.setTimeZone(QTimeZone::utc());
     int nrMissingHours = firstTime.secsTo(firstDateTimeDB) / 3600;
     for (int i = 1; i <= nrMissingHours; i++)
     {
@@ -1054,7 +1054,7 @@ float loadHourlyVarSeries(Crit3DMeteoPointsDbHandler* meteoPointsDbHandler,
 {
     std::vector<float> hourlyValues;
     QDateTime firstDateTimeDB;
-    firstDateTimeDB.setTimeSpec(Qt::UTC);
+    firstDateTimeDB.setTimeZone(QTimeZone::utc());
     QString meteoPointId = QString::fromStdString(meteoPoint->id);
 
     if (isMeteoGrid)
@@ -1092,7 +1092,7 @@ float loadHourlyVarSeries(Crit3DMeteoPointsDbHandler* meteoPointsDbHandler,
     }
 
     QDateTime currentDateTime = firstDateTimeDB;
-    currentDateTime.setTimeSpec(Qt::UTC);
+    currentDateTime.setTimeZone(QTimeZone::utc());
     for (unsigned int i = 0; i < hourlyValues.size(); i++)
     {
         quality::qualityType qualityT = qualityCheck.syntacticQualitySingleValue(variable, hourlyValues[i]);

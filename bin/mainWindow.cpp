@@ -3425,7 +3425,7 @@ void MainWindow::on_actionInterpolationOutputPointsPeriod_triggered()
     }
 
     QDateTime firstTime;
-    firstTime.setTimeSpec(Qt::UTC);
+    firstTime.setTimeZone(QTimeZone::utc());
     firstTime = myProject.meteoPointsDbFirstTime;
     if (firstTime.isNull())
     {
@@ -3434,7 +3434,7 @@ void MainWindow::on_actionInterpolationOutputPointsPeriod_triggered()
     }
 
     QDateTime lastTime;
-    lastTime.setTimeSpec(Qt::UTC);
+    lastTime.setTimeZone(QTimeZone::utc());
     lastTime = myProject.meteoPointsDbLastTime;
     if (lastTime.time().hour() == 00)
         lastTime = lastTime.addSecs(-3600);
