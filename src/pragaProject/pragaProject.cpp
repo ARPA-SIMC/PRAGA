@@ -1795,6 +1795,8 @@ bool PragaProject::downloadHourlyDataArkimet(QList<QString> variables, QDate sta
         QDate date1 = startDate;
         QDate date2 = std::min(date1.addDays(MAXDAYS_DOWNLOAD_HOURLY), endDate);
 
+        logInfo("Downloading " + datasetList[i] + " dataset.");
+
         if (showInfo)
         {
             setProgressBar("Download hourly data from: " + startDate.toString("yyyy-MM-dd") + " to:" + endDate.toString("yyyy-MM-dd") + " dataset:" + datasetList[i], nrDays);
@@ -5299,7 +5301,7 @@ bool PragaProject::computeRadiationList(QString fileName)
             {
                 QDir().mkdir(tempPath);
             }
-            temp.fileName = getCompleteFileName(line[0] + "_out.txt", tempPath).toStdString();
+            temp.fileName = tempPath.toStdString() + line[0].toStdString() + "_out.txt";
 
             temp.radPoint.lat = line[1].toFloat();
             temp.radPoint.lon = line[2].toFloat();
@@ -5334,6 +5336,7 @@ bool PragaProject::computeRadiationList(QString fileName)
     }
 
     //loading dei dati orari
+    logInfo("Loading meteo data...");
     for (int i=0; i < nrMeteoPoints; i++)
     {
         if (!meteoPointsDbHandler->loadHourlyData(loadIniDate, loadEndDate, meteoPoints[i]))
@@ -5385,7 +5388,7 @@ bool PragaProject::computeRadiationList(QString fileName)
         if (! outputFile.open(QIODevice::WriteOnly | QFile::Append))
         {
             logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
-            logInfo("Unable to find output folder or open file");
+            logInfo("Unable to find output folder or open file " + QString::fromStdString(myPoint.fileName));
             continue;
         }
 
@@ -5414,6 +5417,12 @@ bool PragaProject::computeRadiationList(QString fileName)
             {
                 logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
                 logInfo("Error interpolating temperature.");
+                myHour++;
+                if (myHour >= 24)
+                {
+                    myHour -= 24;
+                    myDate = myDate.addDays(1);
+                }
                 continue;
             }
 
@@ -5435,6 +5444,12 @@ bool PragaProject::computeRadiationList(QString fileName)
             {
                 logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
                 logInfo("Error computing transmissivity.");
+                myHour++;
+                if (myHour >= 24)
+                {
+                    myHour -= 24;
+                    myDate = myDate.addDays(1);
+                }
                 continue;
             }
 
@@ -5454,6 +5469,12 @@ bool PragaProject::computeRadiationList(QString fileName)
             {
                 logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
                 logInfo("Error interpolating transmissivity.");
+                myHour++;
+                if (myHour >= 24)
+                {
+                    myHour -= 24;
+                    myDate = myDate.addDays(1);
+                }
                 continue;
             }
 
@@ -5465,6 +5486,12 @@ bool PragaProject::computeRadiationList(QString fileName)
             {
                 logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
                 logInfo("Error computing point radiation.");
+                myHour++;
+                if (myHour >= 24)
+                {
+                    myHour -= 24;
+                    myDate = myDate.addDays(1);
+                }
                 continue;
             }
 
