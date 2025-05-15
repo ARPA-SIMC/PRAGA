@@ -3425,7 +3425,7 @@ void MainWindow::on_actionInterpolationOutputPointsPeriod_triggered()
     }
 
     QDateTime firstTime;
-    firstTime.setTimeSpec(Qt::UTC);
+    firstTime.setTimeZone(QTimeZone::utc());
     firstTime = myProject.meteoPointsDbFirstTime;
     if (firstTime.isNull())
     {
@@ -3434,7 +3434,7 @@ void MainWindow::on_actionInterpolationOutputPointsPeriod_triggered()
     }
 
     QDateTime lastTime;
-    lastTime.setTimeSpec(Qt::UTC);
+    lastTime.setTimeZone(QTimeZone::utc());
     lastTime = myProject.meteoPointsDbLastTime;
     if (lastTime.time().hour() == 00)
         lastTime = lastTime.addSecs(-3600);
@@ -5908,11 +5908,8 @@ void MainWindow::on_actionCompute_monthly_data_from_daily_triggered()
         }
     }
 
-    myProject.logInfoGUI("Compute monthly data...");
-    bool isOk = myProject.monthlyAggregateVariablesGrid(firstDate, lastDate, varToCompute);
-    myProject.closeLogInfo();
-
-    if (! isOk)
+    bool isShowInfo = true;
+    if (! myProject.monthlyAggregateVariablesGrid(firstDate, lastDate, varToCompute, isShowInfo))
     {
         myProject.logError("Failed to compute monthly data.\n" + myProject.errorString);
     }
