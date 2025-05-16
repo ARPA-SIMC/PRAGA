@@ -24,25 +24,25 @@ double Vite::GradiGiorno(const long& i, const Stazione& stazione)
 
 void Vite::Germogliamento(const Stazione& stazione) 
 {
-	long i = m_faseFenologica.size() - 1;
+    long i = long(m_faseFenologica.size()) - 1;
     m_faseFenologica[i] += GradiGiorno(i, stazione) / m_limiteGradiGiorno[0];
 }
 
 void Vite::Fioritura(const Stazione& stazione)
 {
-	long i = m_faseFenologica.size() - 1;
+    long i = long(m_faseFenologica.size()) - 1;
     m_faseFenologica[i] += GradiGiorno(i, stazione) / ( m_limiteGradiGiorno[1] - m_limiteGradiGiorno[0] );
 }
 
 void Vite::Invaiatura(const Stazione& stazione)
 {
-	long i = m_faseFenologica.size() - 1;
+    long i = long(m_faseFenologica.size()) - 1;
     m_faseFenologica[i] += GradiGiorno(i, stazione) / ( m_limiteGradiGiorno[2] - m_limiteGradiGiorno[1] );
 }
 
 void Vite::Maturazione(const Stazione& stazione)
 {
-	long i = m_faseFenologica.size() - 1;
+    long i = long(m_faseFenologica.size()) - 1;
     m_faseFenologica[i] += GradiGiorno(i, stazione) / ( m_limiteGradiGiorno[3] - m_limiteGradiGiorno[2] );
 }
 
@@ -70,8 +70,8 @@ void Vite::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
 		m_faseFenologica.push_back( m_faseFenologica[m_faseFenologica.size()-1] );
 	}
 
-	if( stazione.Tn(m_faseFenologica.size()-1) == parametri.dato_mancante || 
-		stazione.Tx(m_faseFenologica.size()-1) == parametri.dato_mancante )
+    if( stazione.Tn(long(m_faseFenologica.size()-1)) == parametri.dato_mancante ||
+        stazione.Tx(long(m_faseFenologica.size()-1)) == parametri.dato_mancante )
 	{
 		sprintf(message, "Exception raised: dati di temperatura mancanti\n");
 		console.Show(message);
@@ -83,10 +83,10 @@ void Vite::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
 	switch( static_cast<long>( floor(m_faseFenologica[m_faseFenologica.size()-1]) ) )
 	{
 		case 0:
-			if( stazione.getDate(m_faseFenologica.size()-1) == parametri.dataInizio )
+            if( stazione.getDate(long(m_faseFenologica.size())-1) == parametri.dataInizio )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 1.;
-				m_inizioAttivita = stazione.getDate(m_faseFenologica.size()-1);
+                m_inizioAttivita = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -97,7 +97,7 @@ void Vite::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 2. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 2.;
-				m_germogliamento = stazione.getDate(m_faseFenologica.size()-1);
+                m_germogliamento = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -108,7 +108,7 @@ void Vite::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 3. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 3.;
-				m_fioritura = stazione.getDate(m_faseFenologica.size()-1);
+                m_fioritura = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 				
 			break;
@@ -119,7 +119,7 @@ void Vite::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 4. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 4.;
-				m_invaiatura = stazione.getDate(m_faseFenologica.size()-1);
+                m_invaiatura = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -130,7 +130,7 @@ void Vite::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 5. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 5.;
-				m_maturazione = stazione.getDate(m_faseFenologica.size()-1);
+                m_maturazione = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;

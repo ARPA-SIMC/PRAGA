@@ -15,7 +15,7 @@ double Bietola::R(double T)
 // Emergenza
 void Bietola::Emergenza(const Stazione& stazione) 
 {
-	long i = m_faseFenologica.size() - 1;
+    long i = long(m_faseFenologica.size()) - 1;
 	double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
 	m_gradiGiornoEmergenza += Tm;
 	m_faseFenologica[i] += R(Tm);
@@ -25,7 +25,7 @@ void Bietola::Emergenza(const Stazione& stazione)
 // 12 foglie
 void Bietola::DodiciFoglie(const Stazione& stazione)
 {
-	long i = m_faseFenologica.size() - 1;
+    long i = long(m_faseFenologica.size()) - 1;
 	double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
     m_gradiGiornoDodiciFoglie += std::max(0., Tm);
     m_faseFenologica[i] += std::max(0., Tm) / ( 924. - m_gradiGiornoEmergenza );
@@ -34,7 +34,7 @@ void Bietola::DodiciFoglie(const Stazione& stazione)
 // Raccolta
 void Bietola::Raccolta(const Stazione& stazione) 
 {
-	long i = m_faseFenologica.size() - 1;
+    long i = long(m_faseFenologica.size()) - 1;
 	double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
     m_faseFenologica[i] += std::max(0., Tm) / ( m_limiteGradiGiorno - 924. );
 }
@@ -50,9 +50,9 @@ void Bietola::Fenologia(Stazione& stazione, const Parametri& parametri, Console&
 	}
 	else
 	{
-		if( m_faseFenologica[m_faseFenologica.size()-1] == parametri.dato_mancante )
+        if( m_faseFenologica[long(m_faseFenologica.size())-1] == parametri.dato_mancante )
 		{
-			m_faseFenologica[m_faseFenologica.size()-1] = parametri.dato_mancante;
+            m_faseFenologica[long(m_faseFenologica.size())-1] = parametri.dato_mancante;
 			sprintf(message, "Exception raised: dati fenologici mancanti\n");
 			console.Show(message);
 			sprintf(message, "Coltura %s\tStazione di %s", m_coltura, stazione.Nome());
@@ -60,11 +60,11 @@ void Bietola::Fenologia(Stazione& stazione, const Parametri& parametri, Console&
 			return;
 		}
 			
-		m_faseFenologica.push_back( m_faseFenologica[m_faseFenologica.size()-1] );
+        m_faseFenologica.push_back( m_faseFenologica[long(m_faseFenologica.size())-1] );
 	}
 
-	if( stazione.Tn(m_faseFenologica.size()-1) == parametri.dato_mancante || 
-		stazione.Tx(m_faseFenologica.size()-1) == parametri.dato_mancante )
+    if( stazione.Tn(long(m_faseFenologica.size())-1) == parametri.dato_mancante ||
+        stazione.Tx(long(m_faseFenologica.size())-1) == parametri.dato_mancante )
 	{
 		sprintf(message, "Exception raised: dati di temperatura mancanti\n");
 		console.Show(message);
@@ -73,13 +73,13 @@ void Bietola::Fenologia(Stazione& stazione, const Parametri& parametri, Console&
 		return;
 	}
 
-	switch( static_cast<long>( floor(m_faseFenologica[m_faseFenologica.size()-1]) ) )
+    switch( static_cast<long>( floor(m_faseFenologica[long(m_faseFenologica.size())-1]) ) )
 	{
 		case 0:
-			if( stazione.getDate(m_faseFenologica.size()-1) == parametri.dataInizio )
+            if( stazione.getDate(long(m_faseFenologica.size())-1) == parametri.dataInizio )
 			{
-				m_faseFenologica[m_faseFenologica.size()-1] = 1.;
-				m_semina = stazione.getDate(m_faseFenologica.size()-1);
+                m_faseFenologica[long(m_faseFenologica.size())-1] = 1.;
+                m_semina = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -87,10 +87,10 @@ void Bietola::Fenologia(Stazione& stazione, const Parametri& parametri, Console&
 		case 1:
 			Emergenza(stazione);
 
-			if( m_faseFenologica[m_faseFenologica.size()-1] >= 2. )
+            if( m_faseFenologica[long(m_faseFenologica.size())-1] >= 2. )
 			{
-				m_faseFenologica[m_faseFenologica.size()-1] = 2.;
-				m_emergenza = stazione.getDate(m_faseFenologica.size()-1);
+                m_faseFenologica[long(m_faseFenologica.size())-1] = 2.;
+                m_emergenza = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -98,10 +98,10 @@ void Bietola::Fenologia(Stazione& stazione, const Parametri& parametri, Console&
 		case 2:
 			DodiciFoglie(stazione);
 
-			if( m_faseFenologica[m_faseFenologica.size()-1] >= 3. )
+            if( m_faseFenologica[long(m_faseFenologica.size())-1] >= 3. )
 			{
-				m_faseFenologica[m_faseFenologica.size()-1] = 3.;
-				m_dodiciFoglie = stazione.getDate(m_faseFenologica.size()-1);
+                m_faseFenologica[long(m_faseFenologica.size())-1] = 3.;
+                m_dodiciFoglie = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 				
 			break;
@@ -109,10 +109,10 @@ void Bietola::Fenologia(Stazione& stazione, const Parametri& parametri, Console&
 		case 3:
 			Raccolta(stazione);
 
-			if( m_faseFenologica[m_faseFenologica.size()-1] >= 4. )
+            if( m_faseFenologica[long(m_faseFenologica.size())-1] >= 4. )
 			{
-				m_faseFenologica[m_faseFenologica.size()-1] = 4.;
-				m_raccolta = stazione.getDate(m_faseFenologica.size()-1);
+                m_faseFenologica[long(m_faseFenologica.size())-1] = 4.;
+                m_raccolta = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
