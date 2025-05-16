@@ -86,7 +86,7 @@ void Mais::CalcoloNumeroFoglie(const long& i, Stazione& stazione, const Parametr
 // calcolo della data di emergenza
 void Mais::Emergenza(const Stazione& stazione, const Parametri& parametri)
 {
-	long i = m_faseFenologica.size() - 1;
+	long i = long(m_faseFenologica.size()) - 1;
 	double Tsm = ( TemperaturaSuoloMinima(i, stazione, parametri) + TemperaturaSuoloMassima(i, stazione, parametri) ) / 2.;
     m_faseFenologica[i] += std::max( static_cast<double>(0.), 0.0144 * Tsm - 0.09193 );
 }
@@ -94,7 +94,7 @@ void Mais::Emergenza(const Stazione& stazione, const Parametri& parametri)
 // routine di calcolo della data di viraggio apicale
 void Mais::Viraggio(Stazione& stazione, const Parametri& parametri) 
 {
-	long i = m_faseFenologica.size() - 1;
+	long i = long(m_faseFenologica.size()) - 1;
 
 	// calcolo delle foglie totali al giorno corrente
 	CalcoloNumeroFoglie(i, stazione, parametri);
@@ -109,14 +109,14 @@ void Mais::Viraggio(Stazione& stazione, const Parametri& parametri)
 // routine di calcolo della data di m_fioritura
 void Mais::Fioritura(const Stazione& stazione, const Parametri& parametri)
 {
-	long i = m_faseFenologica.size() - 1;
+    long i = long(m_faseFenologica.size()) - 1;
 	m_faseFenologica[i] += .5 * ( TassoCrescitaFoglie(stazione.Tn(i)) + TassoCrescitaFoglie(stazione.Tx(i)) ) / ( m_numeroFoglieTotali +1. - m_numeroFoglieEmerse );
 }
 
 // routine per il calcolo della data di m_maturazione fisiologica del mais
 void Mais::Maturazione(const Stazione& stazione) 
 {
-	long i = m_faseFenologica.size() - 1;
+	long i = long(m_faseFenologica.size()) - 1;
     m_faseFenologica[i] += CornHeatUnits(std::max(10., (double)stazione.Tx(i)), std::max(4.4, (double)stazione.Tn(i))) / m_limiteGradiGiorno[m_classeFAO/100 - 2];
 }
 
@@ -144,8 +144,8 @@ void Mais::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
 		m_faseFenologica.push_back( m_faseFenologica[m_faseFenologica.size()-1] );
 	}
 
-	if( stazione.Tn(m_faseFenologica.size()-1) == parametri.dato_mancante || 
-		stazione.Tx(m_faseFenologica.size()-1) == parametri.dato_mancante )
+	if( stazione.Tn(long(m_faseFenologica.size()-1)) == parametri.dato_mancante || 
+		stazione.Tx(long(m_faseFenologica.size()-1)) == parametri.dato_mancante )
 	{
 		sprintf(message, "Exception raised: dati di temperatura mancanti\n");
 		console.Show(message);
@@ -157,10 +157,10 @@ void Mais::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
 	switch( static_cast<long>( floor(m_faseFenologica[m_faseFenologica.size()-1]) ) )
 	{
 		case 0:
-			if( stazione.getDate(m_faseFenologica.size()-1) == parametri.dataInizio )
+			if( stazione.getDate(long(m_faseFenologica.size())-1) == parametri.dataInizio )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 1.;
-				m_semina = stazione.getDate(m_faseFenologica.size()-1);
+				m_semina = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -171,7 +171,7 @@ void Mais::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 2. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 2.;
-				m_emergenza = stazione.getDate(m_faseFenologica.size()-1);
+				m_emergenza = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -182,7 +182,7 @@ void Mais::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 3. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 3.;
-				m_viraggioApicale = stazione.getDate(m_faseFenologica.size()-1);
+				m_viraggioApicale = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 				
 			break;
@@ -193,7 +193,7 @@ void Mais::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 4.)
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 4.;
-				m_fioritura = stazione.getDate(m_faseFenologica.size()-1);
+				m_fioritura = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -204,7 +204,7 @@ void Mais::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 5. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 5.;
-				m_maturazione = stazione.getDate(m_faseFenologica.size()-1);
+				m_maturazione = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;

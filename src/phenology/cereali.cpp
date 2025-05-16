@@ -132,7 +132,7 @@ bool Cereali::CalcoloNumeroFoglie(Stazione& stazione, const Parametri& parametri
 // calcolo della data di emergenza
 void Cereali::Emergenza(const Stazione& stazione)
 {
-	long i = m_faseFenologica.size() - 1;
+    long i = long(m_faseFenologica.size()) - 1;
 	double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
     m_faseFenologica[i] += std::max( static_cast<double>(0.), TassoSviluppoEmergenza(Tm) );
 }
@@ -140,7 +140,7 @@ void Cereali::Emergenza(const Stazione& stazione)
 // calcolo del numero di bozze fogliari e del periodo di viraggio apicale
 void Cereali::Viraggio(const Stazione& stazione)
 {
-	long i = m_faseFenologica.size() - 1;
+    long i = long(m_faseFenologica.size()) - 1;
 	double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
 
     double Pr = std::max(0., -0.038 + m_beta * Tm);
@@ -155,7 +155,7 @@ void Cereali::Viraggio(const Stazione& stazione)
 // calcolo della data di spigatura
 void Cereali::Spigatura(const Stazione& stazione) 
 {
-	long i = m_faseFenologica.size() - 1;
+    long i = long(m_faseFenologica.size()) - 1;
 	double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
 
     double Pr = std::max(0., -0.038 + m_beta * Tm);
@@ -169,7 +169,7 @@ void Cereali::Spigatura(const Stazione& stazione)
 // calcolo della data di maturazione fisiologica
 void Cereali::Maturazione(const Stazione& stazione) 
 {
-	long i = m_faseFenologica.size() - 1;
+    long i = long(m_faseFenologica.size()) - 1;
 	double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
     m_faseFenologica[i] += std::max( static_cast<double>(0.), ( Tm - m_sogliaGradiGiorno ) / m_limiteGradiGiorno );
 }
@@ -192,10 +192,10 @@ void Cereali::Fenologia(Stazione& stazione, const Parametri& parametri, Console&
 	if( m_faseFenologica.empty() )
 		m_faseFenologica.push_back( static_cast<double>(0.) );
 	else
-		m_faseFenologica.push_back( m_faseFenologica[m_faseFenologica.size()-1] );
+        m_faseFenologica.push_back( m_faseFenologica[long(m_faseFenologica.size())-1] );
 
-	if( stazione.Tn(m_faseFenologica.size()-1) == parametri.dato_mancante || 
-		stazione.Tx(m_faseFenologica.size()-1) == parametri.dato_mancante )
+    if( stazione.Tn(long(m_faseFenologica.size())-1) == parametri.dato_mancante ||
+        stazione.Tx(long(m_faseFenologica.size())-1) == parametri.dato_mancante )
 	{
 		sprintf(message, "Exception raised: dati di temperatura mancanti\n");
 		console.Show(message);
@@ -204,15 +204,15 @@ void Cereali::Fenologia(Stazione& stazione, const Parametri& parametri, Console&
 		return;
 	}
 
-	switch( static_cast<long>( floor(m_faseFenologica[m_faseFenologica.size()-1]) ) )
+    switch( static_cast<long>( floor(m_faseFenologica[long(m_faseFenologica.size())-1]) ) )
 	{
 		case 0:
-            if( stazione.getDate(m_faseFenologica.size()-1) == parametri.dataInizio )
+            if( stazione.getDate(long(m_faseFenologica.size())-1) == parametri.dataInizio )
 			{
-				m_faseFenologica[m_faseFenologica.size()-1] = 1.;
-                m_semina = stazione.getDate(m_faseFenologica.size()-1);
+                m_faseFenologica[long(m_faseFenologica.size())-1] = 1.;
+                m_semina = stazione.getDate(long(m_faseFenologica.size())-1);
 				if( ! CalcoloDateFittizie(stazione, parametri, console) )
-					m_faseFenologica[m_faseFenologica.size()-1] = parametri.dato_mancante;
+                    m_faseFenologica[long(m_faseFenologica.size())-1] = parametri.dato_mancante;
 			}
 
 			break;
@@ -220,12 +220,12 @@ void Cereali::Fenologia(Stazione& stazione, const Parametri& parametri, Console&
 		case 1:
 			Emergenza(stazione);
 
-			if( m_faseFenologica[m_faseFenologica.size()-1] >= 2. )
+            if( m_faseFenologica[long(m_faseFenologica.size())-1] >= 2. )
 			{
-				m_faseFenologica[m_faseFenologica.size()-1] = 2.;
-                m_emergenza = stazione.getDate(m_faseFenologica.size()-1);
+                m_faseFenologica[long(m_faseFenologica.size())-1] = 2.;
+                m_emergenza = stazione.getDate(long(m_faseFenologica.size())-1);
 				if( ! CalcoloNumeroFoglie(stazione, parametri, console) )
-					m_faseFenologica[m_faseFenologica.size()-1] = parametri.dato_mancante;
+                    m_faseFenologica[long(m_faseFenologica.size())-1] = parametri.dato_mancante;
 			}
 
 			break;
@@ -233,10 +233,10 @@ void Cereali::Fenologia(Stazione& stazione, const Parametri& parametri, Console&
 		case 2:
 			Viraggio(stazione);
 
-			if( m_faseFenologica[m_faseFenologica.size()-1] >= 3. )
+            if( m_faseFenologica[long(m_faseFenologica.size())-1] >= 3. )
 			{
-				m_faseFenologica[m_faseFenologica.size()-1] = 3.;
-                m_viraggioApicale = stazione.getDate(m_faseFenologica.size()-1);
+                m_faseFenologica[long(m_faseFenologica.size())-1] = 3.;
+                m_viraggioApicale = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 				
 			break;
@@ -244,10 +244,10 @@ void Cereali::Fenologia(Stazione& stazione, const Parametri& parametri, Console&
 		case 3:
 			Spigatura(stazione);
 
-			if( m_faseFenologica[m_faseFenologica.size()-1] >= 4.)
+            if( m_faseFenologica[long(m_faseFenologica.size())-1] >= 4.)
 			{
-				m_faseFenologica[m_faseFenologica.size()-1] = 4.;
-                m_spigatura = stazione.getDate(m_faseFenologica.size()-1);
+                m_faseFenologica[long(m_faseFenologica.size())-1] = 4.;
+                m_spigatura = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -255,10 +255,10 @@ void Cereali::Fenologia(Stazione& stazione, const Parametri& parametri, Console&
 		case 4:
 			Maturazione(stazione);
 
-			if( m_faseFenologica[m_faseFenologica.size()-1] >= 5. )
+            if( m_faseFenologica[long(m_faseFenologica.size())-1] >= 5. )
 			{
-				m_faseFenologica[m_faseFenologica.size()-1] = 5.;
-                m_maturazione = stazione.getDate(m_faseFenologica.size()-1);
+                m_faseFenologica[long(m_faseFenologica.size())-1] = 5.;
+                m_maturazione = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;

@@ -30,7 +30,7 @@ double Pomodoro::Dnyt(Stazione& stazione, const long& i, const double& Ts)
 void Pomodoro::Emergenza(Stazione& stazione)
 {    
 	double Ts = 8.;
-	long i = m_faseFenologica.size() - 1;
+	long i = long(m_faseFenologica.size()) - 1;
     m_faseFenologica[i] += ( Dday(stazione, i, Ts) + Dnyt(stazione, i, Ts) ) / 4.;
 }
 
@@ -38,14 +38,14 @@ void Pomodoro::Emergenza(Stazione& stazione)
 void Pomodoro::PrimoFiore(Stazione& stazione)
 {    
 	double Ts = 10.;
-	long i = m_faseFenologica.size() - 1;
+	long i = long(m_faseFenologica.size()) - 1;
     m_faseFenologica[i] += ( Dday(stazione, i, Ts) + Dnyt(stazione, i, Ts) ) / 25.;
 }
 
 void Pomodoro::Invaiatura(Stazione& stazione) 
 {
 	double Ts = 10.;
-	long i = m_faseFenologica.size() - 1;
+	long i = long(m_faseFenologica.size()) - 1;
     m_faseFenologica[i] += ( Dday(stazione, i) + Dnyt(stazione, i, Ts) ) / 35.;
 
     if(Tnyt( stazione.Tn(i), stazione.Tx(i) ) > 10. && Tnyt( stazione.Tn(i), stazione.Tx(i) ) < 15. )
@@ -59,7 +59,7 @@ void Pomodoro::Maturazione(Stazione& stazione)
 	double	limitePHD = .5 * ( m_minPHD + m_maxPHD );
 
 	// si tiene conto dello stato idrico del suolo
-	long i = m_faseFenologica.size() - 1;
+	long i = long(m_faseFenologica.size()) - 1;
 	if( stazione.Pr(i) < 1. )
 	{
 		m_giorniSiccitosi++;
@@ -102,8 +102,8 @@ void Pomodoro::Fenologia(Stazione& stazione, const Parametri& parametri, Console
 		m_faseFenologica.push_back( m_faseFenologica[m_faseFenologica.size()-1] );
 	}
 
-	if( stazione.Tn(m_faseFenologica.size()-1) == parametri.dato_mancante || 
-		stazione.Tx(m_faseFenologica.size()-1) == parametri.dato_mancante )
+    if( stazione.Tn(long(m_faseFenologica.size()-1)) == parametri.dato_mancante ||
+        stazione.Tx(long(m_faseFenologica.size()-1)) == parametri.dato_mancante )
 	{
 		sprintf(message, "Exception raised: dati di temperatura mancanti\n");
 		console.Show(message);
@@ -115,10 +115,10 @@ void Pomodoro::Fenologia(Stazione& stazione, const Parametri& parametri, Console
 	switch( static_cast<long>( floor(m_faseFenologica[m_faseFenologica.size()-1]) ) )
 	{
 		case 0:
-			if( stazione.getDate(m_faseFenologica.size()-1) == parametri.dataInizio )
+            if( stazione.getDate(long(m_faseFenologica.size())-1) == parametri.dataInizio )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 1.;
-				m_semina = stazione.getDate(m_faseFenologica.size()-1);
+                m_semina = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -129,7 +129,7 @@ void Pomodoro::Fenologia(Stazione& stazione, const Parametri& parametri, Console
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 2. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 2.;
-				m_emergenza = stazione.getDate(m_faseFenologica.size()-1);
+                m_emergenza = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -140,7 +140,7 @@ void Pomodoro::Fenologia(Stazione& stazione, const Parametri& parametri, Console
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 3. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 3.;
-				m_primoFiore = stazione.getDate(m_faseFenologica.size()-1);
+                m_primoFiore = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 				
 			break;
@@ -151,7 +151,7 @@ void Pomodoro::Fenologia(Stazione& stazione, const Parametri& parametri, Console
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 4. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 4.;
-				m_invaiatura = stazione.getDate(m_faseFenologica.size()-1);
+                m_invaiatura = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -162,7 +162,7 @@ void Pomodoro::Fenologia(Stazione& stazione, const Parametri& parametri, Console
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 5. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 5.;
-				m_maturazione = stazione.getDate(m_faseFenologica.size()-1);
+                m_maturazione = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -218,7 +218,7 @@ double Pomodoro::FaseFenologica(const unsigned long& giorno, const Parametri& pa
 void PomodoroTrapianto::PrimoFiore(Stazione& stazione) 
 {
 	double Ts = 10.;
-	long i = m_faseFenologica.size() - 1;
+	long i = long(m_faseFenologica.size()) - 1;
     m_faseFenologica[i] += ( Dday(stazione, i, Ts) + Dnyt(stazione, i, Ts) ) / 12.;
 
     if(Tnyt( stazione.Tn(i), stazione.Tx(i) ) > 10. && Tnyt( stazione.Tn(i), stazione.Tx(i) ) < 15. )
@@ -228,7 +228,7 @@ void PomodoroTrapianto::PrimoFiore(Stazione& stazione)
 void PomodoroTrapianto::Invaiatura(Stazione& stazione) 
 {
 	double Ts = 10.;
-	long i = m_faseFenologica.size() - 1;
+	long i = long(m_faseFenologica.size()) - 1;
     m_faseFenologica[i] += ( Dday(stazione, i) + Dnyt(stazione, i, Ts) ) / 40.;
 
     if(Tnyt( stazione.Tn(i), stazione.Tx(i) ) > 10. && Tnyt( stazione.Tn(i), stazione.Tx(i) ) < 15. )
@@ -241,7 +241,7 @@ void PomodoroTrapianto::Maturazione(Stazione& stazione)
 	double	limitePHD = .5 * ( m_minPHD + m_maxPHD );
 
 	// si tiene conto dello stato idrico del suolo
-	long i = m_faseFenologica.size() - 1;
+	long i = long(m_faseFenologica.size()) - 1;
 	if( stazione.Pr(i) < 1. )
 	{
 		m_giorniSiccitosi++;
@@ -286,8 +286,8 @@ void PomodoroTrapianto::Fenologia(Stazione& stazione, const Parametri& parametri
 		m_faseFenologica.push_back( m_faseFenologica[m_faseFenologica.size()-1] );
 	}
 
-	if( stazione.Tn(m_faseFenologica.size()-1) == parametri.dato_mancante || 
-		stazione.Tx(m_faseFenologica.size()-1) == parametri.dato_mancante )
+    if( stazione.Tn(long(m_faseFenologica.size()-1)) == parametri.dato_mancante ||
+        stazione.Tx(long(m_faseFenologica.size()-1)) == parametri.dato_mancante )
 	{
 		sprintf(message, "Exception raised: dati di temperatura mancanti\n");
 		console.Show(message);
@@ -299,10 +299,10 @@ void PomodoroTrapianto::Fenologia(Stazione& stazione, const Parametri& parametri
 	switch( static_cast<long>( floor(m_faseFenologica[m_faseFenologica.size()-1]) ) )
 	{
 		case 0:
-			if( stazione.getDate(m_faseFenologica.size()-1) == parametri.dataInizio )
+            if( stazione.getDate(long(m_faseFenologica.size())-1) == parametri.dataInizio )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 2.;
-				m_trapianto = stazione.getDate(m_faseFenologica.size()-1);
+                m_trapianto = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -311,7 +311,7 @@ void PomodoroTrapianto::Fenologia(Stazione& stazione, const Parametri& parametri
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 1. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 2.;
-				m_trapianto = stazione.getDate(m_faseFenologica.size()-1);
+                m_trapianto = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -322,7 +322,7 @@ void PomodoroTrapianto::Fenologia(Stazione& stazione, const Parametri& parametri
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 3. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 3.;
-				m_primoFiore = stazione.getDate(m_faseFenologica.size()-1);
+                m_primoFiore = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 				
 			break;
@@ -333,7 +333,7 @@ void PomodoroTrapianto::Fenologia(Stazione& stazione, const Parametri& parametri
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 4. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 4.;
-				m_invaiatura = stazione.getDate(m_faseFenologica.size()-1);
+                m_invaiatura = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -344,7 +344,7 @@ void PomodoroTrapianto::Fenologia(Stazione& stazione, const Parametri& parametri
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 5. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 5.;
-				m_maturazione = stazione.getDate(m_faseFenologica.size()-1);
+                m_maturazione = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;

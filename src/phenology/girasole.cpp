@@ -6,7 +6,7 @@
 
 void Girasole::Emergenza(const Stazione& stazione) 
 {
-	long i = m_faseFenologica.size() - 1;
+	long i = long(m_faseFenologica.size()) - 1;
 	double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
 	double Ts = 7.9;
     m_faseFenologica[i] += std::max( static_cast<double>(0.), Tm - Ts ) / 67.;
@@ -14,7 +14,7 @@ void Girasole::Emergenza(const Stazione& stazione)
 
 void Girasole::GemmaFiorale(const Stazione& stazione, const Parametri& parametri) 
 {
-	long i = m_faseFenologica.size() - 1;
+	long i = long(m_faseFenologica.size()) - 1;
 	double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
 	double Ts = 6.6;
     double dT = std::max( static_cast<double>(0.), Tm - Ts );
@@ -25,7 +25,7 @@ void Girasole::GemmaFiorale(const Stazione& stazione, const Parametri& parametri
 
 void Girasole::Fioritura(const Stazione& stazione, const Parametri& parametri) 
 {
-	long i = m_faseFenologica.size() - 1;
+	long i = long(m_faseFenologica.size()) - 1;
 	double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
 	double Ts = 3.9;
     double dT = std::max( static_cast<double>(0.), Tm - Ts );
@@ -36,7 +36,7 @@ void Girasole::Fioritura(const Stazione& stazione, const Parametri& parametri)
 
 void Girasole::Maturazione(const Stazione& stazione) 
 {
-	long i = m_faseFenologica.size() - 1;
+	long i = long(m_faseFenologica.size()) - 1;
 	double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
 
 	m_faseFenologica[i] += Tm / m_limiteGradiGiorno;
@@ -44,7 +44,7 @@ void Girasole::Maturazione(const Stazione& stazione)
 
 void Girasole::Raccolta(const Stazione& stazione) 
 {
-	long i = m_faseFenologica.size() - 1;
+	long i = long(m_faseFenologica.size()) - 1;
 	double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
 
 	m_faseFenologica[i] += Tm / m_limiteGradiGiorno;
@@ -73,8 +73,8 @@ void Girasole::Fenologia(Stazione& stazione, const Parametri& parametri, Console
 		m_faseFenologica.push_back( m_faseFenologica[m_faseFenologica.size()-1] );
 	}
 
-	if( stazione.Tn(m_faseFenologica.size()-1) == parametri.dato_mancante || 
-		stazione.Tx(m_faseFenologica.size()-1) == parametri.dato_mancante )
+	if( stazione.Tn(long(m_faseFenologica.size()-1)) == parametri.dato_mancante || 
+		stazione.Tx(long(m_faseFenologica.size()-1)) == parametri.dato_mancante )
 	{
 		sprintf(message, "Exception raised: dati di temperatura mancanti\n");
 		console.Show(message);
@@ -86,10 +86,10 @@ void Girasole::Fenologia(Stazione& stazione, const Parametri& parametri, Console
 	switch( static_cast<long>( floor(m_faseFenologica[m_faseFenologica.size()-1]) ) )
 	{
 		case 0:
-			if( stazione.getDate(m_faseFenologica.size()-1) == parametri.dataInizio )
+			if( stazione.getDate(long(m_faseFenologica.size())-1) == parametri.dataInizio )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 1.;
-				m_semina = stazione.getDate(m_faseFenologica.size()-1);
+				m_semina = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -100,7 +100,7 @@ void Girasole::Fenologia(Stazione& stazione, const Parametri& parametri, Console
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 2. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 2.;
-				m_emergenza = stazione.getDate(m_faseFenologica.size()-1);
+				m_emergenza = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -111,7 +111,7 @@ void Girasole::Fenologia(Stazione& stazione, const Parametri& parametri, Console
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 3. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 3.;
-				m_gemmaFiorale = stazione.getDate(m_faseFenologica.size()-1);
+				m_gemmaFiorale = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 				
 			break;
@@ -122,7 +122,7 @@ void Girasole::Fenologia(Stazione& stazione, const Parametri& parametri, Console
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 4.)
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 4.;
-				m_fioritura = stazione.getDate(m_faseFenologica.size()-1);
+				m_fioritura = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -133,7 +133,7 @@ void Girasole::Fenologia(Stazione& stazione, const Parametri& parametri, Console
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 5. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 5.;
-				m_maturazione = stazione.getDate(m_faseFenologica.size()-1);
+				m_maturazione = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
@@ -144,7 +144,7 @@ void Girasole::Fenologia(Stazione& stazione, const Parametri& parametri, Console
 			if( m_faseFenologica[m_faseFenologica.size()-1] >= 6. )
 			{
 				m_faseFenologica[m_faseFenologica.size()-1] = 6.;
-				m_raccolta = stazione.getDate(m_faseFenologica.size()-1);
+				m_raccolta = stazione.getDate(long(m_faseFenologica.size())-1);
 			}
 
 			break;
