@@ -915,19 +915,23 @@ int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentLi
 
 int executeCommand(QList<QString> argumentList, PragaProject* myProject)
 {
-    if (argumentList.size() == 0) return PRAGA_INVALID_COMMAND;
+    if (argumentList.size() == 0)
+        return PRAGA_INVALID_COMMAND;
+
     bool isCommandFound;
     int isExecuted;
 
     myProject->logInfo(getTimeStamp(argumentList));
 
     isExecuted = executeSharedCommand(myProject, argumentList, &isCommandFound);
-    if (isCommandFound) return isExecuted;
+    if (isCommandFound)
+        return isExecuted;
 
     isExecuted = myProject->executePragaCommand(argumentList, &isCommandFound);
-    if (isCommandFound) return isExecuted;
+    if (isCommandFound)
+        return isExecuted;
 
-    myProject->logError("This is not a valid PRAGA command.");
+    myProject->logError("This is not a valid PRAGA command: " + argumentList[0]);
     return PRAGA_INVALID_COMMAND;
 }
 
