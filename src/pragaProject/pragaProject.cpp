@@ -5164,9 +5164,9 @@ bool PragaProject::computeClimatePointXML(QString xmlName)
                 clima->setNYears(listXMLElab->listNYears()[i]);
                 clima->setElab1(listXMLElab->listElab1()[i]);
 
-                if (! clima->dailyCumulated()) //offset doesn't matter for non cumlated variables
-                    clima->setOffset(0);
-                else
+                //if (! clima->dailyCumulated()) //offset doesn't matter for non cumlated variables
+                    //clima->setOffset(0);
+                //else
                     clima->setOffset(listXMLElab->listOffset()[i]);
 
                 if (!listXMLElab->listParam1IsClimate()[i])
