@@ -11,7 +11,7 @@
 
     int executeCommand(QList<QString> argumentList, PragaProject* myProject);
     int pragaShell(PragaProject* myProject);
-    int pragaBatch(PragaProject* myProject, QString batchFileName);
+    int pragaBatch(PragaProject* myProject, const QString &batchFileName);
 
     int cmdOpenPragaProject(PragaProject* myProject, QList<QString> argumentList);
     int cmdDownload(PragaProject* myProject, QList<QString> argumentList);
