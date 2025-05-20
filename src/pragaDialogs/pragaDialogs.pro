@@ -27,8 +27,9 @@ win32:{
     TARGET = pragaDialogs
 }
 
-INCLUDEPATH +=  ../../agrolib/mathFunctions ../../agrolib/crit3dDate ../../agrolib/gis ../../agrolib/meteo  \
-                ../../agrolib/interpolation  ../../agrolib/dbMeteoPoints ../../agrolib/dbMeteoGrid  ../../agrolib/project \
+INCLUDEPATH +=  ../../../agrolib/mathFunctions ../../../agrolib/crit3dDate \
+                ../../../agrolib/gis ../../../agrolib/meteo ../../../agrolib/interpolation \
+                ../../../agrolib/dbMeteoPoints ../../../agrolib/dbMeteoGrid  ../../../agrolib/project \
                 ../phenology ../climate
 
 SOURCES += \

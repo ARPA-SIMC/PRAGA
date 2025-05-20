@@ -7,7 +7,7 @@
 
 bool checkEnvironmentGUI(QString pragaHome)
 {
-    if (pragaHome == "")
+    if (pragaHome.isEmpty())
     {
         QString warning = "Set PRAGA_HOME in the environment variables:"
                           "\n$PRAGA_HOME = path of praga directory";
@@ -93,5 +93,4 @@ int mainGUI(int argc, char *argv[], QString pragaHome, PragaProject& myProject)
 
     return myApp.exec();
 }
-
 

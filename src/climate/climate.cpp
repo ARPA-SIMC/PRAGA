@@ -5207,8 +5207,7 @@ bool monthlyAggregateDataSingleCell(Crit3DMeteoGridDbHandler* meteoGridDbHandler
     meteoPoint->obsDataM = tmpMeteoPoint->obsDataM;
 
     // clean tmp values
-    tmpMeteoPoint->cleanObsDataD();
-    tmpMeteoPoint->cleanObsDataM();
+    tmpMeteoPoint->cleanAllData();
     delete tmpMeteoPoint;
 
     if (meteoVariableList.isEmpty())

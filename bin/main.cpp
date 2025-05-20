@@ -13,6 +13,7 @@
 
 PragaProject myProject;
 
+
 // check $PRAGA_HOME
 bool checkEnvironmentConsole(QString pragaHome)
 {

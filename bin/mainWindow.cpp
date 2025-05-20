@@ -9,7 +9,6 @@
 #include "spatialControl.h"
 #include "utilities.h"
 #include "interpolation.h"
-
 #include "formTimePeriod.h"
 #include "formSelection.h"
 #include "formSelectionSource.h"

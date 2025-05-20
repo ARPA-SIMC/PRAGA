@@ -4664,7 +4664,7 @@ bool PragaProject::computeDroughtIndexGrid(droughtIndex index, int firstYear, in
                 {
                     if (myVar != noMeteoVar)
                     {
-                        mydrought.setMyVar(myVar);
+                        mydrought.setVar(myVar);
                     }
                     if (mydrought.computePercentileValuesCurrentDay())
                     {

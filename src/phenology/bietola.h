@@ -18,8 +18,8 @@
         double m_gradiGiornoDodiciFoglie;
 
         double m_Rmax;		// valore massimo di radiazione
-        double m_TEn;		// temperatura minima perchè la radiazione abbia effetto attivo
-        double m_TEx;		// temperatura massima perchè la radiazione abbia effetto attivo
+        double m_TEn;		// temperatura minima per effetto attivo della radiazione
+        double m_TEx;		// temperatura massima per effetto attivo della radiazione
         double m_TEo;		// temperatura ottimale per l'effetto radiativo
         double m_alfa;		// coefficiente dell'esponente
 
