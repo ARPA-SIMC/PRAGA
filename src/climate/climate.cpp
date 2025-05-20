@@ -631,6 +631,7 @@ bool dailyCumulatedClimate(QString *myError, std::vector<float> &inputValues, Cr
     std::vector<int> valuesYears;
     std::vector<int> valuesLeapYears;
     Crit3DDate presentDate;
+    int validCounter = 0;
 
     QSqlDatabase db = clima->db();
     float minPerc = meteoSettings->getMinimumPercentage();
@@ -670,7 +671,12 @@ bool dailyCumulatedClimate(QString *myError, std::vector<float> &inputValues, Cr
             if (index < inputValues.size())
             {
                 value = inputValues.at(index);
-                if (value != NODATA) cumulatedValue += value;
+                if (value != NODATA)
+                {
+                    cumulatedValue += value;
+                    validCounter++;
+
+                }
 
                 cumulatedValues.push_back(cumulatedValue);
             }
@@ -687,13 +693,14 @@ bool dailyCumulatedClimate(QString *myError, std::vector<float> &inputValues, Cr
                 meteoSettings->setMinimumPercentage(minPerc);
             }
 
-            float validPercentage = (float(cumulatedValues.size()) / float(daysOfYear[totYears-1])) * 100;
+            float validPercentage = (float(validCounter) / float(daysOfYear[totYears-1])) * 100;
             if (validPercentage > meteoSettings->getMinimumPercentage())
             {
                 cumulatedAllDaysAllYears.push_back(cumulatedValues);
             }
             cumulatedValues.clear();
             cumulatedValue = 0;
+            validCounter = 0;
             totYears++;
         }
     }
