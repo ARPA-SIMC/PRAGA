@@ -22,35 +22,35 @@ double Soia::M(const long& i, const long& j, double& T, Stazione& stazione, cons
 
 void Soia::Emergenza(Stazione& stazione, const Parametri& parametri)
 {
-    long i = m_faseFenologica.size() - 1;
+    long i = long(m_faseFenologica.size()) - 1;
     double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
     m_faseFenologica[i] += 1.75 * M( i, 0, Tm, stazione, parametri);	// 1.75 è un fattore correttivo empirico
 }
 
 void Soia::Fioritura(Stazione& stazione, const Parametri& parametri)
 {
-    long i = m_faseFenologica.size() - 1;
+    long i = long(m_faseFenologica.size()) - 1;
     double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
     m_faseFenologica[i] += 0.85 * M( i, 1, Tm, stazione, parametri);
 }
 
 void Soia::IngrossamentoBaccello(Stazione& stazione, const Parametri& parametri)
 {
-    long i = m_faseFenologica.size() - 1;
+    long i = long(m_faseFenologica.size()) - 1;
     double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
     m_faseFenologica[i] += 1.4 * M( i, 2, Tm, stazione, parametri);
 }
 
 void Soia::Maturazione(Stazione& stazione, const Parametri& parametri)
 {
-    long i = m_faseFenologica.size() - 1;
+    long i = long(m_faseFenologica.size()) - 1;
     double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
     m_faseFenologica[i] += 2. * M( i, 3, Tm, stazione, parametri);
 }
 
 void Soia::Raccolta(Stazione& stazione, const Parametri& parametri)
 {
-    long i = m_faseFenologica.size() - 1;
+    long i = long(m_faseFenologica.size()) - 1;
     double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
     m_faseFenologica[i] += 2. * M( i, 3, Tm, stazione, parametri);
 }
@@ -66,9 +66,9 @@ void Soia::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
     }
     else
     {
-        if( m_faseFenologica[m_faseFenologica.size()-1] == parametri.dato_mancante )
+        if( m_faseFenologica[long(m_faseFenologica.size())-1] == parametri.dato_mancante )
         {
-            m_faseFenologica[m_faseFenologica.size()-1] = parametri.dato_mancante;
+            m_faseFenologica[long(m_faseFenologica.size())-1] = parametri.dato_mancante;
             sprintf(message, "Exception raised: dati fenologici mancanti\n");
             console.Show(message);
             sprintf(message, "Coltura %s\tStazione di %s", m_coltura, stazione.Nome());
@@ -76,11 +76,11 @@ void Soia::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
             return;
         }
 
-        m_faseFenologica.push_back( m_faseFenologica[m_faseFenologica.size()-1] );
+        m_faseFenologica.push_back( m_faseFenologica[long(m_faseFenologica.size())-1] );
     }
 
-    if( stazione.Tn(m_faseFenologica.size()-1) == parametri.dato_mancante ||
-        stazione.Tx(m_faseFenologica.size()-1) == parametri.dato_mancante )
+    if( stazione.Tn(long(m_faseFenologica.size())-1) == parametri.dato_mancante ||
+        stazione.Tx(long(m_faseFenologica.size())-1) == parametri.dato_mancante )
     {
         sprintf(message, "Exception raised: dati di temperatura mancanti\n");
         console.Show(message);
@@ -89,13 +89,13 @@ void Soia::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
         return;
     }
 
-    switch( static_cast<long>( floor(m_faseFenologica[m_faseFenologica.size()-1]) ) )
+    switch( static_cast<long>( floor(m_faseFenologica[long(m_faseFenologica.size())-1]) ) )
     {
         case 0:
-            if( stazione.getDate(m_faseFenologica.size()-1) == parametri.dataInizio )
+            if( stazione.getDate(long(m_faseFenologica.size())-1) == parametri.dataInizio )
             {
-                m_faseFenologica[m_faseFenologica.size()-1] = 1.;
-                m_semina = stazione.getDate(m_faseFenologica.size()-1);
+                m_faseFenologica[long(m_faseFenologica.size())-1] = 1.;
+                m_semina = stazione.getDate(long(m_faseFenologica.size())-1);
             }
 
             break;
@@ -103,10 +103,10 @@ void Soia::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
         case 1:
             Emergenza(stazione, parametri);
 
-            if( m_faseFenologica[m_faseFenologica.size()-1] >= 2. )
+            if( m_faseFenologica[long(m_faseFenologica.size())-1] >= 2. )
             {
-                m_faseFenologica[m_faseFenologica.size()-1] = 2.;
-                m_emergenza = stazione.getDate(m_faseFenologica.size()-1);
+                m_faseFenologica[long(m_faseFenologica.size())-1] = 2.;
+                m_emergenza = stazione.getDate(long(m_faseFenologica.size())-1);
             }
 
             break;
@@ -114,10 +114,10 @@ void Soia::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
         case 2:
             Fioritura(stazione, parametri);
 
-            if( m_faseFenologica[m_faseFenologica.size()-1] >= 3. )
+            if( m_faseFenologica[long(m_faseFenologica.size())-1] >= 3. )
             {
-                m_faseFenologica[m_faseFenologica.size()-1] = 3.;
-                m_inizioFioritura = stazione.getDate(m_faseFenologica.size()-1);
+                m_faseFenologica[long(m_faseFenologica.size())-1] = 3.;
+                m_inizioFioritura = stazione.getDate(long(m_faseFenologica.size())-1);
             }
 
             break;
@@ -125,10 +125,10 @@ void Soia::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
         case 3:
             Fioritura(stazione, parametri);
 
-            if( m_faseFenologica[m_faseFenologica.size()-1] >= 4.)
+            if( m_faseFenologica[long(m_faseFenologica.size())-1] >= 4.)
             {
-                m_faseFenologica[m_faseFenologica.size()-1] = 4.;
-                m_fineFioritura = stazione.getDate(m_faseFenologica.size()-1);
+                m_faseFenologica[long(m_faseFenologica.size())-1] = 4.;
+                m_fineFioritura = stazione.getDate(long(m_faseFenologica.size())-1);
             }
 
             break;
@@ -136,10 +136,10 @@ void Soia::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
         case 4:
             IngrossamentoBaccello(stazione, parametri);
 
-            if( m_faseFenologica[m_faseFenologica.size()-1] >= 5.)
+            if( m_faseFenologica[long(m_faseFenologica.size())-1] >= 5.)
             {
-                m_faseFenologica[m_faseFenologica.size()-1] = 5.;
-                m_ingrossamentoBaccello = stazione.getDate(m_faseFenologica.size()-1);
+                m_faseFenologica[long(m_faseFenologica.size())-1] = 5.;
+                m_ingrossamentoBaccello = stazione.getDate(long(m_faseFenologica.size())-1);
             }
 
             break;
@@ -147,10 +147,10 @@ void Soia::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
         case 5:
             Maturazione(stazione, parametri);
 
-            if( m_faseFenologica[m_faseFenologica.size()-1] >= 6. )
+            if( m_faseFenologica[long(m_faseFenologica.size())-1] >= 6. )
             {
-                m_faseFenologica[m_faseFenologica.size()-1] = 6.;
-                m_maturazione = stazione.getDate(m_faseFenologica.size()-1);
+                m_faseFenologica[long(m_faseFenologica.size())-1] = 6.;
+                m_maturazione = stazione.getDate(long(m_faseFenologica.size())-1);
             }
 
             break;
@@ -158,10 +158,10 @@ void Soia::Fenologia(Stazione& stazione, const Parametri& parametri, Console& co
         case 6:
             Raccolta(stazione, parametri);
 
-            if( m_faseFenologica[m_faseFenologica.size()-1] >= 7. )
+            if( m_faseFenologica[long(m_faseFenologica.size())-1] >= 7. )
             {
-                m_faseFenologica[m_faseFenologica.size()-1] = 7.;
-                m_raccolta = stazione.getDate(m_faseFenologica.size()-1);
+                m_faseFenologica[long(m_faseFenologica.size())-1] = 7.;
+                m_raccolta = stazione.getDate(long(m_faseFenologica.size())-1);
             }
 
             break;

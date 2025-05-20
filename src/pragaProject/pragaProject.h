@@ -138,6 +138,8 @@
         bool dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QList<QDate> &dateList, QList<QString> &idList);
 
         int executePragaCommand(QList<QString> argumentList, bool* isCommandFound);
+        int executeScript(QString scriptFileName);
+
         bool parserXMLImportExportData(QString xmlName, bool isGrid);
         bool loadXMLImportData(QString fileName);
         bool loadXMLExportData(QString code, QDateTime myFirstTime, QDateTime myLastTime);
@@ -177,6 +179,7 @@
                 bool exportMeteoGridToNetCDF(QString fileName, QString title, QString variableName, std::string variableUnit, Crit3DDate myDate, int nDays, int refYearStart, int refYearEnd);
                 bool exportXMLElabGridToNetcdf(QString xmlName);
         #endif
+
     };
 
 

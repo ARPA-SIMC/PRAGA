@@ -13,6 +13,7 @@ QList<QString> getPragaCommandList()
 
     // praga commands
     cmdList.append("List            | ListCommands");
+    cmdList.append("Execute         | ExecuteScript");
     cmdList.append("Version         | PragaVersion");
     cmdList.append("Proj            | OpenProject");
     cmdList.append("Download        | Download");
@@ -63,7 +64,10 @@ int pragaVersion(PragaProject* myProject)
 int PragaProject::executePragaCommand(QList<QString> argumentList, bool* isCommandFound)
 {
     *isCommandFound = false;
-    if (argumentList.size() == 0) return PRAGA_INVALID_COMMAND;
+    if (argumentList.size() == 0)
+    {
+        return PRAGA_INVALID_COMMAND;
+    }
 
     QString command = argumentList[0].toUpper();
 
@@ -81,6 +85,19 @@ int PragaProject::executePragaCommand(QList<QString> argumentList, bool* isComma
     {
         *isCommandFound = true;
         return cmdOpenPragaProject(this, argumentList);
+    }
+    else if (command == "EXECUTE" || command == "EXECUTESCRIPT")
+    {
+        *isCommandFound = true;
+        if (argumentList.size() > 1)
+        {
+            return executeScript(argumentList[1]);
+        }
+        else
+        {
+            errorString = "Missing script fileName";
+            return PRAGA_MISSING_PARAMETERS;
+        }
     }
     else if (command == "DOWNLOAD")
     {
@@ -164,7 +181,7 @@ int PragaProject::executePragaCommand(QList<QString> argumentList, bool* isComma
         *isCommandFound = true;
         return cmdSaveLogDataProceduresGrid(this, argumentList);
     }
-    else if (command == "COMPUTERADLIST" || "COMPUTERADIATIONLIST")
+    else if (command == "COMPUTERADLIST" || command == "COMPUTERADIATIONLIST")
     {
         *isCommandFound = true;
         return cmdComputeRadiationList(this, argumentList);
@@ -177,6 +194,46 @@ int PragaProject::executePragaCommand(QList<QString> argumentList, bool* isComma
 
     return PRAGA_INVALID_COMMAND;
 }
+
+
+int PragaProject::executeScript(QString scriptFileName)
+{
+    if (scriptFileName.isEmpty())
+    {
+        errorString = "No script file provided";
+        return PRAGA_MISSING_FILE;
+    }
+    logInfo("Execute script: " + scriptFileName + "\n");
+
+    QFile scriptFile(scriptFileName);
+    if(! scriptFile.open (QIODevice::ReadOnly))
+    {
+        errorString = "Error in opening: " + scriptFileName + " " + scriptFile.errorString();
+        return PRAGA_ERROR;
+    }
+
+    while (! scriptFile.atEnd())
+    {
+        QString cmdLine = scriptFile.readLine();
+        if (! cmdLine.isEmpty() && cmdLine.at(0) != '#')
+        {
+            QList<QString> argumentList = getArgumentList(cmdLine);
+            if (argumentList.size() > 0)
+            {
+                int result = executeCommand(argumentList, this) ;
+                if (result != PRAGA_OK)
+                {
+                    return result;
+                }
+                logInfo("");
+            }
+        }
+    }
+    scriptFile.close();
+
+    return PRAGA_OK;
+}
+
 
 int cmdOpenPragaProject(PragaProject* myProject, QList<QString> argumentList)
 {
@@ -915,64 +972,43 @@ int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentLi
 
 int executeCommand(QList<QString> argumentList, PragaProject* myProject)
 {
-    if (argumentList.size() == 0) return PRAGA_INVALID_COMMAND;
+    if (argumentList.size() == 0)
+        return PRAGA_INVALID_COMMAND;
+
     bool isCommandFound;
     int isExecuted;
 
     myProject->logInfo(getTimeStamp(argumentList));
 
     isExecuted = executeSharedCommand(myProject, argumentList, &isCommandFound);
-    if (isCommandFound) return isExecuted;
+    if (isCommandFound)
+        return isExecuted;
 
     isExecuted = myProject->executePragaCommand(argumentList, &isCommandFound);
-    if (isCommandFound) return isExecuted;
+    if (isCommandFound)
+        return isExecuted;
 
-    myProject->logError("This is not a valid PRAGA command.");
+    myProject->logError("This is not a valid PRAGA command: " + argumentList[0]);
     return PRAGA_INVALID_COMMAND;
 }
 
 
-int pragaBatch(PragaProject* myProject, QString scriptFileName)
+int pragaBatch(PragaProject* myProject, const QString &scriptFileName)
 {
     #ifdef _WIN32
         attachOutputToConsole();
     #endif
 
     myProject->logInfo(myProject->getVersion());
-    myProject->logInfo("Execute script: " + scriptFileName);
+    myProject->logInfo("");
 
-    if (scriptFileName == "")
+    int result = myProject->executeScript(scriptFileName);
+    if (result != PRAGA_OK)
     {
-        myProject->logError("No script file provided");
-        return PRAGA_MISSING_FILE;
-    }
-
-    QFile scriptFile(scriptFileName);
-    if(! scriptFile.open (QIODevice::ReadOnly))
-    {
-        myProject->logError(scriptFile.errorString());
-        return PRAGA_ERROR;
-    }
-
-    QTextStream myStream (&scriptFile);
-    QString cmdLine;
-
-    int result;
-    while (! scriptFile.atEnd())
-    {
-        cmdLine = scriptFile.readLine();
-        QList<QString> argumentList = getArgumentList(cmdLine);
-        result = executeCommand(argumentList, myProject) ;
-        if (result != PRAGA_OK)
-        {
-            myProject->logError("Praga batch error code: " + QString::number(result) + "\n" + myProject->errorString);
-            return result;
-        }
+        myProject->logError();
     }
 
     myProject->logInfo("Batch finished at: " + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
-
-    scriptFile.close();
 
     #ifdef _WIN32
         // Send "enter" to release application from the console
@@ -981,7 +1017,7 @@ int pragaBatch(PragaProject* myProject, QString scriptFileName)
         if (isConsoleForeground()) sendEnterKey();
     #endif
 
-    return PRAGA_OK;
+    return result;
 }
 
 
@@ -1000,7 +1036,7 @@ int pragaShell(PragaProject* myProject)
             int result = executeCommand(argumentList, myProject);
             if (result != PRAGA_OK)
             {
-                myProject->logError("Praga shell error code: " + QString::number(result) + "\n" + myProject->errorString);
+                myProject->logError("Error code: " + QString::number(result) + "\n" + myProject->errorString);
             }
         }
     }

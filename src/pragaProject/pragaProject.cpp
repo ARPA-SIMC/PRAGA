@@ -15,6 +15,8 @@
 #include "interpolationCmd.h"
 #include "interpolation.h"
 #include "pragaProject.h"
+#include "crit3dDate.h"
+
 #include <qdebug.h>
 #include <QFile>
 #include <QDir>
@@ -4191,7 +4193,6 @@ bool PragaProject::loadXMLExportData(QString code, QDateTime myFirstTime, QDateT
         return false;
     }
 
-
     std::vector<QString> dateStr;
     std::vector<float> values = meteoPointsDbHandler->exportAllDataVar(&errorString, freq, meteoVar, code, myFirstTime, myLastTime, dateStr);
     if (values.size() == 0)
@@ -4294,7 +4295,7 @@ bool PragaProject::loadXMLExportData(QString code, QDateTime myFirstTime, QDateT
     return true;
 }
 
-// LC 2 funzioni separate per gliglie e punti per eventualmente diversificare anche i dati da esportare (es. le griglie hanno anche i mensili)
+// LC 2 funzioni separate per griglie e punti per eventualmente diversificare anche i dati da esportare (es. le griglie hanno anche i mensili)
 bool PragaProject::loadXMLExportDataGrid(QString code, QDateTime myFirstTime, QDateTime myLastTime)
 {
     errorString = "";
@@ -4382,7 +4383,6 @@ bool PragaProject::loadXMLExportDataGrid(QString code, QDateTime myFirstTime, QD
         errorString = "Invalid time type: " + timeType;
         return false;
     }
-
 
     std::vector<QString> dateStrList;
     std::vector<float> values = meteoGridDbHandler->exportAllDataVar(errorString, freq, meteoVar, code,
@@ -4979,12 +4979,11 @@ bool PragaProject::planGriddingTask(QDate dateIni, QDate dateFin, QString user, 
     }
 
     return true;
-
 }
 
 
-bool PragaProject::getGriddingTasks(std::vector <QDateTime> &timeCreation, std::vector <QDate> &dateStart, std::vector <QDate> &dateEnd,
-                                           std::vector <QString> &users, std::vector <QString> &notes)
+bool PragaProject::getGriddingTasks(std::vector <QDateTime> &timeCreation, std::vector <QDate> &dateStart,
+                                    std::vector <QDate> &dateEnd, std::vector <QString> &users, std::vector <QString> &notes)
 {
     if (meteoGridDbHandler == nullptr)
     {
@@ -4996,42 +4995,41 @@ bool PragaProject::getGriddingTasks(std::vector <QDateTime> &timeCreation, std::
     QString table = "gridding_tasks";
     QString myQuery = QString("SELECT * FROM `%1` ORDER BY `date_creation`,`praga_user`,`date_start`,`date_end`").arg(table);
 
-    QDateTime myTime;
-    QDate myDateStart, myDateEnd;
-    QString user, note;
-
-    if( !qry.exec(myQuery))
+    if(! qry.exec(myQuery))
     {
         errorString = qry.lastError().text();
         myQuery.clear();
         return false;
     }
-    else
-    {
-        while (qry.next())
-        {
-            if (getValue(qry.value("praga_user"), &user) && getValue(qry.value("date_creation"), &myTime)
-                    && getValue(qry.value("date_start"), &myDateStart) && getValue(qry.value("date_end"), &myDateEnd))
-            {
-                timeCreation.push_back(myTime);
-                dateStart.push_back(myDateStart);
-                dateEnd.push_back(myDateEnd);
-                users.push_back(user);
 
-                note = "";
-                getValue(qry.value("notes"), &note);
-                notes.push_back(note);
-            }
-            else
-            {
-                errorString = "Error reading table " + table ;
-                return false;
-            }
+    QDateTime creationTime;
+    QDate myDateStart, myDateEnd;
+    QString user, note;
+
+    while (qry.next())
+    {
+        if (getValue(qry.value("praga_user"), &user) && getValue(qry.value("date_creation"), &creationTime)
+                && getValue(qry.value("date_start"), &myDateStart) && getValue(qry.value("date_end"), &myDateEnd))
+        {
+            timeCreation.push_back(creationTime);
+            dateStart.push_back(myDateStart);
+            dateEnd.push_back(myDateEnd);
+            users.push_back(user);
+
+            note = "";
+            getValue(qry.value("notes"), &note);
+            notes.push_back(note);
+        }
+        else
+        {
+            errorString = "Error reading table: " + table ;
+            return false;
         }
     }
 
     return true;
 }
+
 
 bool PragaProject::removeGriddingTask(QDateTime dateCreation, QString user, QDate dateStart, QDate dateEnd)
 {
@@ -5166,9 +5164,9 @@ bool PragaProject::computeClimatePointXML(QString xmlName)
                 clima->setNYears(listXMLElab->listNYears()[i]);
                 clima->setElab1(listXMLElab->listElab1()[i]);
 
-                if (! clima->dailyCumulated()) //offset doesn't matter for non cumlated variables
-                    clima->setOffset(0);
-                else
+                //if (! clima->dailyCumulated()) //offset doesn't matter for non cumlated variables
+                    //clima->setOffset(0);
+                //else
                     clima->setOffset(listXMLElab->listOffset()[i]);
 
                 if (!listXMLElab->listParam1IsClimate()[i])

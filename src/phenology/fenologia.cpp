@@ -183,23 +183,23 @@ bool Fenologia::SceltaColtura(const Parametri& parametri, Console& console)
 		switch( parametri.varieta )
 		{
 			case 0:
-				m_coltura = new Girasole("Girasole (precocissime)", 553. );
+                m_coltura = new Girasole("Girasole (precocissime)", 553);
 				break;
 
 			case 1:
-				m_coltura = new Girasole("Girasole (precoci)", 603.);
+                m_coltura = new Girasole("Girasole (precoci)", 603);
 				break;
 
 			case 2:
-				m_coltura = new Girasole("Girasole (medie)", 650.);
+                m_coltura = new Girasole("Girasole (medie)", 650);
 				break;
 
 			case 3:
-				m_coltura = new Girasole("Girasole (tardive)", 745.);
+                m_coltura = new Girasole("Girasole (tardive)", 745);
 				break;
 
 			default:
-				m_coltura = new Girasole("Girasole (medie)", 650.);
+                m_coltura = new Girasole("Girasole (medie)", 650);
 		}
 
 		success = true;
