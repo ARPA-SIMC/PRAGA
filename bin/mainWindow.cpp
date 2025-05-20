@@ -6415,7 +6415,7 @@ void MainWindow::on_actionOpenShell_triggered()
 {
     myProject.modality = MODE_CONSOLE;
 
-    pragaShell(&myProject);
+    myProject.pragaShell();
 
     myProject.modality = MODE_GUI;
 }

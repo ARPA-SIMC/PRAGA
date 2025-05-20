@@ -9,12 +9,8 @@
     int cmdList(PragaProject* myProject);
     int pragaVersion(PragaProject* myProject);
 
-    int executeCommand(QList<QString> argumentList, PragaProject* myProject);
-    int pragaShell(PragaProject* myProject);
-    int pragaBatch(PragaProject* myProject, const QString &batchFileName);
-
-    int cmdOpenPragaProject(PragaProject* myProject, QList<QString> argumentList);
-    int cmdDownload(PragaProject* myProject, QList<QString> argumentList);
+    int cmdOpenPragaProject(PragaProject* myProject, const QList<QString> &argumentList);
+    int cmdDownload(PragaProject* myProject, const QList<QString> &argumentList);
     int cmdInterpolationGridPeriod(PragaProject* myProject, QList<QString> argumentList);
     int cmdInterpolationCrossValidation(PragaProject* myProject, QList<QString> argumentList);
     int cmdAggregationGridPeriod(PragaProject* myProject, QList<QString> argumentList);
@@ -27,7 +23,6 @@
     int cmdDroughtIndexPoint(PragaProject* myProject, QList<QString> argumentList);
     int cmdSaveLogDataProceduresGrid(PragaProject* myProject, QList<QString> argumentList);
     int cmdComputeRadiationList(PragaProject* myProject, QList<QString> argumentList);
-    //bool cmdLoadForecast(PragaProject* myProject, QList<QString> argumentList);
 
     #ifdef NETCDF
         int cmdDroughtIndexGrid(PragaProject* myProject, QList<QString> argumentList);

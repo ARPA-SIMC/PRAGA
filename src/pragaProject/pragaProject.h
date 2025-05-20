@@ -40,6 +40,7 @@
     class PragaProject : public Project
     {
     private:
+        bool _isElabMeteoPointsValue;
 
     private slots:
             void deleteSynchWidget();
@@ -59,7 +60,6 @@
         Crit3DClimate* referenceClima;
         bool lastElabTargetIsGrid;
 
-        bool isElabMeteoPointsValue;
         QString climateIndex;
 
         QSettings* pragaDefaultSettings;
@@ -94,6 +94,13 @@
 
         bool loadPragaProject(QString myFileName);
         bool loadPragaSettings();
+
+        int executeCommand(const QList<QString> &argumentList);
+        int pragaShell();
+        int pragaBatch(const QString &scriptFileName);
+
+        bool getIsElabMeteoPointsValue() const { return _isElabMeteoPointsValue; }
+        void setIsElabMeteoPointsValue(bool value) { _isElabMeteoPointsValue = value; }
 
         void closeOutputMeteoPointsDB();
         bool loadOutputMeteoPointsDB(const QString &fileName);
@@ -132,8 +139,7 @@
         bool averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoComputation elab1MeteoComp,
                                            QString aggregationString, float threshold, gis::Crit3DRasterGrid* zoneGrid,
                                            QDate startDate, QDate endDate, bool showInfo);
-        bool getIsElabMeteoPointsValue() const;
-        void setIsElabMeteoPointsValue(bool value);
+
         bool dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QString dataset, std::vector<int> &myCounter);
         bool dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QList<QDate> &dateList, QList<QString> &idList);
 

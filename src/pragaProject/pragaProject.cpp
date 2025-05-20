@@ -16,6 +16,7 @@
 #include "interpolation.h"
 #include "pragaProject.h"
 #include "crit3dDate.h"
+#include "shell.h"
 
 #include <qdebug.h>
 #include <QFile>
@@ -25,16 +26,6 @@
 PragaProject::PragaProject()
 {
     initializePragaProject();
-}
-
-bool PragaProject::getIsElabMeteoPointsValue() const
-{
-    return isElabMeteoPointsValue;
-}
-
-void PragaProject::setIsElabMeteoPointsValue(bool value)
-{
-    isElabMeteoPointsValue = value;
 }
 
 void PragaProject::initializePragaProject()
@@ -415,8 +406,8 @@ bool PragaProject::loadPragaSettings()
                 }
                 idArkimetHourlyMap[windVecDir] = intList;
             }
-
 /*
+            // check
             for(std::map<QString, QList<int> >::const_iterator it = idArkimetDailyMap.begin();
                 it != idArkimetDailyMap.end(); ++it)
             {
@@ -427,15 +418,98 @@ bool PragaProject::loadPragaSettings()
             {
                 qDebug() << "idArkimetHourlyMap " << it->first << ":" << it->second << "\n";
             }
-
 */
             parametersSettings->endGroup();
-
         }
-
     }
 
     return true;
+}
+
+
+int PragaProject::executeCommand(const QList<QString> &argumentList)
+{
+    if (argumentList.size() == 0)
+        return PRAGA_OK;
+
+    logInfo(getTimeStamp(argumentList));
+
+    // comment
+    if (argumentList[0].at(0) == '#')
+        return PRAGA_OK;
+
+    bool isCommandFound;
+
+    int isExecuted = executeSharedCommand(this, argumentList, &isCommandFound);
+    if (isCommandFound)
+        return isExecuted;
+
+    isExecuted = executePragaCommand(argumentList, &isCommandFound);
+    if (isCommandFound)
+        return isExecuted;
+
+    errorString = "This is not a valid PRAGA command: " + argumentList[0];
+    return PRAGA_INVALID_COMMAND;
+}
+
+
+int PragaProject::pragaShell()
+{
+    #ifdef _WIN32
+        openNewConsole();
+    #endif
+
+    logInfo(getVersion());
+
+    while (! requestedExit)
+    {
+        QString commandLine = getCommandLine("PRAGA");
+        if (commandLine != "")
+        {
+            QList<QString> argumentList = getArgumentList(commandLine);
+            if (argumentList.size() > 0)
+            {
+                int result = executeCommand(argumentList);
+                if (result != PRAGA_OK)
+                {
+                    logError();
+                }
+            }
+        }
+    }
+
+    #ifdef _WIN32
+        closeConsole();
+    #endif
+
+    return PRAGA_OK;
+}
+
+
+int PragaProject::pragaBatch(const QString &scriptFileName)
+{
+    #ifdef _WIN32
+        attachOutputToConsole();
+    #endif
+
+    logInfo(getVersion() + "\n");
+
+    int result = executeScript(scriptFileName);
+    if (result != PRAGA_OK)
+    {
+        logError();
+    }
+
+    logInfo("Batch finished at: " + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
+
+    #ifdef _WIN32
+        // Send "enter" to release application from the console
+        // This is a hack, but if not used the console doesn't know the application has
+        // returned. The "enter" key only sent if the console window is in focus.
+        if (isConsoleForeground()) sendEnterKey();
+    #endif
+
+    return result;
 }
 
 
@@ -4045,24 +4119,6 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
 
 #endif
 
-/*
-bool PragaProject::loadForecastToGrid(QString fileName, bool overWrite, bool checkTables)
-{
-    if (! QFile(fileName).exists() || ! QFileInfo(fileName).isFile())
-    {
-        logError("Missing file: " + fileName);
-        return false;
-    }
-    if (meteoGridDbHandler == nullptr)
-    {
-        logError(ERROR_STR_MISSING_GRID);
-        return false;
-    }
-    ForecastDataset dataset;
-    dataset.importForecastData(fileName);
-    return true;
-}
-*/
 
 bool PragaProject::parserXMLImportExportData(QString xmlName, bool isGrid)
 {

@@ -32,7 +32,6 @@ QList<QString> getPragaCommandList()
     cmdList.append("SaveLogProc     | SaveLogProceduresGrid");
     cmdList.append("XMLToNetcdf     | ExportXMLElabToNetcdf");
     cmdList.append("ComputeRadList  | ComputeRadiationList");
-    //cmdList.append("LoadForecast  | LoadForecastData");
 
     return cmdList;
 }
@@ -156,11 +155,6 @@ int PragaProject::executePragaCommand(QList<QString> argumentList, bool* isComma
         *isCommandFound = true;
         return cmdGridAggregationOnZones(this, argumentList);
     }
-//    else if (command == "LOADFORECAST" || command == "LOADFORECASTDATA")
-//    {
-//        *isCommandFound = true;
-//        return cmdLoadForecast(this, argumentList);
-//    }
     else if (command == "CLIMATE" || command == "COMPUTECLIMATE")
     {
         *isCommandFound = true;
@@ -215,19 +209,13 @@ int PragaProject::executeScript(QString scriptFileName)
     while (! scriptFile.atEnd())
     {
         QString cmdLine = scriptFile.readLine();
-        if (! cmdLine.isEmpty() && cmdLine.at(0) != '#')
-        {
-            QList<QString> argumentList = getArgumentList(cmdLine);
-            if (argumentList.size() > 0)
-            {
-                int result = executeCommand(argumentList, this) ;
-                if (result != PRAGA_OK)
-                {
-                    return result;
-                }
-                logInfo("");
-            }
-        }
+        QList<QString> argumentList = getArgumentList(cmdLine);
+
+        int result = executeCommand(argumentList) ;
+        if (result != PRAGA_OK)
+            return result;
+
+        logInfo("");
     }
     scriptFile.close();
 
@@ -235,11 +223,11 @@ int PragaProject::executeScript(QString scriptFileName)
 }
 
 
-int cmdOpenPragaProject(PragaProject* myProject, QList<QString> argumentList)
+int cmdOpenPragaProject(PragaProject* myProject, const QList<QString> &argumentList)
 {
     if (argumentList.size() < 2)
     {
-        myProject->errorString = "Missing project name";
+        myProject->errorString = "Missing project file name";
         return PRAGA_INVALID_COMMAND;
     }
 
@@ -266,7 +254,8 @@ int cmdOpenPragaProject(PragaProject* myProject, QList<QString> argumentList)
     return PRAGA_OK;
 }
 
-int cmdDownload(PragaProject* myProject, QList<QString> argumentList)
+
+int cmdDownload(PragaProject* myProject, const QList<QString> &argumentList)
 {
     if (argumentList.size() < 2)
     {
@@ -970,81 +959,6 @@ int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentLi
 }
 
 
-int executeCommand(QList<QString> argumentList, PragaProject* myProject)
-{
-    if (argumentList.size() == 0)
-        return PRAGA_INVALID_COMMAND;
-
-    bool isCommandFound;
-    int isExecuted;
-
-    myProject->logInfo(getTimeStamp(argumentList));
-
-    isExecuted = executeSharedCommand(myProject, argumentList, &isCommandFound);
-    if (isCommandFound)
-        return isExecuted;
-
-    isExecuted = myProject->executePragaCommand(argumentList, &isCommandFound);
-    if (isCommandFound)
-        return isExecuted;
-
-    myProject->logError("This is not a valid PRAGA command: " + argumentList[0]);
-    return PRAGA_INVALID_COMMAND;
-}
-
-
-int pragaBatch(PragaProject* myProject, const QString &scriptFileName)
-{
-    #ifdef _WIN32
-        attachOutputToConsole();
-    #endif
-
-    myProject->logInfo(myProject->getVersion());
-    myProject->logInfo("");
-
-    int result = myProject->executeScript(scriptFileName);
-    if (result != PRAGA_OK)
-    {
-        myProject->logError();
-    }
-
-    myProject->logInfo("Batch finished at: " + QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
-
-    #ifdef _WIN32
-        // Send "enter" to release application from the console
-        // This is a hack, but if not used the console doesn't know the application has
-        // returned. The "enter" key only sent if the console window is in focus.
-        if (isConsoleForeground()) sendEnterKey();
-    #endif
-
-    return result;
-}
-
-
-int pragaShell(PragaProject* myProject)
-{
-    #ifdef _WIN32
-        openNewConsole();
-    #endif
-
-    while (! myProject->requestedExit)
-    {
-        QString commandLine = getCommandLine("PRAGA");
-        if (commandLine != "")
-        {
-            QList<QString> argumentList = getArgumentList(commandLine);
-            int result = executeCommand(argumentList, myProject);
-            if (result != PRAGA_OK)
-            {
-                myProject->logError("Error code: " + QString::number(result) + "\n" + myProject->errorString);
-            }
-        }
-    }
-
-    return PRAGA_OK;
-}
-
-
 #ifdef NETCDF
 
     int cmdNetcdfExport(PragaProject* myProject, QList<QString> argumentList)
@@ -1086,44 +1000,8 @@ int pragaShell(PragaProject* myProject)
     }
 
 #endif
-    /*
-    bool cmdLoadForecast(PragaProject* myProject, QList<QString> argumentList)
-    {
-        if (argumentList.size() < 2)
-        {
-            myProject->logError("Missing file name");
-            return false;
-        }
 
-        bool overWrite = false;
-        bool checkTables = false;
 
-        for (int i = 2; i < argumentList.size(); i++)
-        {
-            if (argumentList[i] == "-o")
-            {
-                overWrite = true;
-            }
-            else if (argumentList[i] == "-c")
-            {
-                checkTables = true;
-            }
-            else
-            {
-                myProject->logError("Unknow option: loadforecast file -o -c ");
-                return false;
-            }
-        }
-
-        QString fileName = myProject->getCompleteFileName(argumentList.at(1), PATH_PROJECT);
-        if (!myProject->loadForecastToGrid(fileName, overWrite, checkTables))
-        {
-            return false;
-        }
-
-        return true;
-    }
-    */
     int cmdComputeClimatePointsXML(PragaProject* myProject, QList<QString> argumentList)
     {
         if (argumentList.size() < 2)

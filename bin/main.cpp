@@ -127,11 +127,11 @@ int main(int argc, char *argv[])
     // start modality
     if (myProject.modality == MODE_CONSOLE)
     {
-        return pragaShell(&myProject);
+        return myProject.pragaShell();
     }
     else if (myProject.modality == MODE_BATCH)
     {
-        return pragaBatch(&myProject, argv[1]);
+        return myProject.pragaBatch(argv[1]);
     }
 
     return 0;
