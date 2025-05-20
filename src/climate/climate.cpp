@@ -707,6 +707,7 @@ bool dailyCumulatedClimate(QString *myError, std::vector<float> &inputValues, Cr
             {
                 cumulatedAllDaysAllYears.push_back(cumulatedValues);
             }
+
             cumulatedValues.clear();
             cumulatedValue = 0;
             validCounter = 0;
