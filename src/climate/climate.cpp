@@ -373,13 +373,14 @@ bool climateTemporalCycle(QString *errorStr, Crit3DClimate* clima, std::vector<f
 
             // reset currentPeriod
             clima->setCurrentPeriodType(noPeriodType);
-            int offsetNonCumulated = clima->offset();
+            /*int offsetNonCumulated = clima->offset();
             while (offsetNonCumulated < 0)
             {
                 offsetNonCumulated += 366;
             }
 
-            auto first = allResults.begin() + offsetNonCumulated%366;
+            auto first = allResults.begin() + offsetNonCumulated%366;*/
+            auto first = allResults.begin() + (clima->offset())%366;
             // rotate vector elements to take into account the offset
             std::rotate(allResults.begin(), first, allResults.end());
 
