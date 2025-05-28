@@ -1,8 +1,8 @@
 [![Build Status](https://github.com/arpa-simc/praga/actions/workflows/build-ubuntu-xenial.yml/badge.svg)](https://github.com/ARPA-SIMC/PRAGA/actions/workflows/build-ubuntu-xenial.yml)
 [![Build Status](https://simc.arpae.it/moncic-ci/PRAGA/rocky8.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
 [![Build Status](https://simc.arpae.it/moncic-ci/PRAGA/rocky9.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
-[![Build Status](https://simc.arpae.it/moncic-ci/PRAGA/fedora38.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
 [![Build Status](https://simc.arpae.it/moncic-ci/PRAGA/fedora40.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
+[![Build Status](https://simc.arpae.it/moncic-ci/PRAGA/fedora42.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
 
 [![Build Status](https://copr.fedorainfracloud.org/coprs/simc/stable/package/PRAGA/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/simc/stable/package/PRAGA/)
 
