@@ -27,10 +27,9 @@ win32:{
 }
 
 
-INCLUDEPATH +=  ../../../agrolib/crit3dDate ../../../agrolib/mathFunctions  \
-                ../../../agrolib/gis ../../../agrolib/meteo  \
-                ../../../agrolib/interpolation ../../../agrolib/utilities   \
-                ../../../agrolib/dbMeteoPoints ../../../agrolib/dbMeteoGrid \
+INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis  \
+                ../../agrolib/meteo ../../agrolib/interpolation ../../agrolib/utilities   \
+                ../../agrolib/dbMeteoPoints ../../agrolib/dbMeteoGrid   \
                 ../phenology
 
 SOURCES += \

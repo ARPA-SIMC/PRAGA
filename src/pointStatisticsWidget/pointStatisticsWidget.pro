@@ -31,9 +31,9 @@ win32:{
     TARGET = pointStatisticsWidget
 }
 
-INCLUDEPATH +=  ../../../agrolib/crit3dDate ../../../agrolib/mathFunctions ../../../agrolib/gis ../../../agrolib/meteo  \
-                ../../../agrolib/utilities ../../../agrolib/interpolation ../../../agrolib/dbMeteoPoints    \
-                ../../../agrolib/dbMeteoGrid ../../../agrolib/commonDialogs ../../../agrolib/commonChartElements  \
+INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis ../../agrolib/meteo  \
+                ../../agrolib/utilities ../../agrolib/interpolation ../../agrolib/dbMeteoPoints    \
+                ../../agrolib/dbMeteoGrid ../../agrolib/commonDialogs ../../agrolib/commonChartElements  \
                 ../phenology ../climate
 
 

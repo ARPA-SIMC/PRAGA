@@ -13,7 +13,7 @@ CONFIG += staticlib
 DEFINES += PHENOLOGY_LIBRARY
 DEFINES += _CRT_SECURE_NO_WARNINGS
 
-INCLUDEPATH +=  ../../../agrolib/mathFunctions ../../../agrolib/crit3dDate
+INCLUDEPATH +=  ../../agrolib/mathFunctions ../../agrolib/crit3dDate
 
 CONFIG += debug_and_release
 CONFIG += c++14 c++17

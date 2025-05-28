@@ -1,7 +1,7 @@
 #------------------------------------------------------
 #
-#   pragaDialogs library
-#   contains dialogs for PRAGA executable
+#   library pragaDialogs
+#   IT contains dialogs for PRAGA executable
 #
 #   This project is part of ARPAE PRAGA distribution
 #
@@ -27,9 +27,9 @@ win32:{
     TARGET = pragaDialogs
 }
 
-INCLUDEPATH +=  ../../../agrolib/mathFunctions ../../../agrolib/crit3dDate \
-                ../../../agrolib/gis ../../../agrolib/meteo ../../../agrolib/interpolation \
-                ../../../agrolib/dbMeteoPoints ../../../agrolib/dbMeteoGrid  ../../../agrolib/project \
+INCLUDEPATH +=  ../../agrolib/mathFunctions ../../agrolib/crit3dDate ../../agrolib/gis  \
+                ../../agrolib/meteo ../../agrolib/interpolation ../../agrolib/dbMeteoPoints \
+                ../../agrolib/dbMeteoGrid  ../../agrolib/project \
                 ../phenology ../climate
 
 SOURCES += \

@@ -26,10 +26,10 @@ win32:{
     TARGET = drought
 }
 
-INCLUDEPATH +=  ../../../agrolib/crit3dDate ../../../agrolib/mathFunctions ../../../agrolib/gis  \
-                ../../../agrolib/meteo ../../../agrolib/interpolation ../../../agrolib/dbMeteoPoints
+INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis  \
+                ../../agrolib/meteo ../../agrolib/interpolation ../../agrolib/dbMeteoPoints
 
-SOURCES +=   \
+SOURCES +=  \
     drought.cpp
 
 HEADERS +=  \

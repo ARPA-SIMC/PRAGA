@@ -31,10 +31,10 @@ win32:{
     TARGET = synchronicityWidget
 }
 
-INCLUDEPATH += ../../../agrolib/crit3dDate ../../../agrolib/mathFunctions ../../../agrolib/gis  \
-                ../../../agrolib/meteo ../../../agrolib/utilities ../../../agrolib/dbMeteoPoints \
-                ../../../agrolib/dbMeteoGrid  ../../../agrolib/commonDialogs  \
-                ../../../agrolib/commonChartElements ../../../agrolib/interpolation \
+INCLUDEPATH += ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/gis  \
+                ../../agrolib/meteo ../../agrolib/utilities ../../agrolib/dbMeteoPoints \
+                ../../agrolib/dbMeteoGrid  ../../agrolib/commonDialogs  \
+                ../../agrolib/commonChartElements ../../agrolib/interpolation \
                 ../phenology ../climate
 
 SOURCES += \
