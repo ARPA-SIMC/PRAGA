@@ -1,0 +1,3134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1276</width>
+    <height>920</height>
+   </rect>
+  </property>
+  <property name="palette">
+   <palette>
+    <active>
+     <colorrole role="Button">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Midlight">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Dark">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>127</red>
+        <green>127</green>
+        <blue>127</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Mid">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>170</red>
+        <green>170</green>
+        <blue>170</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Shadow">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="AlternateBase">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="PlaceholderText">
+      <brush brushstyle="NoBrush">
+       <color alpha="128">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </active>
+    <inactive>
+     <colorrole role="Button">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Midlight">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Dark">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>127</red>
+        <green>127</green>
+        <blue>127</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Mid">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>170</red>
+        <green>170</green>
+        <blue>170</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Shadow">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="AlternateBase">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="PlaceholderText">
+      <brush brushstyle="NoBrush">
+       <color alpha="128">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </inactive>
+    <disabled>
+     <colorrole role="Button">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Midlight">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Dark">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>127</red>
+        <green>127</green>
+        <blue>127</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Mid">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>170</red>
+        <green>170</green>
+        <blue>170</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Shadow">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="AlternateBase">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="PlaceholderText">
+      <brush brushstyle="NoBrush">
+       <color alpha="128">
+        <red>0</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </disabled>
+   </palette>
+  </property>
+  <property name="font">
+   <font>
+    <pointsize>10</pointsize>
+    <bold>false</bold>
+   </font>
+  </property>
+  <property name="mouseTracking">
+   <bool>false</bool>
+  </property>
+  <property name="windowTitle">
+   <string>PRAGA</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>false</bool>
+  </property>
+  <property name="animated">
+   <bool>false</bool>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>10000</width>
+     <height>10000</height>
+    </size>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QWidget" name="widget" native="true">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>270</width>
+        <height>1000</height>
+       </size>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="sizeConstraint">
+        <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
+       </property>
+       <property name="leftMargin">
+        <number>9</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QGroupBox" name="groupBoxVariable">
+         <property name="minimumSize">
+          <size>
+           <width>261</width>
+           <height>115</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>261</width>
+           <height>115</height>
+          </size>
+         </property>
+         <property name="palette">
+          <palette>
+           <active/>
+           <inactive/>
+           <disabled/>
+          </palette>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="title">
+          <string notr="true"/>
+         </property>
+         <widget class="QLabel" name="labelVariable">
+          <property name="geometry">
+           <rect>
+            <x>85</x>
+            <y>80</y>
+            <width>171</width>
+            <height>24</height>
+           </rect>
+          </property>
+          <property name="palette">
+           <palette>
+            <active/>
+            <inactive/>
+            <disabled/>
+           </palette>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>name</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="labelFrequency">
+          <property name="geometry">
+           <rect>
+            <x>110</x>
+            <y>50</y>
+            <width>141</width>
+            <height>24</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>frequency</string>
+          </property>
+         </widget>
+         <widget class="QDateEdit" name="dateEdit">
+          <property name="geometry">
+           <rect>
+            <x>40</x>
+            <y>10</y>
+            <width>121</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="palette">
+           <palette>
+            <active>
+             <colorrole role="PlaceholderText">
+              <brush brushstyle="NoBrush">
+               <color alpha="128">
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </active>
+            <inactive>
+             <colorrole role="PlaceholderText">
+              <brush brushstyle="NoBrush">
+               <color alpha="128">
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </inactive>
+            <disabled>
+             <colorrole role="PlaceholderText">
+              <brush brushstyle="NoBrush">
+               <color alpha="128">
+                <red>0</red>
+                <green>0</green>
+                <blue>0</blue>
+               </color>
+              </brush>
+             </colorrole>
+            </disabled>
+           </palette>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="inputMethodHints">
+           <set>Qt::InputMethodHint::ImhNone</set>
+          </property>
+          <property name="dateTime">
+           <datetime>
+            <hour>0</hour>
+            <minute>0</minute>
+            <second>0</second>
+            <year>2090</year>
+            <month>1</month>
+            <day>1</day>
+           </datetime>
+          </property>
+          <property name="maximumDateTime">
+           <datetime>
+            <hour>23</hour>
+            <minute>59</minute>
+            <second>59</second>
+            <year>7999</year>
+            <month>12</month>
+            <day>31</day>
+           </datetime>
+          </property>
+          <property name="minimumDateTime">
+           <datetime>
+            <hour>0</hour>
+            <minute>0</minute>
+            <second>0</second>
+            <year>1752</year>
+            <month>8</month>
+            <day>6</day>
+           </datetime>
+          </property>
+          <property name="maximumDate">
+           <date>
+            <year>7999</year>
+            <month>12</month>
+            <day>31</day>
+           </date>
+          </property>
+          <property name="currentSection">
+           <enum>QDateTimeEdit::Section::YearSection</enum>
+          </property>
+          <property name="displayFormat">
+           <string>yyyy-MM-dd</string>
+          </property>
+          <property name="calendarPopup">
+           <bool>true</bool>
+          </property>
+          <property name="date">
+           <date>
+            <year>2090</year>
+            <month>1</month>
+            <day>1</day>
+           </date>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="frequencyButton">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>50</y>
+            <width>90</width>
+            <height>24</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Frequency</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="variableButton">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>80</y>
+            <width>70</width>
+            <height>24</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Variable</string>
+          </property>
+         </widget>
+         <widget class="QSpinBox" name="timeEdit">
+          <property name="geometry">
+           <rect>
+            <x>200</x>
+            <y>10</y>
+            <width>51</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>24</number>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="dayBeforeButton">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>10</y>
+            <width>31</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>&lt;</string>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="dayAfterButton">
+          <property name="geometry">
+           <rect>
+            <x>160</x>
+            <y>10</y>
+            <width>31</width>
+            <height>31</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>&gt;</string>
+          </property>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBoxMeteoPoints">
+         <property name="minimumSize">
+          <size>
+           <width>261</width>
+           <height>75</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>261</width>
+           <height>70</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="title">
+          <string>Meteo Points</string>
+         </property>
+         <widget class="QWidget" name="widgetColorLegendPoints" native="true">
+          <property name="geometry">
+           <rect>
+            <x>1</x>
+            <y>25</y>
+            <width>259</width>
+            <height>40</height>
+           </rect>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>280</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string>Variable colors</string>
+          </property>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBoxMeteoGrid">
+         <property name="minimumSize">
+          <size>
+           <width>261</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>261</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="title">
+          <string>Meteo Grid</string>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+         <widget class="QWidget" name="widgetColorLegendGrid" native="true">
+          <property name="geometry">
+           <rect>
+            <x>1</x>
+            <y>70</y>
+            <width>259</width>
+            <height>40</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string>Variable colors</string>
+          </property>
+         </widget>
+         <widget class="QSlider" name="meteoGridOpacitySlider">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>20</y>
+            <width>231</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <property name="toolTip">
+           <string>Meteo Grid opacity</string>
+          </property>
+          <property name="toolTipDuration">
+           <number>-1</number>
+          </property>
+          <property name="statusTip">
+           <string notr="true"/>
+          </property>
+          <property name="whatsThis">
+           <string notr="true"/>
+          </property>
+          <property name="accessibleName">
+           <string/>
+          </property>
+          <property name="accessibleDescription">
+           <string/>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>66</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+         </widget>
+         <widget class="QLabel" name="labelMeteoGridScale">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>45</y>
+            <width>231</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="palette">
+           <palette>
+            <active/>
+            <inactive/>
+            <disabled/>
+           </palette>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBoxRaster">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>261</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>261</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="palette">
+          <palette>
+           <active>
+            <colorrole role="Button">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Midlight">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Dark">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>127</red>
+               <green>127</green>
+               <blue>127</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Mid">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>170</red>
+               <green>170</green>
+               <blue>170</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Window">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Shadow">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>0</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="AlternateBase">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="PlaceholderText">
+             <brush brushstyle="NoBrush">
+              <color alpha="128">
+               <red>0</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
+             </brush>
+            </colorrole>
+           </active>
+           <inactive>
+            <colorrole role="Button">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Midlight">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Dark">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>127</red>
+               <green>127</green>
+               <blue>127</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Mid">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>170</red>
+               <green>170</green>
+               <blue>170</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Window">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Shadow">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>0</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="AlternateBase">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="PlaceholderText">
+             <brush brushstyle="NoBrush">
+              <color alpha="128">
+               <red>0</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
+             </brush>
+            </colorrole>
+           </inactive>
+           <disabled>
+            <colorrole role="Button">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Midlight">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Dark">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>127</red>
+               <green>127</green>
+               <blue>127</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Mid">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>170</red>
+               <green>170</green>
+               <blue>170</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Window">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="Shadow">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>0</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="AlternateBase">
+             <brush brushstyle="SolidPattern">
+              <color alpha="255">
+               <red>255</red>
+               <green>255</green>
+               <blue>255</blue>
+              </color>
+             </brush>
+            </colorrole>
+            <colorrole role="PlaceholderText">
+             <brush brushstyle="NoBrush">
+              <color alpha="128">
+               <red>0</red>
+               <green>0</green>
+               <blue>0</blue>
+              </color>
+             </brush>
+            </colorrole>
+           </disabled>
+          </palette>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="title">
+          <string notr="true">Raster</string>
+         </property>
+         <widget class="QSlider" name="rasterOpacitySlider">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>20</y>
+            <width>231</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <property name="toolTip">
+           <string>Raster opacity</string>
+          </property>
+          <property name="toolTipDuration">
+           <number>-1</number>
+          </property>
+          <property name="statusTip">
+           <string notr="true"/>
+          </property>
+          <property name="whatsThis">
+           <string notr="true"/>
+          </property>
+          <property name="accessibleName">
+           <string/>
+          </property>
+          <property name="accessibleDescription">
+           <string/>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>66</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+         </widget>
+         <widget class="QWidget" name="widgetColorLegendRaster" native="true">
+          <property name="geometry">
+           <rect>
+            <x>1</x>
+            <y>70</y>
+            <width>259</width>
+            <height>40</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string>Raster colors</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="labelRasterScale">
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>45</y>
+            <width>231</width>
+            <height>21</height>
+           </rect>
+          </property>
+          <property name="palette">
+           <palette>
+            <active/>
+            <inactive/>
+            <disabled/>
+           </palette>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Digital Terrain Map [m]</string>
+          </property>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBoxNetcdf">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>261</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>261</width>
+           <height>120</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="title">
+          <string>Netcdf</string>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
+         </property>
+         <widget class="QWidget" name="widgetColorLegendNetcdf" native="true">
+          <property name="geometry">
+           <rect>
+            <x>1</x>
+            <y>72</y>
+            <width>259</width>
+            <height>40</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>8</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string>Variable colors</string>
+          </property>
+         </widget>
+         <widget class="QSlider" name="netcdfOpacitySlider">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>20</y>
+            <width>231</width>
+            <height>22</height>
+           </rect>
+          </property>
+          <property name="toolTip">
+           <string>Meteo Grid opacity</string>
+          </property>
+          <property name="toolTipDuration">
+           <number>-1</number>
+          </property>
+          <property name="statusTip">
+           <string notr="true"/>
+          </property>
+          <property name="whatsThis">
+           <string notr="true"/>
+          </property>
+          <property name="accessibleName">
+           <string/>
+          </property>
+          <property name="accessibleDescription">
+           <string/>
+          </property>
+          <property name="maximum">
+           <number>100</number>
+          </property>
+          <property name="value">
+           <number>33</number>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+         </widget>
+         <widget class="QPushButton" name="netCDFButtonVariable">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>44</y>
+            <width>70</width>
+            <height>24</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Variable</string>
+          </property>
+         </widget>
+         <widget class="QLabel" name="labelNetcdfVariable">
+          <property name="geometry">
+           <rect>
+            <x>90</x>
+            <y>44</y>
+            <width>170</width>
+            <height>24</height>
+           </rect>
+          </property>
+          <property name="palette">
+           <palette>
+            <active/>
+            <inactive/>
+            <disabled/>
+           </palette>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>9</pointsize>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBoxCV">
+         <property name="maximumSize">
+          <size>
+           <width>260</width>
+           <height>150</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Cross validation</string>
+         </property>
+         <widget class="QPlainTextEdit" name="textEditCV">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>20</y>
+            <width>241</width>
+            <height>118</height>
+           </rect>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBoxElaboration">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>261</width>
+           <height>150</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>261</width>
+           <height>150</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="autoFillBackground">
+          <bool>true</bool>
+         </property>
+         <property name="title">
+          <string>Elaboration</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_elab1">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>9</pointsize>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>elab 1:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="lineEditElab1">
+            <property name="minimumSize">
+             <size>
+              <width>185</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>185</width>
+              <height>20</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_elab2">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>9</pointsize>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>elab 2:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="lineEditElab2">
+            <property name="minimumSize">
+             <size>
+              <width>185</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>185</width>
+              <height>20</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_variable">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>9</pointsize>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>variable:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="lineEditVariable">
+            <property name="minimumSize">
+             <size>
+              <width>185</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>185</width>
+              <height>20</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_period">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>9</pointsize>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>period:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="lineEditPeriod">
+            <property name="minimumSize">
+             <size>
+              <width>185</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>185</width>
+              <height>20</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_offset">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>9</pointsize>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>offset:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="lineEditOffset">
+            <property name="minimumSize">
+             <size>
+              <width>185</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>185</width>
+              <height>20</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="widgetMap" native="true">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>600</width>
+        <height>400</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>10000</width>
+        <height>10000</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="mouseTracking">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1276</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <property name="palette">
+    <palette>
+     <active/>
+     <inactive/>
+     <disabled/>
+    </palette>
+   </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>Fi&amp;le</string>
+    </property>
+    <widget class="QMenu" name="menuFileNetCDF">
+     <property name="title">
+      <string>NetCDF grid</string>
+     </property>
+     <widget class="QMenu" name="menuColor_Scale">
+      <property name="title">
+       <string>Color Scale</string>
+      </property>
+      <widget class="QMenu" name="menuNetcdf_ColorScale_Range">
+       <property name="title">
+        <string>Range</string>
+       </property>
+       <addaction name="actionNetcdf_ColorScale_Fixed"/>
+       <addaction name="actionNetcdf_ColorScale_RangeVariable"/>
+      </widget>
+      <addaction name="actionNetcdf_ColorScale_SetType"/>
+      <addaction name="menuNetcdf_ColorScale_Range"/>
+      <addaction name="actionNetcdf_ColorScale_Reverse"/>
+     </widget>
+     <addaction name="actionFileNetCDF_Open"/>
+     <addaction name="actionNetCDF_Close"/>
+     <addaction name="separator"/>
+     <addaction name="menuColor_Scale"/>
+     <addaction name="separator"/>
+     <addaction name="actionNetCDF_ShowMetadata"/>
+    </widget>
+    <widget class="QMenu" name="menuMeteogrid">
+     <property name="title">
+      <string>Meteo grid</string>
+     </property>
+     <widget class="QMenu" name="menuExport">
+      <property name="title">
+       <string>Export current data</string>
+      </property>
+      <addaction name="actionFileMeteogridExportRaster"/>
+      <addaction name="actionFileMeteogridExportNetcdf"/>
+      <addaction name="actionExport_MeteoGrid_toCsv"/>
+     </widget>
+     <addaction name="actionFileMeteogridOpen"/>
+     <addaction name="actionFileMeteogridClose"/>
+     <addaction name="separator"/>
+     <addaction name="actionNewMeteoGrid"/>
+     <addaction name="actionFileMeteogridDelete"/>
+     <addaction name="separator"/>
+     <addaction name="actioFileMeteogrid_Load_current_data"/>
+     <addaction name="actionImport_data_XML_grid"/>
+     <addaction name="actionFileMeteogridData_XMLexport"/>
+     <addaction name="actionFileMeteogrid_ExportDailyData"/>
+     <addaction name="menuExport"/>
+     <addaction name="separator"/>
+    </widget>
+    <widget class="QMenu" name="menuFileMeteopoint">
+     <property name="title">
+      <string>Meteo points</string>
+     </property>
+     <widget class="QMenu" name="menuFileMeteopointNew">
+      <property name="title">
+       <string>New</string>
+      </property>
+      <addaction name="actionFileMeteopointNewArkimet"/>
+      <addaction name="actionFileMeteopointNewCsv"/>
+     </widget>
+     <widget class="QMenu" name="menuImport">
+      <property name="title">
+       <string>CSV data</string>
+      </property>
+      <addaction name="actionFileMeteopointProperties_import"/>
+      <addaction name="actionFileMeteopointData_XMLimport"/>
+      <addaction name="actionFileMeteopointData_XMLexport"/>
+     </widget>
+     <widget class="QMenu" name="menuArkimet">
+      <property name="title">
+       <string>Arkimet data</string>
+      </property>
+      <addaction name="actionFileMeteopointArkimetDownload"/>
+      <addaction name="actionFileMeteopointArkimetLoadVM"/>
+      <addaction name="separator"/>
+      <addaction name="actionFileMeteopointArkimetUpdateMeteopoints"/>
+      <addaction name="actionFileMeteopointArkimetUpdatePointProperties"/>
+      <addaction name="actionFileMeteopointArkimetUpdateDatasets"/>
+     </widget>
+     <addaction name="menuFileMeteopointNew"/>
+     <addaction name="actionFileMeteopointOpen"/>
+     <addaction name="actionFileMeteopointClose"/>
+     <addaction name="separator"/>
+     <addaction name="menuArkimet"/>
+     <addaction name="menuImport"/>
+     <addaction name="actionExport_MeteoPoints_toCsv"/>
+    </widget>
+    <widget class="QMenu" name="menuOpen_DEM">
+     <property name="title">
+      <string>DEM</string>
+     </property>
+     <widget class="QMenu" name="menuSet_range">
+      <property name="title">
+       <string>Set range</string>
+      </property>
+      <addaction name="actionDemRangeFixed"/>
+      <addaction name="actionDemRangeDynamic"/>
+     </widget>
+     <addaction name="actionFileDemOpen"/>
+     <addaction name="separator"/>
+     <addaction name="actionFileExportInterpolation"/>
+     <addaction name="actionFileLoadInterpolation"/>
+     <addaction name="actionDemRestore"/>
+     <addaction name="actionDemZoom_to_layer"/>
+     <addaction name="separator"/>
+     <addaction name="menuSet_range"/>
+    </widget>
+    <widget class="QMenu" name="menuProject">
+     <property name="title">
+      <string>Project</string>
+     </property>
+     <addaction name="actionFileOpenProject"/>
+     <addaction name="actionFileCloseProject"/>
+     <addaction name="separator"/>
+     <addaction name="actionFileSaveProjectAs"/>
+     <addaction name="actionFileSaveProject"/>
+     <addaction name="separator"/>
+     <addaction name="actionShow_InfoProject"/>
+    </widget>
+    <widget class="QMenu" name="menuFileOutputPoints">
+     <property name="title">
+      <string>Output points</string>
+     </property>
+     <addaction name="actionFileOutputPoints_NewFromCsv"/>
+     <addaction name="actionFileOutputPointsOpen"/>
+     <addaction name="actionFileOutputPointsClose"/>
+    </widget>
+    <widget class="QMenu" name="menuMacro_areas_file">
+     <property name="title">
+      <string>Macro areas file</string>
+     </property>
+     <addaction name="actionLoad_stations_file"/>
+     <addaction name="actionLoad_macro_areas_file"/>
+    </widget>
+    <addaction name="menuProject"/>
+    <addaction name="separator"/>
+    <addaction name="menuOpen_DEM"/>
+    <addaction name="separator"/>
+    <addaction name="menuFileMeteopoint"/>
+    <addaction name="separator"/>
+    <addaction name="menuFileOutputPoints"/>
+    <addaction name="separator"/>
+    <addaction name="menuMeteogrid"/>
+    <addaction name="separator"/>
+    <addaction name="menuFileNetCDF"/>
+    <addaction name="separator"/>
+    <addaction name="menuMacro_areas_file"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpenShell"/>
+   </widget>
+   <widget class="QMenu" name="menuMeteopoint">
+    <property name="title">
+     <string>MeteoPoints</string>
+    </property>
+    <widget class="QMenu" name="menuActive_points">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Activate points</string>
+     </property>
+     <addaction name="actionAll_active"/>
+     <addaction name="actionSelected_active"/>
+     <addaction name="actionFrom_point_list_active"/>
+     <addaction name="actionWith_Criteria_active"/>
+     <addaction name="actionRandom_subset_active"/>
+    </widget>
+    <widget class="QMenu" name="menuDeactive_points">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Deactivate points</string>
+     </property>
+     <addaction name="actionAll_notActive"/>
+     <addaction name="actionSelected_notActive"/>
+     <addaction name="actionWith_NO_DATA_notActive"/>
+     <addaction name="actionWith_Criteria_notActive"/>
+    </widget>
+    <widget class="QMenu" name="menuDelete_data">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Delete data</string>
+     </property>
+     <addaction name="actionDeleteData_selected"/>
+     <addaction name="actionDeleteData_Active"/>
+     <addaction name="actionDeleteData_notActive"/>
+    </widget>
+    <widget class="QMenu" name="menuDelete_points">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Delete points</string>
+     </property>
+     <addaction name="actionDeletePoint_selected"/>
+     <addaction name="actionDeletePoint_notSelected"/>
+     <addaction name="actionDeletePoint_notActive"/>
+    </widget>
+    <widget class="QMenu" name="menuMark_points">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Mark points</string>
+     </property>
+     <addaction name="separator"/>
+     <addaction name="actionMark_from_pointlist"/>
+     <addaction name="actionUnmark_all_points"/>
+    </widget>
+    <widget class="QMenu" name="menuShift_data">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Shift data</string>
+     </property>
+     <addaction name="actionShiftDataAll"/>
+     <addaction name="actionShiftDataSelected"/>
+    </widget>
+    <widget class="QMenu" name="menuSearch_points">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Search points</string>
+     </property>
+     <addaction name="actionSearchPointName"/>
+     <addaction name="actionSearchPointId"/>
+    </widget>
+    <widget class="QMenu" name="menuCompute_daily_data_from_hourly">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Compute daily data from hourly</string>
+     </property>
+     <addaction name="actionCompute_daily_from_Hourly_all"/>
+     <addaction name="actionCompute_daily_from_Hourly_selected"/>
+    </widget>
+    <widget class="QMenu" name="menuSelected_points">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Select points</string>
+     </property>
+     <addaction name="actionAll_Selected"/>
+     <addaction name="actionNone_Selected"/>
+     <addaction name="actionFrom_point_list_Selected"/>
+     <addaction name="actionWith_Criteria_Selected"/>
+    </widget>
+    <addaction name="actionMeteopointQualitySpatial"/>
+    <addaction name="actionMeteopointRectangleSelection"/>
+    <addaction name="separator"/>
+    <addaction name="menuSelected_points"/>
+    <addaction name="actionMeteoPointsClear_selection"/>
+    <addaction name="menuSearch_points"/>
+    <addaction name="menuMark_points"/>
+    <addaction name="separator"/>
+    <addaction name="menuActive_points"/>
+    <addaction name="menuDeactive_points"/>
+    <addaction name="menuDelete_points"/>
+    <addaction name="menuDelete_data"/>
+    <addaction name="separator"/>
+    <addaction name="menuShift_data"/>
+    <addaction name="actionMeteopointDataCount"/>
+    <addaction name="separator"/>
+    <addaction name="menuCompute_daily_data_from_hourly"/>
+   </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>Settin&amp;gs</string>
+    </property>
+    <widget class="QMenu" name="menuSettingsMap">
+     <property name="title">
+      <string>&amp;Map</string>
+     </property>
+     <addaction name="actionSettingsMapOpenStreetMap"/>
+     <addaction name="actionSettingsMapGoogleMap"/>
+     <addaction name="actionSettingsMapGoogleSatellite"/>
+     <addaction name="actionSettingsMapGoogleHybrid"/>
+     <addaction name="actionSettingsMapGoogleTerrain"/>
+     <addaction name="actionSettingsMapStamenTerrain"/>
+     <addaction name="actionSettingsMapEsriSatellite"/>
+    </widget>
+    <addaction name="menuSettingsMap"/>
+    <addaction name="actionSettingsParameters"/>
+    <addaction name="separator"/>
+    <addaction name="actionShowInfo"/>
+   </widget>
+   <widget class="QMenu" name="menuInterpolation">
+    <property name="title">
+     <string>Interpolation</string>
+    </property>
+    <widget class="QMenu" name="menuTopographicDistanceMaps">
+     <property name="title">
+      <string>Topographic distance maps</string>
+     </property>
+     <addaction name="actionTopographicDistanceMapsSave"/>
+     <addaction name="actionTopographicDistanceMapsLoad"/>
+    </widget>
+    <widget class="QMenu" name="menuInterpolationMeteogrid">
+     <property name="title">
+      <string>Interpolation to meteo grid</string>
+     </property>
+     <widget class="QMenu" name="menuInterpolationMeteogridGriddingTask">
+      <property name="title">
+       <string>Gridding task</string>
+      </property>
+      <addaction name="actionInterpolationMeteogridGriddingTaskAdd"/>
+      <addaction name="actionInterpolationMeteogridGriddingTaskRemove"/>
+     </widget>
+     <addaction name="actionInterpolationMeteogridCurrentTime"/>
+     <addaction name="actionInterpolationMeteogridSaveCurrentData"/>
+     <addaction name="actionInterpolationMeteogridPeriod"/>
+     <addaction name="separator"/>
+     <addaction name="menuInterpolationMeteogridGriddingTask"/>
+    </widget>
+    <widget class="QMenu" name="menuInterpolation_to_output_points">
+     <property name="title">
+      <string>Interpolation to output points</string>
+     </property>
+     <addaction name="actionInterpolationOutputPointsCurrentTime"/>
+     <addaction name="actionInterpolationOutputPointsPeriod"/>
+    </widget>
+    <widget class="QMenu" name="menuInterpolationCV">
+     <property name="title">
+      <string>Cross validation</string>
+     </property>
+     <addaction name="actionInterpolationCVCurrentTime"/>
+     <addaction name="actionInterpolationCVPeriod"/>
+    </widget>
+    <widget class="QMenu" name="menuGlocal">
+     <property name="title">
+      <string>Glocal</string>
+     </property>
+     <addaction name="actionInterpolationGlocalCreateWeightMaps"/>
+    </widget>
+    <addaction name="actionInterpolationDem"/>
+    <addaction name="menuInterpolationMeteogrid"/>
+    <addaction name="menuInterpolation_to_output_points"/>
+    <addaction name="menuInterpolationCV"/>
+    <addaction name="actionInterpolationSettings"/>
+    <addaction name="separator"/>
+    <addaction name="menuGlocal"/>
+    <addaction name="menuTopographicDistanceMaps"/>
+    <addaction name="actionInterpolationTopographicIndex"/>
+    <addaction name="separator"/>
+    <addaction name="action_Proxy_graph"/>
+   </widget>
+   <widget class="QMenu" name="menuElaboration">
+    <property name="title">
+     <string>Elaboration</string>
+    </property>
+    <widget class="QMenu" name="menuElaborationElab">
+     <property name="title">
+      <string>Elaboration</string>
+     </property>
+     <widget class="QMenu" name="menuCompute_elaboration">
+      <property name="title">
+       <string>Compute elaboration</string>
+      </property>
+      <addaction name="actionElaboration_Daily_data"/>
+      <addaction name="actionElaboration_Hourly_data"/>
+     </widget>
+     <addaction name="menuCompute_elaboration"/>
+     <addaction name="actionAnomaly"/>
+     <addaction name="actionCompute_drought"/>
+    </widget>
+    <widget class="QMenu" name="menuClimate">
+     <property name="title">
+      <string>Climate</string>
+     </property>
+     <widget class="QMenu" name="menuClimate_fields">
+      <property name="title">
+       <string>Climate fields</string>
+      </property>
+      <addaction name="actionClimateMeteoPoints"/>
+      <addaction name="actionClimateMeteoGrid"/>
+     </widget>
+     <addaction name="actionClimate"/>
+     <addaction name="menuClimate_fields"/>
+    </widget>
+    <widget class="QMenu" name="menuSpatialAggregation">
+     <property name="title">
+      <string>Spatial aggregation</string>
+     </property>
+     <addaction name="actionSpatialAggregationOpenDB"/>
+     <addaction name="actionSpatialAggregationNewDB"/>
+     <addaction name="separator"/>
+     <addaction name="actionSpatialAggregationFromGrid"/>
+     <addaction name="actionSpatialAggregationFromGrid_hourly"/>
+     <addaction name="separator"/>
+     <addaction name="actionSpatialAggregationAssignAltitude"/>
+    </widget>
+    <addaction name="menuElaborationElab"/>
+    <addaction name="menuClimate"/>
+    <addaction name="separator"/>
+    <addaction name="menuSpatialAggregation"/>
+    <addaction name="separator"/>
+    <addaction name="actionStatistical_Summary"/>
+   </widget>
+   <widget class="QMenu" name="menuShow">
+    <property name="title">
+     <string>Show</string>
+    </property>
+    <widget class="QMenu" name="menuShowPoints">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="title">
+      <string>Points</string>
+     </property>
+     <widget class="QMenu" name="menuShowPointsAnomaly">
+      <property name="title">
+       <string>Anomaly</string>
+      </property>
+      <addaction name="actionShowPointsAnomalyAbs"/>
+      <addaction name="actionShowPointsAnomalyPerc"/>
+     </widget>
+     <widget class="QMenu" name="menustyle">
+      <property name="title">
+       <string>style</string>
+      </property>
+      <addaction name="actionPointStyleCircle"/>
+      <addaction name="actionPointStyleText"/>
+      <addaction name="actionPointStyleText_multicolor"/>
+     </widget>
+     <addaction name="actionView_not_active_points"/>
+     <addaction name="actionView_output_points"/>
+     <addaction name="actionHide_supplemental_stations"/>
+     <addaction name="menustyle"/>
+     <addaction name="separator"/>
+     <addaction name="actionShowPointsHide"/>
+     <addaction name="actionShowPointsLocation"/>
+     <addaction name="actionShowPointsCurrent"/>
+     <addaction name="actionShowPointsCVResidual"/>
+     <addaction name="actionShowPointsElab"/>
+     <addaction name="menuShowPointsAnomaly"/>
+     <addaction name="actionShowPointsClimate"/>
+     <addaction name="actionMark_macro_area_stations"/>
+    </widget>
+    <widget class="QMenu" name="menuShowGrid">
+     <property name="title">
+      <string>Grid</string>
+     </property>
+     <widget class="QMenu" name="menuShowGridAnomaly">
+      <property name="title">
+       <string>Anomaly</string>
+      </property>
+      <addaction name="actionShowGridAnomalyAbs"/>
+      <addaction name="actionShowGridAnomalyPerc"/>
+     </widget>
+     <addaction name="actionShowGridHide"/>
+     <addaction name="actionShowGridLocation"/>
+     <addaction name="actionShowGridCurrent"/>
+     <addaction name="actionShowGridElab"/>
+     <addaction name="menuShowGridAnomaly"/>
+     <addaction name="actionShowGridClimate"/>
+    </widget>
+    <widget class="QMenu" name="menuNetCDF">
+     <property name="title">
+      <string>NetCDF</string>
+     </property>
+     <addaction name="actionShowNetcdfHide"/>
+     <addaction name="actionShowNetcdfLocation"/>
+     <addaction name="actionShowNetcdfVariable"/>
+    </widget>
+    <addaction name="menuShowPoints"/>
+    <addaction name="menuShowGrid"/>
+    <addaction name="menuNetCDF"/>
+   </widget>
+   <widget class="QMenu" name="menuRadiation">
+    <property name="title">
+     <string>Radiation</string>
+    </property>
+    <addaction name="actionRadiationSettings"/>
+   </widget>
+   <widget class="QMenu" name="menuMeteoGrid">
+    <property name="title">
+     <string>MeteoGrid</string>
+    </property>
+    <widget class="QMenu" name="menuColor_scale">
+     <property name="title">
+      <string>Color scale</string>
+     </property>
+     <widget class="QMenu" name="menuRange">
+      <property name="title">
+       <string>Range</string>
+      </property>
+      <addaction name="flagMeteoGrid_Fixed_color_scale"/>
+      <addaction name="flagMeteoGrid_Dynamic_color_scale"/>
+     </widget>
+     <addaction name="actionMeteoGrid_Set_color_scale"/>
+     <addaction name="menuRange"/>
+     <addaction name="actionMeteoGrid_Reverse_color_scale"/>
+    </widget>
+    <widget class="QMenu" name="menuActive_cells">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="title">
+      <string>Active cells</string>
+     </property>
+     <addaction name="actionMeteoGridActiveAll"/>
+     <addaction name="actionMeteoGridActiveWith_DEM"/>
+    </widget>
+    <addaction name="menuColor_scale"/>
+    <addaction name="separator"/>
+    <addaction name="actionMeteogridMissingData"/>
+    <addaction name="menuActive_cells"/>
+    <addaction name="actionCompute_monthly_data_from_daily"/>
+   </widget>
+   <widget class="QMenu" name="menuWaterTable">
+    <property name="title">
+     <string>WaterTable</string>
+    </property>
+    <widget class="QMenu" name="menuWaterTableData">
+     <property name="title">
+      <string>Data</string>
+     </property>
+     <addaction name="actionWaterTable_importLocation"/>
+     <addaction name="actionWaterTable_importDepth"/>
+    </widget>
+    <widget class="QMenu" name="menuWaterTableCompute">
+     <property name="title">
+      <string>Compute parameters</string>
+     </property>
+     <addaction name="actionWaterTable_computeSingleWell"/>
+     <addaction name="actionWaterTable_computeAllWells"/>
+    </widget>
+    <widget class="QMenu" name="menuWaterTableShow">
+     <property name="title">
+      <string>Show</string>
+     </property>
+     <addaction name="actionWaterTable_showId"/>
+     <addaction name="actionWaterTable_showLocation"/>
+     <addaction name="actionWaterTable_showDepth"/>
+    </widget>
+    <addaction name="menuWaterTableData"/>
+    <addaction name="menuWaterTableCompute"/>
+    <addaction name="separator"/>
+    <addaction name="menuWaterTableShow"/>
+    <addaction name="actionWaterTable_Hide"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuShow"/>
+   <addaction name="menuMeteopoint"/>
+   <addaction name="menuMeteoGrid"/>
+   <addaction name="menuInterpolation"/>
+   <addaction name="menuRadiation"/>
+   <addaction name="menuElaboration"/>
+   <addaction name="menuWaterTable"/>
+   <addaction name="menuSettings"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionSettingsMapOpenStreetMap">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>OpenStreetMap</string>
+   </property>
+  </action>
+  <action name="actionSettingsMapEsriSatellite">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>ESRI world Imagery</string>
+   </property>
+  </action>
+  <action name="actionSettingsMapStamenTerrain">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Stamen terrain</string>
+   </property>
+  </action>
+  <action name="actionMeteopointRectangleSelection">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Rectangle Selection</string>
+   </property>
+  </action>
+  <action name="actionMeteopointQualitySpatial">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Spatial quality control</string>
+   </property>
+  </action>
+  <action name="actionInterpolationDem">
+   <property name="text">
+    <string>Interpolation to DEM</string>
+   </property>
+  </action>
+  <action name="actionInterpolationSettings">
+   <property name="text">
+    <string>Settings...</string>
+   </property>
+   <property name="iconText">
+    <string>Interpolation settings</string>
+   </property>
+   <property name="toolTip">
+    <string>Interpolation settings</string>
+   </property>
+  </action>
+  <action name="actionSettingsParameters">
+   <property name="text">
+    <string>Parameters</string>
+   </property>
+  </action>
+  <action name="actionTopographicDistanceMapsSave">
+   <property name="text">
+    <string>Write</string>
+   </property>
+  </action>
+  <action name="actionTopographicDistanceMapsLoad">
+   <property name="text">
+    <string>Load</string>
+   </property>
+  </action>
+  <action name="actionAnomaly">
+   <property name="text">
+    <string>Compute anomaly...</string>
+   </property>
+  </action>
+  <action name="actionClimate">
+   <property name="text">
+    <string>Compute climate</string>
+   </property>
+  </action>
+  <action name="actionShowPointsHide">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Hide</string>
+   </property>
+  </action>
+  <action name="actionShowPointsCurrent">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Current variable</string>
+   </property>
+  </action>
+  <action name="actionShowPointsElab">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Elaboration</string>
+   </property>
+  </action>
+  <action name="actionShowPointsAnomalyAbs">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Absolute</string>
+   </property>
+  </action>
+  <action name="actionShowPointsAnomalyPerc">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Percentage</string>
+   </property>
+  </action>
+  <action name="actionShowPointsClimate">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Climate</string>
+   </property>
+  </action>
+  <action name="actionShowGridHide">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Hide</string>
+   </property>
+  </action>
+  <action name="actionShowGridLocation">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Location</string>
+   </property>
+  </action>
+  <action name="actionShowGridCurrent">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Current variable</string>
+   </property>
+  </action>
+  <action name="actionShowGridElab">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Elaboration</string>
+   </property>
+  </action>
+  <action name="actionShowGridAnomalyAbs">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Absolute</string>
+   </property>
+  </action>
+  <action name="actionShowGridAnomalyPerc">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Percentage</string>
+   </property>
+  </action>
+  <action name="actionShowGridClimate">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Climate</string>
+   </property>
+  </action>
+  <action name="actionShowPointsLocation">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Location</string>
+   </property>
+  </action>
+  <action name="actionFileOpenProject">
+   <property name="text">
+    <string>Open...</string>
+   </property>
+  </action>
+  <action name="actionFileCloseProject">
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="actionFileSaveProjectAs">
+   <property name="text">
+    <string>New...</string>
+   </property>
+  </action>
+  <action name="actionFileSaveProject">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionRadiationSettings">
+   <property name="text">
+    <string>Settings...</string>
+   </property>
+  </action>
+  <action name="actionInterpolationMeteogridCurrentTime">
+   <property name="text">
+    <string>Current time</string>
+   </property>
+  </action>
+  <action name="actionInterpolationMeteogridPeriod">
+   <property name="text">
+    <string>Interpolate and save period...</string>
+   </property>
+  </action>
+  <action name="actionInterpolationMeteogridSaveCurrentData">
+   <property name="text">
+    <string>Save current data</string>
+   </property>
+  </action>
+  <action name="actionFileNetCDF_Open">
+   <property name="text">
+    <string>Open...</string>
+   </property>
+  </action>
+  <action name="actionNetCDF_Close">
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="actionNetCDF_ShowMetadata">
+   <property name="text">
+    <string>Show metadata...</string>
+   </property>
+  </action>
+  <action name="actionFileMeteogridOpen">
+   <property name="text">
+    <string>Open...</string>
+   </property>
+  </action>
+  <action name="actionFileMeteogridClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="actionFileMeteogridExportNetcdf">
+   <property name="text">
+    <string>to NetCDF...</string>
+   </property>
+  </action>
+  <action name="actionFileMeteopointOpen">
+   <property name="text">
+    <string>Open...</string>
+   </property>
+  </action>
+  <action name="actionFileMeteopointClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="actionFileMeteopointArkimetDownload">
+   <property name="text">
+    <string>Download...</string>
+   </property>
+  </action>
+  <action name="actionFileMeteopointNewArkimet">
+   <property name="text">
+    <string>From Arkimet...</string>
+   </property>
+  </action>
+  <action name="actionSettingsMapGoogleMap">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Google map</string>
+   </property>
+  </action>
+  <action name="actionSettingsMapGoogleSatellite">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Google satellite</string>
+   </property>
+  </action>
+  <action name="actionSettingsMapGoogleTerrain">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Google terrain</string>
+   </property>
+  </action>
+  <action name="actionSettingsMapGoogleHybrid">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Google hybrid satellite</string>
+   </property>
+  </action>
+  <action name="actionMeteopointDataCount">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Data count...</string>
+   </property>
+  </action>
+  <action name="actionMeteogridMissingData">
+   <property name="text">
+    <string>Find missing data...</string>
+   </property>
+  </action>
+  <action name="actionImport_data_XML_grid">
+   <property name="text">
+    <string>Import data with XML...</string>
+   </property>
+  </action>
+  <action name="actionFileMeteopointNewCsv">
+   <property name="text">
+    <string>From CSV...</string>
+   </property>
+  </action>
+  <action name="actionFileMeteopointProperties_import">
+   <property name="text">
+    <string>Import properties...</string>
+   </property>
+  </action>
+  <action name="actionFileMeteopointData_XMLimport">
+   <property name="text">
+    <string>Import data with XML...</string>
+   </property>
+  </action>
+  <action name="actionAll_active">
+   <property name="text">
+    <string>All</string>
+   </property>
+  </action>
+  <action name="actionSelected_active">
+   <property name="text">
+    <string>Selected</string>
+   </property>
+  </action>
+  <action name="actionFrom_point_list_active">
+   <property name="text">
+    <string>From point list</string>
+   </property>
+  </action>
+  <action name="actionWith_Criteria_active">
+   <property name="text">
+    <string>With Criteria...</string>
+   </property>
+  </action>
+  <action name="actionRandom_subset_active">
+   <property name="text">
+    <string>Random subset</string>
+   </property>
+  </action>
+  <action name="actionAll_notActive">
+   <property name="text">
+    <string>All</string>
+   </property>
+  </action>
+  <action name="actionSelected_notActive">
+   <property name="text">
+    <string>Selected</string>
+   </property>
+  </action>
+  <action name="actionWith_NO_DATA_notActive">
+   <property name="text">
+    <string>With NO DATA</string>
+   </property>
+  </action>
+  <action name="actionWith_Criteria_notActive">
+   <property name="text">
+    <string>With Criteria...</string>
+   </property>
+  </action>
+  <action name="actionDeletePoint_selected">
+   <property name="text">
+    <string>Selected</string>
+   </property>
+  </action>
+  <action name="actionDeletePoint_notSelected">
+   <property name="text">
+    <string>Not selected</string>
+   </property>
+  </action>
+  <action name="actionDeletePoint_notActive">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Not active</string>
+   </property>
+  </action>
+  <action name="actionDeleteData_Active">
+   <property name="text">
+    <string>Active</string>
+   </property>
+  </action>
+  <action name="actionDeleteData_notActive">
+   <property name="text">
+    <string>Not active</string>
+   </property>
+  </action>
+  <action name="actionDeleteData_selected">
+   <property name="text">
+    <string>Selected</string>
+   </property>
+  </action>
+  <action name="actionView_not_active_points">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>View not active points</string>
+   </property>
+  </action>
+  <action name="action_Proxy_graph">
+   <property name="text">
+    <string>Proxy graph...</string>
+   </property>
+  </action>
+  <action name="actionNewMeteoGrid">
+   <property name="text">
+    <string>New...</string>
+   </property>
+  </action>
+  <action name="actionFileMeteogridExportRaster">
+   <property name="text">
+    <string>to Raster...</string>
+   </property>
+  </action>
+  <action name="actionFileMeteopointArkimetUpdatePointProperties">
+   <property name="text">
+    <string>Update properties...</string>
+   </property>
+  </action>
+  <action name="actionFileMeteopointArkimetUpdateMeteopoints">
+   <property name="text">
+    <string>Update meteo points...</string>
+   </property>
+  </action>
+  <action name="actionFileMeteopointArkimetUpdateDatasets">
+   <property name="text">
+    <string>Update datasets...</string>
+   </property>
+  </action>
+  <action name="actionPointStyleCircle">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Circle</string>
+   </property>
+  </action>
+  <action name="actionPointStyleText">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Text</string>
+   </property>
+  </action>
+  <action name="actionPointStyleText_multicolor">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Text multicolor</string>
+   </property>
+  </action>
+  <action name="actionMark_from_pointlist">
+   <property name="text">
+    <string>From point list</string>
+   </property>
+  </action>
+  <action name="actionUnmark_all_points">
+   <property name="text">
+    <string>Unmark all</string>
+   </property>
+  </action>
+  <action name="actionSpatialAggregationOpenDB">
+   <property name="text">
+    <string>Open aggregation DB...</string>
+   </property>
+  </action>
+  <action name="actionSpatialAggregationNewDB">
+   <property name="text">
+    <string>New aggregation DB...</string>
+   </property>
+  </action>
+  <action name="actionSpatialAggregationFromGrid">
+   <property name="text">
+    <string>Aggregate from grid (daily)...</string>
+   </property>
+  </action>
+  <action name="actionExport_MeteoPoints_toCsv">
+   <property name="text">
+    <string>Export current data to CSV...</string>
+   </property>
+  </action>
+  <action name="actionFileDemOpen">
+   <property name="text">
+    <string>Open...</string>
+   </property>
+   <property name="toolTip">
+    <string>Open DEM</string>
+   </property>
+  </action>
+  <action name="actionFileExportInterpolation">
+   <property name="text">
+    <string>Export interpolation...</string>
+   </property>
+  </action>
+  <action name="flagMeteoGrid_Fixed_color_scale">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Fixed...</string>
+   </property>
+  </action>
+  <action name="flagMeteoGrid_Dynamic_color_scale">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Dynamic</string>
+   </property>
+  </action>
+  <action name="actionFileMeteogridDelete">
+   <property name="text">
+    <string>Delete</string>
+   </property>
+  </action>
+  <action name="actionMeteoGrid_Reverse_color_scale">
+   <property name="text">
+    <string>Reverse</string>
+   </property>
+  </action>
+  <action name="actioFileMeteogrid_Load_current_data">
+   <property name="text">
+    <string>Load current data</string>
+   </property>
+  </action>
+  <action name="actionMeteoGrid_Set_color_scale">
+   <property name="text">
+    <string>Set type...</string>
+   </property>
+  </action>
+  <action name="actionShiftDataAll">
+   <property name="text">
+    <string>All</string>
+   </property>
+  </action>
+  <action name="actionShiftDataSelected">
+   <property name="text">
+    <string>Selected</string>
+   </property>
+  </action>
+  <action name="actionMeteoGridActiveAll">
+   <property name="text">
+    <string>All</string>
+   </property>
+  </action>
+  <action name="actionMeteoGridActiveWith_DEM">
+   <property name="text">
+    <string>With DEM</string>
+   </property>
+  </action>
+  <action name="actionFileMeteogridPlanGriddingPeriod">
+   <property name="text">
+    <string>Plan gridding period...</string>
+   </property>
+  </action>
+  <action name="actionInterpolationMeteogridGriddingTaskAdd">
+   <property name="text">
+    <string>Add...</string>
+   </property>
+  </action>
+  <action name="actionInterpolationMeteogridGriddingTaskRemove">
+   <property name="text">
+    <string>Remove...</string>
+   </property>
+  </action>
+  <action name="actionDemRestore">
+   <property name="text">
+    <string>Restore DEM</string>
+   </property>
+  </action>
+  <action name="actionSearchPointName">
+   <property name="text">
+    <string>Name</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionSearchPointId">
+   <property name="text">
+    <string>Id</string>
+   </property>
+  </action>
+  <action name="actionMeteoPointsClear_selection">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Clear selection</string>
+   </property>
+  </action>
+  <action name="actionShow_InfoProject">
+   <property name="text">
+    <string>Show Info...</string>
+   </property>
+  </action>
+  <action name="actionCompute_daily_from_Hourly_all">
+   <property name="text">
+    <string>All</string>
+   </property>
+   <property name="toolTip">
+    <string>Compute daily from Hourly All</string>
+   </property>
+  </action>
+  <action name="actionCompute_daily_from_Hourly_selected">
+   <property name="text">
+    <string>Selected</string>
+   </property>
+   <property name="toolTip">
+    <string>Compute daily from Hourly Selected</string>
+   </property>
+  </action>
+  <action name="actionCompute_monthly_data_from_daily">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Compute monthly data from daily</string>
+   </property>
+  </action>
+  <action name="actionNetcdf_ColorScale_SetType">
+   <property name="text">
+    <string>Set type...</string>
+   </property>
+  </action>
+  <action name="actionNetcdf_ColorScale_Reverse">
+   <property name="text">
+    <string>Reverse</string>
+   </property>
+  </action>
+  <action name="actionNetcdf_ColorScale_Fixed">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Fixed...</string>
+   </property>
+  </action>
+  <action name="actionNetcdf_ColorScale_RangeVariable">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Variable</string>
+   </property>
+  </action>
+  <action name="actionShowNetcdfHide">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Hide</string>
+   </property>
+  </action>
+  <action name="actionShowNetcdfLocation">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Location</string>
+   </property>
+  </action>
+  <action name="actionShowNetcdfVariable">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Variable</string>
+   </property>
+  </action>
+  <action name="actionClimateMeteoPoints">
+   <property name="text">
+    <string>MeteoPoints</string>
+   </property>
+  </action>
+  <action name="actionClimateMeteoGrid">
+   <property name="text">
+    <string>MeteoGrid</string>
+   </property>
+  </action>
+  <action name="actionStatistical_Summary">
+   <property name="text">
+    <string>Statistical Summary</string>
+   </property>
+   <property name="iconText">
+    <string>Statistical Summary</string>
+   </property>
+   <property name="autoRepeat">
+    <bool>false</bool>
+   </property>
+   <property name="shortcutVisibleInContextMenu">
+    <bool>false</bool>
+   </property>
+  </action>
+  <action name="actionDemRangeFixed">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Fixed...</string>
+   </property>
+  </action>
+  <action name="actionDemRangeDynamic">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Dynamic</string>
+   </property>
+  </action>
+  <action name="actionExport_MeteoGrid_toCsv">
+   <property name="text">
+    <string>to Csv</string>
+   </property>
+  </action>
+  <action name="actionOpenShell">
+   <property name="text">
+    <string>Shell</string>
+   </property>
+  </action>
+  <action name="actionView_output_points">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>View output points</string>
+   </property>
+  </action>
+  <action name="actionFileOutputPointsOpen">
+   <property name="text">
+    <string>Open...</string>
+   </property>
+  </action>
+  <action name="actionFileOutputPointsClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="actionFileOutputPoints_NewFromCsv">
+   <property name="text">
+    <string>New (from csv)...</string>
+   </property>
+  </action>
+  <action name="actionInterpolationOutputPointsCurrentTime">
+   <property name="text">
+    <string>Current time</string>
+   </property>
+  </action>
+  <action name="actionInterpolationOutputPointsPeriod">
+   <property name="text">
+    <string>Interpolate and save period...</string>
+   </property>
+  </action>
+  <action name="actionCompute_drought">
+   <property name="text">
+    <string>Compute drought...</string>
+   </property>
+  </action>
+  <action name="actionFileMeteogrid_ExportDailyData">
+   <property name="text">
+    <string>Export daily data...</string>
+   </property>
+  </action>
+  <action name="actionFileMeteopointData_XMLexport">
+   <property name="text">
+    <string>Export data with XML</string>
+   </property>
+  </action>
+  <action name="actionFileMeteogridData_XMLexport">
+   <property name="text">
+    <string>Export data with XML</string>
+   </property>
+  </action>
+  <action name="actionWaterTable_importLocation">
+   <property name="text">
+    <string>Import wells location (csv)...</string>
+   </property>
+  </action>
+  <action name="actionWaterTable_importDepth">
+   <property name="text">
+    <string>Import observed depth (csv)...</string>
+   </property>
+  </action>
+  <action name="actionWaterTable_computeSingleWell">
+   <property name="text">
+    <string>Single well...</string>
+   </property>
+  </action>
+  <action name="actionWaterTable_computeAllWells">
+   <property name="text">
+    <string>All the wells</string>
+   </property>
+  </action>
+  <action name="actionWaterTable_showLocation">
+   <property name="text">
+    <string>Location</string>
+   </property>
+  </action>
+  <action name="actionWaterTable_showDepth">
+   <property name="text">
+    <string>Water Table depth...</string>
+   </property>
+  </action>
+  <action name="actionWaterTable_Hide">
+   <property name="text">
+    <string>Hide</string>
+   </property>
+  </action>
+  <action name="actionWaterTable_showId">
+   <property name="text">
+    <string>Id</string>
+   </property>
+  </action>
+  <action name="actionSpatialAggregationAssignAltitude">
+   <property name="text">
+    <string>Assign altitude to aggregation points</string>
+   </property>
+  </action>
+  <action name="actionInterpolationTopographicIndex">
+   <property name="text">
+    <string>Topographic index...</string>
+   </property>
+  </action>
+  <action name="actionShowPointsCVResidual">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Cross validation residual</string>
+   </property>
+  </action>
+  <action name="actionInterpolationCVCurrentTime">
+   <property name="text">
+    <string>Current time</string>
+   </property>
+  </action>
+  <action name="actionInterpolationCVPeriod">
+   <property name="text">
+    <string>Period</string>
+   </property>
+  </action>
+  <action name="actionSpatialAggregationFromGrid_hourly">
+   <property name="text">
+    <string>Aggregate from grid (hourly)...</string>
+   </property>
+  </action>
+  <action name="actionInterpolationWriteGlocalWeightMaps">
+   <property name="text">
+    <string>Write glocal weight maps</string>
+   </property>
+  </action>
+  <action name="actionHide_supplemental_stations">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Hide supplemental stations</string>
+   </property>
+  </action>
+  <action name="actionFileLoadInterpolation">
+   <property name="text">
+    <string>Load interpolation...</string>
+   </property>
+  </action>
+  <action name="actionDemZoom_to_layer">
+   <property name="text">
+    <string>Zoom to layer</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="actionElaboration_Daily_data">
+   <property name="text">
+    <string>Daily data...</string>
+   </property>
+  </action>
+  <action name="actionElaboration_Hourly_data">
+   <property name="text">
+    <string>Hourly data...</string>
+   </property>
+  </action>
+  <action name="actionShowInfo">
+   <property name="text">
+    <string>Info...</string>
+   </property>
+  </action>
+  <action name="actionMark_macro_area_stations">
+   <property name="text">
+    <string>Mark macro area stations</string>
+   </property>
+  </action>
+  <action name="actionAll_Selected">
+   <property name="text">
+    <string>All</string>
+   </property>
+  </action>
+  <action name="actionNone_Selected">
+   <property name="text">
+    <string>None</string>
+   </property>
+  </action>
+  <action name="actionFrom_point_list_Selected">
+   <property name="text">
+    <string>From point list</string>
+   </property>
+  </action>
+  <action name="actionWith_Criteria_Selected">
+   <property name="text">
+    <string>With Criteria...</string>
+   </property>
+  </action>
+  <action name="actionFileMeteopointArkimetLoadVM">
+   <property name="text">
+    <string>Import daily data VM2...</string>
+   </property>
+  </action>
+  <action name="actionLoad_stations_file">
+   <property name="text">
+    <string>Load stations file</string>
+   </property>
+  </action>
+  <action name="actionLoad_macro_areas_file">
+   <property name="text">
+    <string>Load macro areas file</string>
+   </property>
+  </action>
+  <action name="actionInterpolationGlocalCreateWeightMaps">
+   <property name="text">
+    <string>Create weight maps...</string>
+   </property>
+  </action>
+  <action name="actionInterpolationGlocalSelectZoneMap">
+   <property name="text">
+    <string>Select zone map...</string>
+   </property>
+  </action>
+  <action name="actionInterpolationGlocalSelectStationLists">
+   <property name="text">
+    <string>Select stations list...</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+ <slots>
+  <slot>on_timeChanged(QTime)</slot>
+ </slots>
+</ui>
