@@ -73,7 +73,6 @@ void DLL_EXPORT __STDCALL cleanMemory()
 {
     cleanNodes();
     cleanArrays();
-    // TODO clean balance
 }
 
 void DLL_EXPORT __STDCALL initializeHeat(short myType, bool computeAdvectiveHeat, bool computeLatentHeat)
@@ -728,7 +727,7 @@ int DLL_EXPORT __STDCALL setHydraulicProperties(int waterRetentionCurve,
     else
     {
         // sub-surface
-        return MAXVALUE(0.0, theta_from_Se(index) - theta_from_sign_Psi(-160, index));
+        return std::max(0., theta_from_Se(index) - theta_from_sign_Psi(-160, index));
     }
  }
 
@@ -967,7 +966,7 @@ int DLL_EXPORT __STDCALL setHydraulicProperties(int waterRetentionCurve,
     }
     else
     {
-        balanceWholePeriod.heatMBR = 1.;
+        balanceWholePeriod.heatMBR = 0.;
     }
 }
 
@@ -1071,7 +1070,7 @@ double DLL_EXPORT __STDCALL computeStep(double maxTimeStep)
     }
     else
     {
-        dtWater = MINVALUE(maxTimeStep, myParameters.delta_t_max);
+        dtWater = std::min(maxTimeStep, myParameters.delta_t_max);
     }
 
     double dtHeat = dtWater;
