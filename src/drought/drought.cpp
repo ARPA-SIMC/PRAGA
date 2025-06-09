@@ -9,12 +9,12 @@
 
 Drought::Drought(droughtIndex _index, int _firstYear, int _lastYear, Crit3DDate _date, Crit3DMeteoPoint* _meteoPoint, Crit3DMeteoSettings* _meteoSettings)
 {
-    _index = _index;
-    _firstYear = _firstYear;
-    _lastYear = _lastYear;
-    _date = _date;
-    _meteoPoint = _meteoPoint;
-    _meteoSettings = _meteoSettings;
+    this->_index = _index;
+    this->_firstYear = _firstYear;
+    this->_lastYear = _lastYear;
+    this->_date = _date;
+    this->_meteoPoint = _meteoPoint;
+    this->_meteoSettings = _meteoSettings;
     _timeScale = 3; //default
     _computeAll = false;  //default
     _var = monthlyPrecipitation;  //default

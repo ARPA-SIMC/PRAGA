@@ -3864,6 +3864,15 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
 
     std::vector<int> myCounter;
 
+    if (myProject.interpolationSettings.getUseGlocalDetrending() && ! myProject.interpolationSettings.isGlocalReady(false))
+    {
+        if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false, myProject.getCompleteFileName(myProject.glocalPointsName, PATH_GEO)))
+        {
+            myProject.logError("Unable to load glocal files.");
+            return;
+        }
+    }
+
     if (myProject.dbMeteoPointDataCount(myFirstTime.date(), myLastTime.date(), myVar, dataset, myCounter))
     {
         QFile myFile(myFilename);
@@ -3875,21 +3884,57 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
             short myHour;
             long i=0;
 
-            while (myDate <= myLastTime.date())
+            if (! myProject.interpolationSettings.getUseGlocalDetrending())
             {
-                if (myFreq == daily)
+                while (myDate <= myLastTime.date())
                 {
-                    outStream << myDate.toString("yyyy-MM-dd") << "," << QString::number(myCounter[i++]) + "\n";
-                }
-                else if (myFreq == hourly)
-                {
-                    for (myHour = 1; myHour <= 24; myHour++)
-                        outStream << myDate.toString("yyyy-MM-dd") + " " + QStringLiteral("%1").arg(myHour, 2, 10, QLatin1Char('0')) + ":00" << "," << QString::number(myCounter[i++]) + "\n";
-                }
+                    if (myFreq == daily)
+                    {
+                        outStream << myDate.toString("yyyy-MM-dd") << "," << QString::number(myCounter[i++]) + "\n";
+                    }
+                    else if (myFreq == hourly)
+                    {
+                        for (myHour = 1; myHour <= 24; myHour++)
+                            outStream << myDate.toString("yyyy-MM-dd") + " " + QStringLiteral("%1").arg(myHour, 2, 10, QLatin1Char('0')) + ":00" << "," << QString::number(myCounter[i++]) + "\n";
+                    }
 
-                myDate = myDate.addDays(1);
+                    myDate = myDate.addDays(1);
+                }
             }
+            else
+            {
+                std::vector <int> macroAreaCodes;
+                for (int k = 0; k < myProject.interpolationSettings.getMacroAreas().size(); k++)
+                {
+                    if (! myProject.interpolationSettings.getMacroAreas()[k].getMeteoPoints().empty())  macroAreaCodes.push_back(k);
+                }
+                while (myDate <= myLastTime.date())
+                {
+                    if (myFreq == daily)
+                    {
+                        //myCounter contains counters for every macroarea so it must be split
+                        for (int k = 0; k < macroAreaCodes.size(); k++)
+                        {
+                            outStream << myDate.toString("yyyy-MM-dd") << "," << QString::number(macroAreaCodes[k]) << "," << QString::number(myCounter[i+k]) + "\n";
+                        }
+                        i = i + macroAreaCodes.size();
+                    }
+                    else if (myFreq == hourly)
+                    {
+                        //
+                        for (int k = 0; k < macroAreaCodes.size(); k++)
+                        {
+                            for (myHour = 1; myHour <= 24; myHour++)
+                            {
+                                outStream << myDate.toString("yyyy-MM-dd") + " " + QStringLiteral("%1").arg(myHour, 2, 10, QLatin1Char('0')) + ":00" << "," << QString::number(macroAreaCodes[k]) << "," << QString::number(myCounter[i]) + "\n";
+                                i++;
+                            }
+                        }
+                    }
 
+                    myDate = myDate.addDays(1);
+                }
+            }
             myFile.close();
             myCounter.clear();
         }
