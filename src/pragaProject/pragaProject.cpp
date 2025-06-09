@@ -3397,25 +3397,65 @@ bool PragaProject::dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, me
         if (modality == MODE_GUI)
             updateProgressBar(myFirstDate.daysTo(myDate));
 
-        if (myFreq == daily)
+        if (! interpolationSettings.getUseGlocalDetrending())
         {
-            counter = 0;
-            for (i = 0; i < nrMeteoPoints; i++)
-                if (dataset == "" || meteoPoints[i].dataset == dataset.toStdString())
-                    if (! isEqual(meteoPoints[i].getMeteoPointValueD(getCrit3DDate(myDate), myVar, meteoSettings), NODATA)) counter++;
-
-            myCounter.push_back(counter);
-        }
-        else if (myFreq == hourly)
-        {
-            for (myHour = 1; myHour <= 24; myHour++)
+            if (myFreq == daily)
             {
                 counter = 0;
                 for (i = 0; i < nrMeteoPoints; i++)
                     if (dataset == "" || meteoPoints[i].dataset == dataset.toStdString())
-                        if (! isEqual(meteoPoints[i].getMeteoPointValueH(getCrit3DDate(myDate), myHour, 0, myVar), NODATA)) counter++;
+                        if (! isEqual(meteoPoints[i].getMeteoPointValueD(getCrit3DDate(myDate), myVar, meteoSettings), NODATA)) counter++;
 
                 myCounter.push_back(counter);
+            }
+            else if (myFreq == hourly)
+            {
+                for (myHour = 1; myHour <= 24; myHour++)
+                {
+                    counter = 0;
+                    for (i = 0; i < nrMeteoPoints; i++)
+                        if (dataset == "" || meteoPoints[i].dataset == dataset.toStdString())
+                            if (! isEqual(meteoPoints[i].getMeteoPointValueH(getCrit3DDate(myDate), myHour, 0, myVar), NODATA)) counter++;
+
+                    myCounter.push_back(counter);
+                }
+            }
+        }
+        else
+        {
+            Crit3DMacroArea myArea;
+            for (int k = 0; k < interpolationSettings.getMacroAreas().size(); k++)
+            {
+                counter = 0;
+                myArea = interpolationSettings.getMacroAreas()[k];
+
+                if (! myArea.getMeteoPoints().empty())
+                {
+                    std::vector<int>  myMeteoPoints = myArea.getMeteoPoints();
+
+                    if (myFreq == daily)
+                    {
+                        for (int j = 0; j < myMeteoPoints.size(); j++)
+                        {
+                            if (dataset == "" || meteoPoints[myMeteoPoints[j]].dataset == dataset.toStdString())
+                                if (! isEqual(meteoPoints[myMeteoPoints[j]].getMeteoPointValueD(getCrit3DDate(myDate), myVar, meteoSettings), NODATA)) counter++;
+                        }
+                        myCounter.push_back(counter);
+                    }
+                    else if (myFreq == hourly)
+                    {
+                        for (myHour = 1; myHour <= 24; myHour++)
+                        {
+                            counter = 0;
+                            for (int j = 0; j < myMeteoPoints.size(); j++)
+                            {
+                                if (dataset == "" || meteoPoints[myMeteoPoints[j]].dataset == dataset.toStdString())
+                                    if (! isEqual(meteoPoints[myMeteoPoints[j]].getMeteoPointValueH(getCrit3DDate(myDate), myHour, 0, myVar), NODATA)) counter++;
+                            }
+                            myCounter.push_back(counter);
+                        }
+                    }
+                }
             }
         }
 
