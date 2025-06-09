@@ -44,11 +44,11 @@ public:
     Crit3DMeteoSettings* getMeteoSettings() const { return _meteoSettings; }
 
     Crit3DDate getDate() const { return _date; }
-    void setDate(const Crit3DDate &value) { _date = value; }
+    void setDate(const Crit3DDate &myDate) { _date = myDate; }
 
     float getCurrentPercentileValue() const { return currentPercentileValue; }
 
-    void setVar(const meteoVariable &value) { _var = value; }
+    void setVar(const meteoVariable &var) { _var = var; }
 
     float computeDroughtIndex();
     bool computeSpiParameters();
