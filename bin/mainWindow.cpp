@@ -764,12 +764,12 @@ void MainWindow::zoomToDEM()
 
 void MainWindow::renderDEM()
 {
-    this->setCurrentRaster(&(myProject.DEM));
-    this->ui->labelRasterScale->setText(QString::fromStdString(getVariableString(noMeteoTerrain)));
-    this->ui->rasterOpacitySlider->setEnabled(true);
-    this->rasterLegend->setVisible(true);
+    setCurrentRaster(&(myProject.DEM));
+    ui->labelRasterScale->setText(QString::fromStdString(getVariableString(noMeteoTerrain)));
+    ui->rasterOpacitySlider->setEnabled(true);
+    rasterLegend->setVisible(true);
 
-    this->zoomToDEM();
+    zoomToDEM();
 }
 
 
@@ -5207,10 +5207,12 @@ void MainWindow::on_actionFileDemOpen_triggered()
     if (fileName.isEmpty())
         return;
 
-    if (! myProject.loadDEM(fileName))
-        return;
+    rasterObj->setDrawing(false);
+    bool isOk = myProject.loadDEM(fileName);
+    rasterObj->setDrawing(true);
 
-    renderDEM();
+    if (isOk)
+        renderDEM();
 }
 
 

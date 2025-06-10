@@ -52,12 +52,8 @@ float Drought::computeDroughtIndex()
         }
     }
 
+    std::vector<float> sumSeries(_meteoPoint->nrObsDataDaysM);
     int start, end;
-    std::vector<float> mySum(_meteoPoint->nrObsDataDaysM);
-    for (int i = 0; i < _meteoPoint->nrObsDataDaysM; i++)
-    {
-        droughtResults.push_back(NODATA);
-    }
 
     if (_computeAll)
     {
@@ -65,7 +61,7 @@ float Drought::computeDroughtIndex()
         end = _meteoPoint->nrObsDataDaysM;
         for (int i = 0; i <= _timeScale; i++)
         {
-            mySum[i] = NODATA;
+            sumSeries[i] = NODATA;
         }
     }
     else
@@ -74,32 +70,33 @@ float Drought::computeDroughtIndex()
         int currentMonth = _date.month;
         end = (currentYear - _meteoPoint->obsDataM[0]._year)*12 + currentMonth-_meteoPoint->obsDataM[0]._month; // starts from 0
         start = end; // parte da 0
+
         if (end >= _meteoPoint->nrObsDataDaysM)
         {
             return NODATA;
         }
-        for (int i = 0; i < start-_timeScale; i++)
+        for (int i = 0; i < (start - _timeScale); i++)
         {
-            mySum[i] = NODATA;
+            sumSeries[i] = NODATA;
         }
     }
 
     for (int j = start; j <= end; j++)
     {
-        mySum[j] = 0;
+        sumSeries[j] = 0;
         for(int i = 0; i <= _timeScale; i++)
         {
-            if ((j-i)>=0 && j < _meteoPoint->nrObsDataDaysM)
+            if ((j-i) >= 0 && j < _meteoPoint->nrObsDataDaysM)
             {
                 if (_index == INDEX_SPI)
                 {
                     if (_meteoPoint->obsDataM[j-i].prec != NODATA)
                     {
-                        mySum[j] = mySum[j] + _meteoPoint->obsDataM[j-i].prec;
+                        sumSeries[j] += _meteoPoint->obsDataM[j-i].prec;
                     }
                     else
                     {
-                        mySum[j] = NODATA;
+                        sumSeries[j] = NODATA;
                         break;
                     }
                 }
@@ -107,31 +104,41 @@ float Drought::computeDroughtIndex()
                 {
                     if (_meteoPoint->obsDataM[j-i].prec != NODATA && _meteoPoint->obsDataM[j-i].et0_hs != NODATA)
                     {
-                        mySum[j] = mySum[j] + _meteoPoint->obsDataM[j-i].prec - _meteoPoint->obsDataM[j-i].et0_hs;
+                        sumSeries[j] += _meteoPoint->obsDataM[j-i].prec - _meteoPoint->obsDataM[j-i].et0_hs;
+                    }
+                    else if (_meteoPoint->obsDataM[j-i].bic != NODATA)
+                    {
+                        sumSeries[j] += _meteoPoint->obsDataM[j-i].bic;
                     }
                     else
                     {
-                        mySum[j] = NODATA;
+                        sumSeries[j] = NODATA;
                         break;
                     }
                 }
             }
             else
             {
-                mySum[j] = NODATA;
+                sumSeries[j] = NODATA;
             }
         }
     }
 
+    // initialize
+    for (int i = 0; i < _meteoPoint->nrObsDataDaysM; i++)
+    {
+        droughtResults.push_back(NODATA);
+    }
+
     for (int j = start; j <= end; j++)
     {
-        int myMonthIndex = (j % 12)+1;  //start from 1
+        int myMonthIndex = (j % 12)+1;  // start from 1
 
-        if (mySum[j] != NODATA)
+        if (sumSeries[j] != NODATA)
         {
             if (_index == INDEX_SPI)
             {
-                float gammaCDFRes = generalizedGammaCDF(mySum[j], currentGamma[myMonthIndex-1].beta, currentGamma[myMonthIndex-1].gamma, currentGamma[myMonthIndex-1].pzero);
+                float gammaCDFRes = generalizedGammaCDF(sumSeries[j], currentGamma[myMonthIndex-1].beta, currentGamma[myMonthIndex-1].gamma, currentGamma[myMonthIndex-1].pzero);
                 if (gammaCDFRes > 0 && gammaCDFRes < 1)
                 {
                     droughtResults[j] = float(standardGaussianInvCDF(gammaCDFRes));
@@ -139,7 +146,8 @@ float Drought::computeDroughtIndex()
             }
             else if(_index == INDEX_SPEI)
             {
-                float logLogisticRes = logLogisticCDF(mySum[j], currentLogLogistic[myMonthIndex-1].alpha, currentLogLogistic[myMonthIndex-1].beta, currentLogLogistic[myMonthIndex-1].gamma);
+                float logLogisticRes = logLogisticCDF(sumSeries[j], currentLogLogistic[myMonthIndex-1].alpha,
+                                                      currentLogLogistic[myMonthIndex-1].beta, currentLogLogistic[myMonthIndex-1].gamma);
                 if (logLogisticRes > 0 && logLogisticRes < 1)
                 {
                     droughtResults[j] = float(standardGaussianInvCDF(logLogisticRes));
@@ -236,6 +244,7 @@ bool Drought::computeSpiParameters()
     return true;
 }
 
+
 bool Drought::computeSpeiParameters()
 {
     if (_meteoPoint->nrObsDataDaysM == 0)
@@ -263,7 +272,7 @@ bool Drought::computeSpeiParameters()
     int n = 0;
     float count = 0;
     int nTot = 0;
-    std::vector<float> mySums;
+    std::vector<float> sumSeries;
     std::vector<float> monthSeries;
     std::vector<float> pwm(3);
     float minPerc = _meteoSettings->getMinimumPercentage();
@@ -276,45 +285,49 @@ bool Drought::computeSpeiParameters()
         }
         count = 0;
         nTot = 0;
-        mySums.push_back(0);
-        for(int i = 0; i<=_timeScale; i++)
+        sumSeries.push_back(0);
+        for(int i = 0; i <= _timeScale; i++)
         {
             nTot = nTot + 1;
             if (_meteoPoint->obsDataM[j-i].prec != NODATA && _meteoPoint->obsDataM[j-i].et0_hs != NODATA)
             {
-                mySums[n] = mySums[n] + _meteoPoint->obsDataM[j-i].prec - _meteoPoint->obsDataM[j-i].et0_hs;
-                count = count + 1;
+                sumSeries[n] += _meteoPoint->obsDataM[j-i].prec - _meteoPoint->obsDataM[j-i].et0_hs;
+                count++;
+            }
+            else if (_meteoPoint->obsDataM[j-i].bic != NODATA)
+            {
+                sumSeries[n] += _meteoPoint->obsDataM[j-i].bic;
+                count++;
             }
             else
             {
-                    mySums[n] = NODATA;
-                    count = 0;
-                    break;
+                sumSeries[n] = NODATA;
+                count = 0;
+                break;
             }
         }
-        if ( (float)count / nTot < (minPerc / 100))
+        if ((float)count / nTot < (minPerc / 100))
         {
-            mySums[n] = NODATA;
+            sumSeries[n] = NODATA;
         }
         n = n + 1;
     }
 
-    for (int i = 0; i<12; i++)
+    for (int i = 0; i < 12; i++)
     {
-
         int myMonth = ((_meteoPoint->obsDataM[indexStart]._month + i -1) % 12)+1;  //start from 1
         n = 0;
         monthSeries.clear();
-        for (int j=i; j<mySums.size(); j=j+12)
+        for (int j=i; j < sumSeries.size(); j=j+12)
         {
-            if (mySums[j] != NODATA)
+            if (sumSeries[j] != NODATA)
             {
-                monthSeries.push_back(mySums[j]);
-                n = n + 1;
+                monthSeries.push_back(sumSeries[j]);
+                n++;
             }
         }
 
-        if ((float)n / (mySums.size()/12) >= minPerc / 100)
+        if (float(n) / (sumSeries.size()/12.) >= minPerc / 100.)
         {
             // Sort values
             sorting::quicksortAscendingFloat(monthSeries, 0, int(monthSeries.size())-1);
@@ -324,8 +337,10 @@ bool Drought::computeSpeiParameters()
             logLogisticFitting(pwm, &currentLogLogistic[myMonth-1].alpha, &currentLogLogistic[myMonth-1].beta, &currentLogLogistic[myMonth-1].gamma);
         }
     }
+
     return true;
 }
+
 
 bool Drought::computePercentileValuesCurrentDay()
 {
