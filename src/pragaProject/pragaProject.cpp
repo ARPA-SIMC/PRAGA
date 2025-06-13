@@ -3303,7 +3303,7 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
             {
                 myTime = getCrit3DTime(myDate, myHour);
 
-                if (interpolationCv(myVar, myTime, glocalCVPointsName))
+                if (interpolationCv(myVar, myTime))
                 {
                     if (interpolationSettings.getUseGlocalDetrending())
                     {
@@ -3334,7 +3334,7 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
         {
             myTime = getCrit3DTime(myDate, 0);
 
-            if (interpolationCv(myVar, myTime, glocalCVPointsName))
+            if (interpolationCv(myVar, myTime))
             {
                 if (interpolationSettings.getUseGlocalDetrending())
                 {
