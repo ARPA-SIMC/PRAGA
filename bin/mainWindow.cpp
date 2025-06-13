@@ -3917,7 +3917,7 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
                         {
                             outStream << myDate.toString("yyyy-MM-dd") << "," << QString::number(macroAreaCodes[k]) << "," << QString::number(myCounter[i+k]) + "\n";
                         }
-                        i = i + macroAreaCodes.size();
+                        i +=  (int)macroAreaCodes.size();
                     }
                     else if (myFreq == hourly)
                     {
