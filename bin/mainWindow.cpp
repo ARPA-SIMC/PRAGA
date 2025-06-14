@@ -2745,7 +2745,7 @@ void MainWindow::showCVResult()
                         if (getProxyPragaName(myProxy->getName()) == proxyHeight)
                         {
                             cvOutput += "inversion: ";
-                            cvOutput += (myProxy->getInversionIsSignificative() ? "significant" : "not significant");
+                            cvOutput += (myProxy->getInversionIsSignificative() ? "significant\n" : "not significant\n");
                         }
                     }
                 }
