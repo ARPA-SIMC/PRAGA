@@ -3303,7 +3303,7 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
             {
                 myTime = getCrit3DTime(myDate, myHour);
 
-                if (interpolationCv(myVar, myTime, glocalCVPointsName))
+                if (interpolationCv(myVar, myTime))
                 {
                     if (interpolationSettings.getUseGlocalDetrending())
                     {
@@ -3334,7 +3334,7 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
         {
             myTime = getCrit3DTime(myDate, 0);
 
-            if (interpolationCv(myVar, myTime, glocalCVPointsName))
+            if (interpolationCv(myVar, myTime))
             {
                 if (interpolationSettings.getUseGlocalDetrending())
                 {
@@ -3496,7 +3496,8 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 {
                     if (myFreq == daily)
                     {
-                        meteoGridDbHandler->loadGridDailyData(errorString, QString::fromStdString(id), myFirstDate, myLastDate);
+                        meteoGridDbHandler->loadGridDailyDataRowCol(row, col, QString::fromStdString(id),
+                                                                    myFirstDate, myLastDate, errorString);
                     }
                     else if (myFreq == hourly)
                     {
@@ -4641,7 +4642,7 @@ bool PragaProject::monthlyAggregateVariablesGrid(const QDate &firstDate, const Q
 }
 
 
-bool PragaProject::computeDroughtIndexGrid(droughtIndex index, int firstYear, int lastYear, QDate date, int timescale, meteoVariable myVar)
+bool PragaProject::computeDroughtIndexGrid(droughtIndex index, int firstYear, int lastYear, QDate refDate, int timescale, meteoVariable myVar)
 {
     // check meteo grid
     if (! meteoGridLoaded)
@@ -4659,14 +4660,14 @@ bool PragaProject::computeDroughtIndexGrid(droughtIndex index, int firstYear, in
 
     QDate firstDate(firstYear, 1, 1);
     QDate lastDate;
-    int maxYear = std::max(lastYear, date.year());
+    int maxYear = std::max(lastYear, refDate.year());
     if (maxYear == QDate::currentDate().year())
     {
         lastDate.setDate(maxYear, QDate::currentDate().month(), 1);
     }
     else
     {
-        lastDate.setDate(maxYear,12,1);
+        lastDate.setDate(maxYear, 12, 1);
     }
 
     logInfoGUI("Load monthly grid data...");
@@ -4694,7 +4695,7 @@ bool PragaProject::computeDroughtIndexGrid(droughtIndex index, int firstYear, in
         {
             if (meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->active)
             {
-                Drought mydrought(index, firstYear, lastYear, getCrit3DDate(date), meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col), meteoSettings);
+                Drought mydrought(index, firstYear, lastYear, getCrit3DDate(refDate), meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col), meteoSettings);
                 if (timescale > 0)
                 {
                     mydrought.setTimeScale(timescale);
