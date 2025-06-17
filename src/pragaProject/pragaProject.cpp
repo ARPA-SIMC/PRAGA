@@ -3303,7 +3303,7 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
             {
                 myTime = getCrit3DTime(myDate, myHour);
 
-                if (interpolationCv(myVar, myTime, glocalCVPointsName))
+                if (interpolationCv(myVar, myTime))
                 {
                     if (interpolationSettings.getUseGlocalDetrending())
                     {
@@ -3334,7 +3334,7 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
         {
             myTime = getCrit3DTime(myDate, 0);
 
-            if (interpolationCv(myVar, myTime, glocalCVPointsName))
+            if (interpolationCv(myVar, myTime))
             {
                 if (interpolationSettings.getUseGlocalDetrending())
                 {
@@ -3496,7 +3496,8 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 {
                     if (myFreq == daily)
                     {
-                        meteoGridDbHandler->loadGridDailyData(errorString, QString::fromStdString(id), myFirstDate, myLastDate);
+                        meteoGridDbHandler->loadGridDailyDataRowCol(row, col, QString::fromStdString(id),
+                                                                    myFirstDate, myLastDate, errorString);
                     }
                     else if (myFreq == hourly)
                     {

@@ -2745,7 +2745,7 @@ void MainWindow::showCVResult()
                         if (getProxyPragaName(myProxy->getName()) == proxyHeight)
                         {
                             cvOutput += "inversion: ";
-                            cvOutput += (myProxy->getInversionIsSignificative() ? "significant" : "not significant");
+                            cvOutput += (myProxy->getInversionIsSignificative() ? "significant\n" : "not significant\n");
                         }
                     }
                 }
@@ -3527,7 +3527,7 @@ void MainWindow::on_actionInterpolationCVCurrentTime_triggered()
     bool isComputed = false;
 
 
-    isComputed = myProject.interpolationCv(currentVariable, myProject.getCrit3DCurrentTime(), glocalCVPointsName);
+    isComputed = myProject.interpolationCv(currentVariable, myProject.getCrit3DCurrentTime());
 
     myProject.closeLogInfo();
 
@@ -3917,7 +3917,7 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
                         {
                             outStream << myDate.toString("yyyy-MM-dd") << "," << QString::number(macroAreaCodes[k]) << "," << QString::number(myCounter[i+k]) + "\n";
                         }
-                        i = i + macroAreaCodes.size();
+                        i += (int)macroAreaCodes.size();
                     }
                     else if (myFreq == hourly)
                     {
