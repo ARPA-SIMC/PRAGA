@@ -3575,7 +3575,7 @@ void MainWindow::on_actionInterpolationCVPeriod_triggered()
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
 
-    FormText formLoadInterval("Insert number of days for load interval");
+    FormText formLoadInterval("Insert number of days for load interval", "");
     if (formLoadInterval.result() == QDialog::Rejected)
         return;
 
@@ -5510,7 +5510,7 @@ void MainWindow::on_actionInterpolationMeteogridGriddingTaskAdd_triggered()
     if (selectUser.result() == QDialog::Rejected) return;
     user = selectUser.getSelection();
 
-    FormText formNotes("Insert notes");
+    FormText formNotes("Insert notes", "");
     if (formNotes.result() == QDialog::Rejected) return;
     notes = formNotes.getText();
 
@@ -5629,7 +5629,7 @@ void MainWindow::searchMeteoPoint(bool isName)
     else
         title += "by id";
 
-    FormText formSearch(title);
+    FormText formSearch(title, "");
     if (formSearch.result() == QDialog::Rejected)
         return;
 
@@ -6964,7 +6964,7 @@ void MainWindow::on_actionInterpolationTopographicIndex_triggered()
         return;
     }
 
-    FormText formWidths("Insert multiple window widths (separated by commas)");
+    FormText formWidths("Insert multiple window widths (in meters, separated by commas)", "");
     if (formWidths.result() == QDialog::Rejected)
         return;
 
@@ -7015,7 +7015,7 @@ void MainWindow::on_actionInterpolationWriteGlocalWeightMaps_triggered()
         return;
     }
 
-    FormText formWidth("Insert window width");
+    FormText formWidth("Insert window width (meters)", "10000");
     if (formWidth.result() == QDialog::Rejected)
         return;
 
@@ -7073,7 +7073,7 @@ void MainWindow::on_actionMark_macro_area_stations_triggered()
         }
     }
 
-    FormText formWidth("Insert macroarea number");
+    FormText formWidth("Insert macroarea number", "");
     if (formWidth.result() == QDialog::Rejected)
         return;
 
@@ -7203,7 +7203,8 @@ void MainWindow::on_actionInterpolationGlocalCreateWeightMaps_triggered()
         return;
     }
 
-    FormText formWidth("Insert window width");
+    FormText formWidth("Insert window width (meters)", "10000");
+
     if (formWidth.result() == QDialog::Rejected)
         return;
 
