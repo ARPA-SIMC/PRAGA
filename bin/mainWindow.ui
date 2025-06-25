@@ -467,7 +467,7 @@
             <second>0</second>
             <year>1752</year>
             <month>8</month>
-            <day>4</day>
+            <day>3</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1817,7 +1817,7 @@
     <addaction name="actionMeteoPointsClear_selection"/>
     <addaction name="menuSearch_points"/>
     <addaction name="menuMark_points"/>
-    <addaction name="actionOpen_meteo_widget_for_marked_points"/>
+    <addaction name="actionOpen_meteo_widget_for_selected_stations"/>
     <addaction name="separator"/>
     <addaction name="menuActive_points"/>
     <addaction name="menuDeactive_points"/>
@@ -3131,9 +3131,9 @@
     <string>Select stations list...</string>
    </property>
   </action>
-  <action name="actionOpen_meteo_widget_for_marked_points">
+  <action name="actionOpen_meteo_widget_for_selected_stations">
    <property name="text">
-    <string>Open meteo widget for marked points</string>
+    <string>Open meteo widget for selected stations</string>
    </property>
   </action>
  </widget>

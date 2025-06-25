@@ -340,8 +340,7 @@
 
         void on_actionInterpolationGlocalCreateWeightMaps_triggered();
 
-        void on_actionOpen_meteo_widget_for_marked_points_triggered();
-
+        void on_actionOpen_meteo_widget_for_selected_stations_triggered();
 
     protected:
         /*!
