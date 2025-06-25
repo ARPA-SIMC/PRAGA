@@ -143,28 +143,28 @@ MainWindow::MainWindow(QWidget *parent) :
 
     showNetcdfGroup->setEnabled(false);
 
-    this->currentPointsVisualization = notShown;
-    this->currentGridVisualization = notShown;
-    this->currentNetcdfVisualization = notShown;
-    this->viewNotActivePoints = false;
-    this->viewOutputPoints = true;
-    this->hideSupplementals = false;
-    this->currentNetcdfVariable = NODATA;
+    currentPointsVisualization = notShown;
+    currentGridVisualization = notShown;
+    currentNetcdfVisualization = notShown;
+    viewNotActivePoints = false;
+    viewOutputPoints = true;
+    hideSupplementals = false;
+    currentNetcdfVariable = NODATA;
 
     ui->groupBoxElaboration->hide();
     ui->groupBoxNetcdf->hide();
     ui->groupBoxCV->hide();
 
-    this->updateVariable();
-    this->updateDateTime();
+    updateVariable();
+    updateDateTime();
 
-    this->setWindowTitle("PRAGA");
+    setWindowTitle(myProject.getVersion());
 
     #ifndef NETCDF
         ui->menuFileNetCDF->setEnabled(false);
     #endif
 
-    this->showMaximized();
+    showMaximized();
 }
 
 
@@ -3198,11 +3198,11 @@ void MainWindow::on_actionSpatialAggregationAssignAltitude_triggered()
 
 void MainWindow::drawWindowTitle()
 {
-    QString title = "PRAGA";
+    QString title = myProject.getVersion();
     if (myProject.projectName != "")
         title += " - " + myProject.projectName;
 
-    this->setWindowTitle(title);
+    setWindowTitle(title);
 }
 
 
