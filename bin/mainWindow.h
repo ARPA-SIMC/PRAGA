@@ -340,6 +340,9 @@
 
         void on_actionInterpolationGlocalCreateWeightMaps_triggered();
 
+        void on_actionOpen_meteo_widget_for_marked_points_triggered();
+
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

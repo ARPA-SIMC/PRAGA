@@ -7222,3 +7222,13 @@ void MainWindow::on_actionInterpolationGlocalCreateWeightMaps_triggered()
         myProject.logError();
     myProject.closeLogInfo();
 }
+
+void MainWindow::on_actionOpen_meteo_widget_for_marked_points_triggered()
+{
+
+    //showMeteoWidgetPoint
+    myProject.showMeteoWidgetMultiplePoints();
+
+}
+
+

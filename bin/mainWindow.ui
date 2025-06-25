@@ -467,7 +467,7 @@
             <second>0</second>
             <year>1752</year>
             <month>8</month>
-            <day>6</day>
+            <day>4</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -1817,6 +1817,7 @@
     <addaction name="actionMeteoPointsClear_selection"/>
     <addaction name="menuSearch_points"/>
     <addaction name="menuMark_points"/>
+    <addaction name="actionOpen_meteo_widget_for_marked_points"/>
     <addaction name="separator"/>
     <addaction name="menuActive_points"/>
     <addaction name="menuDeactive_points"/>
@@ -2630,6 +2631,9 @@
    <property name="text">
     <string>Unmark all</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
   </action>
   <action name="actionSpatialAggregationOpenDB">
    <property name="text">
@@ -2754,6 +2758,9 @@
   <action name="actionSearchPointId">
    <property name="text">
     <string>Id</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
    </property>
   </action>
   <action name="actionMeteoPointsClear_selection">
@@ -3122,6 +3129,11 @@
   <action name="actionInterpolationGlocalSelectStationLists">
    <property name="text">
     <string>Select stations list...</string>
+   </property>
+  </action>
+  <action name="actionOpen_meteo_widget_for_marked_points">
+   <property name="text">
+    <string>Open meteo widget for marked points</string>
    </property>
   </action>
  </widget>
