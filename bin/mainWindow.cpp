@@ -2707,13 +2707,41 @@ void MainWindow::showCVResult()
 
     Crit3DCrossValidationStatistics myStats = myProject.getCrossValidationStatistics();
 
+    if (myProject.interpolationSettings.getUseGlocalDetrending())
+    {
+        double avgMAE = 0, avgMBE = 0, avgRMSE = 0, avgNSE = 0, avgR2 = 0;
+        for (unsigned int i = 0; i < myProject.glocalCrossValidationStatistics.size(); i++)
+        {
+            avgMAE += myProject.glocalCrossValidationStatistics[i].getMeanAbsoluteError();
+            avgMBE += myProject.glocalCrossValidationStatistics[i].getMeanBiasError();
+            avgRMSE  += myProject.glocalCrossValidationStatistics[i].getRootMeanSquareError();
+            avgNSE  += myProject.glocalCrossValidationStatistics[i].getNashSutcliffeEfficiency();
+            avgR2 += myProject.glocalCrossValidationStatistics[i].getR2();
+        }
+        avgMAE /= myProject.glocalCrossValidationStatistics.size();
+        avgMBE /= myProject.glocalCrossValidationStatistics.size();
+        avgRMSE /= myProject.glocalCrossValidationStatistics.size();
+        avgNSE /= myProject.glocalCrossValidationStatistics.size();
+        avgR2 /= myProject.glocalCrossValidationStatistics.size();
+
+        myStats.setMeanAbsoluteError(avgMAE);
+        myStats.setMeanBiasError(avgMBE);
+        myStats.setRootMeanSquareError(avgRMSE);
+        myStats.setNashSutcliffeEfficiency(avgNSE);
+        myStats.setR2(avgR2);
+    }
+
     cvOutput = "Time: " + getQDateTime(myProject.getCrit3DCurrentTime()).toString() + "\n";
     cvOutput += "Variable: " + QString::fromStdString(getVariableString(currentVariable)) + "\n";
+
+    if (myProject.interpolationSettings.getUseGlocalDetrending()) cvOutput += "Values are averaged over " + QString::number(int(myProject.glocalCrossValidationStatistics.size())) + " macroareas\n";
+
     cvOutput += "MAE: " + QString::number(myStats.getMeanAbsoluteError(), 'f', 3) + "\n";
     cvOutput += "MBE: " + QString::number(myStats.getMeanBiasError(), 'f', 3) + "\n";
     cvOutput += "RMSE: " + QString::number(myStats.getRootMeanSquareError(), 'f', 3) + "\n";
     cvOutput += "NSE: " + QString::number(myStats.getNashSutcliffeEfficiency(), 'f', 3) + "\n";
     cvOutput += "R2: " + QString::number(myStats.getR2(), 'f', 3) + "\n";
+
 
     if (getUseDetrendingVar(currentVariable))
     {
