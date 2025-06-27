@@ -4738,12 +4738,13 @@ void MainWindow::on_actionFileMeteogridExportRaster_triggered()
         {
             return;
         }
-        if (!myProject.exportMeteoGridToRasterFlt(fileName, cellSizeValue))
+        if (! myProject.exportMeteoGridToRasterFlt(fileName, cellSizeValue))
         {
             myProject.logError(myProject.errorString);
             return;
         }
     }
+
     return;
 }
 
