@@ -342,6 +342,8 @@
 
         void on_actionOpen_meteo_widget_for_selected_stations_triggered();
 
+        void on_actionFileMeteoPointImport_hourly_data_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
