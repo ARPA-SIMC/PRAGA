@@ -242,6 +242,7 @@
   <property name="font">
    <font>
     <pointsize>10</pointsize>
+    <weight>50</weight>
     <bold>false</bold>
    </font>
   </property>
@@ -331,6 +332,7 @@
          <property name="font">
           <font>
            <pointsize>10</pointsize>
+           <weight>50</weight>
            <bold>false</bold>
           </font>
          </property>
@@ -359,6 +361,7 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -378,6 +381,7 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -434,6 +438,7 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -506,6 +511,7 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -525,6 +531,7 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -544,6 +551,7 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -599,6 +607,7 @@
          <property name="font">
           <font>
            <pointsize>10</pointsize>
+           <weight>50</weight>
            <bold>false</bold>
           </font>
          </property>
@@ -626,6 +635,7 @@
           <property name="font">
            <font>
             <pointsize>8</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -652,6 +662,7 @@
          <property name="font">
           <font>
            <pointsize>10</pointsize>
+           <weight>50</weight>
            <bold>false</bold>
           </font>
          </property>
@@ -676,6 +687,7 @@
           <property name="font">
            <font>
             <pointsize>8</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -742,6 +754,7 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -997,6 +1010,7 @@
          <property name="font">
           <font>
            <pointsize>10</pointsize>
+           <weight>50</weight>
            <bold>false</bold>
           </font>
          </property>
@@ -1058,6 +1072,7 @@
           <property name="font">
            <font>
             <pointsize>8</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -1084,6 +1099,7 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -1113,6 +1129,7 @@
          <property name="font">
           <font>
            <pointsize>10</pointsize>
+           <weight>50</weight>
            <bold>false</bold>
           </font>
          </property>
@@ -1137,6 +1154,7 @@
           <property name="font">
            <font>
             <pointsize>8</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -1199,6 +1217,7 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -1225,6 +1244,7 @@
           <property name="font">
            <font>
             <pointsize>9</pointsize>
+            <weight>50</weight>
             <bold>false</bold>
            </font>
           </property>
@@ -1280,6 +1300,7 @@
          <property name="font">
           <font>
            <pointsize>10</pointsize>
+           <weight>50</weight>
            <bold>false</bold>
           </font>
          </property>
@@ -1307,6 +1328,7 @@
             <property name="font">
              <font>
               <pointsize>9</pointsize>
+              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -1348,6 +1370,7 @@
             <property name="font">
              <font>
               <pointsize>9</pointsize>
+              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -1389,6 +1412,7 @@
             <property name="font">
              <font>
               <pointsize>9</pointsize>
+              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -1430,6 +1454,7 @@
             <property name="font">
              <font>
               <pointsize>9</pointsize>
+              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -1471,6 +1496,7 @@
             <property name="font">
              <font>
               <pointsize>9</pointsize>
+              <weight>50</weight>
               <bold>false</bold>
              </font>
             </property>
@@ -1521,6 +1547,7 @@
       <property name="font">
        <font>
         <pointsize>10</pointsize>
+        <weight>50</weight>
         <bold>false</bold>
        </font>
       </property>
@@ -1537,7 +1564,7 @@
      <x>0</x>
      <y>0</y>
      <width>1276</width>
-     <height>28</height>
+     <height>22</height>
     </rect>
    </property>
    <property name="palette">
@@ -1621,10 +1648,10 @@
        <string>CSV data</string>
       </property>
       <addaction name="actionFileMeteopointProperties_import"/>
-      <addaction name="actionFileMeteopointData_XMLimport"/>
-      <addaction name="actionFileMeteopointData_XMLexport"/>
       <addaction name="actionFileMeteoPointImport_hourly_data"/>
       <addaction name="separator"/>
+      <addaction name="actionFileMeteopointData_XMLimport"/>
+      <addaction name="actionFileMeteopointData_XMLexport"/>
       <addaction name="separator"/>
      </widget>
      <widget class="QMenu" name="menuArkimet">
