@@ -7297,7 +7297,16 @@ void MainWindow::on_actionMeteoPointsAssign_altitude_from_DEM_triggered()
 
     double cellSize = cellSizeDialog.getCellSize();
 
-    myProject.assignAltitudeToMeteoPoints(cellSize);
+    // check
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Are you sure?",
+                                  "The altitudes of all meteo points will be changed.",
+                                  QMessageBox::Yes|QMessageBox::No);
+    if (reply != QMessageBox::Yes)
+        return;
 
-    loadMeteoPoints(myProject.dbPointsFileName);
+    if (myProject.assignAltitudeToMeteoPoints(cellSize))
+    {
+        loadMeteoPoints(myProject.dbPointsFileName);
+    }
 }
