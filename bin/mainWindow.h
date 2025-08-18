@@ -342,6 +342,8 @@
 
         void on_actionOpen_meteo_widget_for_selected_stations_triggered();
 
+        void on_actionMeteoPointsAssign_altitude_from_DEM_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

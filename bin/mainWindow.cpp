@@ -1483,7 +1483,8 @@ void MainWindow::drawMeteoPoints()
     clearMeteoPointsMarker();
     clearWindVectorObjects();
 
-    if (! myProject.meteoPointsLoaded || myProject.nrMeteoPoints == 0) return;
+    if (! myProject.meteoPointsLoaded || myProject.nrMeteoPoints == 0)
+        return;
     addMeteoPoints();
 
     QDate currentDate = myProject.getCurrentDate();
@@ -4727,21 +4728,17 @@ void MainWindow::on_actionFileMeteogridExportRaster_triggered()
 
     if (fileName != "")
     {
-        int defaultCellSize = myProject.computeDefaultCellSizeFromMeteoGrid(float(0.1));
-        double cellSizeValue;
+        int defaultCellSize = myProject.computeDefaultCellSizeFromMeteoGrid(0.1f);
+
         DialogCellSize cellSizeDialog(defaultCellSize);
-        if (cellSizeDialog.result() == QDialog::Accepted)
-        {
-            cellSizeValue = cellSizeDialog.getCellSize();
-        }
-        else
-        {
+        if (cellSizeDialog.result() != QDialog::Accepted)
             return;
-        }
+
+        double cellSizeValue = cellSizeDialog.getCellSize();
+
         if (! myProject.exportMeteoGridToRasterFlt(fileName, cellSizeValue))
         {
             myProject.logError(myProject.errorString);
-            return;
         }
     }
 
@@ -7257,5 +7254,31 @@ void MainWindow::on_actionOpen_meteo_widget_for_selected_stations_triggered()
 {
     //showMeteoWidgetPoint
     myProject.showMeteoWidgetMultiplePoints();
+}
+
+
+void MainWindow::on_actionMeteoPointsAssign_altitude_from_DEM_triggered()
+{
+    if (! myProject.meteoPointsLoaded)
+    {
+        myProject.logWarning(ERROR_STR_MISSING_DB);
+        return;
+    }
+
+    if (! myProject.DEM.isLoaded)
+    {
+        myProject.logWarning(ERROR_STR_MISSING_DEM);
+        return;
+    }
+
+    DialogCellSize cellSizeDialog(myProject.DEM.header->cellSize);
+    if (cellSizeDialog.result() != QDialog::Accepted)
+        return;
+
+    double cellSize = cellSizeDialog.getCellSize();
+
+    myProject.assignAltitudeToMeteoPoints(cellSize);
+
+    loadMeteoPoints(myProject.dbPointsFileName);
 }
 

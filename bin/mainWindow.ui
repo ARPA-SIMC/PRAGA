@@ -293,7 +293,7 @@
         <number>0</number>
        </property>
        <property name="sizeConstraint">
-        <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
+        <enum>QLayout::SetDefaultConstraint</enum>
        </property>
        <property name="leftMargin">
         <number>9</number>
@@ -438,7 +438,7 @@
            </font>
           </property>
           <property name="inputMethodHints">
-           <set>Qt::InputMethodHint::ImhNone</set>
+           <set>Qt::ImhNone</set>
           </property>
           <property name="dateTime">
            <datetime>
@@ -467,7 +467,7 @@
             <second>0</second>
             <year>1752</year>
             <month>8</month>
-            <day>3</day>
+            <day>2</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -478,7 +478,7 @@
            </date>
           </property>
           <property name="currentSection">
-           <enum>QDateTimeEdit::Section::YearSection</enum>
+           <enum>QDateTimeEdit::YearSection</enum>
           </property>
           <property name="displayFormat">
            <string>yyyy-MM-dd</string>
@@ -720,7 +720,7 @@
            <number>66</number>
           </property>
           <property name="orientation">
-           <enum>Qt::Orientation::Horizontal</enum>
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
          <widget class="QLabel" name="labelMeteoGridScale">
@@ -1043,7 +1043,7 @@
            <number>66</number>
           </property>
           <property name="orientation">
-           <enum>Qt::Orientation::Horizontal</enum>
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
          <widget class="QWidget" name="widgetColorLegendRaster" native="true">
@@ -1181,7 +1181,7 @@
            <number>33</number>
           </property>
           <property name="orientation">
-           <enum>Qt::Orientation::Horizontal</enum>
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
          <widget class="QPushButton" name="netCDFButtonVariable">
@@ -1537,7 +1537,7 @@
      <x>0</x>
      <y>0</y>
      <width>1276</width>
-     <height>23</height>
+     <height>28</height>
     </rect>
    </property>
    <property name="palette">
@@ -1828,6 +1828,7 @@
     <addaction name="actionMeteopointDataCount"/>
     <addaction name="separator"/>
     <addaction name="menuCompute_daily_data_from_hourly"/>
+    <addaction name="actionMeteoPointsAssign_altitude_from_DEM"/>
    </widget>
    <widget class="QMenu" name="menuSettings">
     <property name="title">
@@ -3134,6 +3135,11 @@
   <action name="actionOpen_meteo_widget_for_selected_stations">
    <property name="text">
     <string>Open meteo widget for selected stations</string>
+   </property>
+  </action>
+  <action name="actionMeteoPointsAssign_altitude_from_DEM">
+   <property name="text">
+    <string>Assign altitude from DEM...</string>
    </property>
   </action>
  </widget>
