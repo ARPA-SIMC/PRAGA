@@ -260,18 +260,30 @@ void DialogDownloadMeteoData::done(bool res)
                  QRadioButton first("0-24");
                  QRadioButton second("08-08");
 
-                 QDialogButtonBox confirm(QDialogButtonBox::Ok);
+                 QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-                 precDialog.connect(&confirm, SIGNAL(accepted()), &precDialog, SLOT(accept()));
+                 QObject::connect(&buttonBox, &QDialogButtonBox::accepted, &precDialog, &QDialog::accept);
+                 QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &precDialog, &QDialog::reject);
 
                  precLayout.addWidget(&first);
                  precLayout.addWidget(&second);
-                 precLayout.addWidget(&confirm);
+                 precLayout.addWidget(&buttonBox);
                  precDialog.setLayout(&precLayout);
                  precDialog.exec();
 
                  if (second.isChecked())
                      prec0024 = false;
+
+                 if (precDialog.exec() == QDialog::Accepted)
+                 {
+                     if (second.isChecked())
+                         prec0024 = false;
+
+                 } else
+                 {
+                     QDialog::done(QDialog::Rejected);
+                     return;
+                 }
              }
              QDialog::done(QDialog::Accepted);
              return;

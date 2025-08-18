@@ -344,6 +344,8 @@
 
         void on_actionMeteoPointsAssign_altitude_from_DEM_triggered();
 
+        void on_actionFileMeteoPointImport_hourly_data_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter

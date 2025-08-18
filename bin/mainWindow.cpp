@@ -4158,6 +4158,27 @@ void MainWindow::on_actionFileMeteopointProperties_import_triggered()
 }
 
 
+void MainWindow::on_actionFileMeteoPointImport_hourly_data_triggered()
+{
+    if (! myProject.meteoPointsLoaded)
+    {
+        myProject.logError(ERROR_STR_MISSING_DB);
+        return;
+    }
+
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Import meteo data (.csv)"), "", tr("csv files (*.csv)"));
+    if (fileName.isEmpty())
+        return;
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Import data", "Do you want to import all csv files in the directory?",
+                                  QMessageBox::Yes|QMessageBox::No);
+    bool importAllFiles = (reply == QMessageBox::Yes);
+
+    myProject.importHourlyMeteoData(fileName, importAllFiles, true);
+}
+
+
 void MainWindow::on_actionFileMeteopointData_XMLimport_triggered()
 {
     // check meteo point
@@ -7252,7 +7273,6 @@ void MainWindow::on_actionInterpolationGlocalCreateWeightMaps_triggered()
 
 void MainWindow::on_actionOpen_meteo_widget_for_selected_stations_triggered()
 {
-    //showMeteoWidgetPoint
     myProject.showMeteoWidgetMultiplePoints();
 }
 
@@ -7281,4 +7301,3 @@ void MainWindow::on_actionMeteoPointsAssign_altitude_from_DEM_triggered()
 
     loadMeteoPoints(myProject.dbPointsFileName);
 }
-
