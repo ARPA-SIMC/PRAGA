@@ -7314,3 +7314,22 @@ void MainWindow::on_actionMeteoPointsAssign_altitude_from_DEM_triggered()
         loadMeteoPoints(myProject.dbPointsFileName);
     }
 }
+
+
+// only on points
+void MainWindow::on_actionClimate_Copy_to_Elaboration_triggered()
+{
+    if (! myProject.meteoPointsLoaded)
+    {
+        myProject.logWarning(ERROR_STR_MISSING_DB);
+        return;
+    }
+
+    for (int i = 0; i < myProject.nrMeteoPoints; i++)
+    {
+        myProject.meteoPoints[i].elaboration = myProject.meteoPoints[i].climate;
+    }
+
+    ui->actionShowPointsElab->setEnabled(true);
+}
+

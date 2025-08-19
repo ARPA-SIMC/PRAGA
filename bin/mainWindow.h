@@ -346,6 +346,8 @@
 
         void on_actionFileMeteoPointImport_hourly_data_triggered();
 
+        void on_actionClimate_Copy_to_Elaboration_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
