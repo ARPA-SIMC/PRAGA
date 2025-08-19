@@ -5739,8 +5739,13 @@ bool PragaProject::writeMeteoPointsProperties(const QList<QString> &joinedProper
         }
     }
 
+    int step = setProgressBar("Create db...", csvData.size());
+
     for (int row = 0; row < csvData.size(); row++)
     {
+        if (row % step == 0)
+            updateProgressBar(row);
+
         QList<QString> csvDataList;
 
         for (int j = 0; j < posValues.size(); j++)
@@ -5765,6 +5770,8 @@ bool PragaProject::writeMeteoPointsProperties(const QList<QString> &joinedProper
             }
         }
     }
+
+    closeProgressBar();
 
     return true;
 }
