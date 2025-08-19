@@ -4175,7 +4175,11 @@ void MainWindow::on_actionFileMeteoPointImport_hourly_data_triggered()
                                   QMessageBox::Yes|QMessageBox::No);
     bool importAllFiles = (reply == QMessageBox::Yes);
 
-    myProject.importHourlyMeteoData(fileName, importAllFiles, true);
+    reply = QMessageBox::question(this, "Delete previous data", "Do you want to delete previous data?",
+                                  QMessageBox::Yes|QMessageBox::No);
+    bool deletePreviousData = (reply == QMessageBox::Yes);
+
+    myProject.importHourlyMeteoData(fileName, importAllFiles, deletePreviousData);
 }
 
 
