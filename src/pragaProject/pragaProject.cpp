@@ -71,7 +71,7 @@ void PragaProject::clearPragaProject()
 
 QString PragaProject::getVersion()
 {
-    return "PRAGA v2.0.4 (2025)";
+    return "PRAGA v2.0.5 (2025)";
 }
 
 void PragaProject::createPragaProject(QString path_, QString name_, QString description_)
