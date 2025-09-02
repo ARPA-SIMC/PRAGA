@@ -141,16 +141,16 @@ float Drought::computeDroughtIndex()
                 float gammaCDFRes = generalizedGammaCDF(sumSeries[j], currentGamma[myMonthIndex-1].beta, currentGamma[myMonthIndex-1].gamma, currentGamma[myMonthIndex-1].pzero);
                 if (gammaCDFRes > 0 && gammaCDFRes < 1)
                 {
-                    droughtResults[j] = float(standardGaussianInvCDF(gammaCDFRes));
+                    droughtResults[j] = standardGaussianInvCDF(gammaCDFRes);
                 }
             }
             else if(_index == INDEX_SPEI)
             {
-                float logLogisticRes = logLogisticCDF(sumSeries[j], currentLogLogistic[myMonthIndex-1].alpha,
+                double logLogisticRes = logLogisticCDFRobust(sumSeries[j], currentLogLogistic[myMonthIndex-1].alpha,
                                                       currentLogLogistic[myMonthIndex-1].beta, currentLogLogistic[myMonthIndex-1].gamma);
                 if (logLogisticRes > 0 && logLogisticRes < 1)
                 {
-                    droughtResults[j] = float(standardGaussianInvCDF(logLogisticRes));
+                    droughtResults[j] = standardGaussianInvCDF(logLogisticRes);
                 }
             }
         }
