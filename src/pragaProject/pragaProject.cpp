@@ -3438,7 +3438,7 @@ bool PragaProject::dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, me
                         for (int j = 0; j < myMeteoPoints.size(); j++)
                         {
                             if (dataset == "" || meteoPoints[myMeteoPoints[j]].dataset == dataset.toStdString())
-                                if (! isEqual(meteoPoints[myMeteoPoints[j]].getMeteoPointValueD(getCrit3DDate(myDate), myVar, meteoSettings), NODATA)) counter++;
+                                if (! isEqual(meteoPoints[myMeteoPoints[j]].getMeteoPointValueD(getCrit3DDate(myDate), myVar, meteoSettings), NODATA) && meteoPoints[myMeteoPoints[j]].active) counter++;
                         }
                         myCounter.push_back(counter);
                     }
@@ -3450,7 +3450,7 @@ bool PragaProject::dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, me
                             for (int j = 0; j < myMeteoPoints.size(); j++)
                             {
                                 if (dataset == "" || meteoPoints[myMeteoPoints[j]].dataset == dataset.toStdString())
-                                    if (! isEqual(meteoPoints[myMeteoPoints[j]].getMeteoPointValueH(getCrit3DDate(myDate), myHour, 0, myVar), NODATA)) counter++;
+                                    if (! isEqual(meteoPoints[myMeteoPoints[j]].getMeteoPointValueH(getCrit3DDate(myDate), myHour, 0, myVar), NODATA) && meteoPoints[myMeteoPoints[j]].active) counter++;
                             }
                             myCounter.push_back(counter);
                         }
