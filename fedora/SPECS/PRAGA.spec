@@ -4,7 +4,7 @@
 %{!?srcarchivename: %global srcarchivename %{name}-%{version}-%{releaseno}}
 
 Name:           PRAGA
-Version:        2.0.4
+Version:        2.0.6
 Release:        %{releaseno}%{?dist}
 Summary:        PRogram for AGrometeorological Analysis
 
@@ -57,6 +57,9 @@ cp -a bin/PRAGA %{buildroot}/%{_bindir}/
 
 
 %changelog
+* Wed Sep 03 2025 Caterina Toscano <ctoscano@arpae.it> - 2.0.6-1
+- Release 2.0.6
+
 * Wed Apr 09 2025 Fausto Tomei <ftomei@arpae.it> - 2.0.4-1
 - Release 2.0.4
 
