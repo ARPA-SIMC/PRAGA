@@ -3222,7 +3222,8 @@ bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXML
 
             offset = ancestor.toElement().elementsByTagName("Offset");
             //if (! offset.isEmpty() && (listXMLElab->listPeriodStr().back() != "Daily" || listXMLElab->listDailyCumulated().back() == false))
-            if (listXMLElab->listPeriodStr().back() != "Daily")
+            //if (listXMLElab->listPeriodStr().back() != "Daily")
+            if (! offset.isEmpty() && listXMLElab->listPeriodStr().back() != "Daily")
             {
                 listXMLElab->eraseElement(nElab);
                 ancestor = ancestor.nextSibling(); // something is wrong, go to next elab
