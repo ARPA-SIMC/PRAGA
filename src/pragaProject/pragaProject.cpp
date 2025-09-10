@@ -3976,11 +3976,15 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
             QDate dateEnd = QDate(listXMLElab->listYearEnd()[i] + listXMLElab->listNYears()[i], listXMLElab->listDateEnd()[i].month(), listXMLElab->listDateEnd()[i].day());
             QDate dateStart = QDate(listXMLElab->listYearStart()[i], listXMLElab->listDateStart()[i].month(), listXMLElab->listDateStart()[i].day());
             int nDays = dateStart.daysTo(dateEnd);
-            exportMeteoGridToNetCDF(netcdfName, netcdfTitle, QString::fromStdString(MapDailyMeteoVarToString.at(listXMLElab->listVariable()[i])), getUnitFromVariable(listXMLElab->listVariable()[i]), getCrit3DDate(dateStart), nDays, 0, 0);
+            if (! exportMeteoGridToNetCDF(netcdfName, netcdfTitle, QString::fromStdString(MapDailyMeteoVarToString.at(listXMLElab->listVariable()[i])), getUnitFromVariable(listXMLElab->listVariable()[i]), getCrit3DDate(dateStart), nDays, 0, 0))
+            {
+                logInfo("Warning: couldn't export " + netcdfName + "to NetCDF");
+            }
             // reset param
             clima->resetParam();
             // reset current values
             clima->resetCurrentValues();
+            logInfo("Export of " + netcdfName + " successful");
         }
 
         for (int i = 0; i<listXMLAnomaly->listAll().size(); i++)
@@ -4067,14 +4071,19 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
             QDate dateStart = QDate(listXMLAnomaly->listYearStart()[i], listXMLAnomaly->listDateStart()[i].month(), listXMLAnomaly->listDateStart()[i].day());
 
             int nDays = dateStart.daysTo(dateEnd);
-            exportMeteoGridToNetCDF(netcdfName, netcdfTitle, QString::fromStdString(MapDailyMeteoVarToString.at(listXMLAnomaly->listVariable()[i])), getUnitFromVariable(listXMLAnomaly->listVariable()[i]), getCrit3DDate(dateStart),
-                                    nDays, listXMLAnomaly->listRefYearStart()[i], listXMLAnomaly->listRefYearEnd()[i]);
+            if (! exportMeteoGridToNetCDF(netcdfName, netcdfTitle, QString::fromStdString(MapDailyMeteoVarToString.at(listXMLAnomaly->listVariable()[i])), getUnitFromVariable(listXMLAnomaly->listVariable()[i]), getCrit3DDate(dateStart),
+                                    nDays, listXMLAnomaly->listRefYearStart()[i], listXMLAnomaly->listRefYearEnd()[i]))
+            {
+                logInfo("Warning: couldn't export " + netcdfName + "to NetCDF");
+            }
             // reset param
             clima->resetParam();
             referenceClima->resetParam();
             // reset current values
             clima->resetCurrentValues();
             referenceClima->resetCurrentValues();
+
+            logInfo("Export of " + netcdfName + " successful");
         }
 
         for (unsigned int i = 0; i < listXMLDrought->listAll().size(); i++)
@@ -4112,7 +4121,10 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
                 int lastDay = listXMLDrought->listDate()[i].daysInMonth();
                 QDate dateEnd(listXMLDrought->listDate()[i].year(),listXMLDrought->listDate()[i].month(),lastDay);
                 int nDays = dateStart.daysTo(dateEnd);
-                exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Index", "SPI at "+QString::number(listXMLDrought->listTimescale()[i])+" month scale", "", getCrit3DDate(dateStart), nDays, listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i]);
+                if (! exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Index", "SPI at "+QString::number(listXMLDrought->listTimescale()[i])+" month scale", "", getCrit3DDate(dateStart), nDays, listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i]))
+                {
+                    logInfo("Warning: couldn't export " + netcdfName + "to NetCDF");
+                }
             }
             else if (listXMLDrought->listIndex()[i] == INDEX_SPEI )
             {
@@ -4135,7 +4147,10 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
                 int lastDay = listXMLDrought->listDate()[i].daysInMonth();
                 QDate dateEnd(listXMLDrought->listDate()[i].year(),listXMLDrought->listDate()[i].month(),lastDay);
                 int nDays = dateStart.daysTo(dateEnd);
-                exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Evapotranspiration Index", "SPEI at "+QString::number(listXMLDrought->listTimescale()[i])+" month scale", "", getCrit3DDate(dateStart), nDays, listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i]);
+                if (! exportMeteoGridToNetCDF(netcdfName, "Standardized Precipitation Evapotranspiration Index", "SPEI at "+QString::number(listXMLDrought->listTimescale()[i])+" month scale", "", getCrit3DDate(dateStart), nDays, listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i]))
+                {
+                    logInfo("Warning: couldn't export " + netcdfName + "to NetCDF");
+                }
             }
             else if (listXMLDrought->listIndex()[i] == INDEX_DECILES)
             {
@@ -4143,8 +4158,13 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
                 int lastDay = listXMLDrought->listDate()[i].daysInMonth();
                 QDate dateEnd(listXMLDrought->listDate()[i].year(),listXMLDrought->listDate()[i].month(),lastDay);
                 int nDays = dateStart.daysTo(dateEnd);
-                exportMeteoGridToNetCDF(netcdfName, "Deciles Index", "precipitation sum percentile rank", getUnitFromVariable(listXMLDrought->listVariable()[i]), getCrit3DDate(dateStart), nDays, listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i]);
+                if (! exportMeteoGridToNetCDF(netcdfName, "Deciles Index", "precipitation sum percentile rank", getUnitFromVariable(listXMLDrought->listVariable()[i]), getCrit3DDate(dateStart), nDays, listXMLDrought->listYearStart()[i], listXMLDrought->listYearEnd()[i]))
+                {
+                    logInfo("Warning: couldn't export " + netcdfName + "to NetCDF");
+                }
             }
+
+            logInfo("Export of " + netcdfName + " successful");
         }
 
         for (unsigned int i = 0; i<listXMLPhenology->listAll().size(); i++)
