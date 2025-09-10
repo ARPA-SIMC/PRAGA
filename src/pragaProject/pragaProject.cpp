@@ -4076,7 +4076,6 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
             {
                 logInfo("Warning: couldn't export " + netcdfName + "to NetCDF");
             }
-
             // reset param
             clima->resetParam();
             referenceClima->resetParam();
