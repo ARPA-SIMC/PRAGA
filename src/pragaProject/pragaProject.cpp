@@ -2849,12 +2849,8 @@ bool PragaProject::interpolationMeteoGrid(meteoVariable myVar, frequencyType myF
         return false;
     }
 
-    // check glocal
-    if (interpolationSettings.getUseGlocalDetrending() && ! interpolationSettings.isGlocalReady(!interpolationSettings.getMeteoGridUpscaleFromDem()))
-    {
-        if (! loadGlocalAreasMap()) return false;
-        if (! loadGlocalStationsAndCells(!interpolationSettings.getMeteoGridUpscaleFromDem(), getCompleteFileName(glocalPointsName, PATH_GEO))) return false;
-    }
+    if (! checkGlocal(!interpolationSettings.getMeteoGridUpscaleFromDem()))
+        return false;
 
     if (interpolationSettings.getMeteoGridUpscaleFromDem())
     {
@@ -3063,11 +3059,8 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
             return false;
     }
 
-    if (interpolationSettings.getUseGlocalDetrending() && ! interpolationSettings.isGlocalReady(!interpolationSettings.getMeteoGridUpscaleFromDem()))
-    {
-        if (! loadGlocalAreasMap()) return false;
-        if (! loadGlocalStationsAndCells(!interpolationSettings.getMeteoGridUpscaleFromDem(), getCompleteFileName(glocalPointsName, PATH_GEO))) return false;
-    }
+    if (! checkGlocal(!interpolationSettings.getMeteoGridUpscaleFromDem()))
+        return false;
 
     // save also derived variables
     foreach (myVar, derivedVariables)
@@ -3193,9 +3186,9 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     return true;
 }
 
+
 bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateFin, meteoVariable myVar, QString filename, int nrDaysLoading, QString glocalCVPointsName)
 {    
-
     logInfoGUI("Starting up...");
 
     // check meteo point

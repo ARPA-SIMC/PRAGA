@@ -549,13 +549,10 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                         if (! myProject.interpolationSettings.getUseGlocalDetrending())
                             return;
 
-                        if ( ! myProject.interpolationSettings.isGlocalReady(false))
+                        if (! myProject.checkGlocal(false))
                         {
-                            if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false, myProject.getCompleteFileName(myProject.glocalPointsName, PATH_GEO)))
-                            {
-                                myProject.logError("Error in loading glocal files.");
-                                return;
-                            }
+                            myProject.logError("Error in loading glocal files.");
+                            return;
                         }
 
                         if (! myProject.meteoPointsLoaded)
@@ -633,12 +630,10 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                     if (! myProject.interpolationSettings.getUseGlocalDetrending())
                         return;
 
-                    if ( ! myProject.interpolationSettings.isGlocalReady(false))
+                    if (! myProject.checkGlocal(false))
                     {
-                        if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false, myProject.getCompleteFileName(myProject.glocalPointsName, PATH_GEO)))
-                        {
-                            return;
-                        }
+                        myProject.logError("Error in loading glocal files.");
+                        return;
                     }
 
                     gis::Crit3DUtmPoint myUtm;
@@ -3893,13 +3888,10 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
 
     std::vector<int> myCounter;
 
-    if (myProject.interpolationSettings.getUseGlocalDetrending() && ! myProject.interpolationSettings.isGlocalReady(false))
+    if (! myProject.checkGlocal(false))
     {
-        if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false, myProject.getCompleteFileName(myProject.glocalPointsName, PATH_GEO)))
-        {
-            myProject.logError("Unable to load glocal files.");
-            return;
-        }
+        myProject.logError("Error in loading glocal files.");
+        return;
     }
 
     if (myProject.dbMeteoPointDataCount(myFirstTime.date(), myLastTime.date(), myVar, dataset, myCounter))
@@ -7115,13 +7107,10 @@ void MainWindow::on_actionShowInfo_triggered()
 
 void MainWindow::on_actionMark_macro_area_stations_triggered()
 {
-
-    if (myProject.interpolationSettings.getUseGlocalDetrending() && ! myProject.interpolationSettings.isGlocalReady(false))
+    if (! myProject.checkGlocal(false))
     {
-        if (! myProject.loadGlocalAreasMap() || ! myProject.loadGlocalStationsAndCells(false, myProject.getCompleteFileName(myProject.glocalPointsName, PATH_GEO)))
-        {
-            return;
-        }
+        myProject.logError("Error in loading glocal files.");
+        return;
     }
 
     FormText formWidth("Insert macroarea number", "");
