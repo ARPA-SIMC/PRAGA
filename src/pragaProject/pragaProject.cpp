@@ -3109,7 +3109,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
         if (useProxies && currentYear != myDate.year())
         {
             logInfoGUI("Interpolating proxy grid series...");
-            if (! checkProxyGridSeries(&interpolationSettings, DEM, proxyGridSeries, myDate, errorString)) return false;
+            if (! checkProxyGridSeries(interpolationSettings, DEM, proxyGridSeries, myDate, errorString)) return false;
             if (! readProxyValues()) return false;
             currentYear = myDate.year();
         }
@@ -3417,10 +3417,10 @@ bool PragaProject::dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, me
         else
         {
             Crit3DMacroArea myArea;
-            for (int k = 0; k < interpolationSettings.getMacroAreas().size(); k++)
+            for (int k = 0; k < interpolationSettings.getMacroAreasSize(); k++)
             {
                 counter = 0;
-                myArea = interpolationSettings.getMacroAreas()[k];
+                myArea = interpolationSettings.getMacroArea(k);
 
                 if (! myArea.getMeteoPoints().empty())
                 {
@@ -5534,13 +5534,13 @@ bool PragaProject::computeRadiationList(QString fileName)
 
             //air temperature
             if (checkAndPassDataToInterpolation(quality, airTemperature, meteoPoints, nrMeteoPoints, myTime,
-                                                &qualityInterpolationSettings, &interpolationSettings, meteoSettings,
+                                                qualityInterpolationSettings, interpolationSettings, meteoSettings,
                                                 &climateParameters, interpolationPoints,
                                                 checkSpatialQuality, errorStdStr) &&
-                preInterpolation(interpolationPoints, &interpolationSettings, meteoSettings, &climateParameters,
+                preInterpolation(interpolationPoints, interpolationSettings, meteoSettings, &climateParameters,
                                  meteoPoints, nrMeteoPoints, airTemperature, myTime, errorStdStr))
             {
-                myTemperature = interpolate(interpolationPoints, &interpolationSettings, meteoSettings, airTemperature, utmX, utmY,
+                myTemperature = interpolate(interpolationPoints, interpolationSettings, meteoSettings, airTemperature, utmX, utmY,
                                             myPoint.radPoint.height, myProxyValues, false);
             }
             else
@@ -5586,13 +5586,13 @@ bool PragaProject::computeRadiationList(QString fileName)
             interpolationPoints.clear();
 
             if (checkAndPassDataToInterpolation(quality, atmTransmissivity, meteoPoints, nrMeteoPoints, myTime,
-                                                &qualityInterpolationSettings, &interpolationSettings, meteoSettings,
+                                                qualityInterpolationSettings, interpolationSettings, meteoSettings,
                                                 &climateParameters, interpolationPoints,
                                                 checkSpatialQuality, errorStdStr) &&
-                preInterpolation(interpolationPoints, &interpolationSettings, meteoSettings, &climateParameters,
+                preInterpolation(interpolationPoints, interpolationSettings, meteoSettings, &climateParameters,
                                  meteoPoints, nrMeteoPoints, atmTransmissivity, myTime, errorStdStr))
             {
-                myTransmissivity = interpolate(interpolationPoints, &interpolationSettings, meteoSettings, atmTransmissivity, utmX,
+                myTransmissivity = interpolate(interpolationPoints, interpolationSettings, meteoSettings, atmTransmissivity, utmX,
                                                utmY, myPoint.radPoint.height, myProxyValues, false);
             }
             else

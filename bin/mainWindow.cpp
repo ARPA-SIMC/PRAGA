@@ -1618,7 +1618,8 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
             // quality control
             std::string errorStdStr;
             checkData(myProject.quality, myProject.getCurrentVariable(), myProject.meteoPoints,
-                      myProject.nrMeteoPoints, myProject.getCrit3DCurrentTime(), &myProject.qualityInterpolationSettings, myProject.meteoSettings,
+                      myProject.nrMeteoPoints, myProject.getCrit3DCurrentTime(),
+                      myProject.qualityInterpolationSettings, myProject.meteoSettings,
                       &(myProject.climateParameters), myProject.checkSpatialQuality, errorStdStr);
 
             if (updateColorScale)
@@ -3925,9 +3926,9 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
             else
             {
                 std::vector <int> macroAreaCodes;
-                for (int k = 0; k < myProject.interpolationSettings.getMacroAreas().size(); k++)
+                for (int k = 0; k < myProject.interpolationSettings.getMacroAreasSize(); k++)
                 {
-                    if (! myProject.interpolationSettings.getMacroAreas()[k].getMeteoPoints().empty())  macroAreaCodes.push_back(k);
+                    if (! myProject.interpolationSettings.getMacroArea(k).getMeteoPoints().empty())  macroAreaCodes.push_back(k);
                 }
                 while (myDate <= myLastTime.date())
                 {

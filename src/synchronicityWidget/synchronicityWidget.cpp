@@ -294,19 +294,19 @@ void Crit3DSynchronicityWidget::addInterpolationGraph()
         float myValue1 = dailyValues[firstDaily.daysTo(currentDate)+myLag];
         // check quality and pass data to interpolation
         if (!checkAndPassDataToInterpolation(quality, myVar, meteoPoints, nrMeteoPoints, getCrit3DTime(currentDate, 1),
-                                             &qualityInterpolationSettings, &interpolationSettings, meteoSettings, climateParameters, interpolationPoints,
+                                             qualityInterpolationSettings, interpolationSettings, meteoSettings, climateParameters, interpolationPoints,
                                              checkSpatialQuality, errorStdStr))
         {
             QMessageBox::critical(nullptr, "Error", "No data available");
             return;
         }
-        if (! preInterpolation(interpolationPoints, &interpolationSettings, meteoSettings, climateParameters,
+        if (! preInterpolation(interpolationPoints, interpolationSettings, meteoSettings, climateParameters,
                               meteoPoints, nrMeteoPoints, myVar, getCrit3DTime(currentDate, 1), errorStdStr))
         {
             QMessageBox::critical(nullptr, "Error", "Error in function preInterpolation: " + QString::fromStdString(errorStdStr));
             return;
         }
-        float interpolatedValue = interpolate(interpolationPoints, &interpolationSettings, meteoSettings, myVar,
+        float interpolatedValue = interpolate(interpolationPoints, interpolationSettings, meteoSettings, myVar,
                                               float(mp.point.utm.x),
                                               float(mp.point.utm.y),
                                               float(mp.point.z),
