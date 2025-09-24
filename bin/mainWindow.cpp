@@ -7322,3 +7322,20 @@ void MainWindow::on_actionClimate_Copy_to_Elaboration_triggered()
     ui->actionShowPointsElab->setEnabled(true);
 }
 
+
+void MainWindow::on_actionInterpolationGlocalLoadWeightMaps_triggered()
+{
+    if (! myProject.interpolationSettings.getUseGlocalDetrending())
+    {
+        myProject.logWarning("Glocal detrending is not selected.");
+        return;
+    }
+
+    myProject.logInfoGUI("Load glocal maps..");
+    bool isOk = myProject.checkGlocal(false);
+    myProject.closeLogInfo();
+
+    if (! isOk)
+        myProject.logError();
+}
+

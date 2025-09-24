@@ -348,6 +348,8 @@
 
         void on_actionClimate_Copy_to_Elaboration_triggered();
 
+        void on_actionInterpolationGlocalLoadWeightMaps_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
