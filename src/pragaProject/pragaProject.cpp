@@ -3489,7 +3489,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                 {
                     if (myFreq == daily)
                     {
-                        meteoGridDbHandler->loadGridDailyDataRowCol(row, col, QString::fromStdString(id),
+                        meteoGridDbHandler->loadGridDailyDataRowCol(row, col, meteoGridDbHandler->db(), QString::fromStdString(id),
                                                                     myFirstDate, myLastDate, errorString);
                     }
                     else if (myFreq == hourly)
