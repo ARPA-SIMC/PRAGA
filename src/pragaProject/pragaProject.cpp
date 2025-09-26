@@ -2480,9 +2480,9 @@ bool PragaProject::timeAggregateGrid(QDate dateIni, QDate dateFin, QList <meteoV
     return true;
 }
 
+
 bool PragaProject::derivedVariablesMeteoGridPeriod(QDate first, QDate last, QList <meteoVariable> variables, bool useNetRad)
 {
-
     // check meteo grid
     if (! meteoGridLoaded)
     {
@@ -2531,8 +2531,16 @@ bool PragaProject::derivedVariablesMeteoGridPeriod(QDate first, QDate last, QLis
 
     logInfoGUI("Loading grid data: " + first.toString("yyyy-MM-dd") + "-" + last.toString("yyyy-MM-dd"));
 
-    if (isHourly) loadMeteoGridHourlyData(firstDateTime, lastDateTime, false);
-    if (isDaily) loadMeteoGridDailyData(firstDateTime.date(), lastDateTime.date(), false);
+    if (isHourly)
+    {
+        loadMeteoGridHourlyData(firstDateTime, lastDateTime, false);
+    }
+    if (isDaily)
+    {
+        QDate firstDate = firstDateTime.date();
+        QDate lastDate = lastDateTime.date();
+        loadMeteoGridDailyData(firstDate, lastDate, false);
+    }
 
     if (isHourly)
     {
@@ -3494,9 +3502,9 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
                     }
                     else if (myFreq == hourly)
                     {
-                        meteoGridDbHandler->loadGridHourlyData(errorString, QString::fromStdString(id),
+                        meteoGridDbHandler->loadGridHourlyData(meteoGridDbHandler->db(), QString::fromStdString(id),
                                                                QDateTime(myFirstDate,QTime(0,0,0),Qt::UTC),
-                                                               QDateTime(myLastDate,QTime(23,0,0),Qt::UTC));
+                                                               QDateTime(myLastDate,QTime(23,0,0),Qt::UTC), errorString);
                     }
                 }
                 else
@@ -3772,12 +3780,13 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
     QDateTime firstDateTime = QDateTime(firstHourly, QTime(1,0), Qt::UTC);
     QDateTime lastDateTime = QDateTime(lastHourly.addDays(1), QTime(0,0), Qt::UTC);
 
-    if (!meteoGridDbHandler->gridStructure().isFixedFields())
+    if (! meteoGridDbHandler->gridStructure().isFixedFields())
     {
         logInfoGUI("Loading daily data...");
         meteoGridDbHandler->loadGridDailyData(errorString, QString::fromStdString(id), firstDaily, lastDaily);
         logInfoGUI("Loading hourly data...");
-        meteoGridDbHandler->loadGridHourlyData(errorString, QString::fromStdString(id), firstDateTime, lastDateTime);
+        meteoGridDbHandler->loadGridHourlyData(meteoGridDbHandler->db(), QString::fromStdString(id),
+                                               firstDateTime, lastDateTime, errorString);
     }
     else
     {

@@ -1749,7 +1749,8 @@ void MainWindow::drawMeteoGrid()
 
     if (myProject.loadGridDataAtStart)
     {
-        myProject.loadMeteoGridData(myProject.getCurrentDate(), myProject.getCurrentDate(), true);
+        QDate currentDate = myProject.getCurrentDate();
+        myProject.loadMeteoGridData(currentDate, currentDate, true);
     }
 
     showGridGroup->setEnabled(true);
