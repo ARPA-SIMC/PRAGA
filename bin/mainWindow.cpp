@@ -105,7 +105,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     KeyboardFilter *keyboardFilter = new KeyboardFilter();
     this->ui->dateEdit->installEventFilter(keyboardFilter);
-    //connect(this->ui->dateEdit, SIGNAL(editingFinished()), this, SLOT(on_dateChanged()));
 
     // show menu
     showPointsGroup = new QActionGroup(this);

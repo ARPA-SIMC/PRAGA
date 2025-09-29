@@ -5573,7 +5573,7 @@ bool PragaProject::computeRadiationList(QString fileName)
             //potential radiation & transmissivity
             radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
                                             radSettings.getLinke(myTime.date.month-1), radSettings.getAlbedo(), radSettings.getClearSky(),
-                                            radSettings.getClearSky(), &sunPosition, &(myPoint.radPoint), DEM);
+                                            radSettings.getClearSky(), sunPosition, myPoint.radPoint, DEM);
 
             myPotentialRad = myPoint.radPoint.global;
 
@@ -5621,7 +5621,7 @@ bool PragaProject::computeRadiationList(QString fileName)
             //radiation
             if (! radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
                                             radSettings.getLinke(myTime.date.month-1), radSettings.getAlbedo(), radSettings.getClearSky(),
-                                            myTransmissivity, &sunPosition, &(myPoint.radPoint), DEM))
+                                            myTransmissivity, sunPosition, myPoint.radPoint, DEM))
             {
                 logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
                 logInfo("Error computing point radiation.");
