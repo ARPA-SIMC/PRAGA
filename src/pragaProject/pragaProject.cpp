@@ -47,7 +47,8 @@ void PragaProject::initializePragaProject()
 
 void PragaProject::clearPragaProject()
 {
-    if (isProjectLoaded) clearProject();
+    if (isProjectLoaded())
+        clearProject();
 
     closeOutputMeteoPointsDB();
 
@@ -111,11 +112,11 @@ bool PragaProject::loadPragaProject(QString myFileName)
         pragaHourlyMaps = new PragaHourlyMeteoMaps(DEM);
     }
 
-    isProjectLoaded = true;
+    setProjectLoaded(true);
 
-    if (projectName != "")
+    if (_projectName != "")
     {
-        logInfo("Project " + projectName + " loaded");
+        logInfo("Project " + _projectName + " loaded");
     }
     return true;
 }
@@ -462,7 +463,7 @@ int PragaProject::pragaShell()
 
     logInfo(getVersion());
 
-    while (! requestedExit)
+    while (! isRequestedExit())
     {
         QString commandLine = getCommandLine("PRAGA");
         if (commandLine != "")

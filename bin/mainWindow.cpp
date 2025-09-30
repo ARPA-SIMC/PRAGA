@@ -3224,8 +3224,8 @@ void MainWindow::on_actionSpatialAggregationAssignAltitude_triggered()
 void MainWindow::drawWindowTitle()
 {
     QString title = myProject.getVersion();
-    if (myProject.projectName != "")
-        title += " - " + myProject.projectName;
+    if (myProject.getProjectName() != "")
+        title += " - " + myProject.getProjectName();
 
     setWindowTitle(title);
 }
@@ -3250,7 +3250,7 @@ void MainWindow::on_actionFileOpenProject_triggered()
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open project file"), myProject.getDefaultPath() + PATH_PROJECT, tr("ini files (*.ini)"));
     if (fileName == "") return;
 
-    if (myProject.isProjectLoaded)
+    if (myProject.isProjectLoaded())
     {
         on_actionFileMeteogridClose_triggered();
         on_actionFileMeteopointClose_triggered();
@@ -3277,7 +3277,7 @@ void MainWindow::on_actionFileOpenProject_triggered()
 
 void MainWindow::on_actionFileCloseProject_triggered()
 {
-    if (! myProject.isProjectLoaded) return;
+    if (! myProject.isProjectLoaded()) return;
 
     closeMeteoGrid();
     closeMeteoPoints();
@@ -5723,9 +5723,9 @@ void MainWindow::on_actionShow_InfoProject_triggered()
 
     QTextBrowser textBrowser;
 
-    if (myProject.projectName != "")
+    if (myProject.getProjectName() != "")
     {
-        textBrowser.setText(QString("Project: " + myProject.projectName));
+        textBrowser.setText(QString("Project: " + myProject.getProjectName()));
         if (myProject.logFileName != "")
         {
             textBrowser.append(QString("File Log: " + myProject.getCompleteFileName(myProject.logFileName, PATH_LOG)));
