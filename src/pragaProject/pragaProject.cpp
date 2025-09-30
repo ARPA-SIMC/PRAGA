@@ -114,9 +114,9 @@ bool PragaProject::loadPragaProject(QString myFileName)
 
     setProjectLoaded(true);
 
-    if (_projectName != "")
+    if (! getProjectName().isEmpty())
     {
-        logInfo("Project " + _projectName + " loaded");
+        logInfo("Project " + getProjectName() + " loaded");
     }
     return true;
 }
