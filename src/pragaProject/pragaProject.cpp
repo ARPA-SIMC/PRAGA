@@ -5531,8 +5531,6 @@ bool PragaProject::computeRadiationList(QString fileName)
             continue;
         }
 
-        QTextStream outStream(&outputFile);
-
         //ciclo su giorno e ora
         while (!(myDate > myPoint.endDate) && !(myDate == myPoint.endDate && myHour > myPoint.endHour))
         {
