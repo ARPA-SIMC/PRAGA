@@ -69,7 +69,6 @@ void PragaProject::clearPragaProject()
     }
 }
 
-
 QString PragaProject::getVersion()
 {
     return "PRAGA v2.0.8 (2025)";
