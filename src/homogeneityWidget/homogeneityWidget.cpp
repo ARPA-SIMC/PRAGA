@@ -118,6 +118,8 @@ Crit3DHomogeneityWidget::Crit3DHomogeneityWidget(Crit3DMeteoPointsDbHandler* met
     jointStationsSelectLayout->addWidget(jointStationsLabel);
     jointStationsSelectLayout->addWidget(&jointStationsList);
 
+    QSqlDatabase myDb = meteoPointsDbHandler->getDb();
+
     for (int i = 0; i<jointStationsMyMp.size(); i++)
     {
         int indexMp = -1;
@@ -135,7 +137,7 @@ Crit3DHomogeneityWidget::Crit3DHomogeneityWidget(Crit3DMeteoPointsDbHandler* met
         if (indexMp != -1)
         {
             jointStationsSelected.addItem(QString::fromStdString(this->meteoPointsNearDistanceList[indexMp].id) + " " + QString::fromStdString(this->meteoPointsNearDistanceList[indexMp].name));
-            meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), this->meteoPointsNearDistanceList[indexMp]);
+            meteoPointsDbHandler->loadDailyData(myDb, getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), this->meteoPointsNearDistanceList[indexMp]);
         }
     }
 
@@ -470,10 +472,11 @@ void Crit3DHomogeneityWidget::changeMethod(const QString methodName)
 void Crit3DHomogeneityWidget::addJointStationClicked()
 {
     if (jointStationsList.currentText().isEmpty())
-    {
         return;
-    }
+
     std::string newId;
+    QSqlDatabase myDb = meteoPointsDbHandler->getDb();
+
     if (jointStationsSelected.findItems(jointStationsList.currentText(), Qt::MatchExactly).isEmpty())
     {
         jointStationsSelected.addItem(jointStationsList.currentText());
@@ -495,7 +498,7 @@ void Crit3DHomogeneityWidget::addJointStationClicked()
         QDate firstDailyNewId = meteoPointsDbHandler->getFirstDate(daily, newId).date();
         QDate lastDailyNewId = meteoPointsDbHandler->getLastDate(daily, newId).date();
 
-        meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDailyNewId), getCrit3DDate(lastDailyNewId), meteoPointsNearDistanceList[indexMp]);
+        meteoPointsDbHandler->loadDailyData(myDb, getCrit3DDate(firstDailyNewId), getCrit3DDate(lastDailyNewId), meteoPointsNearDistanceList[indexMp]);
         updateYears();
     }
 
@@ -718,6 +721,8 @@ void Crit3DHomogeneityWidget::findReferenceStations()
     }
 
     int nrStations = 0;
+    QSqlDatabase myDb = meteoPointsDbHandler->getDb();
+
     for (int i = 0; i<sortedId.size(); i++)
     {
         if (idPointsJointed.contains(sortedId[i]))
@@ -734,7 +739,7 @@ void Crit3DHomogeneityWidget::findReferenceStations()
         mpToBeComputed.id = sortedId[i];
         QString name = meteoPointsDbHandler->getNameGivenId(QString::fromStdString(sortedId[i]));
         QList<QString> jointStationsListMpToBeComputed = meteoPointsDbHandler->getJointStations(QString::fromStdString(mpToBeComputed.id));
-        meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDate), getCrit3DDate(lastDate), mpToBeComputed);
+        meteoPointsDbHandler->loadDailyData(myDb, getCrit3DDate(firstDate), getCrit3DDate(lastDate), mpToBeComputed);
 
         // copy data to MPTemp
         Crit3DMeteoPoint meteoPointTemp;
@@ -747,7 +752,7 @@ void Crit3DHomogeneityWidget::findReferenceStations()
             {
                 Crit3DMeteoPoint mpGet;
                 mpGet.id = jointStationsListMpToBeComputed[j].toStdString();
-                meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDate), getCrit3DDate(lastDate), mpGet);
+                meteoPointsDbHandler->loadDailyData(myDb, getCrit3DDate(firstDate), getCrit3DDate(lastDate), mpGet);
                 jointStationsMpList.push_back(mpGet);
             }
 
