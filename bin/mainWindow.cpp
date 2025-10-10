@@ -1639,13 +1639,16 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
             {
                 if (int(myProject.meteoPoints[i].currentValue) != NODATA || myProject.meteoPoints[i].marked)
                 {
+                    // hide not active points
+                    bool isVisible = ((myProject.meteoPoints[i].active || viewNotActivePoints || myProject.meteoPoints[i].marked) && !(hideSupplementals && myProject.meteoPoints[i].lapseRateCode == supplemental));
+
                     if (myProject.meteoPoints[i].quality == quality::accepted)
                     {
                         pointList[i]->setRadius(5);
                         myColor = myProject.meteoPointsColorScale->getColor(myProject.meteoPoints[i].currentValue);
                         pointList[i]->setFillColor(QColor(myColor->red, myColor->green, myColor->blue));
                         pointList[i]->setOpacity(1.0);
-                        if (isWindVector)
+                        if (isWindVector && isVisible)
                             drawWindVector(i);
                     }
                     else if (! myProject.meteoPoints[i].marked)
@@ -1661,7 +1664,6 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                     pointList[i]->setToolTip();
 
                     // hide not active points
-                    bool isVisible = ((myProject.meteoPoints[i].active || viewNotActivePoints || myProject.meteoPoints[i].marked) && !(hideSupplementals && myProject.meteoPoints[i].lapseRateCode == supplemental));
                     pointList[i]->setVisible(isVisible);
                 }
             }
