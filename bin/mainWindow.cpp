@@ -5916,11 +5916,13 @@ void MainWindow::computeDailyFromHourly_MeteoPoints(const QList<std::string>& id
     }
 
     QList <QString> idErrorList;
+    QSqlDatabase myDb = myProject.meteoPointsDbHandler->getDb();
+
     for (int i = 0; i < idPointList.size(); i++)
     {
         Crit3DMeteoPoint meteoPoint;
         meteoPoint.setId(idPointList[i]);
-        myProject.meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstDate), getCrit3DDate(lastDate), meteoPoint);
+        myProject.meteoPointsDbHandler->loadHourlyData(myDb, getCrit3DDate(firstDate), getCrit3DDate(lastDate), meteoPoint);
 
         if (! myProject.computeDailyVariablesPoint(&meteoPoint, firstDate, lastDate, varToCompute))
         {
