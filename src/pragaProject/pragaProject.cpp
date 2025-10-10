@@ -3554,6 +3554,7 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
     return true;
 }
 
+
 void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint)
 {
     logInfoGUI("Loading data...");
@@ -3574,11 +3575,16 @@ void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint)
     }
 
     Crit3DMeteoPoint mp;
+    QSqlDatabase myDb = meteoPointsDbHandler->getDb();
+
     meteoPointsDbHandler->getPropertiesGivenId(QString::fromStdString(idMeteoPoint), mp, gisSettings, errorString);
+
     logInfoGUI("Loading daily data...");
-    meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
+    meteoPointsDbHandler->loadDailyData(myDb, getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
+
     logInfoGUI("Loading hourly data...");
-    meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), mp);
+    meteoPointsDbHandler->loadHourlyData(myDb, getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), mp);
+
     QList<QString> jointStationsMyMp = meteoPointsDbHandler->getJointStations(QString::fromStdString(idMeteoPoint));
     for (int j = 0; j<jointStationsMyMp.size(); j++)
     {
@@ -3632,10 +3638,11 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
     }
 
     Crit3DMeteoPoint mp;
+    QSqlDatabase myDb = meteoPointsDbHandler->getDb();
     meteoPointsDbHandler->getPropertiesGivenId(QString::fromStdString(idMeteoPoint), mp, gisSettings, errorString);
 
     logInfoGUI("Loading daily data...");
-    meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
+    meteoPointsDbHandler->loadDailyData(myDb, getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
     QList<QString> jointStationsMyMp = meteoPointsDbHandler->getJointStations(QString::fromStdString(idMeteoPoint));
     for (int j = 0; j<jointStationsMyMp.size(); j++)
     {
@@ -5474,11 +5481,12 @@ bool PragaProject::computeRadiationList(QString fileName)
         }
     }
 
-    //loading dei dati orari
+    QSqlDatabase myDb = meteoPointsDbHandler->getDb();
+
     logInfo("Loading meteo data...");
     for (int i=0; i < nrMeteoPoints; i++)
     {
-        if (!meteoPointsDbHandler->loadHourlyData(loadIniDate, loadEndDate, meteoPoints[i]))
+        if (! meteoPointsDbHandler->loadHourlyData(myDb, loadIniDate, loadEndDate, meteoPoints[i]))
         {
             logError("Error loading hourly data.");
             return false;
