@@ -1990,6 +1990,8 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
         infoStep = setProgressBar("Creating data array...", this->meteoGridDbHandler->gridStructure().header().nrRows);
     }
 
+    unsigned int nrDaysToLoad = startDate.daysTo(endDate) + 1;
+
     Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
     std::vector<float> outputSeries, outputValues;
     int indexSeries = 0;
@@ -2023,6 +2025,14 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
                                    variable, elab1MeteoComp, startDate, endDate, outputValues,
                                    &percValue, meteoSettings, errorString))
                 {
+                    //TODO: temporary(?) solution
+                    unsigned int missingDays = nrDaysToLoad - outputValues.size();
+                    if (missingDays > 0)
+                    {
+                        for (unsigned int i = 0; i < missingDays; i++)
+                            outputValues.push_back(NODATA);
+                    }
+
                     outputSeries.insert(outputSeries.end(), outputValues.begin(), outputValues.end());
                     indexRowCol[row][col] = indexSeries;
                     indexSeries++;
