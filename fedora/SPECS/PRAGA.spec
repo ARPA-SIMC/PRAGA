@@ -1,4 +1,4 @@
-%global releaseno 1
+%global releaseno 2
 
 # Note: define srcarchivename in CI build only.
 %{!?srcarchivename: %global srcarchivename %{name}-%{version}-%{releaseno}}
@@ -57,7 +57,7 @@ cp -a bin/PRAGA %{buildroot}/%{_bindir}/
 
 
 %changelog
-* Thu Opt 16 2025 Fausto Tomei <ftomei@arpae.it> - 2.0.8-1
+* Thu Oct 16 2025 Fausto Tomei <ftomei@arpae.it> - 2.0.8-2
 - Release 2.0.8
 
 * Wed Sep 10 2025 Caterina Toscano <ctoscano@arpae.it> - 2.0.7-1
