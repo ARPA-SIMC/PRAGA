@@ -2025,17 +2025,14 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
                                    variable, elab1MeteoComp, startDate, endDate, outputValues,
                                    &percValue, meteoSettings, errorString))
                 {
-                    //TODO: temporary(?) solution
-                    unsigned int missingDays = nrDaysToLoad - outputValues.size();
-                    if (missingDays > 0)
+                    unsigned int missingDays = nrDaysToLoad - (unsigned)outputValues.size();
+                    // TODO: percentage? (Problem with outputValues size)
+                    if (missingDays == 0)
                     {
-                        for (unsigned int i = 0; i < missingDays; i++)
-                            outputValues.push_back(NODATA);
+                        outputSeries.insert(outputSeries.end(), outputValues.begin(), outputValues.end());
+                        indexRowCol[row][col] = indexSeries;
+                        indexSeries++;
                     }
-
-                    outputSeries.insert(outputSeries.end(), outputValues.begin(), outputValues.end());
-                    indexRowCol[row][col] = indexSeries;
-                    indexSeries++;
                 }
             }
         }
@@ -3389,7 +3386,7 @@ bool PragaProject::dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, me
     }
     else
     {
-        if (! loadMeteoPointsData(myFirstDate, myLastDate, myFreq == hourly, myFreq == daily, dataset, true))
+        if (! loadMeteoPointsData_singleDataset(myFirstDate, myLastDate, myFreq == hourly, myFreq == daily, dataset, true))
             return false;
     }
 

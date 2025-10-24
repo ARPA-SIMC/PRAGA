@@ -886,7 +886,7 @@ void MainWindow::on_actionFileMeteopointArkimetLoadVM_triggered()
         return;
     }
 
-    loadMeteoPoints(myProject.meteoPointsDbHandler->getDbName());
+    loadMeteoPoints_GUI(myProject.meteoPointsDbHandler->getDbName());
 }
 
 
@@ -923,7 +923,7 @@ void MainWindow::on_actionFileMeteopointArkimetDownload_triggered()
         }
     }
 
-    this->loadMeteoPoints(myProject.meteoPointsDbHandler->getDbName());
+    loadMeteoPoints_GUI(myProject.meteoPointsDbHandler->getDbName());
 }
 
 
@@ -1715,7 +1715,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
 }
 
 
-bool MainWindow::loadMeteoPoints(QString dbFileName)
+void MainWindow::loadMeteoPoints_GUI(QString dbFileName)
 {
     myProject.logInfoGUI("Load meteo points DB: " + dbFileName);
     bool isOk = myProject.loadMeteoPointsDB(dbFileName);
@@ -1725,8 +1725,6 @@ bool MainWindow::loadMeteoPoints(QString dbFileName)
 
     if (! isOk)
         myProject.logError();
-
-    return isOk;
 }
 
 
@@ -3722,7 +3720,7 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
         myProject.logInfoGUI("download points properties...");
         if (myDownload.getPointProperties(datasets, myProject.gisSettings.utmZone, myProject.errorString))
         {
-            loadMeteoPoints(dbName);
+            loadMeteoPoints_GUI(dbName);
         }
         else
         {
@@ -3755,7 +3753,7 @@ void MainWindow::on_actionFileMeteopointOpen_triggered()
             ui->labelVariable->setText(("None"));
         }
 
-        loadMeteoPoints(dbName);
+        loadMeteoPoints_GUI(dbName);
     }
 }
 
@@ -4149,7 +4147,7 @@ void MainWindow::on_actionFileMeteopointProperties_import_triggered()
         return;
     }
 
-    loadMeteoPoints(myProject.dbPointsFileName);
+    loadMeteoPoints_GUI(myProject.dbPointsFileName);
 }
 
 
@@ -4250,7 +4248,8 @@ void MainWindow::on_actionFileMeteopointData_XMLimport_triggered()
 
     delete myProject.inOutData;
     QString dbName = myProject.meteoPointsDbHandler->getDbName();
-    loadMeteoPoints(dbName);
+
+    loadMeteoPoints_GUI(dbName);
 }
 
 
@@ -4581,7 +4580,7 @@ void MainWindow::on_actionWith_Criteria_active_triggered()
 {
     if (myProject.setActiveStateWithCriteria(true))
     {
-        loadMeteoPoints(myProject.dbPointsFileName);
+        loadMeteoPoints_GUI(myProject.dbPointsFileName);
     }
 }
 
@@ -4589,7 +4588,7 @@ void MainWindow::on_actionWith_Criteria_notActive_triggered()
 {
     if (myProject.setActiveStateWithCriteria(false))
     {
-        loadMeteoPoints(myProject.dbPointsFileName);
+        loadMeteoPoints_GUI(myProject.dbPointsFileName);
     }
 }
 
@@ -4713,7 +4712,7 @@ void MainWindow::on_actionFileMeteopointNewCsv_triggered()
         return;
     }
 
-    loadMeteoPoints(dbName);
+    loadMeteoPoints_GUI(dbName);
 }
 
 
@@ -7305,7 +7304,7 @@ void MainWindow::on_actionMeteoPointsAssign_altitude_from_DEM_triggered()
 
     if (myProject.assignAltitudeToMeteoPoints(cellSize))
     {
-        loadMeteoPoints(myProject.dbPointsFileName);
+        loadMeteoPoints_GUI(myProject.dbPointsFileName);
     }
 }
 
