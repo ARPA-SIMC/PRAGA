@@ -148,7 +148,7 @@
 						bool isAnomaly, bool isRefPeriod, QString* period, QString *myError);
     
     bool parseXMLPeriodTag(QDomNode child, Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXMLAnomaly, bool isAnomaly, bool isRefPeriod,
-                        QString period, QString *myError);
+                           QString period, QString yearIniStr, QString yearEndStr, QString *myError);
 
     bool checkYears(QString firstYear, QString lastYear);
 

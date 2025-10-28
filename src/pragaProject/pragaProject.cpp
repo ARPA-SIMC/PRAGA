@@ -5632,6 +5632,8 @@ bool PragaProject::computeRadiationList(QString fileName)
                 continue;
             }
 
+
+
             QTextStream outStream(&outputFile);
 
             QString dateString = QString::number(myTime.date.year);
