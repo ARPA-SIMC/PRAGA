@@ -17,19 +17,6 @@ QMAKE_TARGET_COPYRIGHT = "\\251 2025 ARPAE ER - Climate Observatory"
 
 CONFIG += c++17
 
-win32:{
-    QMAKE_CXXFLAGS += -openmp -GL
-    QMAKE_LFLAGS   += -LTCG
-}
-unix:{
-    QMAKE_CXXFLAGS += -fopenmp #-flto
-    QMAKE_LFLAGS += -fopenmp #-flto
-}
-macx:{
-    QMAKE_CXXFLAGS += -fopenmp #-flto
-    QMAKE_LFLAGS += -fopenmp #-flto
-}
-
 
 INCLUDEPATH +=  ../mapGraphics \
                 ../agrolib/crit3dDate ../agrolib/mathFunctions ../agrolib/meteo ../agrolib/gis  \
@@ -43,7 +30,8 @@ INCLUDEPATH +=  ../mapGraphics \
 
 CONFIG += debug_and_release
 
-CONFIG += c++11 c++14 c++17
+# parallel computing settings
+include($$absolute_path(../agrolib/parallel.pri))
 
 DEFINES += NETCDF
 

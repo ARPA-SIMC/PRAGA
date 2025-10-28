@@ -277,6 +277,7 @@ void Crit3DSynchronicityWidget::addInterpolationGraph()
     progress.setWindowModality(Qt::WindowModal);
     progress.show();
 
+    QSqlDatabase myDb = meteoPointsDbHandler->getDb();
     for (int i = 0; i<nrMeteoPoints; i++)
     {
         progress.setValue(i+1);
@@ -284,7 +285,7 @@ void Crit3DSynchronicityWidget::addInterpolationGraph()
         {
             break;
         }
-        meteoPointsDbHandler->loadDailyData(getCrit3DDate(interpolationStartDate), getCrit3DDate(myEndDate), meteoPoints[i]);
+        meteoPointsDbHandler->loadDailyData(myDb, getCrit3DDate(interpolationStartDate), getCrit3DDate(myEndDate), meteoPoints[i]);
     }
     progress.close();
 

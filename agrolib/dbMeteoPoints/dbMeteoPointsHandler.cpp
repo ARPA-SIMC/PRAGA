@@ -3,9 +3,11 @@
 #include "meteo.h"
 #include "utilities.h"
 #include "basicMath.h"
+#include "meteoPoint.h"
 
 #include <QtSql>
 
+#define MAX_TABLES_CHECK_NR 200
 
 Crit3DMeteoPointsDbHandler::Crit3DMeteoPointsDbHandler()
 {
@@ -177,64 +179,60 @@ QDateTime Crit3DMeteoPointsDbHandler::getFirstDate(frequencyType frequency)
         dayHour = "H";
 
     QSqlQuery qry(_db);
-    QList<QString> tableList;
-
     qry.prepare( "SELECT name FROM sqlite_master WHERE type='table' AND name like :dayHour ESCAPE '^'");
     qry.bindValue(":dayHour",  "%^" + dayHour  + "%");
-    QDateTime firstDateTime;
 
+    QDateTime firstDateTime;
     if(! qry.exec() )
     {
         _errorStr = qry.lastError().text();
         return firstDateTime;
     }
-    else
+
+    QList<QString> tableList;
+    while (qry.next())
     {
-        while (qry.next())
-        {
-            QString table = qry.value(0).toString();
-            tableList << table;
-        }
+        QString table = qry.value(0).toString();
+        tableList << table;
     }
 
-    QDateTime dateTime;
-    QDate myDate;
-    QTime myTime;
-    int maxTableNr = 300;
-    int step = std::max(1, int(tableList.size() / maxTableNr));
-    int count = 0;
+    int step = std::max(1, int(tableList.size() / MAX_TABLES_CHECK_NR));
 
-    foreach (QString table, tableList)
+    for (int i = 0; i < tableList.size(); i += step)
     {
-        count++;
-        if ((count % step) != 0) continue;
+        const QString& table = tableList.at(i);
+        const QString statement = QStringLiteral("SELECT MIN(date_time) FROM `%1`").arg(table);
 
-        QString statement = QString( "SELECT MIN(date_time) FROM `%1` AS dateTime").arg(table);
-        if(qry.exec(statement) )
+        if (! qry.exec(statement))
+            continue;
+
+        if (! qry.next())
+            continue;
+
+        const QString dateStr = qry.value(0).toString().trimmed();
+        if (dateStr.isEmpty())
+            continue;
+
+        QDateTime dateTime;
+        if (frequency == daily)
         {
-            if (qry.next())
-            {
-                QString dateStr = qry.value(0).toString();
-                if (! dateStr.isEmpty())
-                {
-                    if (frequency == daily)
-                    {
-                        dateTime = QDateTime::fromString(dateStr,"yyyy-MM-dd");
-                    }
-                    else if (frequency == hourly)
-                    {
-                        myDate = QDate::fromString(dateStr.mid(0,10), "yyyy-MM-dd");
-                        myTime = QTime::fromString(dateStr.mid(11,8), "HH:mm:ss");
-                        dateTime = QDateTime(myDate, myTime, Qt::UTC);
-                    }
-
-                    if (firstDateTime.isNull() || dateTime < firstDateTime)
-                    {
-                        firstDateTime = dateTime;
-                    }
-                }
-            }
+            const QDate date = QDate::fromString(dateStr, QStringLiteral("yyyy-MM-dd"));
+            if (! date.isValid())
+                continue;
+            dateTime = QDateTime(date, QTime(0, 0), Qt::UTC);
         }
+        else if (frequency == hourly)
+        {
+            const QDateTime parsed = QDateTime::fromString(dateStr, QStringLiteral("yyyy-MM-dd HH:mm:ss"));
+            if (! parsed.isValid())
+                continue;
+            dateTime = parsed.toUTC();
+        }
+        else
+            continue;
+
+        if (! firstDateTime.isValid() || dateTime < firstDateTime)
+            firstDateTime = dateTime;
     }
 
     return firstDateTime;
@@ -243,15 +241,13 @@ QDateTime Crit3DMeteoPointsDbHandler::getFirstDate(frequencyType frequency)
 
 QDateTime Crit3DMeteoPointsDbHandler::getLastDate(frequencyType frequency)
 {
-    QSqlQuery qry(_db);
-    QList<QString> tableList;
-
     QString dayHour;
     if (frequency == daily)
         dayHour = "D";
     else if (frequency == hourly)
         dayHour = "H";
 
+    QSqlQuery qry(_db);
     qry.prepare( "SELECT name FROM sqlite_master WHERE type='table' AND name like :dayHour ESCAPE '^'");
     qry.bindValue(":dayHour",  "%^_" + dayHour  + "%");
 
@@ -261,54 +257,54 @@ QDateTime Crit3DMeteoPointsDbHandler::getLastDate(frequencyType frequency)
         _errorStr = qry.lastError().text();
         return lastDateTime;
     }
-    else
+
+    // table list
+    QList<QString> tableList;
+    while (qry.next())
     {
-        while (qry.next())
-        {
-            QString table = qry.value(0).toString();
-            tableList << table;
-        }
+        QString table = qry.value(0).toString();
+        tableList << table;
     }
 
-    QDateTime dateTime;
-    QDate myDate;
-    QTime myTime;
-    int maxTableNr = 300;
-    int step = std::max(1, int(tableList.size() / maxTableNr));
-    int count = 0;
-    foreach (QString table, tableList)
+    int step = std::max(1, int(tableList.size() / MAX_TABLES_CHECK_NR));
+
+    for (int i = 0; i < tableList.size(); i += step)
     {
-        count++;
-        if ((count % step) != 0) continue;
+        const QString& table = tableList.at(i);
+        const QString statement = QStringLiteral("SELECT MAX(date_time) FROM `%1`").arg(table);
 
-        QString statement = QString( "SELECT MAX(date_time) FROM `%1` AS dateTime").arg(table);
-        if(qry.exec(statement))
+        if (! qry.exec(statement))
+            continue;
+
+        if (! qry.next())
+            continue;
+
+        const QString dateStr = qry.value(0).toString().trimmed();
+        if (dateStr.isEmpty())
+            continue;
+
+        QDateTime dateTime;
+        if (frequency == daily)
         {
-            if (qry.next())
-            {
-                QString dateStr = qry.value(0).toString();
-                if (! dateStr.isEmpty())
-                {
-                    if (frequency == daily)
-                    {
-                        myDate = QDate::fromString(dateStr, "yyyy-MM-dd");
-                        myTime = QTime(12, 0, 0, 0);
-                        dateTime = QDateTime(myDate, myTime, Qt::UTC);
-                    }
-                    else if (frequency == hourly)
-                    {
-                        myDate = QDate::fromString(dateStr.mid(0,10), "yyyy-MM-dd");
-                        myTime = QTime::fromString(dateStr.mid(11,8), "HH:mm:ss");
-                        dateTime = QDateTime(myDate, myTime, Qt::UTC);
-                    }
-
-                    if (lastDateTime.isNull() || dateTime > lastDateTime)
-                    {
-                        lastDateTime = dateTime;
-                    }
-                }
-            }
+            // parse directly, avoiding multiple temporaries
+            const QDate date = QDate::fromString(dateStr, QStringLiteral("yyyy-MM-dd"));
+            if (! date.isValid())
+                continue;
+            dateTime = QDateTime(date, QTime(12, 0), Qt::UTC);
         }
+        else if (frequency == hourly)
+        {
+            // safer parsing using fromString
+            const QDateTime parsed = QDateTime::fromString(dateStr, QStringLiteral("yyyy-MM-dd HH:mm:ss"));
+            if (! parsed.isValid())
+                continue;
+            dateTime = parsed.toUTC();
+        }
+        else
+            continue;
+
+        if (! lastDateTime.isValid() || dateTime > lastDateTime)
+            lastDateTime = dateTime;
     }
 
     return lastDateTime;
@@ -531,6 +527,13 @@ bool Crit3DMeteoPointsDbHandler::deleteAllPointsFromDataset(QList<QString> datas
 
 bool Crit3DMeteoPointsDbHandler::loadDailyData(const Crit3DDate &firstDate, const Crit3DDate &lastDate, Crit3DMeteoPoint &meteoPoint)
 {
+    return loadDailyData(_db, firstDate, lastDate, meteoPoint);
+}
+
+
+bool Crit3DMeteoPointsDbHandler::loadDailyData(const QSqlDatabase &myDb, const Crit3DDate &firstDate,
+                                               const Crit3DDate &lastDate, Crit3DMeteoPoint &meteoPoint)
+{
     // check dates
     if (firstDate > lastDate)
     {
@@ -556,7 +559,7 @@ bool Crit3DMeteoPointsDbHandler::loadDailyData(const Crit3DDate &firstDate, cons
                                 .arg(tableName, firstDateStr, lastDateStr);
     }
 
-    QSqlQuery query(_db);
+    QSqlQuery query(myDb);
     if(! query.exec(statement))
     {
         return false;
@@ -566,28 +569,40 @@ bool Crit3DMeteoPointsDbHandler::loadDailyData(const Crit3DDate &firstDate, cons
     while (query.next())
     {
         // date
-        QString dateStr = query.value(0).toString();
-        QDate d = QDate::fromString(dateStr, "yyyy-MM-dd");
+        Crit3DDate currentDate(query.value(0).toString().toStdString());
+
+        // check variable and value
+        if (query.value(1).isNull() || query.value(2).isNull())
+            continue;
 
         // variable
-        meteoVariable variable = noMeteoVar;
         int idVar = query.value(1).toInt();
-        if (idVar != NODATA)
-        {
-            variable = _mapIdMeteoVar.at(idVar);
-        }
+        auto it = _mapIdMeteoVar.find(idVar);
+        if (it == _mapIdMeteoVar.end())
+            continue;
+        auto variable = it->second;
 
         // value
         float value = query.value(2).toFloat();
-
-        meteoPoint.setMeteoPointValueD(Crit3DDate(d.day(), d.month(), d.year()), variable, value);
+        if (! isEqual(value, NODATA))
+        {
+            meteoPoint.setMeteoPointValueD(currentDate, variable, value);
+        }
     }
 
     return true;
 }
 
 
-bool Crit3DMeteoPointsDbHandler::loadHourlyData(const Crit3DDate &firstDate, const Crit3DDate &lastDate, Crit3DMeteoPoint &meteoPoint)
+bool Crit3DMeteoPointsDbHandler::loadHourlyData(const Crit3DDate &firstDate,
+                                                const Crit3DDate &lastDate, Crit3DMeteoPoint &meteoPoint)
+{
+    return loadHourlyData(_db, firstDate, lastDate, meteoPoint);
+}
+
+
+bool Crit3DMeteoPointsDbHandler::loadHourlyData(const QSqlDatabase &myDb, const Crit3DDate &firstDate,
+                                                const Crit3DDate &lastDate, Crit3DMeteoPoint &meteoPoint)
 {
     // check dates
     if (firstDate > lastDate)
@@ -607,44 +622,41 @@ bool Crit3DMeteoPointsDbHandler::loadHourlyData(const Crit3DDate &firstDate, con
 
     QString statement = QString( "SELECT * FROM `%1` WHERE date_time >= DATETIME('%2 01:00:00') AND date_time <= DATETIME('%3 00:00:00', '+1 day')")
                                  .arg(tableName, startDateStr, endDateStr);
-    QSqlQuery qry(_db);
+
+    QSqlQuery qry(myDb);
     if(! qry.exec(statement) )
     {
         _errorStr = qry.lastError().text();
         return false;
     }
 
+    Crit3DTime dateTime;
     while (qry.next())
     {
-        Crit3DTime dateTime;
-        if (getValueCrit3DTime(qry.value(0), &dateTime))
+        if (! getValueCrit3DTime(qry.value(0), &dateTime))
+            continue;
+
+        int hour = dateTime.getHour();
+        int minute = dateTime.getMinutes();
+
+        // variable
+        int idVar = qry.value(1).toInt();
+        auto it = _mapIdMeteoVar.find(idVar);
+        if (it == _mapIdMeteoVar.end())
+            continue;
+        auto variable = it->second;
+
+        float value = qry.value(2).toFloat();
+        if (isEqual(value, NODATA))
+            continue;
+
+        meteoPoint.setMeteoPointValueH(dateTime.date, hour, minute, variable, value);
+
+        // copy scalar intensity to vector intensity (instantaneous values are equivalent, following WMO)
+        // should be removed when hourly averages are available
+        if (variable == windScalarIntensity)
         {
-            int hour = dateTime.getHour();
-            int minute = dateTime.getMinutes();
-
-            meteoVariable variable;
-            int idVar = qry.value(1).toInt();
-            try
-            {
-                variable = _mapIdMeteoVar.at(idVar);
-            }
-            catch (const std::out_of_range& )
-            {
-                variable = noMeteoVar;
-            }
-
-            if (variable != noMeteoVar)
-            {
-                float value = qry.value(2).toFloat();
-                meteoPoint.setMeteoPointValueH(dateTime.date, hour, minute, variable, value);
-
-                // copy scalar intensity to vector intensity (instantaneous values are equivalent, following WMO)
-                // should be removed when hourly averages are available
-                if (variable == windScalarIntensity)
-                {
-                    meteoPoint.setMeteoPointValueH(dateTime.date, hour, minute, windVectorIntensity, value);
-                }
-            }
+            meteoPoint.setMeteoPointValueH(dateTime.date, hour, minute, windVectorIntensity, value);
         }
     }
 
@@ -837,6 +849,27 @@ std::vector<float> Crit3DMeteoPointsDbHandler::loadHourlyVar(meteoVariable varia
 }
 
 
+bool Crit3DMeteoPointsDbHandler::openNewConnection(QSqlDatabase &myDb, const QString &dbName, const QString &connectionName)
+{
+    if (! QFile(dbName).exists())
+    {
+        _errorStr = "Meteo points DB does not exists:\n" + dbName;
+        return false;
+    }
+
+    myDb = QSqlDatabase::addDatabase("QSQLITE", connectionName);
+    myDb.setDatabaseName(dbName);
+
+    if (! myDb.open())
+    {
+        _errorStr = "Connection with database failed!\n" + myDb.lastError().text();
+        return false;
+    }
+
+    return true;
+}
+
+
 bool Crit3DMeteoPointsDbHandler::setAndOpenDb(QString dbname_)
 {
     _errorStr = "";
@@ -874,22 +907,19 @@ std::map<int, meteoVariable> Crit3DMeteoPointsDbHandler::getMapIdMeteoVar() cons
 bool Crit3DMeteoPointsDbHandler::getPropertiesFromDb(QList<Crit3DMeteoPoint>& meteoPointsList,
                                         const gis::Crit3DGisSettings& gisSettings, QString& errorString)
 {
-    Crit3DMeteoPoint meteoPoint;
     QSqlQuery qry(_db);
-    bool isLocationOk;
-
     qry.prepare( "SELECT id_point, name, dataset, latitude, longitude, utm_x, utm_y, altitude, state, region, province, municipality, is_active, is_utc, orog_code from point_properties ORDER BY id_point" );
 
-    if(!qry.exec() )
+    if(! qry.exec() )
     {
-        errorString = qry.lastError().text();
+        errorString = "Error in reading point properties\n" + qry.lastError().text();
         return false;
     }
 
+    bool isLocationOk;
     while (qry.next())
     {
-        //initialize
-        meteoPoint = *(new Crit3DMeteoPoint());
+        Crit3DMeteoPoint meteoPoint;
 
         meteoPoint.id = qry.value("id_point").toString().toStdString();
         meteoPoint.name = qry.value("name").toString().toStdString();
