@@ -57,6 +57,9 @@ cp -a bin/PRAGA %{buildroot}/%{_bindir}/
 
 
 %changelog
+* Wed Oct 29 2025 Caterina Toscano <ctoscano@arpae.it> - 2.0.9-2
+- Release 2.0.9
+
 * Tue Oct 28 2025 Caterina Toscano <ctoscano@arpae.it> - 2.0.9-1
 - Release 2.0.9
 
