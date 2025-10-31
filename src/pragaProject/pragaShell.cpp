@@ -1134,6 +1134,9 @@ int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentLi
         }
 
         QString fileName;
+        int loadInterval = NODATA;
+        bool parseLoadInterval = true;
+        QString folderString;
 
         for (int i = 1; i < argumentList.size(); i++)
         {
@@ -1141,9 +1144,21 @@ int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentLi
             {
                 fileName = argumentList[i].right(argumentList[i].length()-3);
             }
+            else if (argumentList.at(i).left(3) == "-l:")
+                loadInterval = argumentList[i].right(argumentList[i].length()-3).toInt(&parseLoadInterval);
+            else if (argumentList.at(i).left(3) == "-o:")
+                folderString = argumentList[i].right(argumentList[i].length()-3);
+
+
         }
 
-        if (! myProject->computeRadiationList(fileName))
+        if (! parseLoadInterval)
+        {
+            myProject->errorString = "Wrong loading interval number";
+            return PRAGA_INVALID_COMMAND;
+        }
+
+        if (! myProject->computeRadiationList(fileName, loadInterval, folderString))
         {
             return PRAGA_ERROR;
         }
