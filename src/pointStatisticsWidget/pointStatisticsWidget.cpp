@@ -1861,15 +1861,14 @@ void Crit3DPointStatisticsWidget::deleteStationClicked()
 {
     QList<QListWidgetItem*> items = jointStationsSelected.selectedItems();
     if (items.isEmpty())
-    {
         return;
-    }
+
     foreach(QListWidgetItem * item, items)
     {
-        std::string id = item->text().section(" ",0,0).toStdString();
+        std::string jointId = item->text().section(" ", 0, 0).toStdString();
         int index = NODATA;
         for (int i = 0; i < _idPointList.size(); ++i) {
-            if (_idPointList[i] == id)
+            if (_idPointList[i] == jointId)
             {
                 index = i;
                 break;
@@ -1886,6 +1885,7 @@ void Crit3DPointStatisticsWidget::deleteStationClicked()
     saveToDb.setEnabled(true);
     updateYears();
 }
+
 
 void Crit3DPointStatisticsWidget::saveToDbClicked()
 {

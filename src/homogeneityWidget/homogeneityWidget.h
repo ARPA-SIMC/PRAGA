@@ -47,7 +47,8 @@
     private:
             Crit3DMeteoPointsDbHandler* _meteoPointsDbPointer;
             QList<Crit3DMeteoPoint> _nearMeteoPointsList;
-            QList<std::string> _jointedPointsIdList;
+            QList<std::string> _jointPointsIdList;
+            QList<int> _jointIndexList;
             Crit3DClimate _climate;
             QDate _firstDaily;
             QDate _lastDaily;
@@ -89,6 +90,8 @@
             QString myError;
             double averageValue;
             float SNHT_T95_VALUES [10] {5.7f,6.95f,7.65f,8.1f,8.45f,8.65f,8.8f,8.95f,9.05f,9.15f};
+
+            int getJointStationIndex(const std::string& id);
     };
 
 

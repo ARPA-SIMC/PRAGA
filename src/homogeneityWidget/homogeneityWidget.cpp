@@ -55,10 +55,18 @@ Crit3DHomogeneityWidget::Crit3DHomogeneityWidget(Crit3DMeteoPointsDbHandler* met
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setAttribute(Qt::WA_DeleteOnClose);
 
-    _jointedPointsIdList << _nearMeteoPointsList[0].id;
+    _jointPointsIdList << _nearMeteoPointsList[0].id;
+    _jointIndexList << 0;
+
     for (int i = 0; i < jointStationsList.size(); i++)
     {
-        _jointedPointsIdList << jointStationsList[i].toStdString();
+        std::string jointId = jointStationsList[i].toStdString();
+        int jointIndex = getJointStationIndex(jointId);
+        if (jointIndex == NODATA)
+            continue;
+
+        _jointPointsIdList << jointId;
+        _jointIndexList << jointIndex;
     }
 
     // layout
@@ -86,7 +94,6 @@ Crit3DHomogeneityWidget::Crit3DHomogeneityWidget(Crit3DMeteoPointsDbHandler* met
     QHBoxLayout *resultLayout = new QHBoxLayout();
     QGroupBox *resultGroupBox = new QGroupBox();
     resultGroupBox->setTitle("Homogeneity results");
-
 
     QLabel *methodLabel = new QLabel(tr("Method: "));
     method.setMaximumWidth(120);
@@ -126,30 +133,23 @@ Crit3DHomogeneityWidget::Crit3DHomogeneityWidget(Crit3DMeteoPointsDbHandler* met
 
     QSqlDatabase myDb = _meteoPointsDbPointer->getDb();
 
-    for (int i = 0; i < jointStationsList.size(); i++)
+    for (int i = 0; i < _jointPointsIdList.size(); i++)
     {
-        int indexMp = -1;
-        for (int j = 0; j<this->_nearMeteoPointsList.size(); j++)
-        {
-            if (this->_nearMeteoPointsList[j].id == jointStationsList[i].toStdString())
-            {
-                indexMp = j;
-                break;
-            }
-        }
-        // load all Data
-        QDate firstDaily = _meteoPointsDbPointer->getFirstDate(daily, jointStationsList[i].toStdString()).date();
-        QDate _lastDaily = _meteoPointsDbPointer->getLastDate(daily, jointStationsList[i].toStdString()).date();
-        if (indexMp != -1)
-        {
-            jointStationsSelected.addItem(QString::fromStdString(this->_nearMeteoPointsList[indexMp].id) + " " + QString::fromStdString(this->_nearMeteoPointsList[indexMp].name));
-            _meteoPointsDbPointer->loadDailyData(myDb, getCrit3DDate(firstDaily), getCrit3DDate(_lastDaily), this->_nearMeteoPointsList[indexMp]);
-        }
+        std::string jointId = _jointPointsIdList[i];
+        int indexJoint = _jointIndexList[i];
+
+        QDate firstDaily = _meteoPointsDbPointer->getFirstDate(daily, jointId).date();
+        QDate _lastDaily = _meteoPointsDbPointer->getLastDate(daily, jointId).date();
+
+        jointStationsSelected.addItem(QString::fromStdString(_nearMeteoPointsList[indexJoint].id) + " "
+                                      + QString::fromStdString(_nearMeteoPointsList[indexJoint].name));
+        _meteoPointsDbPointer->loadDailyData(myDb, getCrit3DDate(firstDaily), getCrit3DDate(_lastDaily),
+                                             _nearMeteoPointsList[indexJoint]);
     }
 
-    for (int i = 1; i<this->_nearMeteoPointsList.size(); i++)
+    for (int i = 1; i < _nearMeteoPointsList.size(); i++)
     {
-        jointStationsCombo.addItem(QString::fromStdString(this->_nearMeteoPointsList[i].id)+" "+QString::fromStdString(this->_nearMeteoPointsList[i].name));
+        jointStationsCombo.addItem(QString::fromStdString(_nearMeteoPointsList[i].id)+" "+QString::fromStdString(this->_nearMeteoPointsList[i].name));
     }
 
     if (jointStationsCombo.count() != 0)
@@ -324,6 +324,19 @@ void Crit3DHomogeneityWidget::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
+
+int Crit3DHomogeneityWidget::getJointStationIndex(const std::string& id)
+{
+    for (int i = 0; i < _nearMeteoPointsList.size(); ++i)
+    {
+        if (_nearMeteoPointsList[i].id == id)
+            return i;
+    }
+
+    return NODATA;
+}
+
+
 void Crit3DHomogeneityWidget::plotAnnualSeries()
 {
     annualSeriesChartView->clearSeries();
@@ -352,10 +365,10 @@ void Crit3DHomogeneityWidget::plotAnnualSeries()
 
     FormInfo formInfo;
     formInfo.showInfo("compute annual series...");
-    // copy data to MPTemp
-    Crit3DMeteoPoint meteoPointTemp;
+
     // copy all data to meteoPointTemp from joint if there are holes
-    if (_jointedPointsIdList.size() != 1)
+    Crit3DMeteoPoint meteoPointTemp;
+    if (_jointPointsIdList.size() != 1)
     {
         int numberOfDays = firstDate.daysTo(lastDate)+1;
         meteoPointTemp.initializeObsDataD(numberOfDays, getCrit3DDate(firstDate));
@@ -490,23 +503,20 @@ void Crit3DHomogeneityWidget::addJointStationClicked()
         deleteJointStation.setEnabled(true);
         saveToDb.setEnabled(true);
         newId = jointStationsCombo.currentText().section(" ",0,0).toStdString();
-        _jointedPointsIdList << newId;
 
-        int indexMp;
-        for (int j = 0; j<_nearMeteoPointsList.size(); j++)
+        int JointIndex = getJointStationIndex(newId);
+        if (JointIndex != NODATA)
         {
-            if (_nearMeteoPointsList[j].id == newId)
-            {
-                indexMp = j;
-                break;
-            }
-        }
-        // load all Data
-        QDate firstDailyNewId = _meteoPointsDbPointer->getFirstDate(daily, newId).date();
-        QDate lastDailyNewId = _meteoPointsDbPointer->getLastDate(daily, newId).date();
+            _jointPointsIdList << newId;
+            _jointIndexList << JointIndex;
 
-        _meteoPointsDbPointer->loadDailyData(myDb, getCrit3DDate(firstDailyNewId), getCrit3DDate(lastDailyNewId), _nearMeteoPointsList[indexMp]);
-        updateYears();
+            // load all Data
+            QDate firstDailyNewId = _meteoPointsDbPointer->getFirstDate(daily, newId).date();
+            QDate lastDailyNewId = _meteoPointsDbPointer->getLastDate(daily, newId).date();
+
+            _meteoPointsDbPointer->loadDailyData(myDb, getCrit3DDate(firstDailyNewId), getCrit3DDate(lastDailyNewId), _nearMeteoPointsList[JointIndex]);
+            updateYears();
+        }
     }
 
 }
@@ -515,17 +525,31 @@ void Crit3DHomogeneityWidget::deleteJointStationClicked()
 {
     QList<QListWidgetItem*> items = jointStationsSelected.selectedItems();
     if (items.isEmpty())
-    {
         return;
-    }
+
     foreach(QListWidgetItem * item, items)
     {
-        _jointedPointsIdList.removeOne(item->text().section(" ",0,0).toStdString());
-        delete jointStationsSelected.takeItem(jointStationsSelected.row(item));
+        std::string jointId = item->text().section(" ", 0, 0).toStdString();
+        int index = NODATA;
+        for (int i = 0; i < _jointPointsIdList.size(); ++i) {
+            if (_jointPointsIdList[i] == jointId)
+            {
+                index = i;
+                break;
+            }
+        }
+        if (index != NODATA)
+        {
+            _jointPointsIdList.removeAt(index);
+            _jointIndexList.removeAt(index);
+            delete jointStationsSelected.takeItem(jointStationsSelected.row(item));
+        }
     }
+
     saveToDb.setEnabled(true);
     updateYears();
 }
+
 
 void Crit3DHomogeneityWidget::saveToDbClicked()
 {
@@ -544,19 +568,18 @@ void Crit3DHomogeneityWidget::saveToDbClicked()
 
 void Crit3DHomogeneityWidget::updateYears()
 {
-
     yearFrom.blockSignals(true);
     yearTo.blockSignals(true);
 
-    for (int i = 1; i<_jointedPointsIdList.size(); i++)
+    for (int i = 1; i < _jointPointsIdList.size(); i++)
     {
-
-        QDate lastDailyJointStation = _meteoPointsDbPointer->getLastDate(daily, _jointedPointsIdList[i]).date();
+        QDate lastDailyJointStation = _meteoPointsDbPointer->getLastDate(daily, _jointPointsIdList[i]).date();
         if (lastDailyJointStation.isValid() && lastDailyJointStation > _lastDaily )
         {
             _lastDaily = lastDailyJointStation;
         }
     }
+
     // save current yearFrom
     QString currentYearFrom = yearFrom.currentText();
     yearFrom.clear();
@@ -738,7 +761,7 @@ void Crit3DHomogeneityWidget::findReferenceStations()
     for (int i = 0; i < _sortedIdList.size(); i++)
     {
         std::string pointId = _sortedIdList[i];
-        if (_jointedPointsIdList.contains(pointId))
+        if (_jointPointsIdList.contains(pointId))
             continue;
 
         if (! _meteoPointsDbPointer->isActivePoint(QString::fromStdString(pointId)))
@@ -1334,7 +1357,6 @@ void Crit3DHomogeneityWidget::executeClicked()
         {
             resultLabel.setText("Series is homogeneous");
         }
-
     }
     else if (method.currentText() == "CRADDOCK")
     {
@@ -1357,6 +1379,7 @@ void Crit3DHomogeneityWidget::executeClicked()
             myD.push_back(vectD);
             mySValues.push_back(vectD);
         }
+
         std::vector<QString> refNames;
         for (int row = 0; row < nrReference; row++)
         {
@@ -1406,6 +1429,7 @@ void Crit3DHomogeneityWidget::executeClicked()
                 }
             }
         }
+
         // sum
         for (int row = 0; row < nrReference; row++)
         {
@@ -1419,10 +1443,11 @@ void Crit3DHomogeneityWidget::executeClicked()
                 }
             }
         }
+
         // draw
         homogeneityChartView->drawCraddock(myFirstYear, myLastYear, mySValues, refNames, myVar, averageValue);
-
     }
+
     formInfo.close();
 }
 
@@ -1434,7 +1459,6 @@ void Crit3DHomogeneityWidget::checkValueAndMerge(const Crit3DMeteoPoint &meteoPo
 
     switch(myVar)
     {
-
     case dailyAirTemperatureAvg:
     {
         float value = meteoPointGet.getMeteoPointValueD(crit3dDate, dailyAirTemperatureAvg, meteoSettings);
@@ -1444,50 +1468,20 @@ void Crit3DHomogeneityWidget::checkValueAndMerge(const Crit3DMeteoPoint &meteoPo
         }
         else
         {
+            // missing data, check joint stations
             if (automaticTmed)
             {
-                float value = meteoPointGet.getMeteoPointValueD(crit3dDate, dailyAirTemperatureMin, meteoSettings);
-                if (value == NODATA)
+                for (int i = 1; i < _jointPointsIdList.size(); i++)
                 {
-                    // missing data, check joint station
-                    for (int i = 1; i < _jointedPointsIdList.size(); i++)
+                    int jointIndex = _jointIndexList[i];
+                    float tMin = _nearMeteoPointsList[jointIndex].getMeteoPointValueD(crit3dDate, dailyAirTemperatureMin, meteoSettings);
+                    if (tMin != NODATA)
                     {
-                        int indexMp;
-                        for (int j = 0; j < _nearMeteoPointsList.size(); j++)
+                        float tMax = _nearMeteoPointsList[jointIndex].getMeteoPointValueD(crit3dDate, dailyAirTemperatureMax, meteoSettings);
+                        if (tMax != NODATA)
                         {
-                            if (_nearMeteoPointsList[j].id == _jointedPointsIdList[i])
-                            {
-                                indexMp = j;
-                                break;
-                            }
-                        }
-                        float valueJoint = _nearMeteoPointsList[indexMp].getMeteoPointValueD(crit3dDate, dailyAirTemperatureMin, meteoSettings);
-                        if (valueJoint != NODATA)
-                        {
-                            meteoPointSet->setMeteoPointValueD(crit3dDate, dailyAirTemperatureMin, valueJoint);
-                            break;
-                        }
-                    }
-                }
-                value = meteoPointGet.getMeteoPointValueD(crit3dDate, dailyAirTemperatureMax, meteoSettings);
-                if (value == NODATA)
-                {
-                    // missing data, check joint station
-                    for (int i = 1; i < _jointedPointsIdList.size(); i++)
-                    {
-                        int indexMp;
-                        for (int j = 0; j<_nearMeteoPointsList.size(); j++)
-                        {
-                            if (_nearMeteoPointsList[j].id == _jointedPointsIdList[i])
-                            {
-                                indexMp = j;
-                                break;
-                            }
-                        }
-                        float valueJoint = _nearMeteoPointsList[indexMp].getMeteoPointValueD(crit3dDate, dailyAirTemperatureMax, meteoSettings);
-                        if (valueJoint != NODATA)
-                        {
-                            meteoPointSet->setMeteoPointValueD(crit3dDate, dailyAirTemperatureMax, valueJoint);
+                            float tAvg = (tMin + tMax) * 0.5;
+                            meteoPointSet->setMeteoPointValueD(crit3dDate, dailyAirTemperatureAvg, tAvg);
                             break;
                         }
                     }
@@ -1496,69 +1490,6 @@ void Crit3DHomogeneityWidget::checkValueAndMerge(const Crit3DMeteoPoint &meteoPo
         }
         break;
     }
-
-    case dailyAirRelHumidityAvg:
-    {
-        float value = meteoPointGet.getMeteoPointValueD(crit3dDate, dailyAirRelHumidityAvg, meteoSettings);
-        if (value != NODATA)
-        {
-            meteoPointSet->setMeteoPointValueD(crit3dDate, dailyAirRelHumidityAvg, value);
-        }
-        else
-        {
-            if (automaticTmed)
-            {
-                float value = meteoPointGet.getMeteoPointValueD(crit3dDate, dailyAirRelHumidityMin, meteoSettings);
-                if (value == NODATA)
-                {
-                    // missing data, check joint station
-                    for (int i = 1; i<_jointedPointsIdList.size(); i++)
-                    {
-                        int indexMp;
-                        for (int j = 0; j<_nearMeteoPointsList.size(); j++)
-                        {
-                            if (_nearMeteoPointsList[j].id == _jointedPointsIdList[i])
-                            {
-                                indexMp = j;
-                                break;
-                            }
-                        }
-                        float valueJoint = _nearMeteoPointsList[indexMp].getMeteoPointValueD(crit3dDate, dailyAirRelHumidityMin, meteoSettings);
-                        if (valueJoint != NODATA)
-                        {
-                            meteoPointSet->setMeteoPointValueD(crit3dDate, dailyAirRelHumidityMin, valueJoint);
-                            break;
-                        }
-                    }
-                }
-                value = meteoPointGet.getMeteoPointValueD(crit3dDate, dailyAirRelHumidityMax, meteoSettings);
-                if (value == NODATA)
-                {
-                    // missing data, check joint station
-                    for (int i = 1; i<_jointedPointsIdList.size(); i++)
-                    {
-                        int indexMp;
-                        for (int j = 0; j<_nearMeteoPointsList.size(); j++)
-                        {
-                            if (_nearMeteoPointsList[j].id == _jointedPointsIdList[i])
-                            {
-                                indexMp = j;
-                                break;
-                            }
-                        }
-                        float valueJoint = _nearMeteoPointsList[indexMp].getMeteoPointValueD(crit3dDate, dailyAirRelHumidityMax, meteoSettings);
-                        if (valueJoint != NODATA)
-                        {
-                            meteoPointSet->setMeteoPointValueD(crit3dDate, dailyAirRelHumidityMax, valueJoint);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-        break;
-    }
-
     default:
     {
         float value = meteoPointGet.getMeteoPointValueD(crit3dDate, myVar, meteoSettings);
@@ -1569,30 +1500,16 @@ void Crit3DHomogeneityWidget::checkValueAndMerge(const Crit3DMeteoPoint &meteoPo
         }
 
         // missing data, check joint stations
-        for (int i = 1; i < _jointedPointsIdList.size(); i++)
+        for (int i = 1; i < _jointPointsIdList.size(); i++)
         {
-            int indexMp = NOLINK;
-            for (int j = 0; j < _nearMeteoPointsList.size(); j++)
+            int indexMp = _jointIndexList[i];
+            float jointValue = _nearMeteoPointsList[indexMp].getMeteoPointValueD(crit3dDate, myVar, meteoSettings);
+            if (jointValue != NODATA)
             {
-                if (_nearMeteoPointsList[j].id == _jointedPointsIdList[i])
-                {
-                    indexMp = j;
-                    break;
-                }
-            }
-
-            if (indexMp != NOLINK)
-            {
-                float jointValue = _nearMeteoPointsList[indexMp].getMeteoPointValueD(crit3dDate, myVar, meteoSettings);
-                if (jointValue != NODATA)
-                {
-                    meteoPointSet->setMeteoPointValueD(crit3dDate, myVar, jointValue);
-                    break;
-                }
+                meteoPointSet->setMeteoPointValueD(crit3dDate, myVar, jointValue);
+                break;
             }
         }
-        break;
     }
-
     }
 }
