@@ -752,7 +752,6 @@ void Crit3DHomogeneityWidget::findReferenceStations()
     }
 
     int nrStations = 0;
-    QSqlDatabase myDb = _meteoPointsDbPointer->getDb();
 
     int nrRequestedStations = minNumStations.text().toInt();
     FormInfo formInfo;
@@ -769,7 +768,7 @@ void Crit3DHomogeneityWidget::findReferenceStations()
 
         Crit3DMeteoPoint mpToBeComputed;
         mpToBeComputed.id = pointId;
-        if (! _meteoPointsDbPointer->loadDailyData(myDb, getCrit3DDate(firstDate), getCrit3DDate(lastDate), mpToBeComputed))
+        if (! _meteoPointsDbPointer->loadDailyData(getCrit3DDate(firstDate), getCrit3DDate(lastDate), mpToBeComputed))
             continue;
 
         QString name = _meteoPointsDbPointer->getNameGivenId(QString::fromStdString(pointId));
@@ -790,7 +789,7 @@ void Crit3DHomogeneityWidget::findReferenceStations()
             {
                 Crit3DMeteoPoint mpGet;
                 mpGet.id = jointStationsList[j].toStdString();
-                if (_meteoPointsDbPointer->loadDailyData(myDb, getCrit3DDate(firstDate), getCrit3DDate(lastDate), mpGet))
+                if (_meteoPointsDbPointer->loadDailyData(getCrit3DDate(firstDate), getCrit3DDate(lastDate), mpGet))
                     jointStationsMpList.push_back(mpGet);
             }
 
