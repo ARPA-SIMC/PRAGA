@@ -142,6 +142,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     showNetcdfGroup->setEnabled(false);
 
+    ui->flagInterpolationParallel_computing->setChecked(myProject.isParallelComputing());
+
     currentPointsVisualization = notShown;
     currentGridVisualization = notShown;
     currentNetcdfVisualization = notShown;
@@ -7341,5 +7343,11 @@ void MainWindow::on_actionInterpolationGlocalLoadWeightMaps_triggered()
 
     if (! isOk)
         myProject.logError();
+}
+
+
+void MainWindow::on_flagInterpolationParallel_computing_triggered(bool isChecked)
+{
+    myProject.setParallelComputing(isChecked);
 }
 

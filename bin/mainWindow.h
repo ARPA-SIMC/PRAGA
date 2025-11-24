@@ -350,6 +350,8 @@
 
         void on_actionInterpolationGlocalLoadWeightMaps_triggered();
 
+        void on_flagInterpolationParallel_computing_triggered(bool isChecked);
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
