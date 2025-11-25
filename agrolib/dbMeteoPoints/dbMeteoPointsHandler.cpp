@@ -391,17 +391,31 @@ QDateTime Crit3DMeteoPointsDbHandler::getLastDate(frequencyType frequency, const
 }
 
 
-bool Crit3DMeteoPointsDbHandler::existData(const Crit3DMeteoPoint &meteoPoint, frequencyType myFreq)
+bool Crit3DMeteoPointsDbHandler::existTable(const Crit3DMeteoPoint &meteoPoint, frequencyType myFrequency)
 {
-    QSqlQuery query(_db);
-    QString tableName = QString::fromStdString(meteoPoint.id) + ((myFreq == daily) ?  "_D" : "_H");
-    QString statement = QString( "SELECT 1 FROM `%1`").arg(tableName);
+    return existTable(_db, meteoPoint, myFrequency);
+}
+
+/*
+bool Crit3DMeteoPointsDbHandler::existData(const QSqlDatabase &myDb, const Crit3DMeteoPoint &meteoPoint, frequencyType myFrequency)
+{
+    QSqlQuery query(myDb);
+    QString tableName = QString::fromStdString(meteoPoint.id) + ((myFrequency == daily) ?  "_D" : "_H");
+    QString statement = QString("SELECT 1 FROM `%1`").arg(tableName);
 
     if (query.exec(statement))
         if (query.next())
             return true;
 
     return false;
+}
+*/
+
+bool Crit3DMeteoPointsDbHandler::existTable(const QSqlDatabase &myDb, const Crit3DMeteoPoint &meteoPoint, frequencyType myFrequency)
+{
+    QString tableName = QString::fromStdString(meteoPoint.id) + ((myFrequency == daily) ? "_D" : "_H");
+
+    return myDb.tables().contains(tableName, Qt::CaseInsensitive);
 }
 
 
@@ -530,7 +544,6 @@ bool Crit3DMeteoPointsDbHandler::loadDailyData(const Crit3DDate &firstDate, cons
     return loadDailyData(_db, firstDate, lastDate, meteoPoint);
 }
 
-
 bool Crit3DMeteoPointsDbHandler::loadDailyData(const QSqlDatabase &myDb, const Crit3DDate &firstDate,
                                                const Crit3DDate &lastDate, Crit3DMeteoPoint &meteoPoint)
 {
@@ -540,6 +553,10 @@ bool Crit3DMeteoPointsDbHandler::loadDailyData(const QSqlDatabase &myDb, const C
         _errorStr = "wrong dates: first > last";
         return false;
     }
+
+    // check table
+    if (! existTable(myDb, meteoPoint, daily))
+        return false;
 
     int numberOfDays = difference(firstDate, lastDate) + 1;
     meteoPoint.obsDataD.clear();
@@ -610,7 +627,6 @@ bool Crit3DMeteoPointsDbHandler::loadHourlyData(const Crit3DDate &firstDate,
     return loadHourlyData(_db, firstDate, lastDate, meteoPoint);
 }
 
-
 bool Crit3DMeteoPointsDbHandler::loadHourlyData(const QSqlDatabase &myDb, const Crit3DDate &firstDate,
                                                 const Crit3DDate &lastDate, Crit3DMeteoPoint &meteoPoint)
 {
@@ -620,6 +636,10 @@ bool Crit3DMeteoPointsDbHandler::loadHourlyData(const QSqlDatabase &myDb, const 
         _errorStr = "wrong dates: firstDate > lastDate";
         return false;
     }
+
+    // check table
+    if (! existTable(myDb, meteoPoint, hourly))
+        return false;
 
     // initialize obs data
     int numberOfDays = difference(firstDate, lastDate) + 1;
