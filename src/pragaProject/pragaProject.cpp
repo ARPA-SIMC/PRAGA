@@ -781,10 +781,10 @@ void PragaProject::readClimate(bool isMeteoGrid, QString climateSelected, int cl
         if (showInfo)
         {
             infoStr = "Read Climate - Meteo Points";
-            infoStep = setProgressBar(infoStr, nrMeteoPoints);
+            infoStep = setProgressBar(infoStr, (int)meteoPoints.size());
         }
         db = this->meteoPointsDbHandler->getDb();
-        for (int i = 0; i < nrMeteoPoints; i++)
+        for (int i = 0; i < meteoPoints.size(); i++)
         {
             if (meteoPoints[i].active)
             {
@@ -889,7 +889,7 @@ bool PragaProject::computeElaborationHourly(bool isMeteoGrid, bool isShowInfo)
 bool PragaProject::elaborationCyclePoints(bool isAnomaly, bool showInfo)
 {
     // initialize
-    for (int i = 0; i < nrMeteoPoints; i++)
+    for (int i = 0; i < meteoPoints.size(); i++)
     {
         if (! isAnomaly)
         {
@@ -912,7 +912,7 @@ bool PragaProject::elaborationCyclePoints(bool isAnomaly, bool showInfo)
         if (showInfo)
         {
             infoStr = "Anomaly - Meteo Points";
-            infoStep = setProgressBar(infoStr, nrMeteoPoints);
+            infoStep = setProgressBar(infoStr, (int)meteoPoints.size());
         }
     }
     else
@@ -921,7 +921,7 @@ bool PragaProject::elaborationCyclePoints(bool isAnomaly, bool showInfo)
         if (showInfo)
         {
             infoStr = "Elaboration - Meteo Points";
-            infoStep = setProgressBar(infoStr, nrMeteoPoints);
+            infoStep = setProgressBar(infoStr, (int)meteoPoints.size());
         }
     }
 
@@ -1042,7 +1042,7 @@ bool PragaProject::elaborationCyclePoints(bool isAnomaly, bool showInfo)
     Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
     bool dataAlreadyLoaded = false;
 
-    for (int i = 0; i < nrMeteoPoints; i++)
+    for (int i = 0; i < meteoPoints.size(); i++)
     {
         if (meteoPoints[i].active)
         {
@@ -1063,7 +1063,7 @@ bool PragaProject::elaborationCyclePoints(bool isAnomaly, bool showInfo)
 
             if (isAnomaly && climaUsed->getIsClimateAnomalyFromDb())
             {
-                if ( passingClimateToAnomaly(&errorString, meteoPointTemp, climaUsed, meteoPoints, nrMeteoPoints, clima->getElabSettings()) )
+                if ( passingClimateToAnomaly(&errorString, meteoPointTemp, climaUsed, meteoPoints, clima->getElabSettings()) )
                     nrValidPoints++;
             }
             else
@@ -1106,13 +1106,13 @@ bool PragaProject::elaborationCyclePointsHourly(bool showInfo)
     int infoStep;
     if (showInfo)
     {
-        infoStep = setProgressBar("Elaboration - Meteo Points", nrMeteoPoints);
+        infoStep = setProgressBar("Elaboration - Meteo Points", (int)meteoPoints.size());
     }
 
     int nrValidPoints = 0;
     bool isMeteoGrid = false;
 
-    for (int i = 0; i < nrMeteoPoints; i++)
+    for (int i = 0; i < meteoPoints.size(); i++)
     {
         if (showInfo && (i % infoStep) == 0)
             updateProgressBar(i);
@@ -1459,7 +1459,7 @@ bool PragaProject::climateCyclePoints(bool showInfo)
     if (showInfo)
     {
         infoStr = "Climate  - Meteo Points";
-        infoStep = setProgressBar(infoStr, nrMeteoPoints);
+        infoStep = setProgressBar(infoStr, (int)meteoPoints.size());
     }
     // parser all the list
     Crit3DClimateList* climateList = clima->getListElab();
@@ -1473,7 +1473,7 @@ bool PragaProject::climateCyclePoints(bool showInfo)
     }
 
     Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
-    for (int i = 0; i < nrMeteoPoints; i++)
+    for (int i = 0; i < meteoPoints.size(); i++)
     {
         if (meteoPoints[i].active)
         {
@@ -1711,7 +1711,7 @@ bool PragaProject::climateCycleGrid(bool showInfo)
 bool PragaProject::downloadDailyDataArkimet(QList<QString> variables, bool prec0024, QDate startDate, QDate endDate, bool showInfo)
 {
     // check meteo point
-    if (! meteoPointsLoaded || nrMeteoPoints == 0)
+    if (! meteoPointsLoaded || meteoPoints.size() == 0)
     {
         logError("No meteo points");
         return false;
@@ -1749,8 +1749,8 @@ bool PragaProject::downloadDailyDataArkimet(QList<QString> variables, bool prec0
     }
 
     int index = 0;
-    bool isSelection = isSelectionPointsActive(meteoPoints, nrMeteoPoints);
-    for( int i=0; i < nrMeteoPoints; i++ )
+    bool isSelection = isSelectionPointsActive(meteoPoints);
+    for( int i=0; i < meteoPoints.size(); i++ )
     {
         if (!isSelection || meteoPoints[i].selected)
         {
@@ -1838,8 +1838,8 @@ bool PragaProject::downloadHourlyDataArkimet(QList<QString> variables, QDate sta
     QList<QString> datasetList;
     QList<QList<QString>> idList;
 
-    bool isSelection = isSelectionPointsActive(meteoPoints, nrMeteoPoints);
-    for( int i=0; i < nrMeteoPoints; i++ )
+    bool isSelection = isSelectionPointsActive(meteoPoints);
+    for( int i=0; i < meteoPoints.size(); i++ )
     {
         if (! isSelection || meteoPoints[i].selected)
         {
@@ -2589,7 +2589,7 @@ bool PragaProject::interpolationOutputPointsPeriod(QDate firstDate, QDate lastDa
         return false;
     }
 
-    if (! meteoPointsLoaded || nrMeteoPoints == 0)
+    if (! meteoPointsLoaded || meteoPoints.size() == 0)
     {
         errorString = "No meteo points";
         return false;
@@ -2965,7 +2965,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
     }
 
     // check meteo point
-    if (! meteoPointsLoaded || nrMeteoPoints == 0)
+    if (! meteoPointsLoaded || meteoPoints.size() == 0)
     {
         errorString = "No meteo points";
         return false;
@@ -3207,7 +3207,7 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
     logInfoGUI("Starting up...");
 
     // check meteo point
-    if (! meteoPointsLoaded || nrMeteoPoints == 0)
+    if (! meteoPointsLoaded || meteoPoints.size() == 0)
     {
         errorString = "No meteo points";
         return false;
@@ -3410,7 +3410,7 @@ bool PragaProject::dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, me
             if (myFreq == daily)
             {
                 counter = 0;
-                for (i = 0; i < nrMeteoPoints; i++)
+                for (i = 0; i < meteoPoints.size(); i++)
                     if (dataset == "" || meteoPoints[i].dataset == dataset.toStdString())
                         if (! isEqual(meteoPoints[i].getMeteoPointValueD(getCrit3DDate(myDate), myVar, meteoSettings), NODATA)) counter++;
 
@@ -3421,7 +3421,7 @@ bool PragaProject::dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, me
                 for (myHour = 1; myHour <= 24; myHour++)
                 {
                     counter = 0;
-                    for (i = 0; i < nrMeteoPoints; i++)
+                    for (i = 0; i < meteoPoints.size(); i++)
                         if (dataset == "" || meteoPoints[i].dataset == dataset.toStdString())
                             if (! isEqual(meteoPoints[i].getMeteoPointValueH(getCrit3DDate(myDate), myHour, 0, myVar), NODATA)) counter++;
 
@@ -3607,7 +3607,7 @@ void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint)
     meteoPointsWidgetList.append(mp);
     double mpUtmX = mp.point.utm.x;
     double mpUtmY = mp.point.utm.y;
-    for (int i = 0; i < nrMeteoPoints; i++)
+    for (int i = 0; i < meteoPoints.size(); i++)
     {
         if (meteoPoints[i].id != idMeteoPoint)
         {
@@ -3669,7 +3669,7 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
     nearMeteoPointsList.append(mp);
     double mpUtmX = mp.point.utm.x;
     double mpUtmY = mp.point.utm.y;
-    for (int i = 0; i < nrMeteoPoints; i++)
+    for (int i = 0; i < meteoPoints.size(); i++)
     {
         if (meteoPoints[i].id != idMeteoPoint)
         {
@@ -3725,10 +3725,10 @@ void PragaProject::showSynchronicityTestWidgetPoint(std::string idMeteoPoint)
     }
     closeLogInfo();
 
-    Crit3DMeteoPoint* otherMeteoPoints = new Crit3DMeteoPoint[unsigned(nrMeteoPoints-1)];
+    Crit3DMeteoPoint* otherMeteoPoints = new Crit3DMeteoPoint[unsigned(meteoPoints.size()-1)];
     int j = 0;
     int indexMp = 0;
-    for (int i=0; i < nrMeteoPoints; i++)
+    for (int i=0; i < meteoPoints.size(); i++)
     {
         if (meteoPoints[i].id != idMeteoPoint)
         {
@@ -3742,7 +3742,7 @@ void PragaProject::showSynchronicityTestWidgetPoint(std::string idMeteoPoint)
     }
 
     synchronicityWidget = new Crit3DSynchronicityWidget(meteoPointsDbHandler, meteoPoints[indexMp], gisSettings, firstDaily, lastDaily, meteoSettings, pragaDefaultSettings,
-                                                        &climateParameters, quality, interpolationSettings, qualityInterpolationSettings, checkSpatialQuality, otherMeteoPoints, nrMeteoPoints-1);
+                                                        &climateParameters, quality, interpolationSettings, qualityInterpolationSettings, checkSpatialQuality, otherMeteoPoints, (int)meteoPoints.size()-1);
     connect(synchronicityWidget, &Crit3DSynchronicityWidget::closeSynchWidget,[=]() { this->deleteSynchWidget(); });
     if (synchReferencePoint != "")
     {
@@ -4834,7 +4834,7 @@ bool PragaProject::computeDroughtIndexPoint(droughtIndex index, int timescale, i
     if (showInfo)
     {
         QString infoStr = "Compute drought - Meteo Points";
-        step = setProgressBar(infoStr, nrMeteoPoints);
+        step = setProgressBar(infoStr, (int)meteoPoints.size());
     }
 
     std::vector<meteoVariable> dailyMeteoVar;
@@ -4842,7 +4842,7 @@ bool PragaProject::computeDroughtIndexPoint(droughtIndex index, int timescale, i
     dailyMeteoVar.push_back(dailyReferenceEvapotranspirationHS);
     int nrMonths = (lastDate.year()-firstDate.year())*12+lastDate.month()-(firstDate.month()-1);
 
-    for (int i=0; i < nrMeteoPoints; i++)
+    for (int i=0; i < meteoPoints.size(); i++)
     {
         myDate = firstDate;
         if (showInfo && (i % step) == 0)
@@ -4965,7 +4965,7 @@ bool PragaProject::computeDroughtIndexPointGUI(droughtIndex index, int timescale
     if (showInfo)
     {
         QString infoStr = "Compute drought - Meteo Points";
-        step = setProgressBar(infoStr, nrMeteoPoints);
+        step = setProgressBar(infoStr, (int)meteoPoints.size());
     }
 
     std::vector<meteoVariable> dailyMeteoVar;
@@ -4976,7 +4976,7 @@ bool PragaProject::computeDroughtIndexPointGUI(droughtIndex index, int timescale
     float value = NODATA;
 
     int nrMonths = (lastDate.year()-firstDate.year())*12 + lastDate.month() - (firstDate.month()-1);
-    for (int i = 0; i < nrMeteoPoints; i++)
+    for (int i = 0; i < meteoPoints.size(); i++)
     {
         if (showInfo && (i % step) == 0)
         {
@@ -5276,7 +5276,7 @@ bool PragaProject::computeClimatePointXML(QString xmlName)
     QDate endDate;
     Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
 
-    for (int i = 0; i < nrMeteoPoints; i++)
+    for (int i = 0; i < meteoPoints.size(); i++)
     {
         if (meteoPoints[i].active)
         {
@@ -5501,7 +5501,7 @@ bool PragaProject::computeRadiationList(QString fileName, int nrDaysLoading, QSt
 
     QSqlDatabase myDb = meteoPointsDbHandler->getDb();
 
-    for (int i=0; i < nrMeteoPoints; i++)
+    for (int i=0; i < meteoPoints.size(); i++)
     {
         if (! meteoPointsDbHandler->loadHourlyData(myDb, loadIniDateFixed, loadEndDateFixed, meteoPoints[i]))
         {
@@ -5565,12 +5565,12 @@ bool PragaProject::computeRadiationList(QString fileName, int nrDaysLoading, QSt
             interpolationPoints.clear();
 
             //air temperature
-            if (checkAndPassDataToInterpolation(quality, airTemperature, meteoPoints, nrMeteoPoints, myTime,
+            if (checkAndPassDataToInterpolation(quality, airTemperature, meteoPoints, myTime,
                                                 qualityInterpolationSettings, interpolationSettings, meteoSettings,
                                                 &climateParameters, interpolationPoints,
                                                 checkSpatialQuality, errorStdStr) &&
                 preInterpolation(interpolationPoints, interpolationSettings, meteoSettings, &climateParameters,
-                                 meteoPoints, nrMeteoPoints, airTemperature, myTime, errorStdStr))
+                                 meteoPoints, airTemperature, myTime, errorStdStr))
             {
                 myTemperature = interpolate(interpolationPoints, interpolationSettings, meteoSettings, airTemperature, utmX, utmY,
                                             myPoint.radPoint.height, myProxyValues, false);
@@ -5602,7 +5602,7 @@ bool PragaProject::computeRadiationList(QString fileName, int nrDaysLoading, QSt
 
             intervalWidth = radiation::estimateTransmissivityWindow(&radSettings, DEM, DEM.getCenter(), myTime, int(HOUR_SECONDS));
 
-            if (! computeTransmissivity(&radSettings, meteoPoints, nrMeteoPoints, intervalWidth, myTime, DEM))
+            if (! computeTransmissivity(&radSettings, meteoPoints, intervalWidth, myTime, DEM))
             {
                 logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
                 logInfo("Error computing transmissivity.");
@@ -5617,12 +5617,12 @@ bool PragaProject::computeRadiationList(QString fileName, int nrDaysLoading, QSt
 
             interpolationPoints.clear();
 
-            if (checkAndPassDataToInterpolation(quality, atmTransmissivity, meteoPoints, nrMeteoPoints, myTime,
+            if (checkAndPassDataToInterpolation(quality, atmTransmissivity, meteoPoints, myTime,
                                                 qualityInterpolationSettings, interpolationSettings, meteoSettings,
                                                 &climateParameters, interpolationPoints,
                                                 checkSpatialQuality, errorStdStr) &&
                 preInterpolation(interpolationPoints, interpolationSettings, meteoSettings, &climateParameters,
-                                 meteoPoints, nrMeteoPoints, atmTransmissivity, myTime, errorStdStr))
+                                 meteoPoints, atmTransmissivity, myTime, errorStdStr))
             {
                 myTransmissivity = interpolate(interpolationPoints, interpolationSettings, meteoSettings, atmTransmissivity, utmX,
                                                utmY, myPoint.radPoint.height, myProxyValues, false);
@@ -5800,12 +5800,12 @@ bool PragaProject::computeRadiationList(QString fileName, int nrDaysLoading, QSt
                         interpolationPoints.clear();
 
                         //air temperature
-                        if (checkAndPassDataToInterpolation(quality, airTemperature, meteoPoints, nrMeteoPoints, myTime,
+                        if (checkAndPassDataToInterpolation(quality, airTemperature, meteoPoints, meteoPoints.size(), myTime,
                                                             qualityInterpolationSettings, interpolationSettings, meteoSettings,
                                                             &climateParameters, interpolationPoints,
                                                             checkSpatialQuality, errorStdStr) &&
                                 preInterpolation(interpolationPoints, interpolationSettings, meteoSettings, &climateParameters,
-                                                 meteoPoints, nrMeteoPoints, airTemperature, myTime, errorStdStr))
+                                                 meteoPoints, meteoPoints.size(), airTemperature, myTime, errorStdStr))
                         {
                             myTemperature = interpolate(interpolationPoints, interpolationSettings, meteoSettings, airTemperature, utmX, utmY,
                                                         myPoint.radPoint.height, myProxyValues, false);
@@ -5837,7 +5837,7 @@ bool PragaProject::computeRadiationList(QString fileName, int nrDaysLoading, QSt
 
                         intervalWidth = radiation::estimateTransmissivityWindow(&radSettings, DEM, DEM.getCenter(), myTime, int(HOUR_SECONDS));
 
-                        if (! computeTransmissivity(&radSettings, meteoPoints, nrMeteoPoints, intervalWidth, myTime, DEM))
+                        if (! computeTransmissivity(&radSettings, meteoPoints, meteoPoints.size(), intervalWidth, myTime, DEM))
                         {
                             logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
                             logInfo("Error computing transmissivity.");
@@ -5852,12 +5852,12 @@ bool PragaProject::computeRadiationList(QString fileName, int nrDaysLoading, QSt
 
                         interpolationPoints.clear();
 
-                        if (checkAndPassDataToInterpolation(quality, atmTransmissivity, meteoPoints, nrMeteoPoints, myTime,
+                        if (checkAndPassDataToInterpolation(quality, atmTransmissivity, meteoPoints, meteoPoints.size(), myTime,
                                                             qualityInterpolationSettings, interpolationSettings, meteoSettings,
                                                             &climateParameters, interpolationPoints,
                                                             checkSpatialQuality, errorStdStr) &&
                                 preInterpolation(interpolationPoints, interpolationSettings, meteoSettings, &climateParameters,
-                                                 meteoPoints, nrMeteoPoints, atmTransmissivity, myTime, errorStdStr))
+                                                 meteoPoints, meteoPoints.size(), atmTransmissivity, myTime, errorStdStr))
                         {
                             myTransmissivity = interpolate(interpolationPoints, interpolationSettings, meteoSettings, atmTransmissivity, utmX,
                                                            utmY, myPoint.radPoint.height, myProxyValues, false);
@@ -6075,7 +6075,7 @@ bool PragaProject::writeMeteoPointsProperties(const QList<QString> &joinedProper
 bool PragaProject::shiftMeteoPointsData(bool isAllPoints)
 {
     QList<QString> pointList;
-    for (int i = 0; i < nrMeteoPoints; i++)
+    for (int i = 0; i < meteoPoints.size(); i++)
     {
         if (isAllPoints || meteoPoints[i].selected)
         {

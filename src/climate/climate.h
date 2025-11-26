@@ -67,9 +67,10 @@
 
     std::vector<float> aggregatedHourlyToDailyList(meteoVariable myVar, Crit3DMeteoPoint* meteoPoint, Crit3DDate dateIni, Crit3DDate dateFin, Crit3DMeteoSettings *meteoSettings);
 
-    bool anomalyOnPoint(Crit3DMeteoPoint* meteoPoint, float refValue);
+    bool anomalyOnPoint(Crit3DMeteoPoint *meteoPoint, float refValue);
 
-    bool passingClimateToAnomaly(QString *myError, Crit3DMeteoPoint* meteoPointTemp, Crit3DClimate* clima, Crit3DMeteoPoint *meteoPoints, int nrMeteoPoints, Crit3DElaborationSettings *elabSettings);
+    bool passingClimateToAnomaly(QString *myError, Crit3DMeteoPoint* meteoPointTemp, Crit3DClimate* clima,
+                                 std::vector<Crit3DMeteoPoint> &meteoPoints, Crit3DElaborationSettings *elabSettings);
 
     bool passingClimateToAnomalyGrid(QString *myError, Crit3DMeteoPoint* meteoPointTemp, Crit3DClimate* clima);
 

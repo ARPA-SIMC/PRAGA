@@ -162,12 +162,13 @@ bool anomalyOnPoint(Crit3DMeteoPoint* meteoPoint, float refValue)
         meteoPoint->anomaly = NODATA;
         meteoPoint->anomalyPercentage = NODATA;
     }
-    return anomalyOnPoint;
 
+    return anomalyOnPoint;
 }
 
 
-bool passingClimateToAnomaly(QString *myError, Crit3DMeteoPoint* meteoPointTemp, Crit3DClimate* clima, Crit3DMeteoPoint* meteoPoints, int nrMeteoPoints, Crit3DElaborationSettings *elabSettings)
+bool passingClimateToAnomaly(QString *myError, Crit3DMeteoPoint* meteoPointTemp, Crit3DClimate* clima,
+                             std::vector<Crit3DMeteoPoint> &meteoPoints, Crit3DElaborationSettings *elabSettings)
 {
     float valueClimate;
     QString table = getTable(clima->climateElab());
@@ -200,7 +201,7 @@ bool passingClimateToAnomaly(QString *myError, Crit3DMeteoPoint* meteoPointTemp,
 
         for (int i = 0; i < idList.size(); i++)
         {
-            for (int j = 0; j < nrMeteoPoints; j++)
+            for (int j = 0; j < meteoPoints.size(); j++)
             {
                 if ( QString::fromStdString(meteoPoints[j].id) == idList[i])
                 {
