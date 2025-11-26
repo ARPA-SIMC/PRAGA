@@ -1,6 +1,8 @@
 #ifndef PRAGAPROJECT_H
 #define PRAGAPROJECT_H
 
+    #define PRAGAVERSION "PRAGA v2.1.0 (2025)"
+
     #ifndef CRIT3DCLIMATE_H
         #include "crit3dClimate.h"
     #endif
@@ -85,8 +87,6 @@
 
         void initializePragaProject();
         void clearPragaProject();
-
-        QString getVersion();
 
         void createPragaProject(QString path_, QString name_, QString description_);
         void savePragaProject();

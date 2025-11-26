@@ -69,11 +69,6 @@ void PragaProject::clearPragaProject()
     }
 }
 
-QString PragaProject::getVersion()
-{
-    return "PRAGA v2.0.9 (2025)";
-}
-
 void PragaProject::createPragaProject(QString path_, QString name_, QString description_)
 {
     createProject(path_, name_, description_);
@@ -460,7 +455,7 @@ int PragaProject::pragaShell()
         openNewConsole();
     #endif
 
-    logInfo(getVersion());
+    logInfo(PRAGAVERSION);
 
     while (! isRequestedExit())
     {
@@ -493,7 +488,7 @@ int PragaProject::pragaBatch(const QString &scriptFileName)
         attachOutputToConsole();
     #endif
 
-    logInfo(getVersion() + "\n");
+    logInfo(QString(PRAGAVERSION) + "\n");
 
     int result = executeScript(scriptFileName);
     if (result != PRAGA_OK)

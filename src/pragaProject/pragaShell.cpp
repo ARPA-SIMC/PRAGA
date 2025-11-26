@@ -54,7 +54,7 @@ int cmdList(PragaProject* myProject)
 
 int pragaVersion(PragaProject* myProject)
 {
-    myProject->logInfo(myProject->getVersion());
+    myProject->logInfo(PRAGAVERSION);
 
     return PRAGA_OK;
 }

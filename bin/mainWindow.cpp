@@ -159,7 +159,7 @@ MainWindow::MainWindow(QWidget *parent) :
     updateVariable();
     updateDateTime();
 
-    setWindowTitle(myProject.getVersion());
+    setWindowTitle(PRAGAVERSION);
 
     #ifndef NETCDF
         ui->menuFileNetCDF->setEnabled(false);
@@ -3224,7 +3224,7 @@ void MainWindow::on_actionSpatialAggregationAssignAltitude_triggered()
 
 void MainWindow::drawWindowTitle()
 {
-    QString title = myProject.getVersion();
+    QString title = PRAGAVERSION;
     if (myProject.getProjectName() != "")
         title += " - " + myProject.getProjectName();
 
@@ -4428,7 +4428,7 @@ void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
         return;
     }
 
-    myProject.setProgressBar("Checking points...", myProject.meteoPoints.size());
+    myProject.setProgressBar("Checking points...", (int)myProject.meteoPoints.size());
     QList<QString> pointList;
     for (int i = 0; i < myProject.meteoPoints.size(); i++)
     {
@@ -6696,11 +6696,11 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
 
     if (allPoints)
     {
-        myProject.setProgressBar("Exporting points...", myProject.meteoPoints.size());
+        myProject.setProgressBar("Exporting points...", (int)myProject.meteoPoints.size());
         for (int i = 0; i < myProject.meteoPoints.size(); i++)
         {
             myProject.updateProgressBar(i);
-            if (!myProject.loadXMLExportData(QString::fromStdString(myProject.meteoPoints[i].id), myFirstTime, myLastTime))
+            if (! myProject.loadXMLExportData(QString::fromStdString(myProject.meteoPoints[i].id), myFirstTime, myLastTime))
             {
                     myProject.logError();
                     myProject.closeProgressBar();
@@ -7096,7 +7096,7 @@ void MainWindow::on_actionShowPointsCVResidual_triggered()
 
 void MainWindow::on_actionShowInfo_triggered()
 {
-    QString helpStr = "*** " + myProject.getVersion() + " ***";
+    QString helpStr = "*** " + QString(PRAGAVERSION) + " ***";
     helpStr += "\n\nARPAE Emilia-Romagna\nHydro-Meteo-Climate Service";
     helpStr += "\n\nAUTHORS:";
     helpStr += "\n- Gabriele Antolini   gantolini@arpae.it";
