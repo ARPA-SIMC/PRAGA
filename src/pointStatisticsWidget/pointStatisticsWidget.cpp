@@ -70,7 +70,7 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
             std::string jointId = jointStationsList[j].toStdString();
             int jointIndex = getJointStationIndex(jointId);
             if (jointIndex == NODATA)
-                break;
+                break; //CT continue would be better?
 
             _idPointList << jointId;
             _jointIndexList << jointIndex;

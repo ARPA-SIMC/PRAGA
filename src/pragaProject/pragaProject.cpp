@@ -3617,6 +3617,14 @@ void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint)
                 }
             }
         }
+
+        //add joint stations to meteopoint given to the widget
+        for (int k = 0; k < jointStationsMp.size(); k++)
+        {
+            if (meteoPoints[i].id == jointStationsMp[k].toStdString())
+                meteoPointsWidgetList.append(meteoPoints[i]);
+        }
+
     }
 
     bool isGrid = false;
@@ -3682,6 +3690,14 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
                     myDistances.push_back(currentDist);
                     myIndeces.push_back(i);
                 }
+            }        
+        }
+        //add joint stations to meteopoints given to the widget
+        for (int k = 0; k < jointStationsList.size(); k++)
+        {
+            if (meteoPoints[i].id == jointStationsList[k].toStdString())
+            {
+                nearMeteoPointsList.append(meteoPoints[i]);
             }
         }
     }
