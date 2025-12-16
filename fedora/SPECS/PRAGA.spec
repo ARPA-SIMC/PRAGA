@@ -1,10 +1,10 @@
-%global releaseno 2
+%global releaseno 1
 
 # Note: define srcarchivename in CI build only.
 %{!?srcarchivename: %global srcarchivename %{name}-%{version}-%{releaseno}}
 
 Name:           PRAGA
-Version:        2.0.9
+Version:        2.1.1
 Release:        %{releaseno}%{?dist}
 Summary:        PRogram for AGrometeorological Analysis
 
@@ -57,6 +57,9 @@ cp -a bin/PRAGA %{buildroot}/%{_bindir}/
 
 
 %changelog
+* Tue Dec 16 2025 Caterina Toscano <ctoscano@arpae.it> - 2.1.1-1
+- Release 2.1.1
+
 * Wed Oct 29 2025 Caterina Toscano <ctoscano@arpae.it> - 2.0.9-2
 - Release 2.0.9
 

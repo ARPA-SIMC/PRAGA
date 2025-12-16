@@ -1,7 +1,7 @@
 #ifndef PRAGAPROJECT_H
 #define PRAGAPROJECT_H
 
-    #define PRAGAVERSION "PRAGA v2.1.0 (2025)"
+    #define PRAGAVERSION "PRAGA v2.1.1 (2026)"
 
     #ifndef CRIT3DCLIMATE_H
         #include "crit3dClimate.h"
