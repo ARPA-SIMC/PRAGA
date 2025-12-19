@@ -1806,6 +1806,15 @@ bool PragaProject::downloadDailyDataArkimet(QList<QString> variables, bool prec0
             closeProgressBar();
     }
 
+    if (dbPointsFileName != "")
+        if (! loadMeteoPointsDB(dbPointsFileName))
+        {
+            errorString = "load Meteo Points DB failed:\n" + dbPointsFileName;
+            errorType = ERROR_DBPOINT;
+            logError();
+            return false;
+        }
+
     delete myDownload;
     return true;
 }
@@ -1896,6 +1905,15 @@ bool PragaProject::downloadHourlyDataArkimet(QList<QString> variables, QDate sta
             closeProgressBar();
         }
     }
+
+    if (dbPointsFileName != "")
+        if (! loadMeteoPointsDB(dbPointsFileName))
+        {
+            errorString = "load Meteo Points DB failed:\n" + dbPointsFileName;
+            errorType = ERROR_DBPOINT;
+            logError();
+            return false;
+        }
 
     delete myDownload;
     return true;
@@ -3114,7 +3132,6 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
             if (! loadMeteoPointsData(myDate.addDays(-1), loadDateFin, isHourly, isDaily, false))
                 return false;
         }
-
         // check proxy grid series
         if (useProxies && currentYear != myDate.year())
         {
