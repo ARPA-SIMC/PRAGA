@@ -5528,15 +5528,14 @@ bool PragaProject::computeRadiationList(QString fileName, int nrDaysLoading, QSt
 
 
     QSqlDatabase myDb = meteoPointsDbHandler->getDb();
+    int stationsWithData = 0;
 
     for (int i=0; i < meteoPoints.size(); i++)
     {
-        if (! meteoPointsDbHandler->loadHourlyData(myDb, loadIniDateFixed, loadEndDateFixed, meteoPoints[i]))
-        {
-            logError("Error loading hourly data.");
-            return false;
-        }
+        if (meteoPointsDbHandler->loadHourlyData(myDb, loadIniDateFixed, loadEndDateFixed, meteoPoints[i])) stationsWithData++;
     }
+
+    logInfo("Hourly data present in " + QString::number(stationsWithData) + " stations.");
 
     //elaborazione sui punti del file di input
     TelabRadPoint myPoint;
