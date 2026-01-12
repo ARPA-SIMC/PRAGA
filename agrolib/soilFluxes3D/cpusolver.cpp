@@ -159,6 +159,7 @@ namespace soilFluxes3D::v2
     balanceResult_t CPUSolver::waterApproximationLoop(double deltaT)
     {
         balanceResult_t balanceResult = balanceResult_t::stepRefused;
+        _bestMBRerror = noDataD;
 
         for(u8_t approxIdx = 0; approxIdx < _parameters.maxApproximationsNumber; ++approxIdx)
         {
@@ -189,12 +190,23 @@ namespace soilFluxes3D::v2
 
             nodeGrid.waterData.CourantWaterLevel = courantMax;
 
-            //Check Courant
-            if((nodeGrid.waterData.CourantWaterLevel > 1.) && (deltaT > _parameters.deltaTmin))
+            // check Courant
+            if((nodeGrid.waterData.CourantWaterLevel > 1.01) && (deltaT > _parameters.deltaTmin))
             {
-                _parameters.deltaTcurr = SF3Dmax(_parameters.deltaTmin, _parameters.deltaTcurr / nodeGrid.waterData.CourantWaterLevel);
-                if(_parameters.deltaTcurr > 1.)
-                    _parameters.deltaTcurr = std::floor(_parameters.deltaTcurr);
+                _parameters.deltaTcurr /= nodeGrid.waterData.CourantWaterLevel;
+
+                int multiply = 0;
+                while (_parameters.deltaTcurr < 10.)
+                {
+                    _parameters.deltaTcurr *= 10.;
+                    ++multiply;
+                }
+                _parameters.deltaTcurr = std::floor(_parameters.deltaTcurr);
+
+                for (int i = 0; i < multiply; i++)
+                    _parameters.deltaTcurr /= 10.;
+
+                _parameters.deltaTcurr = SF3Dmax(_parameters.deltaTmin, _parameters.deltaTcurr);
 
                 return balanceResult_t::stepHalved;
             }
