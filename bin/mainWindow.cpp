@@ -5249,7 +5249,7 @@ void MainWindow::on_actionFileDemOpen_triggered()
 {
     QString defaultPath = myProject.getProjectPath() + PATH_DEM;
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Digital Elevation Model"), defaultPath,
-                                                    tr("ESRI FLT (*.flt);;ENVI IMG (*.img)"));
+                                                    tr("ESRI float (*.flt);;ESRI ascii (*.asc);;ENVI image (*.img)"));
     if (fileName.isEmpty())
         return;
 
