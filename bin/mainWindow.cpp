@@ -1044,6 +1044,8 @@ void MainWindow::interpolateDemGUI()
 
 void MainWindow::interpolateGridGUI()
 {
+    myProject.assignProxyValues(myProject.getCurrentVariable());
+
     if (myProject.interpolationMeteoGrid(myProject.getCurrentVariable(), myProject.getCurrentFrequency(),
                                              myProject.getCrit3DCurrentTime()))
     {

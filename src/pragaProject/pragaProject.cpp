@@ -2869,6 +2869,30 @@ bool PragaProject::deriveVariableMeteoGrid(meteoVariable myVar, frequencyType my
     return true;
 }
 
+bool PragaProject::assignProxyValues(meteoVariable myVar)
+{
+    //se no upscale from dem, ricampiona du grid, altrimenti non fare niente (perché è già stato fatto, cosa da cambiare tra l'altro)
+    //CT TODO FINIRE DI AGGIUSTARE UPSCALE FROM DEM
+
+    if (! checkInterpolationGrid(myVar))
+        return false;
+
+    gis::Crit3DRasterGrid* proxyGrid;
+
+    if (getUseDetrendingVar (myVar))
+        for (unsigned int i = 0; i < interpolationSettings.getProxyNr(); i++)
+        {
+            if (interpolationSettings.getSelectedCombination().getActiveList()[i])
+            {
+                proxyGrid = interpolationSettings.getProxy(i)->getGrid();
+                meteoGridDbHandler->meteoGrid()->assignGridProxyValues(proxyGrid);
+            }
+
+        }
+
+    return true;
+}
+
 bool PragaProject::interpolationMeteoGrid(meteoVariable myVar, frequencyType myFrequency, const Crit3DTime& myTime)
 {
     if (meteoGridDbHandler == nullptr)
@@ -3038,6 +3062,8 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
             varToSave.push_back(windVectorIntensity);
     }
 
+    assignProxyValues(myVar);
+
     // derivedVariables
     std::vector <meteoVariable> hourlyDerivedVars, dailyDerivedVars;
     foreach (myVar, derivedVariables)
@@ -3132,12 +3158,26 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
             if (! loadMeteoPointsData(myDate.addDays(-1), loadDateFin, isHourly, isDaily, false))
                 return false;
         }
-        // check proxy grid series
+        // check proxy grid series TODO
         if (useProxies && currentYear != myDate.year())
         {
             logInfoGUI("Interpolating proxy grid series...");
             if (! checkProxyGridSeries(interpolationSettings, DEM, proxyGridSeries, myDate, errorString)) return false;
+
+            //cambiare anche questa funz
             if (! readProxyValues()) return false;
+
+            gis::Crit3DRasterGrid* proxyGrid;
+
+            for (unsigned int i = 0; i < interpolationSettings.getProxyNr(); i++)
+            {
+                if (interpolationSettings.getSelectedCombination().getActiveList()[i])
+                {
+                    proxyGrid = interpolationSettings.getProxy(i)->getGrid();
+                    meteoGridDbHandler->meteoGrid()->assignGridProxyValues(proxyGrid);
+
+                }
+            }
             currentYear = myDate.year();
         }
 

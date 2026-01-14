@@ -114,6 +114,8 @@
 
         bool interpolationOutputPointsPeriod(QDate dateIni, QDate lastDate, QList <meteoVariable> variables);
 
+        bool assignProxyValues(meteoVariable myVar);
+
         bool deriveVariableMeteoGrid(meteoVariable myVar, frequencyType myFrequency, const Crit3DTime& myTime);
         bool interpolationMeteoGrid(meteoVariable myVar, frequencyType myFrequency, const Crit3DTime& myTime);
         bool interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QList <meteoVariable> variables, QList <meteoVariable> aggrVariables,
