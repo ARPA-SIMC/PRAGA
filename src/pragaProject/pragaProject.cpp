@@ -2871,8 +2871,14 @@ bool PragaProject::deriveVariableMeteoGrid(meteoVariable myVar, frequencyType my
 
 bool PragaProject::assignProxyValues(meteoVariable myVar)
 {
-    //se no upscale from dem, ricampiona du grid, altrimenti non fare niente (perché è già stato fatto, cosa da cambiare tra l'altro)
+    //se no upscale from dem, ricampiona du grid, altrimenti ricampiona su DEM
     //CT TODO FINIRE DI AGGIUSTARE UPSCALE FROM DEM
+
+    if (meteoGridDbHandler == nullptr)
+    {
+        errorString = ERROR_STR_MISSING_GRID;
+        return false;
+    }
 
     if (! checkInterpolationGrid(myVar))
         return false;
@@ -2880,15 +2886,42 @@ bool PragaProject::assignProxyValues(meteoVariable myVar)
     gis::Crit3DRasterGrid* proxyGrid;
 
     if (getUseDetrendingVar (myVar))
-        for (unsigned int i = 0; i < interpolationSettings.getProxyNr(); i++)
+    {
+        if (! interpolationSettings.getMeteoGridUpscaleFromDem())
         {
-            if (interpolationSettings.getSelectedCombination().getActiveList()[i])
+            for (unsigned int i = 0; i < interpolationSettings.getProxyNr(); i++)
             {
-                proxyGrid = interpolationSettings.getProxy(i)->getGrid();
-                meteoGridDbHandler->meteoGrid()->assignGridProxyValues(proxyGrid);
-            }
+                if (interpolationSettings.getSelectedCombination().getActiveList()[i])
+                {
+                    proxyGrid = interpolationSettings.getProxy(i)->getGrid();
+                    meteoGridDbHandler->meteoGrid()->assignGridProxyValues(proxyGrid);
+                }
 
+            }
         }
+        else
+        {
+            for (unsigned int i = 0; i < interpolationSettings.getProxyNr(); i++)
+            {
+                if (interpolationSettings.getSelectedCombination().getActiveList()[i])
+                {
+                    gis::Crit3DRasterGrid* proxyGrid = new gis::Crit3DRasterGrid();
+                    proxyGrid = interpolationSettings.getProxy(i)->getGrid();
+                    Crit3DProxy* myProxy = interpolationSettings.getProxy(i);
+
+                    if (DEM.isLoaded && proxyGrid != nullptr)
+                    {
+                        if (! gis::compareGrids(DEM,*proxyGrid))
+                        {
+                            gis::Crit3DRasterGrid* resGrid = new gis::Crit3DRasterGrid();
+                            gis::resampleGrid(*proxyGrid, resGrid, DEM.header, aggrAverage, 0);
+                            myProxy->setGrid(resGrid);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     return true;
 }

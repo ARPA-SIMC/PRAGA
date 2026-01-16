@@ -1003,6 +1003,25 @@ void MainWindow::interpolateDemGUI()
     myProject.logInfoGUI("Interpolating on DEM...");
     bool isComputed = false;
 
+    if (getUseDetrendingVar(myVar)) //resample proxy grids on DEM
+    {
+        for (unsigned int i=0; i < myProject.interpolationSettings.getProxyNr(); i++)
+        {
+            Crit3DProxy* myProxy = myProject.interpolationSettings.getProxy(i);
+
+            if(!myProject.interpolationSettings.getCurrentCombination().isProxyActive(i))
+                continue;
+
+            gis::Crit3DRasterGrid* resGrid = new gis::Crit3DRasterGrid();
+            gis::Crit3DRasterGrid* proxyGrid = myProject.interpolationSettings.getProxy(i)->getGrid();
+
+            if (myProject.DEM.isLoaded && proxyGrid != nullptr && proxyGrid->isLoaded)
+                gis::resampleGrid(*proxyGrid, resGrid, myProject.DEM.header, aggrAverage, 0);
+
+            myProxy->setGrid(resGrid);
+        }
+    }
+
     if (myVar == airRelHumidity && myProject.interpolationSettings.getUseDewPoint())
     {
         if (! myProject.interpolationDemMain(airTemperature, myProject.getCrit3DCurrentTime(), myProject.hourlyMeteoMaps->mapHourlyTair)) return;
