@@ -5692,7 +5692,6 @@ bool PragaProject::computeRadiationList(QString fileName, int nrDaysLoading, QSt
             myPressure = pressureFromAltitude(myPoint.radPoint.height) / 100; //pressureFromAltitude in Pa
             //myPressure = PRESSURE_SEALEVEL;
 
-
             //potential radiation & transmissivity
             radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
                                             radSettings.getLinke(myTime.date.month-1), radSettings.getAlbedo(), radSettings.getClearSky(),
