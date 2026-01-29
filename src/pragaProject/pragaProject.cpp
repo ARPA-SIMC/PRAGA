@@ -5692,6 +5692,12 @@ bool PragaProject::computeRadiationList(QString fileName, int nrDaysLoading, QSt
             myPressure = pressureFromAltitude(myPoint.radPoint.height) / 100; //pressureFromAltitude in Pa
             //myPressure = PRESSURE_SEALEVEL;
 
+            if (isEqual(radSettings.getLinke(myTime.date.month-1), NODATA) || isEqual(radSettings.getAlbedo(), NODATA))
+            {
+                errorString = "wrong linke or albero value";
+                return false;
+            }
+
 
             //potential radiation & transmissivity
             radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
