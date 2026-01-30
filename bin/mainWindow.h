@@ -464,6 +464,7 @@
         void redrawOutputPoints();
         void addWellPointsGUI();
         void clearWellPointMarkers();
+        bool isMeteoPointVisible(int i);
 
         #ifdef NETCDF
             void redrawNetcdf();
