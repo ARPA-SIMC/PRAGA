@@ -410,7 +410,15 @@ bool MainWindow::updateSelection(const QPoint& pos)
         {
             if (isAdd)
             {
-                myProject.meteoPoints[i].selected = true;
+                if (currentPointsVisualization == showCurrentVariable)
+                {
+                    if (! isEqual(myProject.meteoPoints[i].currentValue, NODATA))
+                        myProject.meteoPoints[i].selected = true;
+                }
+                else
+                {
+                    myProject.meteoPoints[i].selected = true;
+                }
             }
             else
             {
@@ -1551,6 +1559,17 @@ void MainWindow::drawWindVector(int i)
 }
 
 
+bool MainWindow::isMeteoPointVisible(int i)
+{
+    if (i >= myProject.meteoPoints.size())
+        return false;
+
+    return ((myProject.meteoPoints[i].active || viewNotActivePoints || myProject.meteoPoints[i].marked)
+           && !(hideSupplementals && myProject.meteoPoints[i].lapseRateCode == supplemental));
+}
+
+
+
 void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorScale)
 {
     currentPointsVisualization = showType;
@@ -1581,50 +1600,49 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
 
         case showLocation:
         {
-            this->ui->actionShowPointsLocation->setChecked(true);
+            ui->actionShowPointsLocation->setChecked(true);
             ui->actionMeteopointRectangleSelection->setEnabled(true);
+
             for (int i = 0; i < myProject.meteoPoints.size(); i++)
             {
                 myProject.meteoPoints[i].currentValue = NODATA;
+                bool isVisible = isMeteoPointVisible(i);
+                pointList[i]->setVisible(isVisible);
 
-                if (myProject.meteoPoints[i].selected)
+                if (isVisible)
                 {
-                    pointList[i]->setFillColor(QColor(Qt::yellow));
                     pointList[i]->setRadius(5);
-                }
-                else
-                {
-                    if (myProject.meteoPoints[i].active)
+                    if (myProject.meteoPoints[i].selected)
                     {
-                        if (myProject.meteoPoints[i].lapseRateCode == primary)
-                        {
-                            pointList[i]->setFillColor(QColor(Qt::white));
-                            pointList[i]->setRadius(5);
-                        }
-                        else if (myProject.meteoPoints[i].lapseRateCode == secondary)
-                        {
-                            pointList[i]->setFillColor(QColor(Qt::black));
-                            pointList[i]->setRadius(5);
-                        }
-                        else if (myProject.meteoPoints[i].lapseRateCode == supplemental)
-                        {
-                            pointList[i]->setFillColor(QColor(Qt::gray));
-                            pointList[i]->setRadius(4);
-                        }
+                        pointList[i]->setFillColor(QColor(Qt::yellow));
                     }
                     else
                     {
-                        pointList[i]->setFillColor(QColor(Qt::red));
-                        pointList[i]->setRadius(5);
+                        if (myProject.meteoPoints[i].active)
+                        {
+                            if (myProject.meteoPoints[i].lapseRateCode == primary)
+                            {
+                                pointList[i]->setFillColor(QColor(Qt::white));
+                            }
+                            else if (myProject.meteoPoints[i].lapseRateCode == secondary)
+                            {
+                                pointList[i]->setFillColor(QColor(Qt::black));
+                            }
+                            else if (myProject.meteoPoints[i].lapseRateCode == supplemental)
+                            {
+                                pointList[i]->setFillColor(QColor(Qt::gray));
+                                pointList[i]->setRadius(4);
+                            }
+                        }
+                        else
+                        {
+                            pointList[i]->setFillColor(QColor(Qt::red));
+                        }
                     }
+
+                    pointList[i]->setCurrentValue(NODATA);
+                    pointList[i]->setToolTip();
                 }
-
-                pointList[i]->setCurrentValue(NODATA);
-                pointList[i]->setToolTip();
-
-                // hide not active points
-                bool isVisible = ((myProject.meteoPoints[i].active || viewNotActivePoints) && !(hideSupplementals && myProject.meteoPoints[i].lapseRateCode == supplemental));
-                pointList[i]->setVisible(isVisible);
             }
 
             myProject.meteoPointsColorScale->setRange(NODATA, NODATA);
@@ -1659,34 +1677,39 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
             Crit3DColor *myColor;
             for (int i = 0; i < myProject.meteoPoints.size(); i++)
             {
-                if (int(myProject.meteoPoints[i].currentValue) != NODATA || myProject.meteoPoints[i].marked)
+                if (! isEqual(myProject.meteoPoints[i].currentValue, NODATA))
                 {
-                    // hide not active points
-                    bool isVisible = ((myProject.meteoPoints[i].active || viewNotActivePoints || myProject.meteoPoints[i].marked) && !(hideSupplementals && myProject.meteoPoints[i].lapseRateCode == supplemental));
-
-                    if (myProject.meteoPoints[i].quality == quality::accepted)
-                    {
-                        pointList[i]->setRadius(5);
-                        myColor = myProject.meteoPointsColorScale->getColor(myProject.meteoPoints[i].currentValue);
-                        pointList[i]->setFillColor(QColor(myColor->red, myColor->green, myColor->blue));
-                        pointList[i]->setOpacity(1.0);
-                        if (isWindVector && isVisible)
-                            drawWindVector(i);
-                    }
-                    else if (! myProject.meteoPoints[i].marked)
-                    {
-                        // Wrong data
-                        pointList[i]->setRadius(10);
-                        pointList[i]->setFillColor(QColor(Qt::black));
-                        pointList[i]->setOpacity(0.5);
-                    }
-
-                    pointList[i]->setCurrentValue(myProject.meteoPoints[i].currentValue);
-                    pointList[i]->setQuality(myProject.meteoPoints[i].quality);
-                    pointList[i]->setToolTip();
-
-                    // hide not active points
+                    bool isVisible = isMeteoPointVisible(i);
                     pointList[i]->setVisible(isVisible);
+
+                    if (isVisible)
+                    {
+                        if (myProject.meteoPoints[i].quality == quality::accepted)
+                        {
+                            if (myProject.meteoPoints[i].selected)
+                                pointList[i]->setRadius(8);
+                            else
+                                pointList[i]->setRadius(5);
+
+                            myColor = myProject.meteoPointsColorScale->getColor(myProject.meteoPoints[i].currentValue);
+                            pointList[i]->setFillColor(QColor(myColor->red, myColor->green, myColor->blue));
+                            pointList[i]->setOpacity(1.0);
+
+                            if (isWindVector)
+                                drawWindVector(i);
+                        }
+                        else
+                        {
+                            // Wrong data
+                            pointList[i]->setRadius(10);
+                            pointList[i]->setFillColor(QColor(Qt::black));
+                            pointList[i]->setOpacity(0.5);
+                        }
+
+                        pointList[i]->setCurrentValue(myProject.meteoPoints[i].currentValue);
+                        pointList[i]->setQuality(myProject.meteoPoints[i].quality);
+                        pointList[i]->setToolTip();
+                    }
                 }
             }
 
@@ -2518,7 +2541,11 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
 
             if (int(myProject.meteoPoints[i].currentValue) != NODATA)
             {
-                pointList[i]->setRadius(5);
+                if (myProject.meteoPoints[i].selected)
+                    pointList[i]->setRadius(8);
+                else
+                    pointList[i]->setRadius(5);
+
                 myColor = myProject.meteoPointsColorScale->getColor(myProject.meteoPoints[i].currentValue);
                 pointList[i]->setFillColor(QColor(myColor->red, myColor->green, myColor->blue));
                 pointList[i]->setCurrentValue(myProject.meteoPoints[i].currentValue);
@@ -2643,6 +2670,7 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
     ui->lineEditOffset->setReadOnly(true);
     ui->groupBoxElaboration->show();
 }
+
 
 void MainWindow::showCVResult()
 {
