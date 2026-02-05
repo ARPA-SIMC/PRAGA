@@ -5314,9 +5314,23 @@ void MainWindow::on_actionFileDemOpen_triggered()
 void MainWindow::on_actionMark_from_pointlist_triggered()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open point list"), "", tr("text files (*.txt)"));
-    if (fileName == "") return;
+    if (fileName == "")
+        return;
 
-    if (myProject.setMarkedFromPointList(fileName))
+    bool isAdd = false;
+    if (myProject.setMarkedFromPointList(fileName, isAdd))
+        redrawMeteoPoints(currentPointsVisualization, true);
+}
+
+
+void MainWindow::on_actionMark_Add_from_point_list_triggered()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open point list"), "", tr("text files (*.txt)"));
+    if (fileName == "")
+        return;
+
+    bool isAdd = true;
+    if (myProject.setMarkedFromPointList(fileName, isAdd))
         redrawMeteoPoints(currentPointsVisualization, true);
 }
 
@@ -7188,12 +7202,41 @@ void MainWindow::on_actionMark_macro_area_stations_triggered()
 }
 
 
-
 void MainWindow::on_actionAll_Selected_triggered()
 {
     for (int i = 0; i < myProject.meteoPoints.size(); i++)
     {
-        myProject.meteoPoints[i].selected = true;
+        if (currentPointsVisualization == showCurrentVariable)
+        {
+            if (! isEqual(myProject.meteoPoints[i].currentValue, NODATA))
+                myProject.meteoPoints[i].selected = true;
+        }
+        else
+        {
+            myProject.meteoPoints[i].selected = true;
+        }
+    }
+
+    redrawMeteoPoints(currentPointsVisualization, true);
+}
+
+
+void MainWindow::on_actionSelect_All_not_marked_triggered()
+{
+    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    {
+        if (! myProject.meteoPoints[i].marked)
+        {
+            if (currentPointsVisualization == showCurrentVariable)
+            {
+                if (! isEqual(myProject.meteoPoints[i].currentValue, NODATA))
+                    myProject.meteoPoints[i].selected = true;
+            }
+            else
+            {
+                myProject.meteoPoints[i].selected = true;
+            }
+        }
     }
 
     redrawMeteoPoints(currentPointsVisualization, true);
