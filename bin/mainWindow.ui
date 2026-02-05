@@ -1825,7 +1825,9 @@
     <addaction name="actionMeteoPointsClear_selection"/>
     <addaction name="menuSearch_points"/>
     <addaction name="menuMark_points"/>
+    <addaction name="separator"/>
     <addaction name="actionOpen_meteo_widget_for_selected_stations"/>
+    <addaction name="actionExport_precipitation_for_selected_points"/>
     <addaction name="separator"/>
     <addaction name="menuActive_points"/>
     <addaction name="menuDeactive_points"/>
@@ -3149,7 +3151,7 @@
   </action>
   <action name="actionOpen_meteo_widget_for_selected_stations">
    <property name="text">
-    <string>Open meteo widget for selected stations</string>
+    <string>Open meteo widget for selected points...</string>
    </property>
   </action>
   <action name="actionMeteoPointsAssign_altitude_from_DEM">
@@ -3197,6 +3199,11 @@
    </property>
    <property name="text">
     <string>All not marked</string>
+   </property>
+  </action>
+  <action name="actionExport_precipitation_for_selected_points">
+   <property name="text">
+    <string>Export precipitation for selected points...</string>
    </property>
   </action>
  </widget>
