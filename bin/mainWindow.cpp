@@ -7363,7 +7363,25 @@ void MainWindow::on_actionInterpolationGlocalCreateWeightMaps_triggered()
 
 void MainWindow::on_actionOpen_meteo_widget_for_selected_stations_triggered()
 {
+    if (! myProject.meteoPointsLoaded)
+    {
+        myProject.logWarning(ERROR_STR_MISSING_DB);
+        return;
+    }
+
     myProject.showMeteoWidgetMultiplePoints();
+}
+
+
+void MainWindow::on_actionExport_precipitation_for_selected_points_triggered()
+{
+    if (! myProject.meteoPointsLoaded)
+    {
+        myProject.logWarning(ERROR_STR_MISSING_DB);
+        return;
+    }
+
+    //meteoSettings->getRainfallThreshold()
 }
 
 
