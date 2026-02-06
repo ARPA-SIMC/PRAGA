@@ -7381,7 +7381,30 @@ void MainWindow::on_actionExport_precipitation_for_selected_points_triggered()
         return;
     }
 
-    //meteoSettings->getRainfallThreshold()
+    bool hasSelected = false;
+    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    {
+        if (myProject.meteoPoints[i].selected)
+        {
+            hasSelected = true;
+            break;
+        }
+    }
+
+    if (! hasSelected)
+    {
+        myProject.logWarning("No Point selected!");
+        return;
+    }
+
+    QString outputPath = myProject.getProjectPath() + PATH_OUTPUT;
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Output file"), outputPath, tr("CSV (*.csv)"));
+    if (fileName.isEmpty())
+        return;
+
+    bool isSelectedPoints = true;
+    if (! myProject.exportMeteoPointsHourlyPrecipitation(fileName, isSelectedPoints))
+        myProject.logError();
 }
 
 

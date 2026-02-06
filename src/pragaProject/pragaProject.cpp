@@ -6178,6 +6178,31 @@ bool PragaProject::writeMeteoPointsProperties(const QList<QString> &joinedProper
 }
 
 
+bool PragaProject::exportMeteoPointsHourlyPrecipitation(QString fileName, bool isSelectedPoints)
+{
+    QFile myFile(fileName);
+    // WriteOnly + Truncate = apre in scrittura e svuota il file se esiste
+    if (! myFile.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+    {
+        errorString = "Error opening file.\n" + myFile.errorString();
+        return false;
+    }
+
+    QTextStream out(&myFile);
+
+    for (int i = 0; i < meteoPoints.size(); i++)
+    {
+        if (!isSelectedPoints || meteoPoints[i].selected)
+        {
+            out << QString::fromStdString(meteoPoints[i].id) << "\n";
+        }
+    }
+
+    myFile.close();
+    return true;
+}
+
+
 bool PragaProject::shiftMeteoPointsData(bool isAllPoints)
 {
     QList<QString> pointList;
