@@ -352,6 +352,12 @@
 
         void on_flagInterpolationParallel_computing_triggered(bool isChecked);
 
+        void on_actionMark_Add_from_point_list_triggered();
+
+        void on_actionSelect_All_not_marked_triggered();
+
+        void on_actionExport_precipitation_for_selected_points_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
