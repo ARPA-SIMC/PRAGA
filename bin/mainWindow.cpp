@@ -3089,7 +3089,7 @@ void MainWindow::on_actionSpatialAggregationOpenDB_triggered()
     QString dbName = QFileDialog::getOpenFileName(this, tr("Open DB meteo points"), "", tr("DB files (*.db)"));
     if (dbName != "")
     {
-        myProject.loadAggregationdDB(dbName);
+        myProject.loadAggregationDB(dbName);
     }
 
 }
@@ -3118,7 +3118,7 @@ void MainWindow::on_actionSpatialAggregationNewDB_triggered()
         myProject.logError("Copy file failed: " + templateFileName);
         return;
     }
-    myProject.loadAggregationdDB(dbName);
+    myProject.loadAggregationDB(dbName);
 
     QString rasterName = QFileDialog::getOpenFileName(this, tr("Open raster"), "", tr("files (*.flt)"));
     if (rasterName.isEmpty() || ! rasterName.contains(".flt"))
