@@ -436,13 +436,13 @@ int PragaProject::executeCommand(const QList<QString> &argumentList)
 
     bool isCommandFound;
 
-    int isExecuted = executeSharedCommand(this, argumentList, &isCommandFound);
+    int result = executeSharedCommand(this, argumentList, &isCommandFound);
     if (isCommandFound)
-        return isExecuted;
+        return result;
 
-    isExecuted = executePragaCommand(argumentList, &isCommandFound);
+    result = executePragaCommand(argumentList, &isCommandFound);
     if (isCommandFound)
-        return isExecuted;
+        return result;
 
     errorString = "This is not a valid PRAGA command: " + argumentList[0];
     return PRAGA_INVALID_COMMAND;
