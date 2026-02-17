@@ -993,12 +993,12 @@ void MainWindow::interpolateDemGUI()
         }
         case showElaboration:
         {
-            myVar = elaboration;
+            myVar = elaborationVar;
             break;
         }
         case showAnomalyAbsolute:
         {
-            myVar = anomaly;
+            myVar = anomalyVar;
             break;
         }
         default:
@@ -1052,7 +1052,7 @@ void MainWindow::interpolateDemGUI()
 
     if (isComputed)
     {
-        if (myVar == elaboration)
+        if (myVar == elaborationVar)
             setColorScale(myProject.clima->variable(), myProject.dataRaster.colorScale);
         else
             setColorScale(myVar, myProject.dataRaster.colorScale);
@@ -2705,7 +2705,7 @@ void MainWindow::showCVResult()
 
     myProject.meteoPointsColorScale->setRange(minimum, maximum);
     roundColorScale(myProject.meteoPointsColorScale, 4, true);
-    setColorScale(anomaly, myProject.meteoPointsColorScale);
+    setColorScale(anomalyVar, myProject.meteoPointsColorScale);
 
     Crit3DColor *myColor;
     for (int i = 0; i < myProject.meteoPoints.size(); i++)
@@ -2736,12 +2736,12 @@ void MainWindow::showCVResult()
         }
         case showElaboration:
         {
-            currentVariable = elaboration;
+            currentVariable = elaborationVar;
             break;
         }
         case showAnomalyAbsolute:
         {
-            currentVariable = anomaly;
+            currentVariable = anomalyVar;
             break;
         }
         default:
@@ -3585,12 +3585,12 @@ void MainWindow::on_actionInterpolationCVCurrentTime_triggered()
         }
         case showElaboration:
         {
-            currentVariable = elaboration;
+            currentVariable = elaborationVar;
             break;
         }
         case showAnomalyAbsolute:
         {
-            currentVariable = anomaly;
+            currentVariable = anomalyVar;
             break;
         }
         default:
@@ -5261,7 +5261,7 @@ void MainWindow::on_actionFileLoadInterpolation_triggered()
         }
     }
 
-    if (myVar == elaboration)
+    if (myVar == elaborationVar)
         setColorScale(myProject.clima->variable(), myProject.dataRaster.colorScale);
     else
         setColorScale(myVar, myProject.dataRaster.colorScale);
