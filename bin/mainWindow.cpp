@@ -7483,3 +7483,17 @@ void MainWindow::on_flagInterpolationParallel_computing_triggered(bool isChecked
     myProject.setParallelComputing(isChecked);
 }
 
+
+void MainWindow::on_actionCompute_Radiation_list_triggered()
+{
+    QString outputPath = myProject.getProjectPath() + PATH_OUTPUT;
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Radiation list"), outputPath, tr("TXT (*.txt)"));
+    if (fileName.isEmpty())
+        return;
+
+    if ( myProject.computeRadiationList(fileName, ""))
+    {
+        myProject.logInfoGUI("Output saved in: " + outputPath);
+    }
+}
+

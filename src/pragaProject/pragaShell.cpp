@@ -245,7 +245,7 @@ int cmdOpenPragaProject(PragaProject* myProject, const QList<QString> &argumentL
         }
     }
 
-    myProject->projectPragaFolder = PATH_PROJECT+projectFolder;
+    myProject->projectPragaFolder = PATH_PROJECT + projectFolder;
     QString projectName = myProject->getCompleteFileName(filename, myProject->projectPragaFolder);
 
     if (! myProject->loadPragaProject(projectName))
@@ -932,7 +932,7 @@ int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentLi
 
     // open raster
     gis::Crit3DRasterGrid* myRaster = new gis::Crit3DRasterGrid();
-    QString fnWithoutExt = myProject->projectPragaFolder+"/"+rasterName;
+    QString fnWithoutExt = myProject->projectPragaFolder + "/" + rasterName;
     std::string myError = "";
     if (! gis::readEsriGrid(fnWithoutExt.toStdString(), myRaster, myError))
     {
@@ -1133,10 +1133,7 @@ int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentLi
             return PRAGA_INVALID_COMMAND;
         }
 
-        QString fileName;
-        int loadInterval = NODATA;
-        bool parseLoadInterval = true;
-        QString folderString;
+        QString fileName, folderString;
 
         for (int i = 1; i < argumentList.size(); i++)
         {
@@ -1144,21 +1141,11 @@ int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentLi
             {
                 fileName = argumentList[i].right(argumentList[i].length()-3);
             }
-            else if (argumentList.at(i).left(3) == "-l:")
-                loadInterval = argumentList[i].right(argumentList[i].length()-3).toInt(&parseLoadInterval);
             else if (argumentList.at(i).left(3) == "-o:")
                 folderString = argumentList[i].right(argumentList[i].length()-3);
-
-
         }
 
-        if (! parseLoadInterval)
-        {
-            myProject->errorString = "Wrong loading interval number";
-            return PRAGA_INVALID_COMMAND;
-        }
-
-        if (! myProject->computeRadiationList(fileName, loadInterval, folderString))
+        if (! myProject->computeRadiationList(fileName, folderString))
         {
             return PRAGA_ERROR;
         }

@@ -358,6 +358,8 @@
 
         void on_actionExport_precipitation_for_selected_points_triggered();
 
+        void on_actionCompute_Radiation_list_triggered();
+
     protected:
         /*!
          * \brief mouseReleaseEvent call moveCenter
