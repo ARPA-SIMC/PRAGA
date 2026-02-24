@@ -5635,9 +5635,6 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
             continue;
         }
 
-        Crit3DDate myDate = myPoint.iniDate;
-        int myHour = myPoint.iniHour;
-
         gis::getUtmFromLatLon(gisSettings, myPoint.radPoint.lat, myPoint.radPoint.lon, &utmX, &utmY);
 
         myProxyValues.clear();
@@ -5653,10 +5650,16 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
             continue;
         }
 
+        Crit3DDate myDate = myPoint.iniDate;
+        int myHour = myPoint.iniHour;
+        float myLinke;
+
         // main cycle (days and hours)
-        while (!(myDate > myPoint.endDate) && !(myDate == myPoint.endDate && myHour > myPoint.endHour))
+        while ((myDate < myPoint.endDate) || (myHour <= myPoint.endHour))
         {
-            float myLinke;
+            myTime.date = myDate;
+            myTime.time = (myHour-0.5) * 3600;
+
             if (radSettings.getLinkeMode() == PARAM_MODE_MONTHLY)
                 myLinke = radSettings.getLinke(myTime.date.month-1);
             else
@@ -5667,9 +5670,6 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
                 errorString = "wrong linke or albero value";
                 return false;
             }
-
-            myTime.date = myDate;
-            myTime.time = (myHour-0.5) * 3600;
 
             interpolationPoints.clear();
 
