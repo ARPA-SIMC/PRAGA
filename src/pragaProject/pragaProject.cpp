@@ -5508,6 +5508,16 @@ bool PragaProject::saveLogProceduresGrid(QString nameProc, QDate date)
 }
 
 
+void incDateTime(Crit3DDate &myDate, int &myHour)
+{
+    ++myHour;
+    if (myHour >= 24)
+    {
+        myHour -= 24;
+        myDate = myDate.addDays(1);
+    }
+}
+
 bool PragaProject::computeRadiationList(const QString &fileName, QString folderString)
 {
     if (! meteoPointsLoaded)
@@ -5653,9 +5663,10 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
         Crit3DDate myDate = myPoint.iniDate;
         int myHour = myPoint.iniHour;
         float myLinke;
+        bool isLast = false;
 
         // main cycle (days and hours)
-        while ((myDate < myPoint.endDate) || (myHour <= myPoint.endHour))
+        while (! isLast)
         {
             myTime.date = myDate;
             myTime.time = (myHour-0.5) * 3600;
@@ -5688,12 +5699,7 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
             {
                 logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
                 logInfo("Error interpolating temperature.");
-                myHour++;
-                if (myHour >= 24)
-                {
-                    myHour -= 24;
-                    myDate = myDate.addDays(1);
-                }
+                incDateTime(myDate, myHour);
                 continue;
             }
 
@@ -5713,14 +5719,9 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
 
                 if (! computeTransmissivity(&radSettings, meteoPoints, intervalWidth, myTime, DEM))
                 {
-                    logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
+                    logInfo("Error elaborating point: " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
                     logInfo("Error computing transmissivity.");
-                    myHour++;
-                    if (myHour >= 24)
-                    {
-                        myHour -= 24;
-                        myDate = myDate.addDays(1);
-                    }
+                    incDateTime(myDate, myHour);
                     continue;
                 }
 
@@ -5738,30 +5739,20 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
                 }
                 else
                 {
-                    logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
+                    logInfo("Error elaborating point: " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
                     logInfo("Error interpolating transmissivity.");
-                    myHour++;
-                    if (myHour >= 24)
-                    {
-                        myHour -= 24;
-                        myDate = myDate.addDays(1);
-                    }
+                    incDateTime(myDate, myHour);
                     continue;
                 }
 
-                //radiation
+                // radiation
                 if (! radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
                                                 myLinke, radSettings.getAlbedo(), radSettings.getClearSky(),
                                                 myTransmissivity, sunPosition, myPoint.radPoint, DEM))
                 {
-                    logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
+                    logInfo("Error elaborating point: " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
                     logInfo("Error computing point radiation.");
-                    myHour++;
-                    if (myHour >= 24)
-                    {
-                        myHour -= 24;
-                        myDate = myDate.addDays(1);
-                    }
+                    incDateTime(myDate, myHour);
                     continue;
                 }
             }
@@ -5788,12 +5779,10 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
 
             outStream << "\n";
 
-            myHour++;
-            if (myHour >= 24)
-            {
-                myHour -= 24;
-                myDate = myDate.addDays(1);
-            }
+            if (myDate == myPoint.endDate && myHour == myPoint.endHour)
+                isLast = true;
+
+            incDateTime(myDate, myHour);
         }
 
         logInfo("Elaboration finished for " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
