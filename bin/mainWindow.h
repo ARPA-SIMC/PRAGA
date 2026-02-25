@@ -150,33 +150,32 @@
 
         void on_actionImport_data_XML_grid_triggered();
 
-        void on_actionAll_active_triggered();
-
-        void on_actionAll_notActive_triggered();
-
+        // select - deselect
+        void on_actionAll_Selected_triggered();
+        void on_actionFrom_point_list_Selected_triggered();
+        void on_actionWith_Criteria_Selected_triggered();
         void on_actionSelected_active_triggered();
-
         void on_actionSelected_notActive_triggered();
+        void on_actionSelect_All_not_marked_triggered();
+        void on_action_deselect_All_triggered();
+        void on_action_deselect_with_criteria_triggered();
 
+        // active - deactive
+        void on_actionAll_active_triggered();
+        void on_actionAll_notActive_triggered();
         void on_actionFrom_point_list_active_triggered();
+        void on_actionWith_NO_DATA_notActive_triggered();
+        void on_actionWith_Criteria_active_triggered();
+        void on_actionWith_Criteria_notActive_triggered();
 
+        // delete points and data
         void on_actionDeletePoint_selected_triggered();
-
         void on_actionDeletePoint_notSelected_triggered();
-
         void on_actionDeletePoint_notActive_triggered();
 
-        void on_actionWith_NO_DATA_notActive_triggered();
-
         void on_actionDeleteData_Active_triggered();
-
         void on_actionDeleteData_notActive_triggered();
-
         void on_actionDeleteData_selected_triggered();
-
-        void on_actionWith_Criteria_active_triggered();
-
-        void on_actionWith_Criteria_notActive_triggered();
 
         void on_actionView_not_active_points_toggled(bool state);
 
@@ -243,8 +242,6 @@
         void on_actionSearchPointName_triggered();
 
         void on_actionSearchPointId_triggered();
-
-        void on_actionMeteoPointsClear_selection_triggered();
 
         void on_actionShow_InfoProject_triggered();
 
@@ -324,14 +321,6 @@
 
         void on_actionMark_macro_area_stations_triggered();
 
-        void on_actionAll_Selected_triggered();
-
-        void on_actionNone_Selected_triggered();
-
-        void on_actionFrom_point_list_Selected_triggered();
-
-        void on_actionWith_Criteria_Selected_triggered();
-
         void on_actionFileMeteopointArkimetLoadVM_triggered();
 
         void on_actionLoad_stations_file_triggered();
@@ -354,11 +343,11 @@
 
         void on_actionMark_Add_from_point_list_triggered();
 
-        void on_actionSelect_All_not_marked_triggered();
-
-        void on_actionExport_precipitation_for_selected_points_triggered();
-
         void on_actionCompute_Radiation_list_triggered();
+
+        void on_actionExport_selected_points_triggered();
+
+        void on_action_deselect_Marked_triggered();
 
     protected:
         /*!

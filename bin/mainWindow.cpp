@@ -696,13 +696,6 @@ void MainWindow::on_netcdfOpacitySlider_sliderMoved(int position)
 }
 
 
-void MainWindow::on_actionMeteoPointsClear_selection_triggered()
-{
-    myProject.clearSelectedPoints();
-    redrawMeteoPoints(currentPointsVisualization, false);
-}
-
-
 void MainWindow::on_actionMeteopointRectangleSelection_triggered()
 {
     if (rubberBand != nullptr)
@@ -1522,11 +1515,13 @@ void MainWindow::drawMeteoPoints()
     ui->actionShowPointsClimate->setEnabled(false);
 
     ui->actionMeteopointRectangleSelection->setEnabled(true);
-    ui->actionMeteoPointsClear_selection->setEnabled(true);
     ui->menuSearch_points->setEnabled(true);
     ui->menuMark_points->setEnabled(true);
     ui->menuActive_points->setEnabled(true);
-    ui->menuSelected_points->setEnabled(true);
+    ui->menuSelect_points->setEnabled(true);
+    ui->menuDeselect_points->setEnabled(true);
+    ui->actionExport_selected_points->setEnabled(true);
+    ui->actionOpen_meteo_widget_for_selected_stations->setEnabled(true);
     ui->menuDeactive_points->setEnabled(true);
     ui->menuDelete_points->setEnabled(true);
     ui->menuDelete_data->setEnabled(true);
@@ -3828,7 +3823,10 @@ void MainWindow::closeMeteoPoints()
 
         ui->actionMeteopointRectangleSelection->setEnabled(false);
         ui->menuActive_points->setEnabled(false);
-        ui->menuSelected_points->setEnabled(false);
+        ui->menuSelect_points->setEnabled(false);
+        ui->menuDeselect_points->setEnabled(false);
+        ui->actionExport_selected_points->setEnabled(false);
+        ui->actionOpen_meteo_widget_for_selected_stations->setEnabled(false);
         ui->menuSearch_points->setEnabled(false);
         ui->menuMark_points->setEnabled(false);
         ui->menuDeactive_points->setEnabled(false);
@@ -3836,7 +3834,6 @@ void MainWindow::closeMeteoPoints()
         ui->menuDelete_data->setEnabled(false);
         ui->menuShift_data->setEnabled(false);
         ui->actionMeteopointDataCount->setEnabled(false);
-        ui->actionMeteoPointsClear_selection->setEnabled(false);
 
         showPointsGroup->setEnabled(false);
         this->ui->menuShowPointsAnomaly->setEnabled(false);
@@ -7243,10 +7240,33 @@ void MainWindow::on_actionSelect_All_not_marked_triggered()
 }
 
 
-void MainWindow::on_actionNone_Selected_triggered()
+void MainWindow::on_action_deselect_All_triggered()
 {
     myProject.clearSelectedPoints();
     redrawMeteoPoints(currentPointsVisualization, false);
+}
+
+
+void MainWindow::on_action_deselect_with_criteria_triggered()
+{
+    bool isShowVariable = (currentPointsVisualization == showCurrentVariable);
+    bool isSelect = false;
+    if (myProject.setSelectedStateWithCriteria(isSelect, isShowVariable))
+    {
+        redrawMeteoPoints(currentPointsVisualization, true);
+    }
+}
+
+
+void MainWindow::on_action_deselect_Marked_triggered()
+{
+    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    {
+        if (myProject.meteoPoints[i].marked)
+            myProject.meteoPoints[i].selected = false;
+    }
+
+    redrawMeteoPoints(currentPointsVisualization, true);
 }
 
 
@@ -7255,7 +7275,9 @@ void MainWindow::on_actionFrom_point_list_Selected_triggered()
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open point list file"), "", tr("text files (*.txt)"));
     if (fileName == "") return;
 
-    if (myProject.setSelectedStatePointList(fileName))
+    bool isShowVariable = (currentPointsVisualization == showCurrentVariable);
+    bool isSelect = true;
+    if (myProject.setSelectedStatePointList(fileName, isSelect, isShowVariable))
     {
         redrawMeteoPoints(currentPointsVisualization, true);
     }
@@ -7264,7 +7286,9 @@ void MainWindow::on_actionFrom_point_list_Selected_triggered()
 
 void MainWindow::on_actionWith_Criteria_Selected_triggered()
 {
-    if (myProject.setSelectedStateWithCriteria())
+    bool isShowVariable = (currentPointsVisualization == showCurrentVariable);
+    bool isSelect = true;
+    if (myProject.setSelectedStateWithCriteria(isSelect, isShowVariable))
     {
         redrawMeteoPoints(currentPointsVisualization, true);
     }
@@ -7373,7 +7397,7 @@ void MainWindow::on_actionOpen_meteo_widget_for_selected_stations_triggered()
 }
 
 
-void MainWindow::on_actionExport_precipitation_for_selected_points_triggered()
+void MainWindow::on_actionExport_selected_points_triggered()
 {
     if (! myProject.meteoPointsLoaded)
     {
@@ -7496,4 +7520,5 @@ void MainWindow::on_actionCompute_Radiation_list_triggered()
         myProject.logInfoGUI("Output saved in: " + outputPath);
     }
 }
+
 
