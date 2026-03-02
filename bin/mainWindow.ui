@@ -293,7 +293,7 @@
         <number>0</number>
        </property>
        <property name="sizeConstraint">
-        <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
+        <enum>QLayout::SetDefaultConstraint</enum>
        </property>
        <property name="leftMargin">
         <number>9</number>
@@ -370,7 +370,7 @@
           <property name="geometry">
            <rect>
             <x>107</x>
-            <y>62</y>
+            <y>61</y>
             <width>141</width>
             <height>24</height>
            </rect>
@@ -441,7 +441,7 @@
            <string notr="true"/>
           </property>
           <property name="inputMethodHints">
-           <set>Qt::InputMethodHint::ImhNone</set>
+           <set>Qt::ImhNone</set>
           </property>
           <property name="dateTime">
            <datetime>
@@ -470,7 +470,7 @@
             <second>0</second>
             <year>1752</year>
             <month>7</month>
-            <day>17</day>
+            <day>16</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -481,7 +481,7 @@
            </date>
           </property>
           <property name="currentSection">
-           <enum>QDateTimeEdit::Section::YearSection</enum>
+           <enum>QDateTimeEdit::YearSection</enum>
           </property>
           <property name="displayFormat">
            <string>yyyy-MM-dd</string>
@@ -501,7 +501,7 @@
           <property name="geometry">
            <rect>
             <x>10</x>
-            <y>62</y>
+            <y>61</y>
             <width>90</width>
             <height>24</height>
            </rect>
@@ -567,7 +567,7 @@ border-color: rgb(192, 192, 192);</string>
            </font>
           </property>
           <property name="layoutDirection">
-           <enum>Qt::LayoutDirection::LeftToRight</enum>
+           <enum>Qt::LeftToRight</enum>
           </property>
           <property name="styleSheet">
            <string notr="true">border-color: rgb(128, 128, 128);</string>
@@ -644,7 +644,7 @@ border-color: rgb(192, 192, 192);</string>
            <rect>
             <x>2</x>
             <y>25</y>
-            <width>256</width>
+            <width>258</width>
             <height>40</height>
            </rect>
           </property>
@@ -700,7 +700,7 @@ border-color: rgb(192, 192, 192);</string>
            <rect>
             <x>2</x>
             <y>64</y>
-            <width>256</width>
+            <width>258</width>
             <height>40</height>
            </rect>
           </property>
@@ -751,7 +751,7 @@ border-color: rgb(192, 192, 192);</string>
            <number>66</number>
           </property>
           <property name="orientation">
-           <enum>Qt::Orientation::Horizontal</enum>
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
          <widget class="QLabel" name="labelMeteoGridScale">
@@ -1074,7 +1074,7 @@ border-color: rgb(192, 192, 192);</string>
            <number>66</number>
           </property>
           <property name="orientation">
-           <enum>Qt::Orientation::Horizontal</enum>
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
          <widget class="QWidget" name="widgetColorLegendRaster" native="true">
@@ -1082,7 +1082,7 @@ border-color: rgb(192, 192, 192);</string>
            <rect>
             <x>2</x>
             <y>64</y>
-            <width>256</width>
+            <width>258</width>
             <height>40</height>
            </rect>
           </property>
@@ -1212,7 +1212,7 @@ border-color: rgb(192, 192, 192);</string>
            <number>33</number>
           </property>
           <property name="orientation">
-           <enum>Qt::Orientation::Horizontal</enum>
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
          <widget class="QPushButton" name="netCDFButtonVariable">
