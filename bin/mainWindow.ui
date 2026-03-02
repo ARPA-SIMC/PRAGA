@@ -388,7 +388,7 @@
          <widget class="QDateEdit" name="dateEdit">
           <property name="geometry">
            <rect>
-            <x>36</x>
+            <x>35</x>
             <y>24</y>
             <width>110</width>
             <height>29</height>
@@ -470,7 +470,7 @@
             <second>0</second>
             <year>1752</year>
             <month>7</month>
-            <day>18</day>
+            <day>17</day>
            </datetime>
           </property>
           <property name="maximumDate">
@@ -598,7 +598,7 @@ border-color: rgb(192, 192, 192);</string>
          <widget class="QPushButton" name="dayAfterButton">
           <property name="geometry">
            <rect>
-            <x>146</x>
+            <x>144</x>
             <y>24</y>
             <width>26</width>
             <height>30</height>
