@@ -100,6 +100,26 @@ MainWindow::MainWindow(QWidget *parent) :
     this->mapView->scene()->addObject(this->meteoGridObj);
     this->mapView->scene()->addObject(this->netcdfObj);
 
+    // style for group box
+    QString myStyle =  "QGroupBox {"
+                    "  border: 1px solid #d3d3d3;"
+                    "  border-radius: 5px;"
+                    "  margin-top: 10px;"
+                    "}"
+                    "QGroupBox::title {"
+                    "  subcontrol-origin: margin;"
+                    "  left: 10px;"
+                    "  padding: 0 3px 0 3px;"
+                    "}";
+
+    ui->groupBoxMeteoPoints->setStyleSheet(myStyle);
+    ui->groupBoxMeteoGrid->setStyleSheet(myStyle);
+    ui->groupBoxElaboration->setStyleSheet(myStyle);
+    ui->groupBoxRaster->setStyleSheet(myStyle);
+    ui->groupBoxVariable->setStyleSheet(myStyle);
+    ui->groupBoxCV->setStyleSheet(myStyle);
+    ui->groupBoxNetcdf->setStyleSheet(myStyle);
+
     connect(this->mapView, SIGNAL(zoomLevelChanged(quint8)), this, SLOT(updateMaps()));
     connect(this->mapView, SIGNAL(mouseMoveSignal(const QPoint&)), this, SLOT(mouseMove(const QPoint&)));
 
@@ -508,10 +528,10 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                 menu.addSeparator();
                 QAction *openPointStatisticsWidget = menu.addAction("Open point statistics widget");
 
-                QAction *openProxyGraph;
-                QAction *markMacroAreaStations;
-                QAction *addMacroAreaLR;
-                QAction *unmarkStations;
+                QAction *openProxyGraph = nullptr;
+                QAction *markMacroAreaStations = nullptr;
+                QAction *addMacroAreaLR = nullptr;
+                QAction *unmarkStations = nullptr;
                 if (myProject.meteoPointsLoaded && (myProject.interpolationSettings.getUseLocalDetrending() || myProject.interpolationSettings.getUseGlocalDetrending()))
                 {
                     menu.addSeparator();
@@ -519,7 +539,6 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                     markMacroAreaStations = menu.addAction("Mark macroarea stations");
                     addMacroAreaLR = menu.addAction("Plot macroarea lapse rate on global proxy widget");
                     unmarkStations = menu.addAction("Unmark stations");
-
                 }
 
                 QAction *selection =  menu.exec(QCursor::pos());
