@@ -19,7 +19,8 @@ https://mariadb.com/downloads/connectors/
 4) Open Qt command (menu start->Qt)  
 
 5) Run vcvars64.bat (change the command to your path)  
-`C:\"Program Files (x86)"\"Microsoft Visual Studio"\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat`  
+`C:\"Program Files (x86)\Microsoft Visual Studio"\2019\BuildTools\VC\Auxiliary\Build\vcvars64.bat`  
+`C:\"Program Files\Microsoft Visual Studio"\2022\Community\VC\Auxiliary\Build\vcvars64.bat`
 
 6) Build the *release* plugin as follows: 
 ```
@@ -32,7 +33,12 @@ cmake --install .
 example of real cmake command (for Qt 6.2.4):  
 ```
 qt-cmake -G Ninja -DCMAKE_BUILD_TYPE=Release C:\Qt\6.2.4\Src\qtbase\src\plugins\sqldrivers -DCMAKE_INSTALL_PREFIX=C:\Qt\6.2.4\msvc2019_64 -DMySQL_INCLUDE_DIR="C:\Program Files\MariaDB\MariaDB Connector C 64-bit\include" -DMySQL_LIBRARY="C:\Program Files\MariaDB\MariaDB Connector C 64-bit\lib\libmariadb.lib"
-```  
+```
+example of real cmake command (for Qt 6.10): 
+```
+qt-cmake -G Ninja C:\Qt\6.10.2\Src\qtbase\src\plugins\sqldrivers -DCMAKE_INSTALL_PREFIX=C:\Qt\6.10.2\msvc2022_64 -DMySQL_INCLUDE_DIR="C:\Program Files\MariaDB\MariaDB Connector C 64-bit\include" -DMySQL_LIBRARY="C:\Program Files\MariaDB\MariaDB Connector C 64-bit\lib\libmariadb.lib"
+```
+
 7) Build the *debug* plugin (in another directory):
 ```
 cd ..
