@@ -5570,7 +5570,7 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
             {
                 QDir().mkdir(outPath);
             }
-            tmpRadPoint.fileName = outPath.toStdString() + line[0].toStdString() + "_out.txt";
+            tmpRadPoint.fileName = outPath.toStdString() + "/" + line[0].toStdString() + "_out.txt";
 
             QFile outputFile(QString::fromStdString(tmpRadPoint.fileName));
             if (outputFile.exists()) outputFile.remove();
