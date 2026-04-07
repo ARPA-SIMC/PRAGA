@@ -214,10 +214,9 @@ void DialogDownloadMeteoData::hourlyItemClicked(QListWidgetItem * item)
     }
 }
 
-void DialogDownloadMeteoData::done(bool res)
+void DialogDownloadMeteoData::done(bool isOk)
 {
-
-    if(res)  // ok was pressed
+    if(isOk)  // ok was pressed
     {
         QDate firstDate = firstDateEdit.date();
         QDate lastDate = lastDateEdit.date();
@@ -229,67 +228,64 @@ void DialogDownloadMeteoData::done(bool res)
         }
         else
         {
-             QListWidgetItem* item = nullptr;
-             for (int i = 0; i < dailyVar.count(); ++i)
-             {
-                    item = dailyVar.item(i);
-                    if (item->isSelected())
-                        varD.append(item->text());
+            QListWidgetItem* item = nullptr;
+            for (int i = 0; i < dailyVar.count(); ++i)
+            {
+                item = dailyVar.item(i);
+                if (item->isSelected())
+                    varD.append(item->text());
 
-             }
-             for (int i = 0; i < hourlyVar.count(); ++i)
-             {
-                    item = hourlyVar.item(i);
-                    if (item->isSelected())
-                        varH.append(item->text());
+            }
+            for (int i = 0; i < hourlyVar.count(); ++i)
+            {
+                item = hourlyVar.item(i);
+                if (item->isSelected())
+                    varH.append(item->text());
 
-             }
-             if (varD.isEmpty() && varH.isEmpty())
-             {
-                 QMessageBox::information(nullptr, "Missing parameter", "Select variable");
-                 return;
-             }
+            }
+            if (varD.isEmpty() && varH.isEmpty())
+            {
+                QMessageBox::information(nullptr, "Missing parameter", "Select variable");
+                return;
+            }
 
-             prec0024 = true;
-             if ( daily_item4.isSelected() )
-             {
-                 QDialog precDialog;
-                 precDialog.setFixedWidth(350);
-                 precDialog.setWindowTitle("Choose daily precipitation time");
-                 QVBoxLayout precLayout;
-                 QRadioButton first("0-24");
-                 QRadioButton second("08-08");
+            prec0024 = true;
+            if ( daily_item4.isSelected() )
+            {
+                QDialog precDialog;
+                precDialog.setFixedWidth(350);
+                precDialog.setWindowTitle("Choose daily precipitation time");
+                QVBoxLayout precLayout;
+                QRadioButton first("0-24");
+                QRadioButton second("08-08");
 
-                 QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+                QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-                 QObject::connect(&buttonBox, &QDialogButtonBox::accepted, &precDialog, &QDialog::accept);
-                 QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &precDialog, &QDialog::reject);
+                QObject::connect(&buttonBox, &QDialogButtonBox::accepted, &precDialog, &QDialog::accept);
+                QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &precDialog, &QDialog::reject);
 
-                 precLayout.addWidget(&first);
-                 precLayout.addWidget(&second);
-                 precLayout.addWidget(&buttonBox);
-                 precDialog.setLayout(&precLayout);
-                 precDialog.exec();
+                precLayout.addWidget(&first);
+                precLayout.addWidget(&second);
+                precLayout.addWidget(&buttonBox);
+                precDialog.setLayout(&precLayout);
 
-                 if (second.isChecked())
-                     prec0024 = false;
+                if (precDialog.exec() == QDialog::Accepted)
+                {
+                    if (second.isChecked())
+                        prec0024 = false;
 
-                 if (precDialog.exec() == QDialog::Accepted)
-                 {
-                     if (second.isChecked())
-                         prec0024 = false;
-
-                 } else
-                 {
-                     QDialog::done(QDialog::Rejected);
-                     return;
-                 }
-             }
-             QDialog::done(QDialog::Accepted);
-             return;
-         }
+                }
+                else
+                {
+                    QDialog::done(QDialog::Rejected);
+                    return;
+                }
+            }
+            QDialog::done(QDialog::Accepted);
+            return;
+        }
     }
-    else    // cancel, close or exc was pressed
+    else    // cancel or close was pressed
     {
         QDialog::done(QDialog::Rejected);
         return;

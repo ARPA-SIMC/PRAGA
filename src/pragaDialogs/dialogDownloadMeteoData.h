@@ -43,7 +43,7 @@
     public:
         DialogDownloadMeteoData();
 
-        void done(bool res);
+        void done(bool isOk);
         void allDailyVarClicked(int toggled);
         void allHourlyVarClicked(int state);
 

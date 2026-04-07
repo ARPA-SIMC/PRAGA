@@ -1752,7 +1752,7 @@ bool PragaProject::downloadDailyDataArkimet(QList<QString> variables, bool prec0
             id = QString::fromStdString(meteoPoints[i].id);
             dataset = QString::fromStdString(meteoPoints[i].dataset);
 
-            // if the point doesn't have dataset, it is not downloaded from arkimet
+            // if the point does not have a dataset, it is not present in Arkimet
             if (! dataset.isEmpty())
             {
                 if (! datasetList.contains(dataset))
