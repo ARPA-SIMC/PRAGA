@@ -1747,7 +1747,7 @@ bool PragaProject::downloadDailyDataArkimet(QList<QString> variables, bool prec0
     bool isSelection = isSelectionPointsActive(meteoPoints);
     for( int i=0; i < meteoPoints.size(); i++ )
     {
-        if (!isSelection || meteoPoints[i].selected)
+        if (! isSelection || meteoPoints[i].selected)
         {
             id = QString::fromStdString(meteoPoints[i].id);
             dataset = QString::fromStdString(meteoPoints[i].dataset);
