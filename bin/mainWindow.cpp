@@ -239,7 +239,8 @@ void MainWindow::keyPressEvent(QKeyEvent * event)
 
 void MainWindow::mouseMove(const QPoint& mapPos)
 {
-    if (! isInsideMap(mapPos)) return;
+    if (! isInsideMap(mapPos))
+        return;
 
     // rubber band
     if (rubberBand != nullptr && rubberBand->isActive)
@@ -250,27 +251,27 @@ void MainWindow::mouseMove(const QPoint& mapPos)
     }
 
     Position geoPos = this->mapView->mapToScene(mapPos);
-    QString status = "Lat:" + QString::number(geoPos.latitude())
-                   + " - Lon:" + QString::number(geoPos.longitude());
+    QString status = "Lat: " + QString::number(geoPos.latitude())
+                   + " - Lon: " + QString::number(geoPos.longitude());
 
     // raster
-    float value = NODATA;
     if (rasterObj->isLoaded && rasterObj->visible())
     {
-        value = rasterObj->getValue(geoPos);
-
-        if (!isEqual(value, NODATA))
-            status += " - Raster: " + QString::number(double(value),'f',1);
-
         gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
         int row, col;
         gis::getRowColFromLatLon(rasterObj->getLatLonHeader(), geoPoint, &row, &col);
-        status += " - Row: " + QString::number(row) + ", col: " + QString::number(col);
+        if (! gis::isOutOfGridRowCol(row, col, rasterObj->getLatLonHeader()))
+        {
+            status += " - Row: " + QString::number(row) + ", col: " + QString::number(col);
+        }
 
+        double value = (double)rasterObj->getValue(geoPos);
+        if (! isEqual(value, NODATA))
+            status += " - Raster value: " + QString::number(value, 'f', 1);
     }
 
     // meteoGrid
-    value = NODATA;
+    float value = NODATA;
     gis::Crit3DGeoPoint geoPoint = gis::Crit3DGeoPoint(geoPos.latitude(), geoPos.longitude());
     if (meteoGridObj->isLoaded && currentGridVisualization != notShown)
     {
@@ -922,27 +923,19 @@ void MainWindow::on_actionFileMeteopointArkimetDownload_triggered()
 
     DialogDownloadMeteoData downloadDialog;
     if (downloadDialog.result() != QDialog::Accepted)
-    {
         return;
-    }
-    else
+
+    QDate firstDate = downloadDialog.getFirstDate();
+    QDate lastDate = downloadDialog.getLastDate();
+    if (! downloadDialog.getVarD().isEmpty())
     {
-        QDate firstDate = downloadDialog.getFirstDate();
-        QDate lastDate = downloadDialog.getLastDate();
-        if (! downloadDialog.getVarD().isEmpty())
-        {
-            if (! myProject.downloadDailyDataArkimet(downloadDialog.getVarD(), downloadDialog.getPrec0024(), firstDate, lastDate, true))
-             {
-                myProject.logError();
-             }
-        }
-        if (! downloadDialog.getVarH().isEmpty())
-        {
-            if (! myProject.downloadHourlyDataArkimet(downloadDialog.getVarH(), firstDate, lastDate, true))
-             {
-                myProject.logError();
-             }
-        }
+        if (! myProject.downloadDailyDataArkimet(downloadDialog.getVarD(), downloadDialog.getPrec0024(), firstDate, lastDate, true))
+            myProject.logError();
+    }
+    if (! downloadDialog.getVarH().isEmpty())
+    {
+        if (! myProject.downloadHourlyDataArkimet(downloadDialog.getVarH(), firstDate, lastDate, true))
+            myProject.logError();
     }
 
     loadMeteoPoints_GUI(myProject.meteoPointsDbHandler->getDbName());
@@ -1071,6 +1064,7 @@ void MainWindow::interpolateDemGUI()
 
         setCurrentRaster(&(myProject.dataRaster));
         ui->labelRasterScale->setText(QString::fromStdString(getVariableString(myVar)));
+        rasterLegend->update();
     }
     else
     {
@@ -4678,16 +4672,16 @@ void MainWindow::on_action_Proxy_graph_triggered()
         return;
     }
 
+    if(myProject.getCurrentFrequency() == noFrequency)
+    {
+        myProject.logError("Select data frequency (daily or hourly)");
+        return;
+    }
+
     std::vector<Crit3DProxy> proxy = myProject.interpolationSettings.getCurrentProxy();
     if (proxy.size() == 0)
     {
         myProject.logError("No proxy loaded");
-        return;
-    }
-
-    if(myProject.getCurrentFrequency() == noFrequency)
-    {
-        myProject.logError("Select data frequency (daily or hourly)");
         return;
     }
 

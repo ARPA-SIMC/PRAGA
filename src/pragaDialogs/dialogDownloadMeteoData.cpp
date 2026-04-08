@@ -13,7 +13,6 @@
 
 DialogDownloadMeteoData::DialogDownloadMeteoData()
 {
-
     QVBoxLayout mainLayout;
     QHBoxLayout titleLayout;
     QHBoxLayout timeVarLayout;
@@ -66,6 +65,7 @@ DialogDownloadMeteoData::DialogDownloadMeteoData()
     hourly_item4.setText("RAD");
     hourly_item5.setText("W_SCAL_INT");
     hourly_item6.setText("W_VEC_DIR");
+    hourly_item7.setText("ATM_PRESSURE");
 
     hourlyVar.addItem(&hourly_item1);
     hourlyVar.addItem(&hourly_item2);
@@ -73,6 +73,7 @@ DialogDownloadMeteoData::DialogDownloadMeteoData()
     hourlyVar.addItem(&hourly_item4);
     hourlyVar.addItem(&hourly_item5);
     hourlyVar.addItem(&hourly_item6);
+    hourlyVar.addItem(&hourly_item7);
 
     timeVarLayout.addWidget(&hourlyVar);
 
@@ -133,8 +134,8 @@ DialogDownloadMeteoData::DialogDownloadMeteoData()
 
     show();
     exec();
-
 }
+
 
 void DialogDownloadMeteoData::allDailyVarClicked(int toggled)
 {
