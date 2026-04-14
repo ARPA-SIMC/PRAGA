@@ -440,7 +440,7 @@ int PragaProject::executeCommand(const QList<QString> &argumentList)
 int PragaProject::pragaShell()
 {
     #ifdef _WIN32
-        openNewConsole();
+        openWinConsole();
     #endif
 
     logInfo(PRAGAVERSION);
@@ -463,7 +463,7 @@ int PragaProject::pragaShell()
     }
 
     #ifdef _WIN32
-        closeConsole();
+        closeWinConsole();
     #endif
 
     return PRAGA_OK;

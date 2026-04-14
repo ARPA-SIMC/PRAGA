@@ -16,6 +16,7 @@ VERSION = 2.1.3
 QMAKE_TARGET_COPYRIGHT = "\\251 2026 ARPAE ER - Climate Observatory"
 
 CONFIG += c++17
+CONFIG -= console
 
 
 INCLUDEPATH +=  ../mapGraphics \
