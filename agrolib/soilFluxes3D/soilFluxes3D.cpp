@@ -143,7 +143,7 @@ namespace soilFluxes3D::v2
         hostAlloc(nodeGrid.waterData.invariantFluxes, nrNodes);
         // only surface
         hostAlloc(nodeGrid.waterData.partialCourantWater, nrSurfaceNodes);
-        // hostAlloc(nodeGrid.culvertPtr, nrSurfaceNodes);
+        //hostAlloc(nodeGrid.culvertPtr, nrSurfaceNodes);
 
         // Heat data
         if(isComputeHeat)
@@ -464,8 +464,8 @@ namespace soilFluxes3D::v2
         if (maxDeltaT < minDeltaT)
             maxDeltaT = minDeltaT;
 
-        if (maxIterationNumber < 10)
-            maxIterationNumber = 10;
+        if (maxIterationNumber < 20)
+            maxIterationNumber = 20;
         if (maxIterationNumber > MAX_NUMBER_ITERATIONS)
             maxIterationNumber = MAX_NUMBER_ITERATIONS;
 
@@ -481,8 +481,8 @@ namespace soilFluxes3D::v2
 
         if (MBRThresholdExponent < 1)
             MBRThresholdExponent = 1;
-        if (MBRThresholdExponent > 6)
-            MBRThresholdExponent = 6;
+        if (MBRThresholdExponent > 9)
+            MBRThresholdExponent = 9;
 
         SolverParametersPartial paramTemp;
         paramTemp.MBRThreshold = std::pow(10.0, -MBRThresholdExponent);
@@ -773,8 +773,8 @@ namespace soilFluxes3D::v2
     }
 
     /*!
-     * \brief sets the nodeIndex node water content and updates node pressure head and saturation degree accordingly
-     * \param waterContent  [m] surface - [m3 m-3] sub-surface
+     * \brief sets the node water content and updates node pressure head and saturation degree accordingly
+     * \param waterContent: water level on surface [m] - volumetric water content in the sub-surface [m3 m-3]
      * \return Ok/Error
      */
     SF3Derror_t setNodeWaterContent(SF3Duint_t nodeIndex, double waterContent)
@@ -790,6 +790,7 @@ namespace soilFluxes3D::v2
 
         if(nodeGrid.surfaceFlag[nodeIndex])
         {
+            // surface water level [m]
             nodeGrid.waterData.pressureHead[nodeIndex] = nodeGrid.z[nodeIndex] + waterContent;
             nodeGrid.waterData.oldPressureHead[nodeIndex] = nodeGrid.waterData.pressureHead[nodeIndex];
             nodeGrid.waterData.saturationDegree[nodeIndex] = 1.;
@@ -797,6 +798,7 @@ namespace soilFluxes3D::v2
         }
         else
         {
+            // volumetric water content in the sub-surface [m3 m-3]
             if(waterContent > 1.)
                 return SF3Derror_t::ParameterError;
 
