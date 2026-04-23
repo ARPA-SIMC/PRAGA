@@ -30,7 +30,7 @@ namespace soilFluxes3D::v2
         if(_parameters.deltaTcurr == noDataD)
             _parameters.deltaTcurr = _parameters.deltaTmax;
 
-        _parameters.enableOMP = true;       //TO DO: (nodeGrid.nrNodes > ...);
+        _parameters.enableOMP = true;
         if(_parameters.enableOMP)
             omp_set_num_threads(static_cast<int>(_parameters.numThreads));
 
@@ -49,6 +49,9 @@ namespace soilFluxes3D::v2
         //initialize vector data
         vectorX.numElements = nodeGrid.nrNodes;
         hostSolverAlloc(vectorX.values, vectorX.numElements);
+
+        vectorNewX.numElements = nodeGrid.nrNodes;
+        hostSolverAlloc(vectorNewX.values, vectorNewX.numElements);
 
         vectorB.numElements = nodeGrid.nrNodes;
         hostSolverAlloc(vectorB.values, vectorB.numElements);
@@ -120,6 +123,7 @@ namespace soilFluxes3D::v2
 
         //Destruct matrix variable
         hostSolverFree(vectorX.values);
+        hostSolverFree(vectorNewX.values);
 
         hostSolverFree(vectorB.values);
 
@@ -140,44 +144,46 @@ namespace soilFluxes3D::v2
     {
         balanceResult_t stepStatus = balanceResult_t::stepRefused;
 
+        // reset invariant fluxes
+        std::memset(nodeGrid.waterData.invariantFluxes, 0, nodeGrid.nrNodes * sizeof(double));
+
+        // surface capacity = cell size
+        std::memcpy(vectorC.values, nodeGrid.size, nodeGrid.nrSurfaceNodes * sizeof(double));
+
         while(stepStatus != balanceResult_t::stepAccepted)
         {
             acceptedTimeStep = SF3Dmin(_parameters.deltaTcurr, maxTimeStep);
 
-            //Save instantaneus H values
+            // save current potential
             std::memcpy(nodeGrid.waterData.oldPressureHead, nodeGrid.waterData.pressureHead, nodeGrid.nrNodes * sizeof(double));
 
-            //initialize the solution vector with the current pressure head
+            // initialize the solution vector with the current pressure head
             assert(vectorX.numElements == nodeGrid.nrNodes);
             std::memcpy(vectorX.values, nodeGrid.waterData.pressureHead, vectorX.numElements * sizeof(double));
 
-            //Assign vectorC surface values and compute subsurface saturation degree
+            // compute subsurface degree of saturation
             __parfor(_parameters.enableOMP)
-            for (SF3Duint_t nodeIdx = 0; nodeIdx < nodeGrid.nrNodes; ++nodeIdx)
+            for (SF3Duint_t nodeIdx = nodeGrid.nrSurfaceNodes; nodeIdx < nodeGrid.nrNodes; ++nodeIdx)
             {
-                if(nodeGrid.surfaceFlag[nodeIdx])
-                    vectorC.values[nodeIdx] = nodeGrid.size[nodeIdx];
-                else
-                    nodeGrid.waterData.saturationDegree[nodeIdx] = computeNodeSe(nodeIdx);
+                nodeGrid.waterData.saturationDegree[nodeIdx] = computeNodeSe(nodeIdx);
             }
 
             // update aereodynamic and soil conductance
-            updateConductance();
-
-            // update boundary water
-            updateBoundaryWaterData(acceptedTimeStep);
+            if(simulationFlags.computeHeat)
+                updateConductance();
 
             // main computation
             stepStatus = waterApproximationLoop(acceptedTimeStep);
+
+            // error in solver
+            if (stepStatus == balanceResult_t::stepNan)
+                return false;
 
             if(stepStatus != balanceResult_t::stepAccepted)
             {
                 // restore old pressureHead
                 std::memcpy(nodeGrid.waterData.pressureHead, nodeGrid.waterData.oldPressureHead, nodeGrid.nrNodes * sizeof(double));
             }
-
-            if (stepStatus == balanceResult_t::stepNan)
-                return false;
         }
 
         return true;
@@ -363,9 +369,9 @@ namespace soilFluxes3D::v2
             col++;
 
         // flux lateral
-        for(u8_t latIdx = 0; latIdx < maxLateralLink; ++latIdx)
+        for(u8_t l = 0; l < nodeGrid.numLateralLink[row]; ++l)
         {
-            linkIndex = 2 + latIdx;
+            linkIndex = l + 2;
             if (computeLinkFluxes(matrixA.values[row][col], matrixA.columnIndeces[row][col], row,
                                 linkIndex, approxNum, deltaT, _parameters.lateralVerticalRatio,
                                 linkType_t::Lateral, _parameters.meanType) )
@@ -655,7 +661,7 @@ namespace soilFluxes3D::v2
             result = LinealiaLib::instance().solvePCG_AMG_SOR(A, x, b, executionParams, iterativeParams, pcgAmgParams);
             break;
         default:
-            result = LinealiaLib::instance().solvePCG_SOR(A, x, b, executionParams, iterativeParams, relPcgParams);
+            result = LinealiaLib::instance().solveSSOR(A, x, b, executionParams, iterativeParams, relaxParams);
             break;
         }
 
@@ -684,7 +690,7 @@ namespace soilFluxes3D::v2
             switch(computationType)
             {
                 case processType::Water:
-                    currErrorNorm = JacobiWaterCPU(vectorX, matrixA, vectorB);
+                    currErrorNorm = JacobiWaterCPU(vectorX, vectorNewX, matrixA, vectorB);
                     break;
                 case processType::Heat:
                     currErrorNorm = GaussSeidelHeatCPU(vectorX, matrixA, vectorB);
@@ -706,4 +712,4 @@ namespace soilFluxes3D::v2
         return true;
     }
 
-} // namespace
+} // end namespace
