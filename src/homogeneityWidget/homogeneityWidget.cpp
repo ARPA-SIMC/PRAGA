@@ -963,7 +963,6 @@ void Crit3DHomogeneityWidget::deleteFoundStationClicked()
 
 void Crit3DHomogeneityWidget::executeClicked()
 {
-    bool isHomogeneous = false;
     std::vector<double> myTValues;
     double myYearTmax = NODATA;
     double myTmax = NODATA;
@@ -1107,9 +1106,8 @@ void Crit3DHomogeneityWidget::executeClicked()
             }
         }
 
-        double myZAverage = statistics::mean(myValidValues);
-
-        isHomogeneous = (qAbs(myZAverage) <= EPSILON);
+        //double myZAverage = statistics::mean(myValidValues);
+        //bool isHomogeneous = (qAbs(myZAverage) <= EPSILON);
         std::vector<double> z1;
         std::vector<double> z2;
 
@@ -1141,6 +1139,7 @@ void Crit3DHomogeneityWidget::executeClicked()
                     myValidValues.push_back(z1[i]);
                 }
             }
+
             double myZ1Average = statistics::mean(myValidValues);
             myValidValues.clear();
             for (int i = 0; i<z2.size(); i++)
@@ -1187,6 +1186,7 @@ void Crit3DHomogeneityWidget::executeClicked()
             }
             outputValues.push_back(myValue);
         }
+
         int myT95Index = round(myNrYears / 10);
         if (myT95Index > 0 && myT95Index <= 10)
         {
@@ -1201,6 +1201,8 @@ void Crit3DHomogeneityWidget::executeClicked()
         else
         {
             QMessageBox::critical(nullptr, "Info", "T95 value available only for number of years < 100");
+            formInfo.close();
+            return;
         }
 
         int nYearsToAdd;
@@ -1232,6 +1234,7 @@ void Crit3DHomogeneityWidget::executeClicked()
                 pos = pos + 1;
             }
         }
+
         homogeneityChartView->drawSNHT(years,outputValues,t95Points);
         if (myTmax >= myT95 && myYearTmax != NODATA)
         {
