@@ -61,13 +61,14 @@ DialogExportDataGrid::DialogExportDataGrid()
     // TODO manca la funzione per esportare gli orari
     hourlyVar.setSelectionMode(QAbstractItemView::MultiSelection);
 
-    hourlyItems.resize(6);
+    hourlyItems.resize(7);
     hourlyItems[0].setText("TAVG");
     hourlyItems[1].setText("PREC");
     hourlyItems[2].setText("RHAVG");
     hourlyItems[3].setText("RAD");
     hourlyItems[4].setText("W_SCAL_INT");
     hourlyItems[5].setText("W_VEC_DIR");
+    hourlyItems[6].setText("ATM_PRESSURE");
 
     hourlyVar.addItem(&hourlyItems[0]);
     hourlyVar.addItem(&hourlyItems[1]);
@@ -75,6 +76,7 @@ DialogExportDataGrid::DialogExportDataGrid()
     hourlyVar.addItem(&hourlyItems[3]);
     hourlyVar.addItem(&hourlyItems[4]);
     hourlyVar.addItem(&hourlyItems[5]);
+    hourlyVar.addItem(&hourlyItems[6]);
 
     timeVarLayout.addWidget(&hourlyVar);
 

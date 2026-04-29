@@ -32,6 +32,7 @@
         QListWidgetItem hourly_item4;
         QListWidgetItem hourly_item5;
         QListWidgetItem hourly_item6;
+        QListWidgetItem hourly_item7;
 
         QCheckBox allDaily;
         QCheckBox allHourly;
@@ -43,7 +44,7 @@
     public:
         DialogDownloadMeteoData();
 
-        void done(bool res);
+        void done(bool isOk);
         void allDailyVarClicked(int toggled);
         void allHourlyVarClicked(int state);
 

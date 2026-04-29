@@ -402,19 +402,7 @@ bool PragaProject::loadPragaSettings()
                 }
                 idArkimetHourlyMap[windVecDir] = intList;
             }
-/*
-            // check
-            for(std::map<QString, QList<int> >::const_iterator it = idArkimetDailyMap.begin();
-                it != idArkimetDailyMap.end(); ++it)
-            {
-                qDebug() << "idArkimetDailyMap " << it->first << ":" << it->second << "\n";
-            }
-            for(std::map<QString, QList<int> >::const_iterator it = idArkimetHourlyMap.begin();
-                it != idArkimetHourlyMap.end(); ++it)
-            {
-                qDebug() << "idArkimetHourlyMap " << it->first << ":" << it->second << "\n";
-            }
-*/
+
             parametersSettings->endGroup();
         }
     }
@@ -452,7 +440,7 @@ int PragaProject::executeCommand(const QList<QString> &argumentList)
 int PragaProject::pragaShell()
 {
     #ifdef _WIN32
-        openNewConsole();
+        openWinConsole();
     #endif
 
     logInfo(PRAGAVERSION);
@@ -475,7 +463,7 @@ int PragaProject::pragaShell()
     }
 
     #ifdef _WIN32
-        closeConsole();
+        closeWinConsole();
     #endif
 
     return PRAGA_OK;
@@ -1747,12 +1735,12 @@ bool PragaProject::downloadDailyDataArkimet(QList<QString> variables, bool prec0
     bool isSelection = isSelectionPointsActive(meteoPoints);
     for( int i=0; i < meteoPoints.size(); i++ )
     {
-        if (!isSelection || meteoPoints[i].selected)
+        if (! isSelection || meteoPoints[i].selected)
         {
             id = QString::fromStdString(meteoPoints[i].id);
             dataset = QString::fromStdString(meteoPoints[i].dataset);
 
-            // if the point doesn't have dataset, it is not downloaded from arkimet
+            // if the point does not have a dataset, it is not present in Arkimet
             if (! dataset.isEmpty())
             {
                 if (! datasetList.contains(dataset))
@@ -1827,7 +1815,7 @@ bool PragaProject::downloadHourlyDataArkimet(QList<QString> variables, QDate sta
 
     for( int i=0; i < variables.size(); i++ )
     {
-        if ( !idArkimetHourlyMap[variables[i]].isEmpty())
+        if (! idArkimetHourlyMap[variables[i]].isEmpty())
         {
             arkIdVar.append(idArkimetHourlyMap[variables[i]]);
         }
@@ -1850,7 +1838,7 @@ bool PragaProject::downloadHourlyDataArkimet(QList<QString> variables, QDate sta
             id = QString::fromStdString(meteoPoints[i].id);
             dataset = QString::fromStdString(meteoPoints[i].dataset);
 
-            // if the point doesn't have dataset, it is not downloaded from arkimet
+            // if the point does not have a dataset, it is not present in Arkimet
             if (! dataset.isEmpty())
             {
                 if (! datasetList.contains(dataset))
