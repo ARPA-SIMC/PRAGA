@@ -7524,7 +7524,7 @@ void MainWindow::on_flagInterpolationParallel_computing_triggered(bool isChecked
 void MainWindow::on_actionCompute_Radiation_list_triggered()
 {
     QString outputPath = myProject.getProjectPath() + PATH_OUTPUT;
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Radiation list"), outputPath, tr("TXT (*.txt)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Radiation list"), outputPath, tr("Files (*.csv *.txt)"));
     if (fileName.isEmpty())
         return;
 
