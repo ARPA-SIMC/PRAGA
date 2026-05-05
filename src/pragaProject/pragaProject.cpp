@@ -5506,6 +5506,7 @@ void incDateTime(Crit3DDate &myDate, int &myHour)
     }
 }
 
+
 bool PragaProject::computeRadiationList(const QString &fileName, QString folderString)
 {
     if (! meteoPointsLoaded)
@@ -5541,6 +5542,7 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
     int row = 1;
     while(! myStream.atEnd())
     {
+        // TODO controllare se il separatore è la virgola
         line = myStream.readLine().split(';');
         if (line.size() < 8)
         {
@@ -5569,7 +5571,7 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
             tmpRadPoint.radPoint.aspect = line[4].toFloat();
             tmpRadPoint.radPoint.slope = line[5].toFloat();
 
-            QString iniTimeString = line[6];
+            QString iniTimeString = line[6];  // yyyymmdd
             QString endTimeString = line[7];
 
             tmpRadPoint.iniDate.setDate(iniTimeString.mid(6,2).toInt(), iniTimeString.mid(4, 2).toInt(), iniTimeString.mid(0, 4).toInt());
@@ -5593,6 +5595,12 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
             radPointsList.push_back(tmpRadPoint);
             row++;
         }
+    }
+
+    if (radPointsList.empty())
+    {
+        logInfo("No correct data!");
+        return false;
     }
 
     logInfo("Loading and computing...");
