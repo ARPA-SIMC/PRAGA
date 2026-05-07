@@ -1800,6 +1800,7 @@ bool PragaProject::downloadDailyDataArkimet(QList<QString> variables, bool prec0
             errorString = "load Meteo Points DB failed:\n" + dbPointsFileName;
             errorType = ERROR_DBPOINT;
             logError();
+            delete myDownload;
             return false;
         }
 
@@ -5532,7 +5533,7 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
         return false;
     }
 
-    // parser di tutto il file
+    // parse file
     std::vector<TelabRadPoint> radPointsList;
     TelabRadPoint tmpRadPoint;
     Crit3DDate loadIniDateFixed, loadEndDateFixed;
@@ -5631,7 +5632,7 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
 
     logInfo("Rad computation..");
 
-    //elaborazione sui punti del file di input
+    // elaboration on input points
     TelabRadPoint myPoint;
     Crit3DTime myTime;
 
@@ -5652,7 +5653,7 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
         utmPoint.utm.y =  myPoint.radPoint.y;
         utmPoint.z = myPoint.radPoint.height;
 
-        //check date
+        // check date
         if (myPoint.endDate < myPoint.iniDate || (myPoint.endDate == myPoint.iniDate && myPoint.iniHour > myPoint.endHour))
         {
             logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
@@ -5666,9 +5667,11 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
         QFile outputFile(QString::fromStdString(myPoint.fileName));
         outputFile.remove();
 
-        if (! outputFile.open(QIODevice::WriteOnly | QFile::Append))
+        QString fileShortName = QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1));
+
+        if (! outputFile.open(QIODevice::WriteOnly))
         {
-            logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
+            logInfo("Error elaborating point " + fileShortName);
             logInfo("Unable to find output folder or open file " + QString::fromStdString(myPoint.fileName));
             continue;
         }
@@ -5676,10 +5679,12 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
         Crit3DDate myDate = myPoint.iniDate;
         int myHour = myPoint.iniHour;
         float myLinke;
-        bool isLast = false;
+
+        QTextStream outStream(&outputFile);
+
 
         // main cycle (days and hours)
-        while (! isLast)
+        while (myDate < myPoint.endDate || (myDate == myPoint.endDate && myHour <= myPoint.endHour))
         {
             myTime.date = myDate;
             myTime.time = (myHour-0.5) * 3600;
@@ -5691,11 +5696,14 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
 
             if (isEqual(myLinke, NODATA) || isEqual(radSettings.getAlbedo(), NODATA))
             {
-                errorString = "wrong linke or albero value";
+                logError("wrong linke or albero value");
                 return false;
             }
 
             interpolationPoints.clear();
+            myTemperature = NODATA;
+            myTransmissivity = NODATA;
+            myPotentialRad = NODATA;
 
             // air temperature
             if (checkAndPassDataToInterpolation(quality, airTemperature, meteoPoints, myTime,
@@ -5717,20 +5725,22 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
                 continue;
             }
 
-            // potential radiation & transmissivity
+            // potential irradiance
+            TradPoint potRadPoint = myPoint.radPoint;
             radiation::computeRadiationRsun(&radSettings, myTemperature, myTime,
                                             myLinke, radSettings.getAlbedo(), radSettings.getClearSky(),
-                                            radSettings.getClearSky(), sunPosition, myPoint.radPoint, DEM);
+                                            radSettings.getClearSky(), sunPosition, potRadPoint, DEM);
 
-            myPotentialRad = myPoint.radPoint.global;
+            myPotentialRad = potRadPoint.global;
 
+            // compute transmissivity and real sky irradiance
             if (myPotentialRad > 0)
             {
                 intervalWidth = radiation::estimateTransmissivityWindow(&radSettings, utmPoint, myTime, DEM, int(HOUR_SECONDS));
 
                 if (! computeTransmissivity(&radSettings, meteoPoints, intervalWidth, myTime, DEM))
                 {
-                    logInfo("Error elaborating point: " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
+                    logInfo("Error elaborating point: " + fileShortName);
                     logInfo("Error computing transmissivity.");
                     incDateTime(myDate, myHour);
                     continue;
@@ -5751,36 +5761,29 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
                 }
                 else
                 {
-                    logInfo("Error elaborating point: " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
+                    logInfo("Error elaborating point: " + fileShortName);
                     logInfo("Error interpolating transmissivity.");
                     incDateTime(myDate, myHour);
                     continue;
                 }
 
-                // radiation
+                // real sky irradiance
                 if (! radiation::computeRadiationRsun(&radSettings, myTemperature, myTime,
                                                 myLinke, radSettings.getAlbedo(), radSettings.getClearSky(),
                                                 myTransmissivity, sunPosition, myPoint.radPoint, DEM))
                 {
-                    logInfo("Error elaborating point: " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
-                    logInfo("Error computing point radiation.");
+                    logInfo("Error elaborating point: " + fileShortName);
+                    logInfo("Error computing point irradiance.");
                     incDateTime(myDate, myHour);
                     continue;
                 }
             }
 
-            QTextStream outStream(&outputFile);
-
-            QString dateString = QString::number(myTime.date.year);
-            if (myTime.date.month < 10)
-                dateString += "0";
-            dateString += QString::number(myTime.date.month);
-            if (myTime.date.day < 10)
-                dateString += "0";
-            dateString += QString::number(myTime.date.day);
-            if (myHour < 10)
-                dateString += "0";
-            dateString += QString::number(myHour);
+            QString dateString = QString("%1%2%3%4")
+                .arg(myTime.date.year, 4, 10, QChar('0'))
+                .arg(myTime.date.month, 2, 10, QChar('0'))
+                .arg(myTime.date.day, 2, 10, QChar('0'))
+                .arg(myHour, 2, 10, QChar('0'));
 
             outStream << dateString << "\t" << QString::number(myPoint.radPoint.beam, 'f', 1) << "\t"
                       << QString::number(myPoint.radPoint.diffuse, 'f', 1) << "\t"
@@ -5790,14 +5793,10 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
                       << QString::number(myTemperature, 'f', 1) << "\t";
 
             outStream << "\n";
-
-            if (myDate == myPoint.endDate && myHour == myPoint.endHour)
-                isLast = true;
-
             incDateTime(myDate, myHour);
         }
 
-        logInfo("Elaboration finished for " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
+        logInfo("Elaboration finished for " + fileShortName);
         outputFile.close();
     }
 
