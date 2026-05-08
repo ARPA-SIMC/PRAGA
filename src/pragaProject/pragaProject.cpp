@@ -5600,7 +5600,7 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
         // check hours
         QString iniHourStr = iniTimeString.mid(8,2);
         if (iniHourStr.isEmpty())
-            tmpRadPoint.iniHour = 0;
+            tmpRadPoint.iniHour = 1;
         else
             tmpRadPoint.iniHour = iniHourStr.toInt();
 
@@ -5624,7 +5624,7 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
     bool isHourly = true;
     bool isDaily = false;
     bool isShowInfo = true;
-    if (! loadMeteoPointsData(getQDate(loadIniDateFixed), getQDate(loadEndDateFixed), isHourly, isDaily, isShowInfo))
+    if (! loadMeteoPointsData(getQDate(loadIniDateFixed.addDays(-1)), getQDate(loadEndDateFixed.addDays(1)), isHourly, isDaily, isShowInfo))
     {
         logError("Missing meteo data.");
         return false;
@@ -5682,7 +5682,6 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
 
         QTextStream outStream(&outputFile);
 
-
         // main cycle (days and hours)
         while (myDate < myPoint.endDate || (myDate == myPoint.endDate && myHour <= myPoint.endHour))
         {
@@ -5726,12 +5725,11 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
             }
 
             // potential irradiance
-            TradPoint potRadPoint = myPoint.radPoint;
             radiation::computeRadiationRsun(&radSettings, myTemperature, myTime,
                                             myLinke, radSettings.getAlbedo(), radSettings.getClearSky(),
-                                            radSettings.getClearSky(), sunPosition, potRadPoint, DEM);
+                                            radSettings.getClearSky(), sunPosition, myPoint.radPoint, DEM);
 
-            myPotentialRad = potRadPoint.global;
+            myPotentialRad = myPoint.radPoint.global;
 
             // compute transmissivity and real sky irradiance
             if (myPotentialRad > 0)
