@@ -18,6 +18,7 @@
 #include "crit3dDate.h"
 #include "shell.h"
 #include "dialogShiftData.h"
+#include "quality.h"
 
 #include <qdebug.h>
 #include <QFile>
@@ -5711,17 +5712,26 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
             if (checkAndPassDataToInterpolation(quality, airTemperature, meteoPoints, myTime,
                                                 qualityInterpolationSettings, interpolationSettings, meteoSettings,
                                                 &climateParameters, interpolationPoints,
-                                                checkSpatialQuality, errorStdStr) &&
-                preInterpolation(interpolationPoints, interpolationSettings, meteoSettings, &climateParameters,
-                                 meteoPoints, airTemperature, myTime, errorStdStr))
+                                                checkSpatialQuality, errorStdStr))
             {
+                preInterpolation(interpolationPoints, interpolationSettings, meteoSettings, &climateParameters,
+                                 meteoPoints, airTemperature, myTime, errorStdStr);
+
                 myTemperature = interpolate(interpolationPoints, interpolationSettings, meteoSettings, airTemperature,
                                             myPoint.radPoint.x, myPoint.radPoint.y,
                                             myPoint.radPoint.height, myProxyValues, false);
+
+                // TODO capire problema - giugno 2025 sea dist
+                Crit3DQuality qualityCheck;
+                if (qualityCheck.wrongValueHourly_SingleValue(airTemperature, &climateParameters, myTemperature,
+                                                              myTime.date.month, myPoint.radPoint.height))
+                {
+                    myTemperature = NODATA;
+                }
             }
             else
             {
-                myTemperature = TEMPERATURE_DEFAULT;
+                myTemperature = NODATA;
             }
 
             // potential irradiance
