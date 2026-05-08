@@ -5688,6 +5688,12 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
             myTime.date = myDate;
             myTime.time = (myHour-0.5) * 3600;
 
+            QString dateString = QString("%1%2%3%4")
+                .arg(myTime.date.year, 4, 10, QChar('0'))
+                .arg(myTime.date.month, 2, 10, QChar('0'))
+                .arg(myTime.date.day, 2, 10, QChar('0'))
+                .arg(myHour, 2, 10, QChar('0'));
+
             if (radSettings.getLinkeMode() == PARAM_MODE_MONTHLY)
                 myLinke = radSettings.getLinke(myTime.date.month-1);
             else
@@ -5700,9 +5706,6 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
             }
 
             interpolationPoints.clear();
-            myTemperature = NODATA;
-            myTransmissivity = NODATA;
-            myPotentialRad = NODATA;
 
             // air temperature
             if (checkAndPassDataToInterpolation(quality, airTemperature, meteoPoints, myTime,
@@ -5718,10 +5721,7 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
             }
             else
             {
-                logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
-                logInfo("Error interpolating temperature.");
-                incDateTime(myDate, myHour);
-                continue;
+                myTemperature = TEMPERATURE_DEFAULT;
             }
 
             // potential irradiance
@@ -5731,7 +5731,7 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
 
             myPotentialRad = myPoint.radPoint.global;
 
-            // compute transmissivity and real sky irradiance
+            // real sky irradiance
             if (myPotentialRad > 0)
             {
                 intervalWidth = radiation::estimateTransmissivityWindow(&radSettings, utmPoint, myTime, DEM, int(HOUR_SECONDS));
@@ -5739,8 +5739,9 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
                 if (! computeTransmissivity(&radSettings, meteoPoints, intervalWidth, myTime, DEM))
                 {
                     logInfo("Error elaborating point: " + fileShortName);
-                    logInfo("Error computing transmissivity.");
+                    logInfo("Error computing transmissivity at time: " + dateString);
                     incDateTime(myDate, myHour);
+                    outStream << dateString << "\n";
                     continue;
                 }
 
@@ -5760,8 +5761,9 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
                 else
                 {
                     logInfo("Error elaborating point: " + fileShortName);
-                    logInfo("Error interpolating transmissivity.");
+                    logInfo("Error interpolating transmissivity at time: " + dateString);
                     incDateTime(myDate, myHour);
+                    outStream << dateString << "\n";
                     continue;
                 }
 
@@ -5771,17 +5773,12 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
                                                 myTransmissivity, sunPosition, myPoint.radPoint, DEM))
                 {
                     logInfo("Error elaborating point: " + fileShortName);
-                    logInfo("Error computing point irradiance.");
+                    logInfo("Error computing point irradiance at time: " + dateString);
                     incDateTime(myDate, myHour);
+                    outStream << dateString << "\n";
                     continue;
                 }
             }
-
-            QString dateString = QString("%1%2%3%4")
-                .arg(myTime.date.year, 4, 10, QChar('0'))
-                .arg(myTime.date.month, 2, 10, QChar('0'))
-                .arg(myTime.date.day, 2, 10, QChar('0'))
-                .arg(myHour, 2, 10, QChar('0'));
 
             outStream << dateString << "\t" << QString::number(myPoint.radPoint.beam, 'f', 1) << "\t"
                       << QString::number(myPoint.radPoint.diffuse, 'f', 1) << "\t"
