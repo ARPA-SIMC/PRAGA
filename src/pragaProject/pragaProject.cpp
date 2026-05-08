@@ -5723,8 +5723,10 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
 
                 // TODO capire problema - giugno 2025 sea dist
                 Crit3DQuality qualityCheck;
-                if (qualityCheck.wrongValueHourly_SingleValue(airTemperature, &climateParameters, myTemperature,
-                                                              myTime.date.month, myPoint.radPoint.height))
+                quality::qualityType result = qualityCheck.checkFastValueHourly_SingleValue(airTemperature, &climateParameters,
+                                                                                            myTemperature, myTime.date.month,
+                                                                                            myPoint.radPoint.height);
+                if (result != quality::accepted)
                 {
                     myTemperature = NODATA;
                 }
