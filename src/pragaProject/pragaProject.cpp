@@ -5721,7 +5721,7 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
                                             myPoint.radPoint.x, myPoint.radPoint.y,
                                             myPoint.radPoint.height, myProxyValues, false);
 
-                // TODO capire problema - giugno 2025 sea dist
+                // TODO capire problema - ERG5 giugno 2025 sea dist
                 Crit3DQuality qualityCheck;
                 quality::qualityType result = qualityCheck.checkFastValueHourly_SingleValue(airTemperature, &climateParameters,
                                                                                             myTemperature, myTime.date.month,
