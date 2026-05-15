@@ -1,4 +1,3 @@
-[![Build Status](https://github.com/arpa-simc/praga/actions/workflows/build-ubuntu-xenial.yml/badge.svg)](https://github.com/ARPA-SIMC/PRAGA/actions/workflows/build-ubuntu-xenial.yml)
 [![Build Status](https://simc.arpae.it/moncic-ci/PRAGA/rocky8.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
 [![Build Status](https://simc.arpae.it/moncic-ci/PRAGA/rocky9.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
 [![Build Status](https://simc.arpae.it/moncic-ci/PRAGA/fedora42.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
