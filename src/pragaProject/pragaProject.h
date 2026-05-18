@@ -157,7 +157,7 @@
         bool computeDroughtIndexPoint(droughtIndex index, int timescale, int refYearStart, int refYearEnd);
         bool computeDroughtIndexPointGUI(droughtIndex index, int timescale, int refYearStart, int refYearEnd, QDate myDate);
         void showPointStatisticsWidgetPoint(std::string idMeteoPoint);
-        void showHomogeneityTestWidgetPoint(std::string idMeteoPoint);
+        void showHomogeneityTestWidgetPoint(const std::string &idMeteoPoint);
         void showSynchronicityTestWidgetPoint(std::string idMeteoPoint);
         void setSynchronicityReferencePoint(std::string idMeteoPoint);
         void showPointStatisticsWidgetGrid(std::string id);

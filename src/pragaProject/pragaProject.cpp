@@ -3650,71 +3650,64 @@ void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint)
     QDateTime lastHourly = meteoPointsDbHandler->getLastDate(hourly, idMeteoPoint);
     bool hasHourlyData = !(firstHourly.isNull() || lastHourly.isNull());
 
-    if (!hasDailyData && !hasHourlyData)
+    if (! hasDailyData && ! hasHourlyData)
     {
         logInfoGUI("No data.");
         return;
     }
 
     Crit3DMeteoPoint mp;
-    QSqlDatabase myDb = meteoPointsDbHandler->getDb();
-
     meteoPointsDbHandler->getPropertiesGivenId(QString::fromStdString(idMeteoPoint), mp, gisSettings, errorString);
 
-    logInfoGUI("Loading daily data...");
-    meteoPointsDbHandler->loadDailyData(myDb, getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
+    if (hasDailyData)
+        meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
 
-    logInfoGUI("Loading hourly data...");
-    meteoPointsDbHandler->loadHourlyData(myDb, getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), mp);
+    if (hasHourlyData)
+        meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), mp);
 
-    QList<QString> jointStationsMp = meteoPointsDbHandler->getJointStations(QString::fromStdString(idMeteoPoint));
-    for (int j = 0; j < jointStationsMp.size(); j++)
+    QList<QString> jointStationsList = meteoPointsDbHandler->getJointStations(QString::fromStdString(idMeteoPoint));
+    for (size_t j = 0; j < jointStationsList.size(); ++j)
     {
-        QDate lastDateNew = meteoPointsDbHandler->getLastDate(daily, jointStationsMp[j].toStdString()).date();
+        QDate lastDateNew = meteoPointsDbHandler->getLastDate(daily, jointStationsList[j].toStdString()).date();
         if (lastDateNew > lastDaily)
         {
             lastDaily = lastDateNew;
         }
     }
-    closeLogInfo();
 
     QList<Crit3DMeteoPoint> meteoPointsWidgetList;
     meteoPointsWidgetList.append(mp);
-    double mpUtmX = mp.point.utm.x;
-    double mpUtmY = mp.point.utm.y;
+
+    const double mpUtmX = mp.point.utm.x;
+    const double mpUtmY = mp.point.utm.y;
+    const float maxDistance = clima->getElabSettings()->getAnomalyPtsMaxDistance();
+    const QSet<QString> jointSet(jointStationsList.begin(), jointStationsList.end());
+
     for (int i = 0; i < meteoPoints.size(); i++)
     {
         if (meteoPoints[i].id != idMeteoPoint)
         {
-            if (meteoPoints[i].nrObsDataDaysD != 0 || meteoPoints[i].nrObsDataDaysH != 0)
+            const double utmX = meteoPoints[i].point.utm.x;
+            const double utmY = meteoPoints[i].point.utm.y;
+            const float currentDist = gis::computeDistance(mpUtmX, mpUtmY, utmX, utmY);
+            const QString idStr = QString::fromStdString(meteoPoints[i].id);
+
+            if (currentDist < maxDistance || jointSet.contains(idStr))
             {
-                double utmX = meteoPoints[i].point.utm.x;
-                double utmY = meteoPoints[i].point.utm.y;
-                float currentDist = gis::computeDistance(mpUtmX, mpUtmY, utmX, utmY);
-                if (currentDist < clima->getElabSettings()->getAnomalyPtsMaxDistance())
-                {
-                    meteoPointsWidgetList.append(meteoPoints[i]);
-                }
+                meteoPointsWidgetList.append(meteoPoints[i]);
             }
         }
-
-        //add joint stations to meteopoint given to the widget
-        for (int k = 0; k < jointStationsMp.size(); k++)
-        {
-            if (meteoPoints[i].id == jointStationsMp[k].toStdString())
-                meteoPointsWidgetList.append(meteoPoints[i]);
-        }
-
     }
+
+    closeLogInfo();
 
     bool isGrid = false;
     pointStatisticsWidget = new Crit3DPointStatisticsWidget(isGrid, meteoPointsDbHandler, nullptr, meteoPointsWidgetList, firstDaily, lastDaily, firstHourly, lastHourly,
                                                             meteoSettings, pragaDefaultSettings, &climateParameters, quality);
-    return;
 }
 
 
-void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
+void PragaProject::showHomogeneityTestWidgetPoint(const std::string &idMeteoPoint)
 {
     logInfoGUI("Loading data...");
 
@@ -3730,11 +3723,10 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
     }
 
     Crit3DMeteoPoint mp;
-    QSqlDatabase myDb = meteoPointsDbHandler->getDb();
     meteoPointsDbHandler->getPropertiesGivenId(QString::fromStdString(idMeteoPoint), mp, gisSettings, errorString);
 
-    logInfoGUI("Loading daily data...");
-    meteoPointsDbHandler->loadDailyData(myDb, getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
+    meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
+
     QList<QString> jointStationsList = meteoPointsDbHandler->getJointStations(QString::fromStdString(idMeteoPoint));
     for (int j = 0; j < jointStationsList.size(); j++)
     {
@@ -3744,58 +3736,58 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
             lastDaily = lastDateNew;
         }
     }
-    closeLogInfo();
+
     QList<Crit3DMeteoPoint> nearMeteoPointsList;
-    std::vector<float> myDistances;
-    std::vector<int> myIndeces;
-    QList<std::string> myId;
     nearMeteoPointsList.append(mp);
-    double mpUtmX = mp.point.utm.x;
-    double mpUtmY = mp.point.utm.y;
+
+    std::vector<float> distanceList;
+    std::vector<int> indexList;
+
+    const double mpUtmX = mp.point.utm.x;
+    const double mpUtmY = mp.point.utm.y;
+    const float maxDistance = clima->getElabSettings()->getAnomalyPtsMaxDistance();
+    const QSet<QString> jointSet(jointStationsList.begin(), jointStationsList.end());
+
     for (int i = 0; i < meteoPoints.size(); i++)
     {
         if (meteoPoints[i].id != idMeteoPoint)
         {
-            if (meteoPoints[i].nrObsDataDaysD != 0 || meteoPoints[i].nrObsDataDaysH != 0)
-            {
-                double utmX = meteoPoints[i].point.utm.x;
-                double utmY = meteoPoints[i].point.utm.y;
-                float currentDist = gis::computeDistance(mpUtmX, mpUtmY, utmX, utmY);
-                if (currentDist < clima->getElabSettings()->getAnomalyPtsMaxDistance() || jointStationsList.contains(QString::fromStdString(meteoPoints[i].id)))
-                {
-                    nearMeteoPointsList.append(meteoPoints[i]);
-                }
-                if (meteoPoints[i].lapseRateCode != supplemental)
-                {
-                    myDistances.push_back(currentDist);
-                    myIndeces.push_back(i);
-                }
-            }        
-        }
-        //add joint stations to meteopoints given to the widget
-        for (int k = 0; k < jointStationsList.size(); k++)
-        {
-            if (meteoPoints[i].id == jointStationsList[k].toStdString())
+            const double utmX = meteoPoints[i].point.utm.x;
+            const double utmY = meteoPoints[i].point.utm.y;
+            const float currentDist = gis::computeDistance(mpUtmX, mpUtmY, utmX, utmY);
+            const QString idStr = QString::fromStdString(meteoPoints[i].id);
+
+            if (currentDist < maxDistance || jointSet.contains(idStr))
             {
                 nearMeteoPointsList.append(meteoPoints[i]);
+            }
+
+            if (meteoPoints[i].lapseRateCode != supplemental)
+            {
+                distanceList.push_back(currentDist);
+                indexList.push_back(i);
             }
         }
     }
 
-    if (myIndeces.empty())
+    if (indexList.empty())
     {
-        logInfoGUI("There are no meteo points as reference...");
+        logInfoGUI("There are no reference meteo points...");
         return;
     }
 
-    sorting::quicksortAscendingIntegerWithParameters(myIndeces, myDistances, 0, unsigned(myIndeces.size()-1));
-    for (int i = 0; i < myIndeces.size(); i++)
+    QList<std::string> sortedIdList;
+    int lastIndex = int(indexList.size()) - 1;
+    sorting::quicksortAscendingIntegerWithParameters(indexList, distanceList, 0, lastIndex);
+    for (int i = 0; i < indexList.size(); i++)
     {
-        myId << meteoPoints[myIndeces[i]].id;
+        sortedIdList << meteoPoints[indexList[i]].id;
     }
 
-    homogeneityWidget = new Crit3DHomogeneityWidget(meteoPointsDbHandler, nearMeteoPointsList, myId,
-                                                    myDistances, jointStationsList, firstDaily, lastDaily,
+    closeLogInfo();
+
+    homogeneityWidget = new Crit3DHomogeneityWidget(meteoPointsDbHandler, nearMeteoPointsList, sortedIdList,
+                                                    distanceList, jointStationsList, firstDaily, lastDaily,
                                                     meteoSettings, pragaDefaultSettings, &climateParameters, quality);
 }
 

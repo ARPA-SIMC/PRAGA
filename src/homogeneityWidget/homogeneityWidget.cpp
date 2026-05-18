@@ -2,21 +2,21 @@
     \copyright 2020 Fausto Tomei, Gabriele Antolini,
     Alberto Pistocchi, Marco Bittelli, Antonio Volta, Laura Costantini
 
-    This file is part of AGROLIB.
-    AGROLIB has been developed under contract issued by ARPAE Emilia-Romagna
+    This file is part of PRAGA.
+    PRAGA has been developed under contract issued by ARPAE Emilia-Romagna
 
-    AGROLIB is free software: you can redistribute it and/or modify
+    PRAGA is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    AGROLIB is distributed in the hope that it will be useful,
+    PRAGA is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with AGROLIB.  If not, see <http://www.gnu.org/licenses/>.
+    along with PRAGA.  If not, see <http://www.gnu.org/licenses/>.
 
     contacts:
     ftomei@arpae.it
@@ -448,7 +448,6 @@ void Crit3DHomogeneityWidget::plotAnnualSeries()
 }
 
 
-
 void Crit3DHomogeneityWidget::changeVar(const QString &varName)
 {
     myVar = getKeyMeteoVarMeteoMap(MapDailyMeteoVarToString, varName.toStdString());
@@ -483,6 +482,7 @@ void Crit3DHomogeneityWidget::changeMethod(const QString &methodName)
     homogeneityChartView->clearSNHTSeries();
     homogeneityChartView->clearCraddockSeries();
     resultLabel.clear();
+
     if (execute.isEnabled())
     {
         executeClicked();
@@ -625,8 +625,8 @@ void Crit3DHomogeneityWidget::on_actionExportHomogeneityGraph()
         homogeneityChartView->render(paint);
 
         QFile file(fileName);
-        file.open(QIODevice::WriteOnly);
-        buffer.save(&file, "PNG");
+        if (file.open(QIODevice::WriteOnly))
+            buffer.save(&file, "PNG");
     }
 }
 
@@ -647,8 +647,8 @@ void Crit3DHomogeneityWidget::on_actionExportAnnualGraph()
         annualSeriesChartView->render(paint);
 
         QFile file(fileName);
-        file.open(QIODevice::WriteOnly);
-        buffer.save(&file, "PNG");
+        if (file.open(QIODevice::WriteOnly))
+            buffer.save(&file, "PNG");
     }
 }
 
