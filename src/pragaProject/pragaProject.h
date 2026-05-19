@@ -68,7 +68,6 @@
         std::map<QString, QList<int> > idArkimetHourlyMap;
         std::map<QString, QList<int> > idArkimetDailyMap;
 
-        Crit3DPointStatisticsWidget* pointStatisticsWidget;
         Crit3DHomogeneityWidget* homogeneityWidget;
         Crit3DSynchronicityWidget* synchronicityWidget;
 

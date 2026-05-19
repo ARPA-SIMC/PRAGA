@@ -314,17 +314,6 @@ Crit3DHomogeneityWidget::Crit3DHomogeneityWidget(Crit3DMeteoPointsDbHandler* met
 }
 
 
-Crit3DHomogeneityWidget::~Crit3DHomogeneityWidget()
-{
-
-}
-
-void Crit3DHomogeneityWidget::closeEvent(QCloseEvent *event)
-{
-    event->accept();
-}
-
-
 int Crit3DHomogeneityWidget::getJointStationIndex(const std::string& id)
 {
     for (int i = 0; i < _nearMeteoPointsList.size(); ++i)

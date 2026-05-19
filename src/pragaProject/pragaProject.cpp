@@ -3639,16 +3639,8 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
 
 void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint)
 {
-    logInfoGUI("Loading data...");
-
-    // check dates
-    QDate firstDaily = meteoPointsDbHandler->getFirstDate(daily, idMeteoPoint).date();
-    QDate lastDaily = meteoPointsDbHandler->getLastDate(daily, idMeteoPoint).date();
-    bool hasDailyData = !(firstDaily.isNull() || lastDaily.isNull());
-
-    QDateTime firstHourly = meteoPointsDbHandler->getFirstDate(hourly, idMeteoPoint);
-    QDateTime lastHourly = meteoPointsDbHandler->getLastDate(hourly, idMeteoPoint);
-    bool hasHourlyData = !(firstHourly.isNull() || lastHourly.isNull());
+    bool hasDailyData = meteoPointsDbHandler->hasData(daily, idMeteoPoint);
+    bool hasHourlyData = meteoPointsDbHandler->hasData(hourly, idMeteoPoint);
 
     if (! hasDailyData && ! hasHourlyData)
     {
@@ -3656,45 +3648,61 @@ void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint)
         return;
     }
 
+    logInfoGUI("Loading data...");
+
     Crit3DMeteoPoint mp;
     meteoPointsDbHandler->getPropertiesGivenId(QString::fromStdString(idMeteoPoint), mp, gisSettings, errorString);
 
+    QList<QString> jointStationsList = meteoPointsDbHandler->getJointStations(QString::fromStdString(idMeteoPoint));
+    const QSet<QString> jointSet(jointStationsList.begin(), jointStationsList.end());
+
+    QDate firstDaily, lastDaily;
+    QDateTime firstHourly, lastHourly;
+
     if (hasDailyData)
+    {
+        firstDaily = meteoPointsDbHandler->getFirstDate(daily, idMeteoPoint).date();
+        lastDaily = meteoPointsDbHandler->getLastDate(daily, idMeteoPoint).date();
+
         meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
 
-    if (hasHourlyData)
-        meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), mp);
-
-    QList<QString> jointStationsList = meteoPointsDbHandler->getJointStations(QString::fromStdString(idMeteoPoint));
-    for (size_t j = 0; j < jointStationsList.size(); ++j)
-    {
-        QDate lastDateNew = meteoPointsDbHandler->getLastDate(daily, jointStationsList[j].toStdString()).date();
-        if (lastDateNew > lastDaily)
+        for (size_t j = 0; j < jointStationsList.size(); ++j)
         {
-            lastDaily = lastDateNew;
+            QDate lastDateNew = meteoPointsDbHandler->getLastDate(daily, jointStationsList[j].toStdString()).date();
+            if (lastDateNew > lastDaily)
+            {
+                lastDaily = lastDateNew;
+            }
         }
     }
 
-    QList<Crit3DMeteoPoint> meteoPointsWidgetList;
-    meteoPointsWidgetList.append(mp);
+    if (hasHourlyData)
+    {
+        firstHourly = meteoPointsDbHandler->getFirstDate(hourly, idMeteoPoint);
+        lastHourly = meteoPointsDbHandler->getLastDate(hourly, idMeteoPoint);
+        meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), mp);
+    }
+
+    QList<Crit3DMeteoPoint> nearMeteoPointsList;
+    nearMeteoPointsList.append(mp);
 
     const double mpUtmX = mp.point.utm.x;
     const double mpUtmY = mp.point.utm.y;
     const float maxDistance = clima->getElabSettings()->getAnomalyPtsMaxDistance();
-    const QSet<QString> jointSet(jointStationsList.begin(), jointStationsList.end());
 
     for (int i = 0; i < meteoPoints.size(); i++)
     {
-        if (meteoPoints[i].id != idMeteoPoint)
+        if (meteoPoints[i].active && meteoPoints[i].id != idMeteoPoint)
         {
             const double utmX = meteoPoints[i].point.utm.x;
             const double utmY = meteoPoints[i].point.utm.y;
             const float currentDist = gis::computeDistance(mpUtmX, mpUtmY, utmX, utmY);
+
             const QString idStr = QString::fromStdString(meteoPoints[i].id);
 
             if (currentDist < maxDistance || jointSet.contains(idStr))
             {
-                meteoPointsWidgetList.append(meteoPoints[i]);
+                nearMeteoPointsList.append(meteoPoints[i]);
             }
         }
     }
@@ -3702,8 +3710,8 @@ void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint)
     closeLogInfo();
 
     bool isGrid = false;
-    pointStatisticsWidget = new Crit3DPointStatisticsWidget(isGrid, meteoPointsDbHandler, nullptr, meteoPointsWidgetList, firstDaily, lastDaily, firstHourly, lastHourly,
-                                                            meteoSettings, pragaDefaultSettings, &climateParameters, quality);
+    Crit3DPointStatisticsWidget* w = new Crit3DPointStatisticsWidget(isGrid, meteoPointsDbHandler, nullptr, nearMeteoPointsList, firstDaily, lastDaily, firstHourly, lastHourly,
+                                         meteoSettings, pragaDefaultSettings, &climateParameters, quality);
 }
 
 
@@ -3711,16 +3719,15 @@ void PragaProject::showHomogeneityTestWidgetPoint(const std::string &idMeteoPoin
 {
     logInfoGUI("Loading data...");
 
-    // check dates
-    QDate firstDaily = meteoPointsDbHandler->getFirstDate(daily, idMeteoPoint).date();
-    QDate lastDaily = meteoPointsDbHandler->getLastDate(daily, idMeteoPoint).date();
-    bool hasDailyData = !(firstDaily.isNull() || lastDaily.isNull());
-
-    if (! hasDailyData)
+    if (! meteoPointsDbHandler->hasData(daily, idMeteoPoint))
     {
         logInfoGUI("No daily data.");
         return;
     }
+
+    // get dates
+    QDate firstDaily = meteoPointsDbHandler->getFirstDate(daily, idMeteoPoint).date();
+    QDate lastDaily = meteoPointsDbHandler->getLastDate(daily, idMeteoPoint).date();
 
     Crit3DMeteoPoint mp;
     meteoPointsDbHandler->getPropertiesGivenId(QString::fromStdString(idMeteoPoint), mp, gisSettings, errorString);
@@ -3742,30 +3749,34 @@ void PragaProject::showHomogeneityTestWidgetPoint(const std::string &idMeteoPoin
 
     std::vector<float> distanceList;
     std::vector<int> indexList;
-
-    const double mpUtmX = mp.point.utm.x;
-    const double mpUtmY = mp.point.utm.y;
-    const float maxDistance = clima->getElabSettings()->getAnomalyPtsMaxDistance();
     const QSet<QString> jointSet(jointStationsList.begin(), jointStationsList.end());
+
+    const double x0 = mp.point.utm.x;
+    const double y0 = mp.point.utm.y;
+    const float maxDistance = clima->getElabSettings()->getAnomalyPtsMaxDistance();
 
     for (int i = 0; i < meteoPoints.size(); i++)
     {
-        if (meteoPoints[i].id != idMeteoPoint)
+        if (meteoPoints[i].active && meteoPoints[i].id != idMeteoPoint)
         {
             const double utmX = meteoPoints[i].point.utm.x;
             const double utmY = meteoPoints[i].point.utm.y;
-            const float currentDist = gis::computeDistance(mpUtmX, mpUtmY, utmX, utmY);
-            const QString idStr = QString::fromStdString(meteoPoints[i].id);
+            const float currentDist = gis::computeDistance(x0, y0, utmX, utmY);
 
-            if (currentDist < maxDistance || jointSet.contains(idStr))
+            if (currentDist < (10.0 * maxDistance) && meteoPointsDbHandler->hasData(daily, meteoPoints[i].id))
             {
-                nearMeteoPointsList.append(meteoPoints[i]);
-            }
+                const QString idStr = QString::fromStdString(meteoPoints[i].id);
 
-            if (meteoPoints[i].lapseRateCode != supplemental)
-            {
-                distanceList.push_back(currentDist);
-                indexList.push_back(i);
+                if (currentDist < maxDistance || jointSet.contains(idStr))
+                {
+                    nearMeteoPointsList.append(meteoPoints[i]);
+                }
+
+                if (meteoPoints[i].lapseRateCode != supplemental)
+                {
+                    distanceList.push_back(currentDist);
+                    indexList.push_back(i);
+                }
             }
         }
     }
@@ -3786,9 +3797,12 @@ void PragaProject::showHomogeneityTestWidgetPoint(const std::string &idMeteoPoin
 
     closeLogInfo();
 
+    delete homogeneityWidget;
+    homogeneityWidget = nullptr;
+
     homogeneityWidget = new Crit3DHomogeneityWidget(meteoPointsDbHandler, nearMeteoPointsList, sortedIdList,
-                                                    distanceList, jointStationsList, firstDaily, lastDaily,
-                                                    meteoSettings, pragaDefaultSettings, &climateParameters, quality);
+                                distanceList, jointStationsList, firstDaily, lastDaily,
+                                meteoSettings, pragaDefaultSettings, &climateParameters, quality);
 }
 
 
@@ -3895,26 +3909,23 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
         logInfoGUI("Loading hourly data...");
         meteoGridDbHandler->loadGridHourlyDataFixedFields(errorString, QString::fromStdString(id), firstDateTime, lastDateTime);
     }
+
     closeLogInfo();
 
-    unsigned row;
-    unsigned col;
-    Crit3DMeteoPoint mp;
-    if (meteoGridDbHandler->meteoGrid()->findMeteoPointFromId(&row,&col,id))
-    {
-        mp = meteoGridDbHandler->meteoGrid()->meteoPoint(row,col);
-    }
-    else
-    {
+    unsigned row, col;
+    if (! meteoGridDbHandler->meteoGrid()->findMeteoPointFromId(&row, &col, id))
         return;
-    }
-    QList<Crit3DMeteoPoint> meteoPointsWidgetList;
-    meteoPointsWidgetList.append(mp);
+
+    Crit3DMeteoPoint   mp = meteoGridDbHandler->meteoGrid()->meteoPoint(row, col);
+
+    QList<Crit3DMeteoPoint> meteoPointsList;
+    meteoPointsList.append(mp);
+
     bool isGrid = true;
-    pointStatisticsWidget = new Crit3DPointStatisticsWidget(isGrid, nullptr, meteoGridDbHandler, meteoPointsWidgetList, firstDaily, lastDaily, firstDateTime, lastDateTime,
-                                                            meteoSettings, pragaDefaultSettings, &climateParameters, quality);
-   return;
+    Crit3DPointStatisticsWidget* w = new Crit3DPointStatisticsWidget(isGrid, nullptr, meteoGridDbHandler, meteoPointsList, firstDaily, lastDaily, firstDateTime, lastDateTime,
+                                          meteoSettings, pragaDefaultSettings, &climateParameters, quality);
 }
+
 
 #ifdef NETCDF
     bool PragaProject::exportMeteoGridToNetCDF(QString fileName, QString title, QString variableName, std::string variableUnit, Crit3DDate myDate, int nDays, int refYearStart, int refYearEnd)

@@ -39,12 +39,12 @@
 #include <QDate>
 
 Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMeteoPointsDbHandler* meteoPointsDbHandler,
-                                    Crit3DMeteoGridDbHandler* meteoGridDbHandler, const QList<Crit3DMeteoPoint>& meteoPoints,
-                                    const QDate &firstDailyMp, const QDate &lastDailyMp, const QDateTime &firstHourlyMp,
-                                    const QDateTime &lastHourlyMp, Crit3DMeteoSettings *meteoSettings, QSettings *settings,
-                                    Crit3DClimateParameters *climateParameters, Crit3DQuality *quality)
+                                                         Crit3DMeteoGridDbHandler* meteoGridDbHandler, const QList<Crit3DMeteoPoint>& nearMeteoPoints,
+                                                         const QDate &firstDailyMp, const QDate &lastDailyMp, const QDateTime &firstHourlyMp,
+                                                         const QDateTime &lastHourlyMp, Crit3DMeteoSettings *meteoSettings, QSettings *settings,
+                                                         Crit3DClimateParameters *climateParameters, Crit3DQuality *quality)
     :isGrid(isGrid), meteoPointsDbHandler(meteoPointsDbHandler), meteoGridDbHandler(meteoGridDbHandler),
-    _meteoPointList(meteoPoints), _firstDailyDb(firstDailyMp), _lastDailyDb(lastDailyMp),
+    _meteoPointList(nearMeteoPoints), _firstDailyDb(firstDailyMp), _lastDailyDb(lastDailyMp),
     _firstHourlyDb(firstHourlyMp), _lastHourlyDb(lastHourlyMp),
     meteoSettings(meteoSettings), settings(settings), climateParameters(climateParameters), quality(quality)
 {

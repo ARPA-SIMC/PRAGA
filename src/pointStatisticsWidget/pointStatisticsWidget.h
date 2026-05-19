@@ -17,7 +17,7 @@
 
         public:
         Crit3DPointStatisticsWidget(bool isGrid, Crit3DMeteoPointsDbHandler* meteoPointsDbHandler, Crit3DMeteoGridDbHandler* meteoGridDbHandler,
-                                    const QList<Crit3DMeteoPoint> &meteoPoints, const QDate& firstDailyMp, const QDate& lastDailyMp,
+                                    const QList<Crit3DMeteoPoint> &nearMeteoPoints, const QDate& firstDailyMp, const QDate& lastDailyMp,
                                     const QDateTime& firstHourlyMp, const QDateTime& lastHourlyMp, Crit3DMeteoSettings *meteoSettings,
                                     QSettings *settings, Crit3DClimateParameters *climateParameters, Crit3DQuality* quality);
 
