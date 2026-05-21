@@ -1,7 +1,7 @@
 #ifndef PRAGAPROJECT_H
 #define PRAGAPROJECT_H
 
-    #define PRAGAVERSION "PRAGA v2.1.3 (2026)"
+    #define PRAGAVERSION "PRAGA v2.1.4 (2026)"
 
     #ifndef CRIT3DCLIMATE_H
         #include "crit3dClimate.h"
@@ -68,7 +68,6 @@
         std::map<QString, QList<int> > idArkimetHourlyMap;
         std::map<QString, QList<int> > idArkimetDailyMap;
 
-        Crit3DPointStatisticsWidget* pointStatisticsWidget;
         Crit3DHomogeneityWidget* homogeneityWidget;
         Crit3DSynchronicityWidget* synchronicityWidget;
 
@@ -157,7 +156,7 @@
         bool computeDroughtIndexPoint(droughtIndex index, int timescale, int refYearStart, int refYearEnd);
         bool computeDroughtIndexPointGUI(droughtIndex index, int timescale, int refYearStart, int refYearEnd, QDate myDate);
         void showPointStatisticsWidgetPoint(std::string idMeteoPoint);
-        void showHomogeneityTestWidgetPoint(std::string idMeteoPoint);
+        void showHomogeneityTestWidgetPoint(const std::string &idMeteoPoint);
         void showSynchronicityTestWidgetPoint(std::string idMeteoPoint);
         void setSynchronicityReferencePoint(std::string idMeteoPoint);
         void showPointStatisticsWidgetGrid(std::string id);

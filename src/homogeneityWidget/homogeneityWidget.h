@@ -22,9 +22,11 @@
                                 const QDate &firstDaily, const QDate &lastDaily, Crit3DMeteoSettings *meteoSettings, QSettings *settings,
                                 Crit3DClimateParameters *climateParameters, Crit3DQuality* quality);
 
-            ~Crit3DHomogeneityWidget();
+            ~Crit3DHomogeneityWidget() {}
 
-            void closeEvent(QCloseEvent *event);
+            void closeEvent(QCloseEvent *event)
+            { event->accept(); }
+
             void changeMethod(const QString& methodName);
             void changeVar(const QString& varName);
             void changeYears();

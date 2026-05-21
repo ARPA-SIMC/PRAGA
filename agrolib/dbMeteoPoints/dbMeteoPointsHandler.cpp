@@ -144,8 +144,6 @@ void Crit3DMeteoPointsDbHandler::setDatasetsActive(QString active)
 }
 
 
-
-
 QList<QString> Crit3DMeteoPointsDbHandler::getAllDatasetsList()
 {
     QList<QString> datasetList;
@@ -167,6 +165,39 @@ QList<QString> Crit3DMeteoPointsDbHandler::getAllDatasetsList()
     }
 
     return datasetList;
+}
+
+
+bool Crit3DMeteoPointsDbHandler::hasData(frequencyType frequency, const std::string &idMeteoPoint) const
+{
+    std::string suffix;
+
+    switch (frequency)
+    {
+        case daily:
+            suffix = "_D";
+            break;
+
+        case hourly:
+            suffix = "_H";
+            break;
+
+        case monthly:
+            suffix = "_M";
+            break;
+
+        default:
+            return false;
+    }
+
+    const QString table = QString::fromStdString(idMeteoPoint + suffix);
+    const QString statement = QStringLiteral("SELECT 1 FROM `%1` LIMIT 1").arg(table);
+
+    QSqlQuery qry(_db);
+    if (! qry.exec(statement))
+        return false;
+
+    return qry.next();
 }
 
 

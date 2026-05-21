@@ -18,6 +18,7 @@
 #include "crit3dDate.h"
 #include "shell.h"
 #include "dialogShiftData.h"
+#include "quality.h"
 
 #include <qdebug.h>
 #include <QFile>
@@ -1800,6 +1801,7 @@ bool PragaProject::downloadDailyDataArkimet(QList<QString> variables, bool prec0
             errorString = "load Meteo Points DB failed:\n" + dbPointsFileName;
             errorType = ERROR_DBPOINT;
             logError();
+            delete myDownload;
             return false;
         }
 
@@ -3637,102 +3639,101 @@ bool PragaProject::dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, m
 
 void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint)
 {
-    logInfoGUI("Loading data...");
+    bool hasDailyData = meteoPointsDbHandler->hasData(daily, idMeteoPoint);
+    bool hasHourlyData = meteoPointsDbHandler->hasData(hourly, idMeteoPoint);
 
-    // check dates
-    QDate firstDaily = meteoPointsDbHandler->getFirstDate(daily, idMeteoPoint).date();
-    QDate lastDaily = meteoPointsDbHandler->getLastDate(daily, idMeteoPoint).date();
-    bool hasDailyData = !(firstDaily.isNull() || lastDaily.isNull());
-
-    QDateTime firstHourly = meteoPointsDbHandler->getFirstDate(hourly, idMeteoPoint);
-    QDateTime lastHourly = meteoPointsDbHandler->getLastDate(hourly, idMeteoPoint);
-    bool hasHourlyData = !(firstHourly.isNull() || lastHourly.isNull());
-
-    if (!hasDailyData && !hasHourlyData)
+    if (! hasDailyData && ! hasHourlyData)
     {
         logInfoGUI("No data.");
         return;
     }
 
-    Crit3DMeteoPoint mp;
-    QSqlDatabase myDb = meteoPointsDbHandler->getDb();
+    logInfoGUI("Loading data...");
 
+    Crit3DMeteoPoint mp;
     meteoPointsDbHandler->getPropertiesGivenId(QString::fromStdString(idMeteoPoint), mp, gisSettings, errorString);
 
-    logInfoGUI("Loading daily data...");
-    meteoPointsDbHandler->loadDailyData(myDb, getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
+    QList<QString> jointStationsList = meteoPointsDbHandler->getJointStations(QString::fromStdString(idMeteoPoint));
+    const QSet<QString> jointSet(jointStationsList.begin(), jointStationsList.end());
 
-    logInfoGUI("Loading hourly data...");
-    meteoPointsDbHandler->loadHourlyData(myDb, getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), mp);
+    QDate firstDaily, lastDaily;
+    QDateTime firstHourly, lastHourly;
 
-    QList<QString> jointStationsMp = meteoPointsDbHandler->getJointStations(QString::fromStdString(idMeteoPoint));
-    for (int j = 0; j < jointStationsMp.size(); j++)
+    if (hasDailyData)
     {
-        QDate lastDateNew = meteoPointsDbHandler->getLastDate(daily, jointStationsMp[j].toStdString()).date();
-        if (lastDateNew > lastDaily)
-        {
-            lastDaily = lastDateNew;
-        }
-    }
-    closeLogInfo();
+        firstDaily = meteoPointsDbHandler->getFirstDate(daily, idMeteoPoint).date();
+        lastDaily = meteoPointsDbHandler->getLastDate(daily, idMeteoPoint).date();
 
-    QList<Crit3DMeteoPoint> meteoPointsWidgetList;
-    meteoPointsWidgetList.append(mp);
-    double mpUtmX = mp.point.utm.x;
-    double mpUtmY = mp.point.utm.y;
-    for (int i = 0; i < meteoPoints.size(); i++)
-    {
-        if (meteoPoints[i].id != idMeteoPoint)
+        meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
+
+        for (size_t j = 0; j < jointStationsList.size(); ++j)
         {
-            if (meteoPoints[i].nrObsDataDaysD != 0 || meteoPoints[i].nrObsDataDaysH != 0)
+            QDate lastDateNew = meteoPointsDbHandler->getLastDate(daily, jointStationsList[j].toStdString()).date();
+            if (lastDateNew > lastDaily)
             {
-                double utmX = meteoPoints[i].point.utm.x;
-                double utmY = meteoPoints[i].point.utm.y;
-                float currentDist = gis::computeDistance(mpUtmX, mpUtmY, utmX, utmY);
-                if (currentDist < clima->getElabSettings()->getAnomalyPtsMaxDistance())
-                {
-                    meteoPointsWidgetList.append(meteoPoints[i]);
-                }
+                lastDaily = lastDateNew;
             }
         }
-
-        //add joint stations to meteopoint given to the widget
-        for (int k = 0; k < jointStationsMp.size(); k++)
-        {
-            if (meteoPoints[i].id == jointStationsMp[k].toStdString())
-                meteoPointsWidgetList.append(meteoPoints[i]);
-        }
-
     }
 
+    if (hasHourlyData)
+    {
+        firstHourly = meteoPointsDbHandler->getFirstDate(hourly, idMeteoPoint);
+        lastHourly = meteoPointsDbHandler->getLastDate(hourly, idMeteoPoint);
+        meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourly.date()), getCrit3DDate(lastHourly.date()), mp);
+    }
+
+    QList<Crit3DMeteoPoint> nearMeteoPointsList;
+    nearMeteoPointsList.append(mp);
+
+    const double mpUtmX = mp.point.utm.x;
+    const double mpUtmY = mp.point.utm.y;
+    const float maxDistance = clima->getElabSettings()->getAnomalyPtsMaxDistance();
+
+    for (int i = 0; i < meteoPoints.size(); i++)
+    {
+        if (meteoPoints[i].active && meteoPoints[i].id != idMeteoPoint)
+        {
+            const double utmX = meteoPoints[i].point.utm.x;
+            const double utmY = meteoPoints[i].point.utm.y;
+            const float currentDist = gis::computeDistance(mpUtmX, mpUtmY, utmX, utmY);
+
+            const QString idStr = QString::fromStdString(meteoPoints[i].id);
+
+            if (currentDist < maxDistance || jointSet.contains(idStr))
+            {
+                nearMeteoPointsList.append(meteoPoints[i]);
+            }
+        }
+    }
+
+    closeLogInfo();
+
     bool isGrid = false;
-    pointStatisticsWidget = new Crit3DPointStatisticsWidget(isGrid, meteoPointsDbHandler, nullptr, meteoPointsWidgetList, firstDaily, lastDaily, firstHourly, lastHourly,
-                                                            meteoSettings, pragaDefaultSettings, &climateParameters, quality);
-    return;
+    Crit3DPointStatisticsWidget* w = new Crit3DPointStatisticsWidget(isGrid, meteoPointsDbHandler, nullptr, nearMeteoPointsList, firstDaily, lastDaily, firstHourly, lastHourly,
+                                         meteoSettings, pragaDefaultSettings, &climateParameters, quality);
 }
 
 
-void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
+void PragaProject::showHomogeneityTestWidgetPoint(const std::string &idMeteoPoint)
 {
     logInfoGUI("Loading data...");
 
-    // check dates
-    QDate firstDaily = meteoPointsDbHandler->getFirstDate(daily, idMeteoPoint).date();
-    QDate lastDaily = meteoPointsDbHandler->getLastDate(daily, idMeteoPoint).date();
-    bool hasDailyData = !(firstDaily.isNull() || lastDaily.isNull());
-
-    if (! hasDailyData)
+    if (! meteoPointsDbHandler->hasData(daily, idMeteoPoint))
     {
         logInfoGUI("No daily data.");
         return;
     }
 
+    // get dates
+    QDate firstDaily = meteoPointsDbHandler->getFirstDate(daily, idMeteoPoint).date();
+    QDate lastDaily = meteoPointsDbHandler->getLastDate(daily, idMeteoPoint).date();
+
     Crit3DMeteoPoint mp;
-    QSqlDatabase myDb = meteoPointsDbHandler->getDb();
     meteoPointsDbHandler->getPropertiesGivenId(QString::fromStdString(idMeteoPoint), mp, gisSettings, errorString);
 
-    logInfoGUI("Loading daily data...");
-    meteoPointsDbHandler->loadDailyData(myDb, getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
+    meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
+
     QList<QString> jointStationsList = meteoPointsDbHandler->getJointStations(QString::fromStdString(idMeteoPoint));
     for (int j = 0; j < jointStationsList.size(); j++)
     {
@@ -3742,59 +3743,66 @@ void PragaProject::showHomogeneityTestWidgetPoint(std::string idMeteoPoint)
             lastDaily = lastDateNew;
         }
     }
-    closeLogInfo();
+
     QList<Crit3DMeteoPoint> nearMeteoPointsList;
-    std::vector<float> myDistances;
-    std::vector<int> myIndeces;
-    QList<std::string> myId;
     nearMeteoPointsList.append(mp);
-    double mpUtmX = mp.point.utm.x;
-    double mpUtmY = mp.point.utm.y;
+
+    std::vector<float> distanceList;
+    std::vector<int> indexList;
+    const QSet<QString> jointSet(jointStationsList.begin(), jointStationsList.end());
+
+    const double x0 = mp.point.utm.x;
+    const double y0 = mp.point.utm.y;
+    const float maxDistance = clima->getElabSettings()->getAnomalyPtsMaxDistance();
+
     for (int i = 0; i < meteoPoints.size(); i++)
     {
-        if (meteoPoints[i].id != idMeteoPoint)
+        if (meteoPoints[i].active && meteoPoints[i].id != idMeteoPoint)
         {
-            if (meteoPoints[i].nrObsDataDaysD != 0 || meteoPoints[i].nrObsDataDaysH != 0)
+            const double utmX = meteoPoints[i].point.utm.x;
+            const double utmY = meteoPoints[i].point.utm.y;
+            const float currentDist = gis::computeDistance(x0, y0, utmX, utmY);
+
+            if (currentDist < (10.0 * maxDistance) && meteoPointsDbHandler->hasData(daily, meteoPoints[i].id))
             {
-                double utmX = meteoPoints[i].point.utm.x;
-                double utmY = meteoPoints[i].point.utm.y;
-                float currentDist = gis::computeDistance(mpUtmX, mpUtmY, utmX, utmY);
-                if (currentDist < clima->getElabSettings()->getAnomalyPtsMaxDistance() || jointStationsList.contains(QString::fromStdString(meteoPoints[i].id)))
+                const QString idStr = QString::fromStdString(meteoPoints[i].id);
+
+                if (currentDist < maxDistance || jointSet.contains(idStr))
                 {
                     nearMeteoPointsList.append(meteoPoints[i]);
                 }
+
                 if (meteoPoints[i].lapseRateCode != supplemental)
                 {
-                    myDistances.push_back(currentDist);
-                    myIndeces.push_back(i);
+                    distanceList.push_back(currentDist);
+                    indexList.push_back(i);
                 }
-            }        
-        }
-        //add joint stations to meteopoints given to the widget
-        for (int k = 0; k < jointStationsList.size(); k++)
-        {
-            if (meteoPoints[i].id == jointStationsList[k].toStdString())
-            {
-                nearMeteoPointsList.append(meteoPoints[i]);
             }
         }
     }
 
-    if (myIndeces.empty())
+    if (indexList.empty())
     {
-        logInfoGUI("There are no meteo points as reference...");
+        logInfoGUI("There are no reference meteo points...");
         return;
     }
 
-    sorting::quicksortAscendingIntegerWithParameters(myIndeces, myDistances, 0, unsigned(myIndeces.size()-1));
-    for (int i = 0; i < myIndeces.size(); i++)
+    QList<std::string> sortedIdList;
+    int lastIndex = int(indexList.size()) - 1;
+    sorting::quicksortAscendingIntegerWithParameters(indexList, distanceList, 0, lastIndex);
+    for (int i = 0; i < indexList.size(); i++)
     {
-        myId << meteoPoints[myIndeces[i]].id;
+        sortedIdList << meteoPoints[indexList[i]].id;
     }
 
-    homogeneityWidget = new Crit3DHomogeneityWidget(meteoPointsDbHandler, nearMeteoPointsList, myId,
-                                                    myDistances, jointStationsList, firstDaily, lastDaily,
-                                                    meteoSettings, pragaDefaultSettings, &climateParameters, quality);
+    closeLogInfo();
+
+    delete homogeneityWidget;
+    homogeneityWidget = nullptr;
+
+    homogeneityWidget = new Crit3DHomogeneityWidget(meteoPointsDbHandler, nearMeteoPointsList, sortedIdList,
+                                distanceList, jointStationsList, firstDaily, lastDaily,
+                                meteoSettings, pragaDefaultSettings, &climateParameters, quality);
 }
 
 
@@ -3901,26 +3909,23 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
         logInfoGUI("Loading hourly data...");
         meteoGridDbHandler->loadGridHourlyDataFixedFields(errorString, QString::fromStdString(id), firstDateTime, lastDateTime);
     }
+
     closeLogInfo();
 
-    unsigned row;
-    unsigned col;
-    Crit3DMeteoPoint mp;
-    if (meteoGridDbHandler->meteoGrid()->findMeteoPointFromId(&row,&col,id))
-    {
-        mp = meteoGridDbHandler->meteoGrid()->meteoPoint(row,col);
-    }
-    else
-    {
+    unsigned row, col;
+    if (! meteoGridDbHandler->meteoGrid()->findMeteoPointFromId(&row, &col, id))
         return;
-    }
-    QList<Crit3DMeteoPoint> meteoPointsWidgetList;
-    meteoPointsWidgetList.append(mp);
+
+    Crit3DMeteoPoint   mp = meteoGridDbHandler->meteoGrid()->meteoPoint(row, col);
+
+    QList<Crit3DMeteoPoint> meteoPointsList;
+    meteoPointsList.append(mp);
+
     bool isGrid = true;
-    pointStatisticsWidget = new Crit3DPointStatisticsWidget(isGrid, nullptr, meteoGridDbHandler, meteoPointsWidgetList, firstDaily, lastDaily, firstDateTime, lastDateTime,
-                                                            meteoSettings, pragaDefaultSettings, &climateParameters, quality);
-   return;
+    Crit3DPointStatisticsWidget* w = new Crit3DPointStatisticsWidget(isGrid, nullptr, meteoGridDbHandler, meteoPointsList, firstDaily, lastDaily, firstDateTime, lastDateTime,
+                                          meteoSettings, pragaDefaultSettings, &climateParameters, quality);
 }
+
 
 #ifdef NETCDF
     bool PragaProject::exportMeteoGridToNetCDF(QString fileName, QString title, QString variableName, std::string variableUnit, Crit3DDate myDate, int nDays, int refYearStart, int refYearEnd)
@@ -5506,6 +5511,7 @@ void incDateTime(Crit3DDate &myDate, int &myHour)
     }
 }
 
+
 bool PragaProject::computeRadiationList(const QString &fileName, QString folderString)
 {
     if (! meteoPointsLoaded)
@@ -5522,7 +5528,7 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
     }
 
     QTextStream myStream (&myFile);
-    QList<QString> line;
+    QList<QString> lineValues;
 
     if (myStream.atEnd())
     {
@@ -5531,7 +5537,7 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
         return false;
     }
 
-    // parser di tutto il file
+    // parse file
     std::vector<TelabRadPoint> radPointsList;
     TelabRadPoint tmpRadPoint;
     Crit3DDate loadIniDateFixed, loadEndDateFixed;
@@ -5541,73 +5547,96 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
     int row = 1;
     while(! myStream.atEnd())
     {
-        line = myStream.readLine().split(';');
-        if (line.size() < 8)
+        QString lineRaw = myStream.readLine();
+        lineValues = lineRaw.split(lineRaw.contains(';') ? ";" : ",");
+
+        if (lineValues.size() < 8)
         {
             logInfo("Error parsing row nr. " + QString::number(row) + "\nParsing following line..");
             row++;
             continue;
         }
-        else
+
+        if (folderString.isEmpty())
+            folderString = PATH_OUTPUT;
+
+        QString outPath = getProjectPath() + folderString;
+        QDir pathDir(outPath);
+        if (! pathDir.exists())
         {
-            if (folderString.isEmpty())
-                folderString = PATH_OUTPUT;
-            QString outPath = projectPragaFolder + "/" +  folderString;
-            QDir pathDir(outPath);
-            if (! pathDir.exists())
-            {
-                QDir().mkdir(outPath);
-            }
-            tmpRadPoint.fileName = outPath.toStdString() + "/" + line[0].toStdString() + "_out.txt";
-
-            QFile outputFile(QString::fromStdString(tmpRadPoint.fileName));
-            if (outputFile.exists()) outputFile.remove();
-
-            tmpRadPoint.radPoint.lat = line[1].toFloat();
-            tmpRadPoint.radPoint.lon = line[2].toFloat();
-            tmpRadPoint.radPoint.height = line[3].toFloat();
-            tmpRadPoint.radPoint.aspect = line[4].toFloat();
-            tmpRadPoint.radPoint.slope = line[5].toFloat();
-
-            QString iniTimeString = line[6];
-            QString endTimeString = line[7];
-
-            tmpRadPoint.iniDate.setDate(iniTimeString.mid(6,2).toInt(), iniTimeString.mid(4, 2).toInt(), iniTimeString.mid(0, 4).toInt());
-            tmpRadPoint.endDate.setDate(endTimeString.mid(6,2).toInt(), endTimeString.mid(4, 2).toInt(), endTimeString.mid(0, 4).toInt());
-
-            if (loadIniDateFixed.isNullDate())
-            {
-                loadIniDateFixed = tmpRadPoint.iniDate;
-                loadEndDateFixed = tmpRadPoint.endDate;
-            }
-
-            if (loadIniDateFixed > tmpRadPoint.iniDate)
-                loadIniDateFixed = tmpRadPoint.iniDate;
-
-            if (loadEndDateFixed < tmpRadPoint.endDate)
-                loadEndDateFixed = tmpRadPoint.endDate;
-
-            tmpRadPoint.iniHour = iniTimeString.mid(8,2).toInt();
-            tmpRadPoint.endHour = endTimeString.mid(8,2).toInt();
-
-            radPointsList.push_back(tmpRadPoint);
-            row++;
+            QDir().mkdir(outPath);
         }
+
+        std::string pointCode = lineValues[0].toStdString();
+        tmpRadPoint.fileName = outPath.toStdString() + "/" + pointCode + "_out.txt";
+
+        QFile outputFile(QString::fromStdString(tmpRadPoint.fileName));
+        if(outputFile.exists())
+            outputFile.remove();
+
+        tmpRadPoint.radPoint.lat = lineValues[1].toFloat();
+        tmpRadPoint.radPoint.lon = lineValues[2].toFloat();
+        tmpRadPoint.radPoint.height = lineValues[3].toFloat();
+        tmpRadPoint.radPoint.aspect = lineValues[4].toFloat();
+        tmpRadPoint.radPoint.slope = lineValues[5].toFloat();
+
+        gis::getUtmFromLatLon(gisSettings, tmpRadPoint.radPoint.lat, tmpRadPoint.radPoint.lon,
+                              &(tmpRadPoint.radPoint.x), &(tmpRadPoint.radPoint.y));
+
+        QString iniTimeString = lineValues[6];  // format: yyyymmdd
+        QString endTimeString = lineValues[7];
+
+        tmpRadPoint.iniDate.setDate(iniTimeString.mid(6,2).toInt(), iniTimeString.mid(4, 2).toInt(), iniTimeString.mid(0, 4).toInt());
+        tmpRadPoint.endDate.setDate(endTimeString.mid(6,2).toInt(), endTimeString.mid(4, 2).toInt(), endTimeString.mid(0, 4).toInt());
+
+        if (loadIniDateFixed.isNullDate())
+        {
+            loadIniDateFixed = tmpRadPoint.iniDate;
+            loadEndDateFixed = tmpRadPoint.endDate;
+        }
+
+        if (loadIniDateFixed > tmpRadPoint.iniDate)
+            loadIniDateFixed = tmpRadPoint.iniDate;
+
+        if (loadEndDateFixed < tmpRadPoint.endDate)
+            loadEndDateFixed = tmpRadPoint.endDate;
+
+        // check hours
+        QString iniHourStr = iniTimeString.mid(8,2);
+        if (iniHourStr.isEmpty())
+            tmpRadPoint.iniHour = 1;
+        else
+            tmpRadPoint.iniHour = iniHourStr.toInt();
+
+        QString endHourStr = endTimeString.mid(8,2);
+        if (endHourStr.isEmpty())
+            tmpRadPoint.endHour = 23;
+        else
+            tmpRadPoint.endHour = endHourStr.toInt();
+
+        radPointsList.push_back(tmpRadPoint);
+        row++;
     }
 
-    logInfo("Loading and computing...");
-
-    QSqlDatabase myDb = meteoPointsDbHandler->getDb();
-    int stationsWithData = 0;
-
-    for (int i=0; i < meteoPoints.size(); i++)
+    if (radPointsList.empty())
     {
-        if (meteoPointsDbHandler->loadHourlyData(myDb, loadIniDateFixed, loadEndDateFixed, meteoPoints[i])) stationsWithData++;
+        logError("Missing data in point list.");
+        return false;
     }
 
-    //logInfo("Hourly data present in " + QString::number(stationsWithData) + " stations.");
+    // load meteo data
+    bool isHourly = true;
+    bool isDaily = false;
+    bool isShowInfo = true;
+    if (! loadMeteoPointsData(getQDate(loadIniDateFixed.addDays(-1)), getQDate(loadEndDateFixed.addDays(1)), isHourly, isDaily, isShowInfo))
+    {
+        logError("Missing meteo data.");
+        return false;
+    }
 
-    //elaborazione sui punti del file di input
+    logInfo("Rad computation..");
+
+    // elaboration on input points
     TelabRadPoint myPoint;
     Crit3DTime myTime;
 
@@ -5617,15 +5646,18 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
 
     TsunPosition sunPosition;
     int intervalWidth;
-    double myTemperature, myPressure, myTransmissivity;
-    double utmX, utmY;
+    double myTemperature, myTransmissivity;
     double myPotentialRad;
 
     for (int i = 0; i < radPointsList.size(); i++)
     {
         myPoint = radPointsList[i];
+        gis::Crit3DPoint utmPoint;
+        utmPoint.utm.x =  myPoint.radPoint.x;
+        utmPoint.utm.y =  myPoint.radPoint.y;
+        utmPoint.z = myPoint.radPoint.height;
 
-        //check date
+        // check date
         if (myPoint.endDate < myPoint.iniDate || (myPoint.endDate == myPoint.iniDate && myPoint.iniHour > myPoint.endHour))
         {
             logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
@@ -5633,17 +5665,17 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
             continue;
         }
 
-        gis::getUtmFromLatLon(gisSettings, myPoint.radPoint.lat, myPoint.radPoint.lon, &utmX, &utmY);
-
         myProxyValues.clear();
         myProxyValues.push_back(myPoint.radPoint.height);
 
         QFile outputFile(QString::fromStdString(myPoint.fileName));
         outputFile.remove();
 
-        if (! outputFile.open(QIODevice::WriteOnly | QFile::Append))
+        QString fileShortName = QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1));
+
+        if (! outputFile.open(QIODevice::WriteOnly))
         {
-            logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
+            logInfo("Error elaborating point " + fileShortName);
             logInfo("Unable to find output folder or open file " + QString::fromStdString(myPoint.fileName));
             continue;
         }
@@ -5651,13 +5683,20 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
         Crit3DDate myDate = myPoint.iniDate;
         int myHour = myPoint.iniHour;
         float myLinke;
-        bool isLast = false;
+
+        QTextStream outStream(&outputFile);
 
         // main cycle (days and hours)
-        while (! isLast)
+        while (myDate < myPoint.endDate || (myDate == myPoint.endDate && myHour <= myPoint.endHour))
         {
             myTime.date = myDate;
             myTime.time = (myHour-0.5) * 3600;
+
+            QString dateString = QString("%1%2%3%4")
+                .arg(myTime.date.year, 4, 10, QChar('0'))
+                .arg(myTime.date.month, 2, 10, QChar('0'))
+                .arg(myTime.date.day, 2, 10, QChar('0'))
+                .arg(myHour, 2, 10, QChar('0'));
 
             if (radSettings.getLinkeMode() == PARAM_MODE_MONTHLY)
                 myLinke = radSettings.getLinke(myTime.date.month-1);
@@ -5666,7 +5705,7 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
 
             if (isEqual(myLinke, NODATA) || isEqual(radSettings.getAlbedo(), NODATA))
             {
-                errorString = "wrong linke or albero value";
+                logError("wrong linke or albero value");
                 return false;
             }
 
@@ -5676,40 +5715,48 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
             if (checkAndPassDataToInterpolation(quality, airTemperature, meteoPoints, myTime,
                                                 qualityInterpolationSettings, interpolationSettings, meteoSettings,
                                                 &climateParameters, interpolationPoints,
-                                                checkSpatialQuality, errorStdStr) &&
-                preInterpolation(interpolationPoints, interpolationSettings, meteoSettings, &climateParameters,
-                                 meteoPoints, airTemperature, myTime, errorStdStr))
+                                                checkSpatialQuality, errorStdStr))
             {
-                myTemperature = interpolate(interpolationPoints, interpolationSettings, meteoSettings, airTemperature, utmX, utmY,
+                preInterpolation(interpolationPoints, interpolationSettings, meteoSettings, &climateParameters,
+                                 meteoPoints, airTemperature, myTime, errorStdStr);
+
+                myTemperature = interpolate(interpolationPoints, interpolationSettings, meteoSettings, airTemperature,
+                                            myPoint.radPoint.x, myPoint.radPoint.y,
                                             myPoint.radPoint.height, myProxyValues, false);
+
+                // TODO capire problema - ERG5 giugno 2025 sea dist
+                Crit3DQuality qualityCheck;
+                quality::qualityType result = qualityCheck.checkFastValueHourly_SingleValue(airTemperature, &climateParameters,
+                                                                                            myTemperature, myTime.date.month,
+                                                                                            myPoint.radPoint.height);
+                if (result != quality::accepted)
+                {
+                    myTemperature = NODATA;
+                }
             }
             else
             {
-                logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
-                logInfo("Error interpolating temperature.");
-                incDateTime(myDate, myHour);
-                continue;
+                myTemperature = NODATA;
             }
 
-            // pressure
-            myPressure = pressureFromAltitude(myPoint.radPoint.height) / 100;  // pressureFromAltitude in Pa
-
-            // potential radiation & transmissivity
-            radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
+            // potential irradiance
+            radiation::computeRadiationRsun(&radSettings, myTemperature, myTime,
                                             myLinke, radSettings.getAlbedo(), radSettings.getClearSky(),
                                             radSettings.getClearSky(), sunPosition, myPoint.radPoint, DEM);
 
             myPotentialRad = myPoint.radPoint.global;
 
+            // real sky irradiance
             if (myPotentialRad > 0)
             {
-                intervalWidth = radiation::estimateTransmissivityWindow(&radSettings, DEM, DEM.getCenter(), myTime, int(HOUR_SECONDS));
+                intervalWidth = radiation::estimateTransmissivityWindow(&radSettings, utmPoint, myTime, DEM, int(HOUR_SECONDS));
 
                 if (! computeTransmissivity(&radSettings, meteoPoints, intervalWidth, myTime, DEM))
                 {
-                    logInfo("Error elaborating point: " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
-                    logInfo("Error computing transmissivity.");
+                    logInfo("Error elaborating point: " + fileShortName);
+                    logInfo("Error computing transmissivity at time: " + dateString);
                     incDateTime(myDate, myHour);
+                    outStream << dateString << "\n";
                     continue;
                 }
 
@@ -5722,41 +5769,31 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
                     preInterpolation(interpolationPoints, interpolationSettings, meteoSettings, &climateParameters,
                                      meteoPoints, atmTransmissivity, myTime, errorStdStr))
                 {
-                    myTransmissivity = interpolate(interpolationPoints, interpolationSettings, meteoSettings, atmTransmissivity, utmX,
-                                                   utmY, myPoint.radPoint.height, myProxyValues, false);
+                    myTransmissivity = interpolate(interpolationPoints, interpolationSettings, meteoSettings, atmTransmissivity,
+                                                   myPoint.radPoint.x, myPoint.radPoint.y,
+                                                   myPoint.radPoint.height, myProxyValues, false);
                 }
                 else
                 {
-                    logInfo("Error elaborating point: " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
-                    logInfo("Error interpolating transmissivity.");
+                    logInfo("Error elaborating point: " + fileShortName);
+                    logInfo("Error interpolating transmissivity at time: " + dateString);
                     incDateTime(myDate, myHour);
+                    outStream << dateString << "\n";
                     continue;
                 }
 
-                // radiation
-                if (! radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
+                // real sky irradiance
+                if (! radiation::computeRadiationRsun(&radSettings, myTemperature, myTime,
                                                 myLinke, radSettings.getAlbedo(), radSettings.getClearSky(),
                                                 myTransmissivity, sunPosition, myPoint.radPoint, DEM))
                 {
-                    logInfo("Error elaborating point: " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
-                    logInfo("Error computing point radiation.");
+                    logInfo("Error elaborating point: " + fileShortName);
+                    logInfo("Error computing point irradiance at time: " + dateString);
                     incDateTime(myDate, myHour);
+                    outStream << dateString << "\n";
                     continue;
                 }
             }
-
-            QTextStream outStream(&outputFile);
-
-            QString dateString = QString::number(myTime.date.year);
-            if (myTime.date.month < 10)
-                dateString += "0";
-            dateString += QString::number(myTime.date.month);
-            if (myTime.date.day < 10)
-                dateString += "0";
-            dateString += QString::number(myTime.date.day);
-            if (myHour < 10)
-                dateString += "0";
-            dateString += QString::number(myHour);
 
             outStream << dateString << "\t" << QString::number(myPoint.radPoint.beam, 'f', 1) << "\t"
                       << QString::number(myPoint.radPoint.diffuse, 'f', 1) << "\t"
@@ -5766,263 +5803,12 @@ bool PragaProject::computeRadiationList(const QString &fileName, QString folderS
                       << QString::number(myTemperature, 'f', 1) << "\t";
 
             outStream << "\n";
-
-            if (myDate == myPoint.endDate && myHour == myPoint.endHour)
-                isLast = true;
-
             incDateTime(myDate, myHour);
         }
 
-        logInfo("Elaboration finished for " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
+        logInfo("Elaboration finished for " + fileShortName);
         outputFile.close();
     }
-
-//############################################################
-
-    //TODO CT PULIRE
-
-
-    /*QDate myDate = QDate(loadIniDateFixed.year, loadIniDateFixed.month, loadIniDateFixed.day);
-    QDate tempLoadIni = myDate;
-    QDate endQDateFixed = QDate(loadEndDateFixed.year, loadEndDateFixed.month, loadEndDateFixed.day);
-    QDate tempLoadEnd = endQDateFixed;
-
-    while (myDate <= endQDateFixed)
-    {
-        //check if load needed
-        if (myDate == tempLoadIni || myDate > tempLoadEnd)
-        {
-            if (nrDaysLoading != NODATA) tempLoadEnd = myDate.addDays(nrDaysLoading-1);
-            if (tempLoadEnd > endQDateFixed) tempLoadEnd = endQDateFixed;
-
-            logInfoGUI("Loading meteo points data from " + myDate.addDays(-1).toString("yyyy-MM-dd") + " to " + tempLoadEnd.toString("yyyy-MM-dd"));
-
-            if (! loadMeteoPointsData(myDate.addDays(-1), tempLoadEnd, true, false, false))
-                return false;
-        }
-
-        TelabRadPoint myPoint;
-        Crit3DTime myTime;
-
-        std::vector <Crit3DInterpolationDataPoint> interpolationPoints;
-        std::string errorStdStr;
-        std::vector<double> myProxyValues;
-
-        TsunPosition sunPosition;
-        int intervalWidth;
-        double myTemperature, myPressure, myTransmissivity;
-        double utmX, utmY;
-        double myPotentialRad;
-        QDate resetDate = myDate;
-
-        for (int i = 0; i < radPointsList.size(); i++)
-        {
-            myPoint = radPointsList[i];
-            myDate = resetDate;
-
-            //check date
-            if (myPoint.endDate < myPoint.iniDate || myPoint.endDate == myPoint.iniDate && myPoint.iniHour > myPoint.endHour)
-            {
-                logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
-                logInfo("Wrong dates");
-                continue;
-            }
-
-            QDate tempEndDate = tempLoadEnd;
-            QDate myPointEndQDate = QDate(myPoint.endDate.year, myPoint.endDate.month, myPoint.endDate.day);
-            if (myPointEndQDate < tempEndDate) tempEndDate = myPointEndQDate;
-
-            QDate myPointIniQDate = QDate(myPoint.iniDate.year, myPoint.iniDate.month, myPoint.iniDate.day);
-
-            int myHour = 0;
-            if (myDate == myPointIniQDate)
-                myHour = myPoint.iniHour;
-
-            //non fare neanche il ciclo se il periodo di calcolo è fuori dal periodo caricato
-            //if (myPointIniQDate > tempLoadEndDate.addDays(-nrDaysLoading+1))
-                //continue;
-
-            gis::getUtmFromLatLon(gisSettings, myPoint.radPoint.lat, myPoint.radPoint.lon, &utmX, &utmY);
-
-            myProxyValues.clear();
-            myProxyValues.push_back(myPoint.radPoint.height);
-
-            QFile outputFile(QString::fromStdString(myPoint.fileName));
-
-            if (! outputFile.open(QIODevice::WriteOnly | QFile::Append))
-            {
-                logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
-                logInfo("Unable to find output folder or open file " + QString::fromStdString(myPoint.fileName));
-                continue;
-            }
-
-            bool hourFlag = true ;
-
-            //ciclo su giorno e ora
-            //entra/rimani nel ciclo se: siamo dentro il periodo caricato
-            //while (myDate < tempEndDate
-                //   || (myDate <= tempEndDate && myDate == myPointEndQDate && myHour <= myPoint.endHour)
-                //   || (myDate <= tempEndDate && myDate == myPointIniQDate))
-            while (myDate <= tempEndDate)
-            {
-                if (myDate < myPointEndQDate || (myDate == myPointEndQDate && myHour <= myPoint.endHour)) //se siamo all'ultimo giorno di elaborazione, finisci il ciclo senza computare le ore dopo endHour
-                {
-                    if (myDate == myPointIniQDate && hourFlag) //se siamo al primo giorno di elaborazione, vai all'iniHour
-                    {
-                        hourFlag = false;
-                        myHour = myPoint.iniHour;
-                    }
-
-                    if (myDate > myPointIniQDate || (myDate == myPointIniQDate && myHour >= myPoint.iniHour))
-                    {
-
-                        myTime.date.day = myDate.day();
-                        myTime.date.month =  myDate.month();
-                        myTime.date.year = myDate.year();
-                        myTime.time = (myHour-0.5) * 3600;
-
-                        interpolationPoints.clear();
-
-                        //air temperature
-                        if (checkAndPassDataToInterpolation(quality, airTemperature, meteoPoints, meteoPoints.size(), myTime,
-                                                            qualityInterpolationSettings, interpolationSettings, meteoSettings,
-                                                            &climateParameters, interpolationPoints,
-                                                            checkSpatialQuality, errorStdStr) &&
-                                preInterpolation(interpolationPoints, interpolationSettings, meteoSettings, &climateParameters,
-                                                 meteoPoints, meteoPoints.size(), airTemperature, myTime, errorStdStr))
-                        {
-                            myTemperature = interpolate(interpolationPoints, interpolationSettings, meteoSettings, airTemperature, utmX, utmY,
-                                                        myPoint.radPoint.height, myProxyValues, false);
-                        }
-                        else
-                        {
-                            logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
-                            logInfo("Error interpolating temperature.");
-                            myHour++;
-                            if (myHour >= 24)
-                            {
-                                myHour -= 24;
-                                myDate = myDate.addDays(1);
-                            }
-                            continue;
-                        }
-
-                        //pressione
-                        myPressure = pressureFromAltitude(myPoint.radPoint.height) / 100; //pressureFromAltitude in Pa
-                        //myPressure = PRESSURE_SEALEVEL;
-
-
-                        //potential radiation & transmissivity
-                        radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
-                                                        radSettings.getLinke(myTime.date.month-1), radSettings.getAlbedo(), radSettings.getClearSky(),
-                                                        radSettings.getClearSky(), sunPosition, myPoint.radPoint, DEM);
-
-                        myPotentialRad = myPoint.radPoint.global;
-
-                        intervalWidth = radiation::estimateTransmissivityWindow(&radSettings, DEM, DEM.getCenter(), myTime, int(HOUR_SECONDS));
-
-                        if (! computeTransmissivity(&radSettings, meteoPoints, meteoPoints.size(), intervalWidth, myTime, DEM))
-                        {
-                            logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
-                            logInfo("Error computing transmissivity.");
-                            myHour++;
-                            if (myHour >= 24)
-                            {
-                                myHour -= 24;
-                                myDate = myDate.addDays(1);
-                            }
-                            continue;
-                        }
-
-                        interpolationPoints.clear();
-
-                        if (checkAndPassDataToInterpolation(quality, atmTransmissivity, meteoPoints, meteoPoints.size(), myTime,
-                                                            qualityInterpolationSettings, interpolationSettings, meteoSettings,
-                                                            &climateParameters, interpolationPoints,
-                                                            checkSpatialQuality, errorStdStr) &&
-                                preInterpolation(interpolationPoints, interpolationSettings, meteoSettings, &climateParameters,
-                                                 meteoPoints, meteoPoints.size(), atmTransmissivity, myTime, errorStdStr))
-                        {
-                            myTransmissivity = interpolate(interpolationPoints, interpolationSettings, meteoSettings, atmTransmissivity, utmX,
-                                                           utmY, myPoint.radPoint.height, myProxyValues, false);
-                        }
-                        else
-                        {
-                            logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
-                            logInfo("Error interpolating transmissivity.");
-                            myHour++;
-                            if (myHour >= 24)
-                            {
-                                myHour -= 24;
-                                myDate = myDate.addDays(1);
-                            }
-                            continue;
-                        }
-
-
-                        //radiation
-                        if (! radiation::computeRadiationRsun(&radSettings, myTemperature, myPressure, myTime,
-                                                              radSettings.getLinke(myTime.date.month-1), radSettings.getAlbedo(), radSettings.getClearSky(),
-                                                              myTransmissivity, sunPosition, myPoint.radPoint, DEM))
-                        {
-                            logInfo("Error elaborating point " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)));
-                            logInfo("Error computing point radiation.");
-                            myHour++;
-                            if (myHour >= 24)
-                            {
-                                myHour -= 24;
-                                myDate = myDate.addDays(1);
-                            }
-                            continue;
-                        }
-
-
-
-                        QTextStream outStream(&outputFile);
-
-                        QString dateString = QString::number(myTime.date.year);
-                        if (myTime.date.month < 10)
-                            dateString += "0";
-                        dateString += QString::number(myTime.date.month);
-                        if (myTime.date.day < 10)
-                            dateString += "0";
-                        dateString += QString::number(myTime.date.day);
-                        if (myHour < 10)
-                            dateString += "0";
-                        dateString += QString::number(myHour);
-
-                        outStream << dateString << "\t" << QString::number(myPoint.radPoint.beam, 'f', 1) << "\t"
-                                  << QString::number(myPoint.radPoint.diffuse, 'f', 1) << "\t"
-                                  << QString::number(myPoint.radPoint.reflected, 'f', 1) << "\t"
-                                  << QString::number(myPoint.radPoint.global, 'f', 1) << "\t"
-                                  << QString::number(myPotentialRad, 'f', 1) << "\t"
-                                  << QString::number(myTemperature, 'f', 1) << "\t";
-
-                        outStream << "\n";
-                    }
-                }
-                myHour++;
-                if (myHour >= 24)
-                {
-                    myHour -= 24;
-                    myDate = myDate.addDays(1);
-                }
-            }
-
-            logInfo("Elaboration finished for " + QString::fromStdString(myPoint.fileName.substr(myPoint.fileName.rfind('/') + 1)) +
-                    " from " + tempLoadEnd.addDays(-nrDaysLoading).toString("yyyy-MM-dd") + " to " + tempLoadEnd.toString("yyyy-MM-dd"));
-
-            outputFile.close();
-
-        }
-
-        myDate = tempLoadEnd.addDays(1);
-
-
-    }
-
-*/
-
 
     return true;
 }

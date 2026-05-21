@@ -168,7 +168,7 @@ static void localtrig( struct SolPosData *pdat, struct trigdata *tdat );
 *            timezone
 *        Atmospheric pressure and temperature:
 *            press     DEFAULT 1013.0 mb
-*            temp      DEFAULT 10.0 degrees C
+*            temp      DEFAULT 15.0 degrees C
 *        Tilt of flat surface that receives solar energy:
 *            aspect    DEFAULT 180 (South)
 *            tilt      DEFAULT 0 (Horizontal)
@@ -824,6 +824,7 @@ static void amass( struct SolPosData *pdat )
     {
         pdat->amass = 1.0f / float(cos(raddeg * pdat->zenref) + 0.50572f * pow ((96.07995f - pdat->zenref),-1.6364f));
 
+        // pressure-corrected air mass
         pdat->ampress   = pdat->amass * pdat->press / 1013.0f;
     }
 }
