@@ -3659,12 +3659,10 @@ void MainWindow::on_actionInterpolationCVPeriod_triggered()
     if (myForm.exec() == QDialog::Rejected) return;
 
     FormText formLoadInterval("Insert number of days for load interval", "");
-    if (formLoadInterval.result() == QDialog::Rejected)
+    if (formLoadInterval.exec() == QDialog::Rejected)
         return;
 
     QString loadIntervalString = formLoadInterval.getText();
-
-
 
     bool isValid;
     int loadInterval = loadIntervalString.toInt(&isValid);
@@ -5622,7 +5620,8 @@ void MainWindow::on_actionInterpolationMeteogridGriddingTaskAdd_triggered()
 
     FormTimePeriod myForm(&myFirstTime, &myLastTime);
     myForm.show();
-    if (myForm.exec() == QDialog::Rejected) return;
+    if (myForm.exec() == QDialog::Rejected)
+        return;
 
     QString user, notes;
     FormSelection selectUser(myProject.users, "Select user");
@@ -5630,7 +5629,9 @@ void MainWindow::on_actionInterpolationMeteogridGriddingTaskAdd_triggered()
     user = selectUser.getSelection();
 
     FormText formNotes("Insert notes", "");
-    if (formNotes.result() == QDialog::Rejected) return;
+    if (formNotes.exec() == QDialog::Rejected)
+        return;
+
     notes = formNotes.getText();
 
     QMessageBox::StandardButton reply;
@@ -5749,7 +5750,7 @@ void MainWindow::searchMeteoPoint(bool isName)
         title += "by id";
 
     FormText formSearch(title, "");
-    if (formSearch.result() == QDialog::Rejected)
+    if (formSearch.exec() == QDialog::Rejected)
         return;
 
     QString searchString = formSearch.getText();
@@ -7086,7 +7087,7 @@ void MainWindow::on_actionInterpolationTopographicIndex_triggered()
     }
 
     FormText formWidths("Insert multiple window widths (in meters, separated by commas)", "");
-    if (formWidths.result() == QDialog::Rejected)
+    if (formWidths.exec() == QDialog::Rejected)
         return;
 
     QString widthsString = formWidths.getText();
@@ -7137,7 +7138,7 @@ void MainWindow::on_actionInterpolationWriteGlocalWeightMaps_triggered()
     }
 
     FormText formWidth("Insert window width (meters)", "10000");
-    if (formWidth.result() == QDialog::Rejected)
+    if (formWidth.exec() == QDialog::Rejected)
         return;
 
     QString widthString = formWidth.getText();
@@ -7192,7 +7193,7 @@ void MainWindow::on_actionMark_macro_area_stations_triggered()
     }
 
     FormText formWidth("Insert macroarea number", "");
-    if (formWidth.result() == QDialog::Rejected)
+    if (formWidth.exec() == QDialog::Rejected)
         return;
 
     QString numberString = formWidth.getText();
@@ -7378,8 +7379,7 @@ void MainWindow::on_actionInterpolationGlocalCreateWeightMaps_triggered()
     }
 
     FormText formWidth("Insert window width (meters)", "10000");
-
-    if (formWidth.result() == QDialog::Rejected)
+    if (formWidth.exec() == QDialog::Rejected)
         return;
 
     QString widthString = formWidth.getText();
