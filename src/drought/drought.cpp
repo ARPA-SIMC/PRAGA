@@ -148,10 +148,14 @@ float Drought::computeDroughtIndex()
             {
                 double logLogisticRes = logLogisticCDFRobust(sumSeries[j], currentLogLogistic[myMonthIndex-1].alpha,
                                                       currentLogLogistic[myMonthIndex-1].beta, currentLogLogistic[myMonthIndex-1].gamma);
-                if (logLogisticRes > 0 && logLogisticRes < 1)
+                    // the check range of CDF function is within the function logLogisticCDFRobust
+                double temporaryResult = standardGaussianInvCDF(logLogisticRes);
+                double thresholdForWrongMomentum = -4.0; // for very severe drought periods momenta are not feasible for SPEI description
+                if (temporaryResult < thresholdForWrongMomentum)
                 {
-                    droughtResults[j] = (float)standardGaussianInvCDF(logLogisticRes);
+                    temporaryResult = thresholdForWrongMomentum + (temporaryResult-thresholdForWrongMomentum)/2.;
                 }
+                droughtResults[j] = static_cast<float>(temporaryResult);
             }
         }
     }
