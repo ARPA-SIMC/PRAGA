@@ -138,8 +138,8 @@
         bool climateCyclePoints(bool showInfo);
         bool climateCycleGrid(bool showInfo);
         bool averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoComputation elab1MeteoComp,
-                                           QString aggregationString, float threshold, gis::Crit3DRasterGrid* zoneGrid,
-                                           QDate startDate, QDate endDate, bool showInfo);
+                                           const QString&aggregationString, float threshold, gis::Crit3DRasterGrid* zoneGrid,
+                                           const QDate &startDate, const QDate &endDate, bool showInfo);
 
         bool dbMeteoPointDataCount(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QString dataset, std::vector<int> &myCounter);
         bool dbMeteoGridMissingData(QDate myFirstDate, QDate myLastDate, meteoVariable myVar, QList<QDate> &dateList, QList<QString> &idList);
