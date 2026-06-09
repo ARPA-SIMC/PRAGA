@@ -2086,6 +2086,12 @@ bool PragaProject::dailyZoneAggregationMeteoGrid(meteoVariable variable, const Q
     aggregationMethod spatialElab = getAggregationMethod(aggregationString.toStdString());
     std::vector<std::vector<float>> dailyElabAggregation(nrDays, std::vector<float>(nrOfZones, NODATA));
 
+    std::unordered_map<int, int> zoneIndexMap;
+    for (size_t i = 0; i < idZoneVector.size(); ++i)
+    {
+        zoneIndexMap[idZoneVector[i]] = int(i);
+    }
+
     for (int day = 0; day < nrDays; day++)
     {
         if (showInfo && (day % infoStep) == 0)
@@ -2096,23 +2102,28 @@ bool PragaProject::dailyZoneAggregationMeteoGrid(meteoVariable variable, const Q
             for (int zoneCol = 0; zoneCol < zoneGrid->header->nrCols; zoneCol++)
             {
                 float zoneNr = zoneGrid->value[zoneRow][zoneCol];
+
                 if (! isEqual(zoneNr, zoneGrid->header->flag))
                 {
                     if (meteoGridRow[zoneRow][zoneCol] != NODATA && meteoGridCol[zoneRow][zoneCol] != NODATA)
                     {
                         int indexSeries = indexRowCol[meteoGridRow[zoneRow][zoneCol]][meteoGridCol[zoneRow][zoneCol]];
+
                         if (indexSeries != NODATA)
                         {
                             float value = outputSeries.at(indexSeries * nrDays + day);
-                            if (value != meteoGridDbHandler->gridStructure().header().flag)
+
+                            if (! isEqual(value, meteoGridDbHandler->gridStructure().header().flag))
                             {
-                                const auto it = std::find(idZoneVector.begin(), idZoneVector.end(), int(zoneNr));
-                                if (it == idZoneVector.end())
+                                auto it = zoneIndexMap.find(int(zoneNr));
+
+                                if (it == zoneIndexMap.end())
                                 {
                                     errorString = "Invalid zone number: " + QString::number(zoneNr);
                                     return false;
                                 }
-                                int index = std::distance(idZoneVector.begin(), it);
+
+                                const int index = it->second;
                                 zoneValues[index].push_back(value);
                             }
                         }
@@ -2126,7 +2137,8 @@ bool PragaProject::dailyZoneAggregationMeteoGrid(meteoVariable variable, const Q
             std::vector<float> validValues = zoneValues[i];
             if (! isEqual(threshold, NODATA))
             {
-                extractValidValuesWithThreshold(validValues, threshold);
+                bool useThreshold = true;
+                extractValidValues(validValues, threshold, useThreshold);
             }
 
             float res = NODATA;
@@ -2174,24 +2186,21 @@ bool PragaProject::dailyZoneAggregationMeteoGrid(meteoVariable variable, const Q
     }
 
     if (showInfo)
-    {
-         closeProgressBar();
          logInfoGUI("Saving daily data...");
-    }
 
     // save aggregation into DB
     QDate startQDate = getQDate(startDate);
     QDate endQDate = startQDate.addDays(nrDays-1);
     bool isOk = aggregationDbHandler->saveAggregationData(idZoneVector, aggregationString, "D",
                                                       startQDate, endQDate, variable, dailyElabAggregation);
-    dailyElabAggregation.clear();
 
     if (! isOk)
     {
          errorString = aggregationDbHandler->error();
     }
 
-    if (showInfo) closeProgressBar();
+    if (showInfo)
+        closeProgressBar();
 
     return isOk;
 }
@@ -2259,7 +2268,8 @@ bool PragaProject::hourlyZoneAggregationMeteoGrid(meteoVariable variable, const 
                 validValues = zoneValues[i];
                 if (! isEqual(threshold, NODATA))
                 {
-                    extractValidValuesWithThreshold(validValues, threshold);
+                    bool useThreshold = true;
+                    extractValidValues(validValues, threshold, useThreshold);
                 }
 
                 float res = NODATA;

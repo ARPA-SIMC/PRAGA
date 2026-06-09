@@ -2623,27 +2623,21 @@ bool preElaborationWithoutLoad(Crit3DMeteoPoint* meteoPoint, Crit3DMeteoSettings
 }
 
 
-void extractValidValuesCC(std::vector<float> &outputValues)
+void extractValidValues(std::vector<float> &outputValues, float threshold, bool useThreshold)
 {
-    for (unsigned int i = 0;  i < outputValues.size(); i++)
-    {
-        if (outputValues[i] == NODATA)
-        {
-            outputValues.erase(outputValues.begin()+i);
-        }
-    }
-}
+    outputValues.erase(
+        std::remove_if(outputValues.begin(), outputValues.end(),
+            [threshold, useThreshold](float v)
+            {
+                if (isEqual(v, NODATA))
+                    return true;
 
+                if (useThreshold && v < threshold)
+                    return true;
 
-void extractValidValuesWithThreshold(std::vector<float> &outputValues, float myThreshold)
-{
-    for (unsigned int i = 0;  i < outputValues.size(); i++)
-    {
-        if (outputValues[i] == NODATA || outputValues[i] < myThreshold)
-        {
-            outputValues.erase(outputValues.begin()+i);
-        }
-    }
+                return false;
+            }),
+        outputValues.end());
 }
 
 
