@@ -325,6 +325,14 @@ void MainWindow::mouseMove(const QPoint& mapPos)
             {
                 status += " - Value: " + QString::number(double(value), 'f', 2);
             }
+            /*if (myProject.interpolationSettings.getUseGlocalDetrending() && (myProject.interpolationSettings.isGlocalReady(false) || myProject.interpolationSettings.isGlocalReady(true)))
+            {
+                double *myX, *myY;
+                gis::getUtmFromLatLon(myProject.gisSettings, double(geoPos.latitude()), double(geoPos.longitude()), myX, myY);
+                float subArea = gis::getValueFromXY(*myProject.interpolationSettings.getMacroAreasMap(), *myX, *myY);
+                if (! isEqual(subArea, NODATA))
+                    status += " - Sub-area: " + QString::number(subArea);
+            }*/
         }
     }
 
