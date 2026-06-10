@@ -2003,13 +2003,13 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
         infoStep = setProgressBar("Creating data array...", this->meteoGridDbHandler->gridStructure().header().nrRows);
     }
 
+    // load data
     unsigned int nrDays = startDate.daysTo(endDate) + 1;
-
     Crit3DMeteoPoint meteoPointTemp;
     std::vector<float> outputSeries, outputValues;
-    int indexSeries = 0;
 
-    // load data
+    int nrActiveCells = 0;
+    int indexSeries = 0;
     for (int row = 0; row < meteoGridDbHandler->gridStructure().header().nrRows; row++)
     {
         if (showInfo && (row % infoStep) == 0)
@@ -2020,6 +2020,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
             std::string id;
             if (meteoGridDbHandler->meteoGrid()->getMeteoPointActiveId(row, col, id))
             {
+                ++nrActiveCells;
                 Crit3DMeteoPoint* meteoPoint = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row, col);
 
                 // copy data to MPTemp
@@ -2044,7 +2045,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
                     {
                         outputSeries.insert(outputSeries.end(), outputValues.begin(), outputValues.end());
                         indexRowCol[row][col] = indexSeries;
-                        indexSeries++;
+                        ++indexSeries;
                     }
                 }
             }
@@ -2053,6 +2054,18 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
 
     if (showInfo)
         closeProgressBar();
+
+    // check valid data
+    if (indexSeries == 0)
+    {
+        errorString = "Missing data in all grid cells.";
+        return false;
+    }
+    else if (indexSeries < nrActiveCells)
+    {
+        int nrMissing = nrActiveCells - indexSeries;
+        logWarning("Missing data in " + QString::number(nrMissing) + " grid cells.");
+    }
 
     if (getVarFrequency(variable) == hourly)
     {
