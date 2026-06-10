@@ -2056,15 +2056,16 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
         closeProgressBar();
 
     // check valid data
+    QString varString = QString::fromStdString(getVariableString(variable));
     if (indexSeries == 0)
     {
-        errorString = "Missing data in all grid cells.";
+        errorString = "Missing data for variable: " + varString + " in all grid cells.";
         return false;
     }
     else if (indexSeries < nrActiveCells)
     {
-        int nrMissing = nrActiveCells - indexSeries;
-        logWarning("Missing data in " + QString::number(nrMissing) + " grid cells.");
+        QString nrMissing = QString::number(nrActiveCells - indexSeries);
+        logWarning("Missing data for variable: " + varString + " in " + nrMissing + " grid cells.");
     }
 
     if (getVarFrequency(variable) == hourly)
