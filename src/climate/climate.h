@@ -132,9 +132,7 @@
                         Crit3DMeteoGridDbHandler *meteoGridDbHandler, Crit3DMeteoPoint* meteoPoint,
                         bool isMeteoGrid, meteoVariable variable, const QDateTime &firstTime, const QDateTime &lastTime, QString &myError);
 
-    void extractValidValuesCC(std::vector<float> &outputValues);
-
-    void extractValidValuesWithThreshold(std::vector<float> &outputValues, float myThreshold);
+    void extractValidValues(std::vector<float> &outputValues, float threshold = NODATA, bool useThreshold = false);
 
     float computeStatistic(std::vector<float> &inputValues, Crit3DMeteoPoint* meteoPoint, Crit3DClimate* clima, 
 						Crit3DDate firstDate, Crit3DDate lastDate, int nYears, meteoComputation elab1, meteoComputation elab2, 
