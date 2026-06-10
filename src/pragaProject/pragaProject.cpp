@@ -3698,7 +3698,7 @@ void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint)
 
         meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
 
-        for (size_t j = 0; j < jointStationsList.size(); ++j)
+        for (int j = 0; j < jointStationsList.size(); ++j)
         {
             QDate lastDateNew = meteoPointsDbHandler->getLastDate(daily, jointStationsList[j].toStdString()).date();
             if (lastDateNew > lastDaily)
