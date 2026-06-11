@@ -3230,7 +3230,9 @@ void MainWindow::on_actionSpatialAggregationFromGrid_triggered()
 
     float threshold = NODATA;
     meteoComputation elab1MeteoComp = noMeteoComp;
-    if (! myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp, zoneDialog.getSpatialElaboration(), threshold, &myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), true))
+    if (! myProject.averageSeriesOnZonesMeteoGrid(zoneDialog.getVariable(), elab1MeteoComp,
+                                                  zoneDialog.getSpatialElaboration(), threshold,
+                                                  &myRaster, zoneDialog.getStartDate(), zoneDialog.getEndDate(), true))
     {
         myProject.logError();
     }

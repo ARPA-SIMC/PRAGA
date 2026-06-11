@@ -47,9 +47,11 @@ DialogSeriesOnZones::DialogSeriesOnZones(QSettings *settings, QList<QString> agg
 
     genericStartLabel.setText("Start Date:");
     genericPeriodStart.setDate(currentDate);
+    genericPeriodStart.setDisplayFormat("yyyy-MM-dd");
     genericStartLabel.setBuddy(&genericPeriodStart);
     genericEndLabel.setText("End Date:");
     genericPeriodEnd.setDate(currentDate);
+    genericPeriodEnd.setDisplayFormat("yyyy-MM-dd");
     genericEndLabel.setBuddy(&genericPeriodEnd);
 
     dateLayout.addWidget(&genericStartLabel);

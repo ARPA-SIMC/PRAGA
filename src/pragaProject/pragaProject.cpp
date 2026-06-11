@@ -2003,13 +2003,13 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
         infoStep = setProgressBar("Creating data array...", this->meteoGridDbHandler->gridStructure().header().nrRows);
     }
 
+    // load data
     unsigned int nrDays = startDate.daysTo(endDate) + 1;
-
     Crit3DMeteoPoint meteoPointTemp;
     std::vector<float> outputSeries, outputValues;
-    int indexSeries = 0;
 
-    // load data
+    int nrActiveCells = 0;
+    int indexSeries = 0;
     for (int row = 0; row < meteoGridDbHandler->gridStructure().header().nrRows; row++)
     {
         if (showInfo && (row % infoStep) == 0)
@@ -2020,6 +2020,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
             std::string id;
             if (meteoGridDbHandler->meteoGrid()->getMeteoPointActiveId(row, col, id))
             {
+                ++nrActiveCells;
                 Crit3DMeteoPoint* meteoPoint = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row, col);
 
                 // copy data to MPTemp
@@ -2044,7 +2045,7 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
                     {
                         outputSeries.insert(outputSeries.end(), outputValues.begin(), outputValues.end());
                         indexRowCol[row][col] = indexSeries;
-                        indexSeries++;
+                        ++indexSeries;
                     }
                 }
             }
@@ -2053,6 +2054,19 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
 
     if (showInfo)
         closeProgressBar();
+
+    // check valid data
+    QString varString = QString::fromStdString(getVariableString(variable));
+    if (indexSeries == 0)
+    {
+        errorString = "Missing data for variable: " + varString + " in all grid cells.";
+        return false;
+    }
+    else if (indexSeries < nrActiveCells)
+    {
+        QString nrMissing = QString::number(nrActiveCells - indexSeries);
+        logWarning("Missing data for variable: " + varString + " in " + nrMissing + " grid cells.");
+    }
 
     if (getVarFrequency(variable) == hourly)
     {
@@ -3684,7 +3698,7 @@ void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint)
 
         meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDaily), getCrit3DDate(lastDaily), mp);
 
-        for (size_t j = 0; j < jointStationsList.size(); ++j)
+        for (int j = 0; j < jointStationsList.size(); ++j)
         {
             QDate lastDateNew = meteoPointsDbHandler->getLastDate(daily, jointStationsList[j].toStdString()).date();
             if (lastDateNew > lastDaily)
