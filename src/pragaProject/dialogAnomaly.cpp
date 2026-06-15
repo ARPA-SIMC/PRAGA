@@ -560,7 +560,7 @@ void DialogAnomaly::AnomalyFillClimateDbList(QComboBox* dbList)
 {
     QList<QString> climateTables;
     QString myError  = myProject.errorString;
-    if (! getClimateTables(myProject.clima->db(), &myError, &climateTables) )
+    if (! getClimateTables(myProject.clima->db(), myError, &climateTables) )
     {
         dbList->addItem("No saved elaborations found");
     }
@@ -568,7 +568,7 @@ void DialogAnomaly::AnomalyFillClimateDbList(QComboBox* dbList)
     {
         for (int i=0; i < climateTables.size(); i++)
         {
-            selectVarElab(myProject.clima->db(), &myError, climateTables[i], variableElab.text(), &climateDbElab);
+            selectVarElab(myProject.clima->db(), myError, climateTables[i], variableElab.text(), &climateDbElab);
         }
         if (climateDbElab.isEmpty())
         {

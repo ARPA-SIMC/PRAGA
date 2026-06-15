@@ -649,7 +649,7 @@ bool PragaProject::showClimateFields(bool isMeteoGrid, QList<QString>* climateDb
     }
     QList<QString> climateTables;
 
-    if ( !getClimateTables(db, &errorString, &climateTables) )
+    if ( !getClimateTables(db, errorString, &climateTables) )
     {
         errorString = "No climate tables";
         return false;
@@ -658,7 +658,7 @@ bool PragaProject::showClimateFields(bool isMeteoGrid, QList<QString>* climateDb
     {
         for (int i=0; i < climateTables.size(); i++)
         {
-            getClimateFieldsFromTable(db, &errorString, climateTables[i], climateDbElab);
+            getClimateFieldsFromTable(db, errorString, climateTables[i], climateDbElab);
         }
         if (climateDbElab->isEmpty())
         {
@@ -748,7 +748,8 @@ void PragaProject::readClimate(bool isMeteoGrid, QString climateSelected, int cl
                     Crit3DMeteoPoint* meteoPoint = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col);
                     if (climateIndex != NODATA)
                     {
-                        result = readClimateElab(db, table.toLower(), climateIndex, QString::fromStdString(meteoPoint->id), climateSelected, &errorString);
+                        result = readClimateElab(db, table.toLower(), climateIndex, QString::fromStdString(meteoPoint->id),
+                                                 climateSelected, errorString);
                         meteoPoint->climate = result;
                     }
                     else
@@ -784,7 +785,7 @@ void PragaProject::readClimate(bool isMeteoGrid, QString climateSelected, int cl
                 }
                 else
                 {
-                    result = readClimateElab(db, table.toLower(), climateIndex, id, climateSelected, &errorString);
+                    result = readClimateElab(db, table.toLower(), climateIndex, id, climateSelected, errorString);
                     meteoPoints[i].climate = result;
                 }
             }
@@ -812,7 +813,7 @@ bool PragaProject::deleteClimate(bool isMeteoGrid, QString climaSelected)
         db = this->meteoPointsDbHandler->getDb();
     }
 
-    return deleteElab(db, &errorString, table.toLower(), climaSelected);
+    return deleteElab(db, errorString, table.toLower(), climaSelected);
 }
 
 
@@ -825,7 +826,7 @@ bool PragaProject::computeElaboration(bool isMeteoGrid, bool isAnomaly, bool isC
             return climateCycleGrid(showInfo);
         }
 
-        if (! elaborationCycleGrid(isAnomaly, showInfo))
+        if (! elaborationCycleGridDaily(isAnomaly, showInfo))
         {
             return false;
         }
@@ -888,11 +889,11 @@ bool PragaProject::elaborationCyclePoints(bool isAnomaly, bool showInfo)
 
     errorString.clear();
 
-    Crit3DClimate* climaUsed = new Crit3DClimate();
+    Crit3DClimate* currentClimate = new Crit3DClimate();
 
     if (isAnomaly)
     {
-        climaUsed->copyParam(referenceClima);
+        currentClimate->copyParam(referenceClima);
         if (showInfo)
         {
             infoStr = "Anomaly - Meteo Points";
@@ -901,7 +902,7 @@ bool PragaProject::elaborationCyclePoints(bool isAnomaly, bool showInfo)
     }
     else
     {
-        climaUsed->copyParam(clima);
+        currentClimate->copyParam(clima);
         if (showInfo)
         {
             infoStr = "Elaboration - Meteo Points";
@@ -912,18 +913,18 @@ bool PragaProject::elaborationCyclePoints(bool isAnomaly, bool showInfo)
     QDate startDate;
     QDate endDate;
 
-    if (climaUsed->nYears() > 0)
+    if (currentClimate->nYears() > 0)
     {
-        int myYearStart = climaUsed->yearStart();
-        int myYearEnd = climaUsed->yearEnd() + climaUsed->nYears();
-        startDate.setDate(myYearStart, climaUsed->genericPeriodDateStart().month(), climaUsed->genericPeriodDateStart().day());
-        endDate.setDate(myYearEnd, climaUsed->genericPeriodDateEnd().month(), climaUsed->genericPeriodDateEnd().day());
+        int myYearStart = currentClimate->yearStart();
+        int myYearEnd = currentClimate->yearEnd() + currentClimate->nYears();
+        startDate.setDate(myYearStart, currentClimate->genericPeriodDateStart().month(), currentClimate->genericPeriodDateStart().day());
+        endDate.setDate(myYearEnd, currentClimate->genericPeriodDateEnd().month(), currentClimate->genericPeriodDateEnd().day());
         // check dates - leap case
-        if (climaUsed->genericPeriodDateStart().month() == 2 && climaUsed->genericPeriodDateStart().day() == 29)
+        if (currentClimate->genericPeriodDateStart().month() == 2 && currentClimate->genericPeriodDateStart().day() == 29)
         {
             if (!isLeapYear(myYearStart))
             {
-                if (climaUsed->periodType() != dailyPeriod)
+                if (currentClimate->periodType() != dailyPeriod)
                 {
                     startDate.setDate(myYearStart, 2, 28);
                 }
@@ -933,11 +934,11 @@ bool PragaProject::elaborationCyclePoints(bool isAnomaly, bool showInfo)
                 }
             }
         }
-        if (climaUsed->genericPeriodDateEnd().month() == 2 && climaUsed->genericPeriodDateEnd().day() == 29)
+        if (currentClimate->genericPeriodDateEnd().month() == 2 && currentClimate->genericPeriodDateEnd().day() == 29)
         {
             if (!isLeapYear(myYearEnd))
             {
-                if (climaUsed->periodType() != dailyPeriod)
+                if (currentClimate->periodType() != dailyPeriod)
                 {
                     endDate.setDate(myYearEnd, 2, 28);
                 }
@@ -948,18 +949,18 @@ bool PragaProject::elaborationCyclePoints(bool isAnomaly, bool showInfo)
             }
         }
     }
-    else if (climaUsed->nYears() < 0)
+    else if (currentClimate->nYears() < 0)
     {
-        int myYearStart = climaUsed->yearStart() + climaUsed->nYears();
-        int myYearEnd = climaUsed->yearEnd();
-        startDate.setDate(myYearStart, climaUsed->genericPeriodDateStart().month(), climaUsed->genericPeriodDateStart().day());
-        endDate.setDate(myYearEnd, climaUsed->genericPeriodDateEnd().month(), climaUsed->genericPeriodDateEnd().day());
+        int myYearStart = currentClimate->yearStart() + currentClimate->nYears();
+        int myYearEnd = currentClimate->yearEnd();
+        startDate.setDate(myYearStart, currentClimate->genericPeriodDateStart().month(), currentClimate->genericPeriodDateStart().day());
+        endDate.setDate(myYearEnd, currentClimate->genericPeriodDateEnd().month(), currentClimate->genericPeriodDateEnd().day());
         // check dates - leap case
-        if (climaUsed->genericPeriodDateStart().month() == 2 && climaUsed->genericPeriodDateStart().day() == 29)
+        if (currentClimate->genericPeriodDateStart().month() == 2 && currentClimate->genericPeriodDateStart().day() == 29)
         {
             if (!isLeapYear(myYearStart))
             {
-                if (climaUsed->periodType() != dailyPeriod)
+                if (currentClimate->periodType() != dailyPeriod)
                 {
                     startDate.setDate(myYearStart, 2, 28);
                 }
@@ -969,11 +970,11 @@ bool PragaProject::elaborationCyclePoints(bool isAnomaly, bool showInfo)
                 }
             }
         }
-        if (climaUsed->genericPeriodDateEnd().month() == 2 && climaUsed->genericPeriodDateEnd().day() == 29)
+        if (currentClimate->genericPeriodDateEnd().month() == 2 && currentClimate->genericPeriodDateEnd().day() == 29)
         {
             if (!isLeapYear(myYearEnd))
             {
-                if (climaUsed->periodType() != dailyPeriod)
+                if (currentClimate->periodType() != dailyPeriod)
                 {
                     endDate.setDate(myYearEnd, 2, 28);
                 }
@@ -986,16 +987,16 @@ bool PragaProject::elaborationCyclePoints(bool isAnomaly, bool showInfo)
     }
     else
     {
-        int myYearStart = climaUsed->yearStart();
-        int myYearEnd = climaUsed->yearEnd();
-        startDate.setDate(myYearStart, climaUsed->genericPeriodDateStart().month(), climaUsed->genericPeriodDateStart().day());
-        endDate.setDate(myYearEnd, climaUsed->genericPeriodDateEnd().month(), climaUsed->genericPeriodDateEnd().day());
+        int myYearStart = currentClimate->yearStart();
+        int myYearEnd = currentClimate->yearEnd();
+        startDate.setDate(myYearStart, currentClimate->genericPeriodDateStart().month(), currentClimate->genericPeriodDateStart().day());
+        endDate.setDate(myYearEnd, currentClimate->genericPeriodDateEnd().month(), currentClimate->genericPeriodDateEnd().day());
         // check dates - leap case
-        if (climaUsed->genericPeriodDateStart().month() == 2 && climaUsed->genericPeriodDateStart().day() == 29)
+        if (currentClimate->genericPeriodDateStart().month() == 2 && currentClimate->genericPeriodDateStart().day() == 29)
         {
             if (! isLeapYear(myYearStart))
             {
-                if (climaUsed->periodType() != dailyPeriod)
+                if (currentClimate->periodType() != dailyPeriod)
                 {
                     startDate.setDate(myYearStart, 2, 28);
                 }
@@ -1005,11 +1006,11 @@ bool PragaProject::elaborationCyclePoints(bool isAnomaly, bool showInfo)
                 }
             }
         }
-        if (climaUsed->genericPeriodDateEnd().month() == 2 && climaUsed->genericPeriodDateEnd().day() == 29)
+        if (currentClimate->genericPeriodDateEnd().month() == 2 && currentClimate->genericPeriodDateEnd().day() == 29)
         {
             if (! isLeapYear(myYearEnd))
             {
-                if (climaUsed->periodType() != dailyPeriod)
+                if (currentClimate->periodType() != dailyPeriod)
                 {
                     endDate.setDate(myYearEnd, 2, 28);
                 }
@@ -1045,15 +1046,16 @@ bool PragaProject::elaborationCyclePoints(bool isAnomaly, bool showInfo)
             if (showInfo && (i % infoStep) == 0)
                 updateProgressBar(i);
 
-            if (isAnomaly && climaUsed->getIsClimateAnomalyFromDb())
+            if (isAnomaly && currentClimate->getIsClimateAnomalyFromDb())
             {
-                if ( passingClimateToAnomaly(&errorString, meteoPointTemp, climaUsed, meteoPoints, clima->getElabSettings()) )
+                if ( passingClimateToAnomaly(errorString, meteoPointTemp, currentClimate, meteoPoints, clima->getElabSettings()) )
                     nrValidPoints++;
             }
             else
             {
                 bool isMeteoGrid = false;
-                if ( elaborationOnPoint(&errorString, meteoPointsDbHandler, nullptr, meteoPointTemp, climaUsed, isMeteoGrid, startDate, endDate, isAnomaly, meteoSettings, dataAlreadyLoaded))
+                if ( elaborationOnPoint(errorString, meteoPointsDbHandler, nullptr, meteoPointTemp,
+                                        currentClimate, isMeteoGrid, startDate, endDate, isAnomaly, meteoSettings, dataAlreadyLoaded))
                     nrValidPoints++;
             }
             // save result to MP
@@ -1065,7 +1067,7 @@ bool PragaProject::elaborationCyclePoints(bool isAnomaly, bool showInfo)
     if (showInfo) closeProgressBar();
 
     delete meteoPointTemp;
-    delete climaUsed;
+    delete currentClimate;
 
     if (nrValidPoints == 0)
     {
@@ -1215,9 +1217,8 @@ bool PragaProject::elaborationCycleGridHourly(bool showInfo)
 }
 
 
-bool PragaProject::elaborationCycleGrid(bool isAnomaly, bool showInfo)
+bool PragaProject::elaborationCycleGridDaily(bool isAnomaly, bool showInfo)
 {
-    std::string id;
     int nrValidCells = 0;
 
     int infoStep = 1;
@@ -1225,11 +1226,11 @@ bool PragaProject::elaborationCycleGrid(bool isAnomaly, bool showInfo)
 
     errorString.clear();
 
-    Crit3DClimate* climaUsed = new Crit3DClimate();
+    Crit3DClimate* currentClimate = new Crit3DClimate();
 
     if (isAnomaly)
     {
-        climaUsed->copyParam(referenceClima);
+        currentClimate->copyParam(referenceClima);
         if (showInfo)
         {
             infoStr = "Anomaly - Meteo Grid";
@@ -1238,7 +1239,7 @@ bool PragaProject::elaborationCycleGrid(bool isAnomaly, bool showInfo)
     }
     else
     {
-        climaUsed->copyParam(clima);
+        currentClimate->copyParam(clima);
         if (showInfo)
         {
             infoStr = "Elaboration - Meteo Grid";
@@ -1248,19 +1249,19 @@ bool PragaProject::elaborationCycleGrid(bool isAnomaly, bool showInfo)
 
     QDate startDate, endDate;
 
-    if (climaUsed->nYears() > 0)
+    if (currentClimate->nYears() > 0)
     {
-        int myYearStart = climaUsed->yearStart();
-        int myYearEnd = climaUsed->yearEnd() + climaUsed->nYears();
-        startDate.setDate(myYearStart, climaUsed->genericPeriodDateStart().month(), climaUsed->genericPeriodDateStart().day());
-        endDate.setDate(myYearEnd, climaUsed->genericPeriodDateEnd().month(), climaUsed->genericPeriodDateEnd().day());
+        int myYearStart = currentClimate->yearStart();
+        int myYearEnd = currentClimate->yearEnd() + currentClimate->nYears();
+        startDate.setDate(myYearStart, currentClimate->genericPeriodDateStart().month(), currentClimate->genericPeriodDateStart().day());
+        endDate.setDate(myYearEnd, currentClimate->genericPeriodDateEnd().month(), currentClimate->genericPeriodDateEnd().day());
 
         // check dates - leap case
-        if (climaUsed->genericPeriodDateStart().month() == 2 && climaUsed->genericPeriodDateStart().day() == 29)
+        if (currentClimate->genericPeriodDateStart().month() == 2 && currentClimate->genericPeriodDateStart().day() == 29)
         {
             if (! isLeapYear(myYearStart))
             {
-                if (climaUsed->periodType() != dailyPeriod)
+                if (currentClimate->periodType() != dailyPeriod)
                 {
                     startDate.setDate(myYearStart, 2, 28);
                 }
@@ -1270,11 +1271,11 @@ bool PragaProject::elaborationCycleGrid(bool isAnomaly, bool showInfo)
                 }
             }
         }
-        if (climaUsed->genericPeriodDateEnd().month() == 2 && climaUsed->genericPeriodDateEnd().day() == 29)
+        if (currentClimate->genericPeriodDateEnd().month() == 2 && currentClimate->genericPeriodDateEnd().day() == 29)
         {
             if (! isLeapYear(myYearEnd))
             {
-                if (climaUsed->periodType() != dailyPeriod)
+                if (currentClimate->periodType() != dailyPeriod)
                 {
                     endDate.setDate(myYearEnd, 2, 28);
                 }
@@ -1285,18 +1286,18 @@ bool PragaProject::elaborationCycleGrid(bool isAnomaly, bool showInfo)
             }
         }
     }
-    else if (climaUsed->nYears() < 0)
+    else if (currentClimate->nYears() < 0)
     {
-        int myYearStart = climaUsed->yearStart() + climaUsed->nYears();
-        int myYearEnd = climaUsed->yearEnd();
-        startDate.setDate(myYearStart, climaUsed->genericPeriodDateStart().month(), climaUsed->genericPeriodDateStart().day());
-        endDate.setDate(myYearEnd, climaUsed->genericPeriodDateEnd().month(), climaUsed->genericPeriodDateEnd().day());
+        int myYearStart = currentClimate->yearStart() + currentClimate->nYears();
+        int myYearEnd = currentClimate->yearEnd();
+        startDate.setDate(myYearStart, currentClimate->genericPeriodDateStart().month(), currentClimate->genericPeriodDateStart().day());
+        endDate.setDate(myYearEnd, currentClimate->genericPeriodDateEnd().month(), currentClimate->genericPeriodDateEnd().day());
         // check dates - leap case
-        if (climaUsed->genericPeriodDateStart().month() == 2 && climaUsed->genericPeriodDateStart().day() == 29)
+        if (currentClimate->genericPeriodDateStart().month() == 2 && currentClimate->genericPeriodDateStart().day() == 29)
         {
             if (! isLeapYear(myYearStart))
             {
-                if (climaUsed->periodType() != dailyPeriod)
+                if (currentClimate->periodType() != dailyPeriod)
                 {
                     startDate.setDate(myYearStart, 2, 28);
                 }
@@ -1306,11 +1307,11 @@ bool PragaProject::elaborationCycleGrid(bool isAnomaly, bool showInfo)
                 }
             }
         }
-        if (climaUsed->genericPeriodDateEnd().month() == 2 && climaUsed->genericPeriodDateEnd().day() == 29)
+        if (currentClimate->genericPeriodDateEnd().month() == 2 && currentClimate->genericPeriodDateEnd().day() == 29)
         {
             if (! isLeapYear(myYearEnd))
             {
-                if (climaUsed->periodType() != dailyPeriod)
+                if (currentClimate->periodType() != dailyPeriod)
                 {
                     endDate.setDate(myYearEnd, 2, 28);
                 }
@@ -1323,16 +1324,16 @@ bool PragaProject::elaborationCycleGrid(bool isAnomaly, bool showInfo)
     }
     else
     {
-        int myYearStart = climaUsed->yearStart();
-        int myYearEnd = climaUsed->yearEnd();
-        startDate.setDate(myYearStart, climaUsed->genericPeriodDateStart().month(), climaUsed->genericPeriodDateStart().day());
-        endDate.setDate(myYearEnd, climaUsed->genericPeriodDateEnd().month(), climaUsed->genericPeriodDateEnd().day());
+        int myYearStart = currentClimate->yearStart();
+        int myYearEnd = currentClimate->yearEnd();
+        startDate.setDate(myYearStart, currentClimate->genericPeriodDateStart().month(), currentClimate->genericPeriodDateStart().day());
+        endDate.setDate(myYearEnd, currentClimate->genericPeriodDateEnd().month(), currentClimate->genericPeriodDateEnd().day());
         // check dates - leap case
-        if (climaUsed->genericPeriodDateStart().month() == 2 && climaUsed->genericPeriodDateStart().day() == 29)
+        if (currentClimate->genericPeriodDateStart().month() == 2 && currentClimate->genericPeriodDateStart().day() == 29)
         {
             if (! isLeapYear(myYearStart))
             {
-                if (climaUsed->periodType() != dailyPeriod)
+                if (currentClimate->periodType() != dailyPeriod)
                 {
                     startDate.setDate(myYearStart, 2, 28);
                 }
@@ -1342,11 +1343,11 @@ bool PragaProject::elaborationCycleGrid(bool isAnomaly, bool showInfo)
                 }
             }
         }
-        if (climaUsed->genericPeriodDateEnd().month() == 2 && climaUsed->genericPeriodDateEnd().day() == 29)
+        if (currentClimate->genericPeriodDateEnd().month() == 2 && currentClimate->genericPeriodDateEnd().day() == 29)
         {
             if (! isLeapYear(myYearEnd))
             {
-                if (climaUsed->periodType() != dailyPeriod)
+                if (currentClimate->periodType() != dailyPeriod)
                 {
                     endDate.setDate(myYearEnd, 2, 28);
                 }
@@ -1358,34 +1359,36 @@ bool PragaProject::elaborationCycleGrid(bool isAnomaly, bool showInfo)
         }
     }
 
-    bool dataAlreadyLoaded = false;
+    const bool dataAlreadyLoaded = false;
 
     for (int row = 0; row < meteoGridDbHandler->gridStructure().header().nrRows; row++)
     {
         if (showInfo && (row % infoStep) == 0)
             updateProgressBar(row);
 
+        // TODO trovare race condition che lo fa saltare
+        //#pragma omp parallel for if (isParallelComputing()) reduction(+:nrValidCells)
         for (int col = 0; col < meteoGridDbHandler->gridStructure().header().nrCols; col++)
         {
-
-            if (meteoGridDbHandler->meteoGrid()->getMeteoPointActiveId(row, col, id))
+            if (meteoGridDbHandler->meteoGrid()->isMeteoPointActive(row, col))
             {
-                Crit3DMeteoPoint* meteoPoint = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col);
+                Crit3DMeteoPoint* meteoPoint = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row, col);
 
-                // copy data to MPTemp
-                Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
-                meteoPointTemp->id = meteoPoint->id;
-                meteoPointTemp->point.z = meteoPoint->point.z;
-                meteoPointTemp->latitude = meteoPoint->latitude;
-                meteoPointTemp->elaboration = meteoPoint->elaboration;
+                // copy data to temporary meteoPoint
+                Crit3DMeteoPoint meteoPointTemp;
+                meteoPointTemp.id = meteoPoint->id;
+                meteoPointTemp.point.z = meteoPoint->point.z;
+                meteoPointTemp.latitude = meteoPoint->latitude;
+                meteoPointTemp.elaboration = meteoPoint->elaboration;
 
-                // meteoPointTemp should be init
-                meteoPointTemp->nrObsDataDaysH = 0;
-                meteoPointTemp->nrObsDataDaysD = 0;
+                // meteoPoint should be init
+                meteoPointTemp.nrObsDataDaysH = 0;
+                meteoPointTemp.nrObsDataDaysD = 0;
 
-                if (isAnomaly && climaUsed->getIsClimateAnomalyFromDb())
+                QString myErrorStr;
+                if (isAnomaly && currentClimate->getIsClimateAnomalyFromDb())
                 {
-                    if (passingClimateToAnomalyGrid(&errorString, meteoPointTemp, climaUsed))
+                    if (passingClimateToAnomalyGrid(myErrorStr, &meteoPointTemp, currentClimate))
                     {
                         nrValidCells++;
                     }
@@ -1393,36 +1396,34 @@ bool PragaProject::elaborationCycleGrid(bool isAnomaly, bool showInfo)
                 else
                 {
                     bool isMeteoGrid = true;
-                    if  (elaborationOnPoint(&errorString, nullptr, meteoGridDbHandler, meteoPointTemp,
-                                           climaUsed, isMeteoGrid, startDate, endDate, isAnomaly,
+                    if  (elaborationOnPoint(myErrorStr, nullptr, meteoGridDbHandler, &meteoPointTemp,
+                                           currentClimate, isMeteoGrid, startDate, endDate, isAnomaly,
                                            meteoSettings, dataAlreadyLoaded))
                     {
                         nrValidCells++;
                     }
                 }
 
-                // save result to MP
-                meteoPoint->elaboration = meteoPointTemp->elaboration;
-                meteoPoint->anomaly = meteoPointTemp->anomaly;
-                meteoPoint->anomalyPercentage = meteoPointTemp->anomalyPercentage;
-                delete meteoPointTemp;
+                // save result to meteoPoint
+                meteoPoint->elaboration = meteoPointTemp.elaboration;
+                meteoPoint->anomaly = meteoPointTemp.anomaly;
+                meteoPoint->anomalyPercentage = meteoPointTemp.anomalyPercentage;
             }
         }
     }
 
     if (showInfo) closeProgressBar();
 
+    delete currentClimate;
+
     if (nrValidCells == 0)
     {
         if (errorString.isEmpty())
-        {
             errorString = "Not enough data.";
-        }
-        delete climaUsed;
+
         return false;
     }
 
-    delete climaUsed;
     return true;
 }
 
@@ -1527,7 +1528,8 @@ bool PragaProject::climateCyclePoints(bool showInfo)
                 }
 
                 bool isMeteoGrid = false;
-                if (climateOnPoint(&errorString, meteoPointsDbHandler, nullptr, clima, meteoPointTemp, outputValues, isMeteoGrid, startDate, endDate, changeDataSet, meteoSettings))
+                if (climateOnPoint(errorString, meteoPointsDbHandler, nullptr, clima, meteoPointTemp,
+                                   outputValues, isMeteoGrid, startDate, endDate, changeDataSet, meteoSettings))
                 {
                     nrValidCells++;
                 }
@@ -1661,7 +1663,8 @@ bool PragaProject::climateCycleGrid(bool showInfo)
                    }
 
                    bool isMeteoGrid = true;
-                   if (climateOnPoint(&errorString, nullptr, meteoGridDbHandler, clima, meteoPointTemp, outputValues, isMeteoGrid, startDate, endDate, changeDataSet, meteoSettings))
+                   if (climateOnPoint(errorString, nullptr, meteoGridDbHandler, clima, meteoPointTemp,
+                                      outputValues, isMeteoGrid, startDate, endDate, changeDataSet, meteoSettings))
                    {
                        validCell = validCell + 1;
                    }
@@ -2927,8 +2930,7 @@ bool PragaProject::assignProxyValues(meteoVariable myVar)
             {
                 if (interpolationSettings.getSelectedCombination().getActiveList()[i])
                 {
-                    gis::Crit3DRasterGrid* proxyGrid = new gis::Crit3DRasterGrid();
-                    proxyGrid = interpolationSettings.getProxy(i)->getGrid();
+                    gis::Crit3DRasterGrid* proxyGrid = interpolationSettings.getProxy(i)->getGrid();
                     Crit3DProxy* myProxy = interpolationSettings.getProxy(i);
 
                     if (DEM.isLoaded && proxyGrid != nullptr)
@@ -3742,8 +3744,9 @@ void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint)
     closeLogInfo();
 
     bool isGrid = false;
-    Crit3DPointStatisticsWidget* w = new Crit3DPointStatisticsWidget(isGrid, meteoPointsDbHandler, nullptr, nearMeteoPointsList, firstDaily, lastDaily, firstHourly, lastHourly,
-                                         meteoSettings, pragaDefaultSettings, &climateParameters, quality);
+    Crit3DPointStatisticsWidget w(isGrid, meteoPointsDbHandler, nullptr, nearMeteoPointsList,
+                                  firstDaily, lastDaily, firstHourly, lastHourly,
+                                  meteoSettings, pragaDefaultSettings, &climateParameters, quality);
 }
 
 
@@ -4103,15 +4106,15 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
             clima->setElab2(listXMLElab->listElab2()[i]);
             clima->setParam2(listXMLElab->listParam2()[i]);
 
-            elaborationCycleGrid(false, false);
+            elaborationCycleGridDaily(false, false);
             meteoGridDbHandler->meteoGrid()->fillMeteoRasterElabValue();
 
             QString netcdfName;
             QString netcdfTitle;
             if(listXMLElab->listFileName().size() <= i)
             {
-                netcdfTitle = "ELAB_"+listXMLElab->listAll()[i];
-                netcdfName = xmlPath + "ELAB_"+listXMLElab->listAll()[i]+".nc";
+                netcdfTitle = "ELAB_" + listXMLElab->listAll()[i];
+                netcdfName = xmlPath + "ELAB_" + listXMLElab->listAll()[i] + ".nc";
             }
             else
             {
@@ -4187,9 +4190,9 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
             referenceClima->setElab2(listXMLAnomaly->listRefElab2()[i]);
             referenceClima->setParam2(listXMLAnomaly->listRefParam2()[i]);
 
-            elaborationCycleGrid(false, false);
+            elaborationCycleGridDaily(false, false);
             qDebug() << "--------------------------------------------------";
-            elaborationCycleGrid(true, false);
+            elaborationCycleGridDaily(true, false);
 
             if (!listXMLAnomaly->isPercentage()[i])
             {
@@ -5332,17 +5335,17 @@ bool PragaProject::cleanClimatePoint()
     QList<QString> climateTables;
     QList<QString> climateFields;
 
-    if (getClimateTables(db, &errorString, &climateTables) )
+    if (getClimateTables(db, errorString, &climateTables) )
     {
         for (int i = 0; i < climateTables.size(); i++)
         {
             climateFields.clear();
-            getClimateFieldsFromTable(db, &errorString, climateTables[i], &climateFields);
+            getClimateFieldsFromTable(db, errorString, climateTables[i], &climateFields);
 
             if (! climateFields.isEmpty())
             {
                 for (int j = 0; j < climateFields.size(); j++)
-                    if (! deleteElab(db, &errorString, climateTables[i].toLower(), climateFields[j]))
+                    if (! deleteElab(db, errorString, climateTables[i].toLower(), climateFields[j]))
                         return false;
             }
         }
@@ -5469,7 +5472,8 @@ bool PragaProject::computeClimatePointXML(QString xmlName)
                     }
                 }
 
-                if (climateOnPoint(&errorString, meteoPointsDbHandler, nullptr, clima, meteoPointTemp, outputValues, listXMLElab->isMeteoGrid(), startDate, endDate, changeDataSet, meteoSettings))
+                if (climateOnPoint(errorString, meteoPointsDbHandler, nullptr, clima, meteoPointTemp,
+                                   outputValues, listXMLElab->isMeteoGrid(), startDate, endDate, changeDataSet, meteoSettings))
                 {
                     validCell = validCell + 1;
                 }

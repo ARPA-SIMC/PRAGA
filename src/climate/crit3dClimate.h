@@ -30,8 +30,11 @@
 
         void copyParam(Crit3DClimate* myClimate);
 
-        const QSqlDatabase &db() const;
-        void setDb(const QSqlDatabase &db);
+        const QSqlDatabase& db()
+        { return _db; }
+
+        void setDb(const QSqlDatabase &db)
+        { _db = db; }
 
         QString climateElab() const;
         void setClimateElab(const QString &climateElab);
@@ -115,8 +118,8 @@
         bool dailyCumulated() const;
         void setDailyCumulated(bool newDailyCumulated);
 
-        void setOffset(int offset);
-        int offset();
+        void setOffset(int offset) { _offset = offset; }
+        int offset() const { return _offset; }
 
     private:
         QSqlDatabase _db;

@@ -1124,14 +1124,12 @@ void DialogMeteoComputation::readParameter(int state)
     climateDbElabList.clear();
     climateDbElab.clear();
 
-    QString myError = myProject.errorString;
-
     if (state!= 0)
     {
         climateDbElabList.setVisible(true);
         adjustSize();
         QList<QString> climateTables;
-        if (! getClimateTables(myProject.clima->db(), &myError, &climateTables) )
+        if (! getClimateTables(myProject.clima->db(), myProject.errorString, &climateTables) )
         {
             climateDbElabList.addItem("No saved elaborations found");
         }
@@ -1139,7 +1137,7 @@ void DialogMeteoComputation::readParameter(int state)
         {
             for (int i=0; i < climateTables.size(); i++)
             {
-                selectVarElab(myProject.clima->db(), &myError, climateTables[i], variableList.currentText(), &climateDbElab);
+                selectVarElab(myProject.clima->db(), myProject.errorString, climateTables[i], variableList.currentText(), &climateDbElab);
             }
             if (climateDbElab.isEmpty())
             {

@@ -42,7 +42,7 @@
       { "correctedDegreeDaysSum", 1 }
     };
 
-    bool elaborationOnPoint(QString *errorString, Crit3DMeteoPointsDbHandler* meteoPointsDbHandler,
+    bool elaborationOnPoint(QString &errorString, Crit3DMeteoPointsDbHandler* meteoPointsDbHandler,
                             Crit3DMeteoGridDbHandler* meteoGridDbHandler, Crit3DMeteoPoint* meteoPointTemp,
                             Crit3DClimate* clima, bool isMeteoGrid, const QDate& startDate, const QDate& endDate,
                             bool isAnomaly, Crit3DMeteoSettings *meteoSettings, bool isDataAlreadyLoaded);
@@ -69,19 +69,20 @@
 
     bool anomalyOnPoint(Crit3DMeteoPoint *meteoPoint, float refValue);
 
-    bool passingClimateToAnomaly(QString *myError, Crit3DMeteoPoint* meteoPointTemp, Crit3DClimate* clima,
+    bool passingClimateToAnomaly(QString &errorStr, Crit3DMeteoPoint* meteoPointTemp, Crit3DClimate* climateElab,
                                  std::vector<Crit3DMeteoPoint> &meteoPoints, Crit3DElaborationSettings *elabSettings);
 
-    bool passingClimateToAnomalyGrid(QString *myError, Crit3DMeteoPoint* meteoPointTemp, Crit3DClimate* clima);
+    bool passingClimateToAnomalyGrid(QString &errorStr, Crit3DMeteoPoint* meteoPointTemp, Crit3DClimate* climate);
 
-    bool climateOnPoint(QString *errorString, Crit3DMeteoPointsDbHandler* meteoPointsDbHandler, Crit3DMeteoGridDbHandler* meteoGridDbHandler,
+    bool climateOnPoint(QString &errorString, Crit3DMeteoPointsDbHandler* meteoPointsDbHandler, Crit3DMeteoGridDbHandler* meteoGridDbHandler,
                         Crit3DClimate* climate, Crit3DMeteoPoint *meteoPointTemp, std::vector<float> &outputValues,
                         bool isMeteoGrid, const QDate& startDate, const QDate& endDate, bool changeDataSet, Crit3DMeteoSettings *meteoSettings);
 
-    bool climateTemporalCycle(QString *errorStr, Crit3DClimate* clima, std::vector<float> &outputValues, Crit3DMeteoPoint* meteoPoint,
+    bool climateTemporalCycle(QString &errorStr, Crit3DClimate* clima, std::vector<float> &outputValues, Crit3DMeteoPoint* meteoPoint,
                               meteoComputation elab1, meteoComputation elab2, Crit3DMeteoSettings* meteoSettings);
 
-    bool dailyCumulatedClimate(QString *myError, std::vector<float> &inputValues, Crit3DClimate* clima, Crit3DMeteoPoint* meteoPoint, meteoComputation elab2, Crit3DMeteoSettings* meteoSettings);
+    bool dailyCumulatedClimate(QString &errorStr, std::vector<float> &inputValues, Crit3DClimate* clima,
+                               Crit3DMeteoPoint* meteoPoint, meteoComputation elab2, Crit3DMeteoSettings* meteoSettings);
 
     float thomDayTime(float myTemp, float relHumMinAir);
 
