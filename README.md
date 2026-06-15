@@ -1,4 +1,3 @@
-[![Build Status](https://simc.arpae.it/moncic-ci/PRAGA/rocky8.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
 [![Build Status](https://simc.arpae.it/moncic-ci/PRAGA/rocky9.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
 [![Build Status](https://simc.arpae.it/moncic-ci/PRAGA/rocky10.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
 [![Build Status](https://simc.arpae.it/moncic-ci/PRAGA/fedora42.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
