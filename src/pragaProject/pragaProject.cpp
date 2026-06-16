@@ -1366,8 +1366,6 @@ bool PragaProject::elaborationCycleGridDaily(bool isAnomaly, bool showInfo)
         if (showInfo && (row % infoStep) == 0)
             updateProgressBar(row);
 
-        // TODO trovare race condition che lo fa saltare
-        //#pragma omp parallel for if (isParallelComputing()) reduction(+:nrValidCells)
         for (int col = 0; col < meteoGridDbHandler->gridStructure().header().nrCols; col++)
         {
             if (meteoGridDbHandler->meteoGrid()->isMeteoPointActive(row, col))
