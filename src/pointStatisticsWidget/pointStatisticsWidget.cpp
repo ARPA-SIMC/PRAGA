@@ -798,7 +798,7 @@ void Crit3DPointStatisticsWidget::plot()
 
             if (isGrid)
             {
-                if (!elaborationOnPoint(&myError, nullptr, meteoGridDbHandler, &meteoPointTemp, &_climateElaboration, isGrid, firstDate, lastDate, isAnomaly, meteoSettings, dataAlreadyLoaded))
+                if (!elaborationOnPoint(myError, nullptr, meteoGridDbHandler, &meteoPointTemp, &_climateElaboration, isGrid, firstDate, lastDate, isAnomaly, meteoSettings, dataAlreadyLoaded))
                 {
                     QMessageBox::information(nullptr, "Error", "Data not available in the reference period");
                     return;
@@ -806,7 +806,7 @@ void Crit3DPointStatisticsWidget::plot()
             }
             else
             {
-                if (!elaborationOnPoint(&myError, meteoPointsDbHandler, nullptr, &meteoPointTemp, &_climateElaboration, isGrid, firstDate, lastDate, isAnomaly, meteoSettings, dataAlreadyLoaded))
+                if (!elaborationOnPoint(myError, meteoPointsDbHandler, nullptr, &meteoPointTemp, &_climateElaboration, isGrid, firstDate, lastDate, isAnomaly, meteoSettings, dataAlreadyLoaded))
                 {
                     QMessageBox::information(nullptr, "Error", "Data not available in the reference period");
                     return;

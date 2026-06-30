@@ -28,6 +28,9 @@ win32:{
     TARGET = pragaProject
 }
 
+# parallel computing settings
+include($$absolute_path(../../agrolib/parallel.pri))
+
 INCLUDEPATH +=  ../../agrolib/crit3dDate ../../agrolib/mathFunctions ../../agrolib/meteo \
                 ../../agrolib/gis ../../agrolib/interpolation ../../agrolib/solarRadiation \
                 ../../agrolib/utilities ../../agrolib/outputPoints ../../agrolib/dbMeteoPoints \

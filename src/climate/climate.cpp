@@ -18,7 +18,7 @@
 
 using namespace std;
 
-bool elaborationOnPoint(QString *errorString, Crit3DMeteoPointsDbHandler* meteoPointsDbHandler,
+bool elaborationOnPoint(QString &errorString, Crit3DMeteoPointsDbHandler* meteoPointsDbHandler,
                         Crit3DMeteoGridDbHandler* meteoGridDbHandler, Crit3DMeteoPoint* meteoPointTemp,
                         Crit3DClimate* clima, bool isMeteoGrid, const QDate &startDate, const QDate &endDate,
                         bool isAnomaly, Crit3DMeteoSettings* meteoSettings, bool isDataAlreadyLoaded)
@@ -54,7 +54,7 @@ bool elaborationOnPoint(QString *errorString, Crit3DMeteoPointsDbHandler* meteoP
     {
         dataLoaded = preElaboration(meteoPointsDbHandler, meteoGridDbHandler, meteoPointTemp, isMeteoGrid,
                                     clima->variable(), elab1MeteoComp, startDate, endDate, outputValues,
-                                    &percValue, meteoSettings, *errorString);
+                                    &percValue, meteoSettings, errorString);
     }
 
     if (dataLoaded)
@@ -74,16 +74,17 @@ bool elaborationOnPoint(QString *errorString, Crit3DMeteoPointsDbHandler* meteoP
 
         if (difference (startD, endD) < 0)
         {
-            *errorString = "Wrong dates!";
+            errorString = "Wrong dates!";
             return false;
         }
         if (clima->elab1() == "")
         {
-            *errorString = "Missing elaboration";
+            errorString = "Missing elaboration";
             return false;
         }
 
-        result = computeStatistic(outputValues, meteoPointTemp, clima, startD, endD, clima->nYears(), elab1MeteoComp, elab2MeteoComp, meteoSettings, isDataAlreadyLoaded);
+        result = computeStatistic(outputValues, meteoPointTemp, clima, startD, endD, clima->nYears(),
+                                  elab1MeteoComp, elab2MeteoComp, meteoSettings, isDataAlreadyLoaded);
 
         if (isAnomaly)
         {
@@ -92,14 +93,7 @@ bool elaborationOnPoint(QString *errorString, Crit3DMeteoPointsDbHandler* meteoP
         else
         {
             meteoPointTemp->elaboration = result;
-            if (meteoPointTemp->elaboration != NODATA)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return (meteoPointTemp->elaboration != NODATA);
         }
     }
     else if (isAnomaly)
@@ -142,7 +136,6 @@ bool elaborationOnPointHourly(Crit3DMeteoPointsDbHandler* meteoPointsDbHandler, 
 
 bool anomalyOnPoint(Crit3DMeteoPoint* meteoPoint, float refValue)
 {
-
     bool anomalyOnPoint = (refValue != NODATA && meteoPoint->elaboration != NODATA);
 
     if (anomalyOnPoint)
@@ -167,13 +160,13 @@ bool anomalyOnPoint(Crit3DMeteoPoint* meteoPoint, float refValue)
 }
 
 
-bool passingClimateToAnomaly(QString *myError, Crit3DMeteoPoint* meteoPointTemp, Crit3DClimate* clima,
+bool passingClimateToAnomaly(QString &errorStr, Crit3DMeteoPoint* meteoPointTemp, Crit3DClimate* climateElab,
                              std::vector<Crit3DMeteoPoint> &meteoPoints, Crit3DElaborationSettings *elabSettings)
 {
     float valueClimate;
-    QString table = getTable(clima->climateElab());
-    int index = clima->getParam1ClimateIndex();
-    valueClimate = readClimateElab(clima->db(), table, index, QString::fromStdString(meteoPointTemp->id), clima->climateElab(), myError);
+    QString table = getTable(climateElab->climateElab());
+    int index = climateElab->getParam1ClimateIndex();
+    valueClimate = readClimateElab(climateElab->db(), table, index, QString::fromStdString(meteoPointTemp->id), climateElab->climateElab(), errorStr);
     if (index != NODATA && valueClimate != NODATA)
     {
         // MP found
@@ -187,11 +180,11 @@ bool passingClimateToAnomaly(QString *myError, Crit3DMeteoPoint* meteoPointTemp,
         QList<QString> idList;
         if (table == "climate_generic" || table == "climate_annual")
         {
-            idList = getIdListFromElab(clima->db(), table, myError, clima->climateElab());
+            idList = getIdListFromElab(climateElab->db(), table, errorStr, climateElab->climateElab());
         }
         else
         {
-            idList = getIdListFromElab(clima->db(), table, myError, clima->climateElab(), index);
+            idList = getIdListFromElab(climateElab->db(), table, errorStr, climateElab->climateElab(), index);
         }
 
         float minDist = NODATA;
@@ -227,7 +220,7 @@ bool passingClimateToAnomaly(QString *myError, Crit3DMeteoPoint* meteoPointTemp,
 
         if (minDist != NODATA)
         {
-            valueClimate = readClimateElab(clima->db(), table, index, idNearMP, clima->climateElab(), myError);
+            valueClimate = readClimateElab(climateElab->db(), table, index, idNearMP, climateElab->climateElab(), errorStr);
             if (index != NODATA && valueClimate != NODATA)
             {
                 return anomalyOnPoint(meteoPointTemp, valueClimate);
@@ -238,30 +231,26 @@ bool passingClimateToAnomaly(QString *myError, Crit3DMeteoPoint* meteoPointTemp,
             }
         }
         else
-        {
             return false;
-        }
     }
 }
 
 
-bool passingClimateToAnomalyGrid(QString *myError, Crit3DMeteoPoint* meteoPointTemp, Crit3DClimate* clima)
+bool passingClimateToAnomalyGrid(QString &errorStr, Crit3DMeteoPoint* meteoPointTemp, Crit3DClimate* climate)
 {
-    float valueClimate;
-    QString table = getTable(clima->climateElab());
-    int index = clima->getParam1ClimateIndex();
-    valueClimate = readClimateElab(clima->db(), table, index, QString::fromStdString(meteoPointTemp->id), clima->climateElab(), myError);
-    if (index != NODATA && valueClimate != NODATA)
-    {
-        // MP found
-        return anomalyOnPoint(meteoPointTemp, valueClimate);
-    }
-    else
+    QString table = getTable(climate->climateElab());
+    int index = climate->getParam1ClimateIndex();
+    float climateValue = readClimateElab(climate->db(), table, index, QString::fromStdString(meteoPointTemp->id),
+                                         climate->climateElab(), errorStr);
+    // MP not found
+    if (index == NODATA || climateValue == NODATA)
         return false;
+
+    return anomalyOnPoint(meteoPointTemp, climateValue);
 }
 
 
-bool climateOnPoint(QString *errorString, Crit3DMeteoPointsDbHandler* meteoPointsDbHandler, Crit3DMeteoGridDbHandler* meteoGridDbHandler,
+bool climateOnPoint(QString &errorString, Crit3DMeteoPointsDbHandler* meteoPointsDbHandler, Crit3DMeteoGridDbHandler* meteoGridDbHandler,
                     Crit3DClimate* climate, Crit3DMeteoPoint* meteoPointTemp, std::vector<float> &outputValues,
                     bool isMeteoGrid, const QDate &startDate, const QDate &endDate, bool changeDataSet, Crit3DMeteoSettings* meteoSettings)
 {
@@ -309,7 +298,7 @@ bool climateOnPoint(QString *errorString, Crit3DMeteoPointsDbHandler* meteoPoint
         meteoPointTemp->nrObsDataDaysD = 0;
         meteoPointTemp->nrObsDataDaysH = 0;
 
-        dataLoaded = preElaboration(meteoPointsDbHandler, meteoGridDbHandler, meteoPointTemp, isMeteoGrid, climate->variable(), elab1MeteoComp, startDate, endDate, outputValues, &percValue, meteoSettings, *errorString);
+        dataLoaded = preElaboration(meteoPointsDbHandler, meteoGridDbHandler, meteoPointTemp, isMeteoGrid, climate->variable(), elab1MeteoComp, startDate, endDate, outputValues, &percValue, meteoSettings, errorString);
     }
 
     if (dataLoaded)
@@ -324,7 +313,7 @@ bool climateOnPoint(QString *errorString, Crit3DMeteoPointsDbHandler* meteoPoint
 }
 
 
-bool climateTemporalCycle(QString *errorStr, Crit3DClimate* clima, std::vector<float> &outputValues, Crit3DMeteoPoint* meteoPoint,
+bool climateTemporalCycle(QString &errorStr, Crit3DClimate* clima, std::vector<float> &outputValues, Crit3DMeteoPoint* meteoPoint,
                           meteoComputation elab1, meteoComputation elab2, Crit3DMeteoSettings* meteoSettings)
 {
     const int REFERENCE_YEAR = 1999;
@@ -392,7 +381,7 @@ bool climateTemporalCycle(QString *errorStr, Crit3DClimate* clima, std::vector<f
             }
             else
             {
-                *errorStr = "No results to save.";
+                errorStr = "No results to save.";
                 return false;
             }
         }
@@ -442,7 +431,7 @@ bool climateTemporalCycle(QString *errorStr, Crit3DClimate* clima, std::vector<f
             }
             else
             {
-                *errorStr = "no results to save";
+                errorStr = "no results to save";
                 return false;
             }
         }
@@ -488,7 +477,7 @@ bool climateTemporalCycle(QString *errorStr, Crit3DClimate* clima, std::vector<f
             }
             else
             {
-                *errorStr = "no results to save";
+                errorStr = "no results to save";
                 return false;
             }
         }
@@ -548,7 +537,7 @@ bool climateTemporalCycle(QString *errorStr, Crit3DClimate* clima, std::vector<f
             }
             else
             {
-                *errorStr = "no results to save";
+                errorStr = "no results to save";
                 return false;
             }
         }
@@ -582,7 +571,7 @@ bool climateTemporalCycle(QString *errorStr, Crit3DClimate* clima, std::vector<f
             }
             else
             {
-                *errorStr = "no results to save";
+                errorStr = "no results to save";
                 return false;
             }
         }
@@ -614,21 +603,22 @@ bool climateTemporalCycle(QString *errorStr, Crit3DClimate* clima, std::vector<f
             }
             else
             {
-                *errorStr = "no results to save";
+                errorStr = "no results to save";
                 return false;
             }
         }
 
     default:
         {
-            *errorStr = "period not valid";
+            errorStr = "period not valid";
             return false;
         }
     }
 }
 
 
-bool dailyCumulatedClimate(QString *myError, std::vector<float> &inputValues, Crit3DClimate* clima, Crit3DMeteoPoint* meteoPoint, meteoComputation elab2, Crit3DMeteoSettings* meteoSettings)
+bool dailyCumulatedClimate(QString &errorStr, std::vector<float> &inputValues, Crit3DClimate* clima,
+                           Crit3DMeteoPoint* meteoPoint, meteoComputation elab2, Crit3DMeteoSettings* meteoSettings)
 {
     bool okAtLeastOne = false;
     int nLeapYears = 0;
@@ -830,11 +820,11 @@ bool dailyCumulatedClimate(QString *myError, std::vector<float> &inputValues, Cr
 
     if (okAtLeastOne)
     {
-        return saveDailyElab(db, myError, QString::fromStdString(meteoPoint->id), allResults, clima->climateElab());
+        return saveDailyElab(db, errorStr, QString::fromStdString(meteoPoint->id), allResults, clima->climateElab());
     }
     else
     {
-        *myError = "no results to save";
+        errorStr = "no results to save";
         return false;
     }
 }
@@ -1780,7 +1770,12 @@ bool elaborateDailyAggregatedVarFromDaily(meteoVariable myVar, Crit3DMeteoPoint 
         date = date.addDays(1);
     }
 
-    *percValue = nrValidValues / meteoPoint.nrObsDataDaysD;
+    if (meteoPoint.nrObsDataDaysD > 0)
+    {
+        *percValue = nrValidValues / meteoPoint.nrObsDataDaysD;
+    }
+    else
+        *percValue = 0;
 
     return (nrValidValues > 0);
 }
@@ -5309,7 +5304,7 @@ int computeAnnualSeriesOnPointFromDaily(Crit3DMeteoPointsDbHandler* meteoPointsD
 
         if (isMeteoGrid)
         {
-            if (elaborationOnPoint(&errorString, nullptr, meteoGridDbHandler, meteoPointTemp, &myClimate, isMeteoGrid, startDate, endDate, isAnomaly, meteoSettings, isDataAlreadyLoaded))
+            if (elaborationOnPoint(errorString, nullptr, meteoGridDbHandler, meteoPointTemp, &myClimate, isMeteoGrid, startDate, endDate, isAnomaly, meteoSettings, isDataAlreadyLoaded))
             {
                 if(isAnomaly)
                 {
@@ -5330,7 +5325,7 @@ int computeAnnualSeriesOnPointFromDaily(Crit3DMeteoPointsDbHandler* meteoPointsD
         }
         else
         {
-            if (elaborationOnPoint(&errorString, meteoPointsDbHandler, nullptr, meteoPointTemp, &myClimate, isMeteoGrid, startDate, endDate, isAnomaly, meteoSettings, isDataAlreadyLoaded))
+            if (elaborationOnPoint(errorString, meteoPointsDbHandler, nullptr, meteoPointTemp, &myClimate, isMeteoGrid, startDate, endDate, isAnomaly, meteoSettings, isDataAlreadyLoaded))
             {
                 if(isAnomaly)
                 {
@@ -5357,7 +5352,8 @@ int computeAnnualSeriesOnPointFromDaily(Crit3DMeteoPointsDbHandler* meteoPointsD
 
 void computeClimateOnDailyData(Crit3DMeteoPoint meteoPoint, meteoVariable var, QDate firstDate, QDate lastDate,
                               int smooth, float* dataPresence, Crit3DQuality* qualityCheck, Crit3DClimateParameters* climateParam,
-                               Crit3DMeteoSettings* meteoSettings, std::vector<float> &dailyClima, std::vector<float> &decadalClima, std::vector<float> &monthlyClima)
+                               Crit3DMeteoSettings* meteoSettings, std::vector<float> &dailyClima,
+                               std::vector<float> &decadalClima, std::vector<float> &monthlyClima)
 {
 
     int nrDays = int(firstDate.daysTo(lastDate) + 1);

@@ -12,7 +12,7 @@ greaterThan(QT_MAJOR_VERSION, 5): QT += core5compat
 
 TARGET = PRAGA
 TEMPLATE = app
-VERSION = 2.1.4
+VERSION = 2.1.5
 QMAKE_TARGET_COPYRIGHT = "\\251 2026 ARPAE ER - Climate Observatory"
 
 CONFIG += c++17

@@ -9,22 +9,25 @@
         #include <vector>
     #endif
 
-    bool saveDailyElab(QSqlDatabase db, QString *myError, QString id, std::vector<float> allResults, QString elab);
-    bool saveDecadalElab(QSqlDatabase db, QString *myError, QString id, std::vector<float> allResults, QString elab);
-    bool saveMonthlyElab(QSqlDatabase db, QString *myError, QString id, std::vector<float> allResults, QString elab);
-    bool saveSeasonalElab(QSqlDatabase db, QString *myError, QString id, std::vector<float> allResults, QString elab);
-    bool saveAnnualElab(QSqlDatabase db, QString *myError, QString id, float result, QString elab);
-    bool saveGenericElab(QSqlDatabase db, QString *myError, QString id, float result, QString elab);
+    bool saveDailyElab(QSqlDatabase db, QString &errorStr, QString id, std::vector<float> allResults, const QString &elab);
+    bool saveDecadalElab(QSqlDatabase db, QString &errorStr, QString id, std::vector<float> allResults, const QString &elab);
+    bool saveMonthlyElab(QSqlDatabase db, QString &errorStr, QString id, std::vector<float> allResults, const QString &elab);
+    bool saveSeasonalElab(QSqlDatabase db, QString &errorStr, QString id, std::vector<float> allResults, const QString &elab);
 
-    bool getClimateFieldsFromTable(QSqlDatabase db, QString *myError, QString climateTable, QList<QString>* fieldList);
-    bool selectVarElab(QSqlDatabase db, QString *myError, QString table, QString variable, QList<QString>* listElab);
-    bool getClimateTables(QSqlDatabase db, QString *myError, QList<QString>* climateTables);
+    bool saveAnnualElab(QSqlDatabase db, QString &errorStr, QString id, float result, QString elab);
+    bool saveGenericElab(QSqlDatabase db, QString &errorStr, QString id, float result, QString elab);
 
-    bool deleteElab(QSqlDatabase db, QString *myError, QString table, QString elab);
+    bool getClimateFieldsFromTable(const QSqlDatabase &db, QString &errorStr, const QString &climateTable, QList<QString>* fieldList);
+    bool selectVarElab(const QSqlDatabase &db, QString &errorStr, const QString &table, QString variable, QList<QString>* listElab);
+    bool getClimateTables(const QSqlDatabase &db, QString &errorStr, QList<QString>* climateTables);
 
-    float readClimateElab(const QSqlDatabase &db, const QString &table, const int &timeIndex, const QString &id, const QString &elab, QString *myError);
-    QList<QString> getIdListFromElab(QSqlDatabase db, QString table, QString *myError, QString elab);
-    QList<QString> getIdListFromElab(QSqlDatabase db, QString table, QString *myError, QString elab, int index);
+    bool deleteElab(QSqlDatabase db, QString &errorStr, const QString &table, const QString &elab);
+
+    float readClimateElab(const QSqlDatabase &db, const QString &table, const int &timeIndex,
+                          const QString &id, const QString &elab, QString &errorStr);
+
+    QList<QString> getIdListFromElab(const QSqlDatabase &db, const QString &table, QString &errorStr, const QString &elab);
+    QList<QString> getIdListFromElab(const QSqlDatabase &db, const QString &table, QString &errorStr, const QString &elab, int index);
 
 
 #endif // DBCLIMATE_H

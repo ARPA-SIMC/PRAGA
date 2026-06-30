@@ -342,24 +342,6 @@ void Crit3DClimate::setDailyCumulated(bool newDailyCumulated)
     _dailyCumulated = newDailyCumulated;
 }
 
-void Crit3DClimate::setOffset(int offset)
-{
-    _offset = offset;
-}
 
-int Crit3DClimate::offset()
-{
-    return _offset;
-}
-
-const QSqlDatabase& Crit3DClimate::db() const
-{
-    return _db;
-}
-
-void Crit3DClimate::setDb(const QSqlDatabase &db)
-{
-    _db = db;
-}
 
 
