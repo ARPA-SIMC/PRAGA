@@ -4966,6 +4966,7 @@ bool PragaProject::computeDroughtIndexPoint(droughtIndex index, int timescale, i
     std::vector<meteoVariable> dailyMeteoVar;
     dailyMeteoVar.push_back(dailyPrecipitation);
     dailyMeteoVar.push_back(dailyReferenceEvapotranspirationHS);
+    dailyMeteoVar.push_back(dailyBIC);
     int nrMonths = (lastDate.year()-firstDate.year())*12+lastDate.month()-(firstDate.month()-1);
 
     for (int i=0; i < meteoPoints.size(); i++)
