@@ -155,7 +155,17 @@ float Drought::computeDroughtIndex()
                 {
                     temporaryResult = thresholdForWrongMomentum + (temporaryResult-thresholdForWrongMomentum)/2.;
                 }
-                droughtResults[j] = BOUNDFUNCTION(-5.99, 5.99, static_cast<float>(temporaryResult));
+                thresholdForWrongMomentum -= 0.5;
+                if (temporaryResult < (thresholdForWrongMomentum))
+                {
+                    temporaryResult = thresholdForWrongMomentum + (temporaryResult-thresholdForWrongMomentum)/4.;
+                }
+                thresholdForWrongMomentum -= 0.25;
+                if (temporaryResult < (thresholdForWrongMomentum))
+                {
+                    temporaryResult = thresholdForWrongMomentum + (temporaryResult-thresholdForWrongMomentum)/8.;
+                }
+                droughtResults[j] = BOUNDFUNCTION(-4.99, 4.99, static_cast<float>(temporaryResult));
             }
         }
     }
