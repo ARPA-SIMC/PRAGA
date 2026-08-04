@@ -1711,7 +1711,7 @@ bool PragaProject::downloadDailyDataArkimet(QList<QString> variables, bool prec0
 
     for( int i=0; i < variables.size(); i++ )
     {
-        if ( !idArkimetDailyMap[variables[i]].isEmpty())
+        if (! idArkimetDailyMap[variables[i]].isEmpty())
         {
             arkIdVar.append(idArkimetDailyMap[variables[i]]);
         }
