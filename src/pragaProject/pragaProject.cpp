@@ -3830,9 +3830,6 @@ void PragaProject::showHomogeneityTestWidgetPoint(const std::string &idMeteoPoin
 
     closeLogInfo();
 
-    delete homogeneityWidget;
-    homogeneityWidget = nullptr;
-
     homogeneityWidget = new Crit3DHomogeneityWidget(meteoPointsDbHandler, nearMeteoPointsList, sortedIdList,
                                 distanceList, jointStationsList, firstDaily, lastDaily,
                                 meteoSettings, pragaDefaultSettings, &climateParameters, quality);

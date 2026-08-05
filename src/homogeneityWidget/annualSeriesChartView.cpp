@@ -16,7 +16,7 @@ AnnualSeriesChartView::AnnualSeriesChartView(QWidget *parent) :
     setRenderHint(QPainter::Antialiasing);
 
     axisX = new QValueAxis();
-    axisX->setTitleText("years");
+    axisX->setTitleVisible(false);
     axisY = new QValueAxis();
 
     chart()->addAxis(axisX, Qt::AlignBottom);
@@ -29,66 +29,67 @@ AnnualSeriesChartView::AnnualSeriesChartView(QWidget *parent) :
     m_tooltip->hide();
 }
 
-void AnnualSeriesChartView::draw(std::vector<int> years, std::vector<float> outputValues)
-{
 
+void AnnualSeriesChartView::draw(const std::vector<int> &years, std::vector<float> &outputValues)
+{
     float maxValue = NODATA;
     float minValue = -NODATA;
-    for (unsigned int i = 0; i < years.size(); i++)
+
+    for (size_t i = 0; i < years.size(); ++i)
     {
         if (outputValues[i] != NODATA)
         {
             annualSeries->append(QPointF(years[i], outputValues[i]));
-            if (outputValues[i] > maxValue)
-            {
-                maxValue = outputValues[i];
-            }
-            if (outputValues[i] < minValue)
-            {
-                minValue = outputValues[i];
-            }
+            maxValue = std::max(outputValues[i], maxValue);
+            minValue = std::min(outputValues[i], minValue);
         }
     }
+
     if (maxValue != minValue)
     {
-        double yRange = maxValue - minValue;
-        double deltaY = yRange/100;
-        axisY->setMax(maxValue+3*deltaY);
-        axisY->setMin(minValue-3*deltaY);
+        int yAvg = round((maxValue + minValue) * 0.5);
+        double yHalf = (maxValue - minValue) * 0.5;
+        int yDelta = round(yHalf * 1.2);
+
+        axisY->setMax(yAvg + yDelta);
+        axisY->setMin(yAvg - yDelta);
     }
     else
     {
-        axisY->setMax(maxValue+3);
-        axisY->setMin(minValue-3);
+        axisY->setMax(round(maxValue + 2.f));
+        axisY->setMin(round(minValue - 2.f));
     }
+
     axisX->setRange(years[0], years[years.size()-1]);
-    int nYears = int(years.size());
-    if ( nYears <= 15)
+
+    const int nrYears = int(years.size());
+    if (nrYears <= 15)
     {
-        axisX->setTickCount(nYears);
+        // all years
+        axisX->setTickCount(nrYears);
     }
     else
     {
-        int div = 0;
-        for (int i = 2; i<=4; i++)
+        axisX->setTickType(QValueAxis::TicksDynamic);
+
+        const int stepYears = (nrYears <= 60) ? 5 : 10;
+        int firstYear = NODATA;
+        for (int year: years)
         {
-            if ( (nYears-1) % i == 0 && (nYears-1)/i <= 15)
+            if (year % stepYears == 0)
             {
-                div = i;
+                firstYear = year;
                 break;
             }
         }
-        if (div == 0)
-        {
-            axisX->setTickCount(2);
-        }
-        else
-        {
-            axisX->setTickCount( (nYears-1)/div + 1);
-        }
+
+        axisX->setTickAnchor(firstYear);
+        axisX->setTickInterval(stepYears);
     }
+
     axisX->setLabelFormat("%d");
     axisY->setLabelFormat("%.1f");
+
     chart()->addSeries(annualSeries);
     annualSeries->attachAxis(axisX);
     annualSeries->attachAxis(axisY);

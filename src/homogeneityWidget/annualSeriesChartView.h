@@ -16,7 +16,7 @@ class AnnualSeriesChartView : public QChartView
     Q_OBJECT
 public:
     explicit AnnualSeriesChartView(QWidget *parent = 0);
-    void draw(std::vector<int> years, std::vector<float> outputValues);
+    void draw(const std::vector<int> &years, std::vector<float> &outputValues);
     void tooltipAnnualSeries(QPointF point, bool state);
     void setYmax(float value);
     void setYmin(float value);
