@@ -4646,7 +4646,7 @@ void MainWindow::on_actionDeleteData_selected_triggered()
 
 void MainWindow::on_actionWith_Criteria_active_triggered()
 {
-    if (myProject.setActiveStateWithCriteria(true))
+    if (myProject.activePointsWithCriteria(true))
     {
         loadMeteoPoints_GUI(myProject.dbPointsFileName);
     }
@@ -4654,7 +4654,7 @@ void MainWindow::on_actionWith_Criteria_active_triggered()
 
 void MainWindow::on_actionWith_Criteria_notActive_triggered()
 {
-    if (myProject.setActiveStateWithCriteria(false))
+    if (myProject.activePointsWithCriteria(false))
     {
         loadMeteoPoints_GUI(myProject.dbPointsFileName);
     }
@@ -7275,7 +7275,7 @@ void MainWindow::on_action_deselect_with_criteria_triggered()
 {
     bool isShowVariable = (currentPointsVisualization == showCurrentVariable);
     bool isSelect = false;
-    if (myProject.setSelectedStateWithCriteria(isSelect, isShowVariable))
+    if (myProject.selectPointsWithCriteria(isSelect, isShowVariable))
     {
         redrawMeteoPoints(currentPointsVisualization, true);
     }
@@ -7312,7 +7312,7 @@ void MainWindow::on_actionWith_Criteria_Selected_triggered()
 {
     bool isShowVariable = (currentPointsVisualization == showCurrentVariable);
     bool isSelect = true;
-    if (myProject.setSelectedStateWithCriteria(isSelect, isShowVariable))
+    if (myProject.selectPointsWithCriteria(isSelect, isShowVariable))
     {
         redrawMeteoPoints(currentPointsVisualization, true);
     }
