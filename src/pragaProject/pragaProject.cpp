@@ -4846,7 +4846,7 @@ bool PragaProject::computeDroughtIndexGrid(droughtIndex index, int firstYear, in
         if (! errorString.isEmpty())
             logError();
         else
-            logError("No monthly data.");
+            logError("No monthly data for current period or reference period.");
 
         return false;
     }
