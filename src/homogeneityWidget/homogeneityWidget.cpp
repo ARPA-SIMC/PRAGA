@@ -83,7 +83,7 @@ Crit3DHomogeneityWidget::Crit3DHomogeneityWidget(Crit3DMeteoPointsDbHandler* met
     QGroupBox *jointStationsGroupBox = new QGroupBox();
     QHBoxLayout *jointStationsLayout = new QHBoxLayout;
     QVBoxLayout *jointStationsSelectLayout = new QVBoxLayout;
-    QHBoxLayout *paramtersLayout = new QHBoxLayout;
+    QHBoxLayout *parametersLayout = new QHBoxLayout;
 
     QHBoxLayout *findStationsLayout = new QHBoxLayout();
     QVBoxLayout *selectStationsLayout = new QVBoxLayout();
@@ -120,12 +120,12 @@ Crit3DHomogeneityWidget::Crit3DHomogeneityWidget(Crit3DMeteoPointsDbHandler* met
     variableGroupBox->setLayout(variableLayout);
 
     QLabel *minNumStationsLabel = new QLabel(tr("Minimum number of stations: "));
-    paramtersLayout->addWidget(minNumStationsLabel);
+    parametersLayout->addWidget(minNumStationsLabel);
     minNumStations.setMaximumWidth(50);
     minNumStations.setMaximumHeight(24);
     minNumStations.setText("1");
     minNumStations.setValidator(new QIntValidator(1.0, 20.0));
-    paramtersLayout->addWidget(&minNumStations);
+    parametersLayout->addWidget(&minNumStations);
 
     QLabel *jointStationsLabel = new QLabel(tr("Stations:"));
     jointStationsSelectLayout->addWidget(jointStationsLabel);
@@ -253,6 +253,7 @@ Crit3DHomogeneityWidget::Crit3DHomogeneityWidget(Crit3DMeteoPointsDbHandler* met
     annualSeriesChartView->setMinimumWidth(this->width()*2/3);
     annualSeriesChartView->setYTitle(QString::fromStdString(getUnitFromVariable(myVar)));
     plotLayout->addWidget(annualSeriesChartView);
+    annualSeriesChartView->chart()->legend()->setVisible(false);
 
     homogeneityChartView = new HomogeneityChartView();
     homogeneityChartView->setMinimumWidth(this->width()*2/3);
@@ -263,10 +264,11 @@ Crit3DHomogeneityWidget::Crit3DHomogeneityWidget(Crit3DMeteoPointsDbHandler* met
 
     leftLayout->addLayout(firstLayout);
     leftLayout->addWidget(jointStationsGroupBox);
-    leftLayout->addLayout(paramtersLayout);
+    leftLayout->addLayout(parametersLayout);
     leftLayout->addLayout(findStationsLayout);
     leftLayout->addLayout(selectStationsLayout);
     leftLayout->addWidget(resultGroupBox);
+    leftLayout->setSizeConstraint(leftLayout->SetMaximumSize);
 
     // menu
     QMenuBar* menuBar = new QMenuBar();
@@ -294,7 +296,7 @@ Crit3DHomogeneityWidget::Crit3DHomogeneityWidget(Crit3DMeteoPointsDbHandler* met
     connect(&variable, &QComboBox::currentTextChanged, [=](const QString &newVariable){ this->changeVar(newVariable); });
     connect(&yearFrom, &QComboBox::currentTextChanged, [=](){ this->changeYears(); });
     connect(&yearTo, &QComboBox::currentTextChanged, [=](){ this->changeYears(); });
-    connect(&method, &QComboBox::currentTextChanged, [=](const QString &newMethod){ this->changeMethod(newMethod); });
+    connect(&method, &QComboBox::currentTextChanged, [=](){ this->changeMethod(); });
     connect(&addJointStation, &QPushButton::clicked, [=](){ addJointStationClicked(); });
     connect(&deleteJointStation, &QPushButton::clicked, [=](){ deleteJointStationClicked(); });
     connect(&saveToDb, &QPushButton::clicked, [=](){ saveToDbClicked(); });
@@ -466,7 +468,7 @@ void Crit3DHomogeneityWidget::changeYears()
     plotAnnualSeries();
 }
 
-void Crit3DHomogeneityWidget::changeMethod(const QString &methodName)
+void Crit3DHomogeneityWidget::changeMethod()
 {
     homogeneityChartView->clearSNHTSeries();
     homogeneityChartView->clearCraddockSeries();

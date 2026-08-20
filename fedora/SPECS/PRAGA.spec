@@ -1,4 +1,4 @@
-%global releaseno 1
+%global releaseno 2
 
 # Note: define srcarchivename in CI build only.
 %{!?srcarchivename: %global srcarchivename %{name}-%{version}-%{releaseno}}
@@ -57,6 +57,9 @@ cp -a bin/PRAGA %{buildroot}/%{_bindir}/
 
 
 %changelog
+* Mon Jul 06 2026 Fausto Tomei <ftomei@arpae.it> - 2.1.5-2
+- Release 2.1.5
+
 * Tue Jun 16 2026 Fausto Tomei <ftomei@arpae.it> - 2.1.5-1
 - Release 2.1.5
 

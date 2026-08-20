@@ -3740,68 +3740,68 @@ void MainWindow::on_actionFileMeteopointNewArkimet_triggered()
 
     Download myDownload(dbName);
 
-    QList<QString> dataset = myDownload.getDbArkimet()->getAllDatasetsList();
+    QList<QString> datasetList = myDownload.getDbArkimet()->getAllDatasetsList();
 
+    //**** start widget
     QDialog datasetDialog;
-
     datasetDialog.setWindowTitle("Datasets");
-    datasetDialog.setFixedWidth(500);
-    QVBoxLayout layout;
+    datasetDialog.resize(500, 600);
 
-    for (int i = 0; i < dataset.size(); i++)
-    {
-        QCheckBox* newDataset = new QCheckBox(dataset[i]);
-        layout.addWidget(newDataset);
-
-        datasetCheckbox.append(newDataset);
-    }
+    QWidget *content = new QWidget;
+    QVBoxLayout *contentLayout = new QVBoxLayout(content);
 
     allDatasets = new QCheckBox("ALL");
-    layout.addSpacing(30);
-    layout.addWidget(allDatasets);
+    connect(allDatasets, &QCheckBox::toggled, this, &MainWindow::enableAllDataset);
 
-    connect(allDatasets, SIGNAL(toggled(bool)), this, SLOT(enableAllDataset(bool)));
+    contentLayout->addWidget(allDatasets);
+    contentLayout->addSpacing(20);
 
-    for (int i = 0; i < dataset.size(); i++)
+    datasetCheckbox.clear();
+    for (const QString &dataset : datasetList)
     {
-        connect(datasetCheckbox[i], SIGNAL(toggled(bool)), this, SLOT(disableAllButton(bool)));
+        auto *checkBox = new QCheckBox(dataset);
+        contentLayout->addWidget(checkBox);
+        datasetCheckbox.append(checkBox);
     }
 
+    QScrollArea *scrollArea = new QScrollArea;
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setWidget(content);
+
     QDialogButtonBox* buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
-                                         | QDialogButtonBox::Cancel);
+                                                       | QDialogButtonBox::Cancel);
 
-    connect(buttonBox, SIGNAL(accepted()), &datasetDialog, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), &datasetDialog, SLOT(reject()));
+    connect(buttonBox, &QDialogButtonBox::accepted, &datasetDialog, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, &datasetDialog, &QDialog::reject);
 
-    layout.addWidget(buttonBox);
-    datasetDialog.setLayout(&layout);
+    QVBoxLayout *mainLayout = new QVBoxLayout(&datasetDialog);
+    mainLayout->addWidget(scrollArea);
+    mainLayout->addWidget(buttonBox);
+    //***** end widget
 
     QString datasetSelected = selectArkimetDataset(&datasetDialog);
 
-    if (!datasetSelected.isEmpty())
+    if (datasetSelected.isEmpty())
     {
-        myDownload.getDbArkimet()->setDatasetsActive(datasetSelected);
-        QList<QString> datasets = datasetSelected.remove("'").split(",");
+        QFile::remove(dbName);
+        return;
+    }
 
-        myProject.logInfoGUI("download points properties...");
-        if (myDownload.getPointProperties(datasets, myProject.gisSettings.utmZone, myProject.errorString))
-        {
-            loadMeteoPoints_GUI(dbName);
-        }
-        else
-        {
-            myProject.logError("Error in function getPointProperties: " + myProject.errorString);
-        }
+    myDownload.getDbArkimet()->setDatasetsActive(datasetSelected);
+    QList<QString> selectedDatasets = datasetSelected.remove("'").split(",");
 
-        myProject.closeLogInfo();
+    myProject.logInfoGUI("download points properties...");
+
+    if (myDownload.getPointProperties(selectedDatasets, myProject.gisSettings.utmZone, myProject.errorString))
+    {
+        loadMeteoPoints_GUI(dbName);
     }
     else
     {
-        QFile::remove(dbName);
+        myProject.logError("Error in function getPointProperties: " + myProject.errorString);
     }
 
-    delete buttonBox;
-    delete allDatasets;
+    myProject.closeLogInfo();
 }
 
 
@@ -4646,7 +4646,7 @@ void MainWindow::on_actionDeleteData_selected_triggered()
 
 void MainWindow::on_actionWith_Criteria_active_triggered()
 {
-    if (myProject.setActiveStateWithCriteria(true))
+    if (myProject.activePointsWithCriteria(true))
     {
         loadMeteoPoints_GUI(myProject.dbPointsFileName);
     }
@@ -4654,7 +4654,7 @@ void MainWindow::on_actionWith_Criteria_active_triggered()
 
 void MainWindow::on_actionWith_Criteria_notActive_triggered()
 {
-    if (myProject.setActiveStateWithCriteria(false))
+    if (myProject.activePointsWithCriteria(false))
     {
         loadMeteoPoints_GUI(myProject.dbPointsFileName);
     }
@@ -7275,7 +7275,7 @@ void MainWindow::on_action_deselect_with_criteria_triggered()
 {
     bool isShowVariable = (currentPointsVisualization == showCurrentVariable);
     bool isSelect = false;
-    if (myProject.setSelectedStateWithCriteria(isSelect, isShowVariable))
+    if (myProject.selectPointsWithCriteria(isSelect, isShowVariable))
     {
         redrawMeteoPoints(currentPointsVisualization, true);
     }
@@ -7312,7 +7312,7 @@ void MainWindow::on_actionWith_Criteria_Selected_triggered()
 {
     bool isShowVariable = (currentPointsVisualization == showCurrentVariable);
     bool isSelect = true;
-    if (myProject.setSelectedStateWithCriteria(isSelect, isShowVariable))
+    if (myProject.selectPointsWithCriteria(isSelect, isShowVariable))
     {
         redrawMeteoPoints(currentPointsVisualization, true);
     }

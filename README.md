@@ -1,8 +1,8 @@
-[![Build Status](https://simc.arpae.it/moncic-ci/PRAGA/rocky8.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
-[![Build Status](https://simc.arpae.it/moncic-ci/PRAGA/rocky9.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
-[![Build Status](https://simc.arpae.it/moncic-ci/PRAGA/rocky10.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
-[![Build Status](https://simc.arpae.it/moncic-ci/PRAGA/fedora42.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
-[![Build Status](https://simc.arpae.it/moncic-ci/PRAGA/fedora44.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
+[![Rocky8](https://simc.arpae.it/moncic-ci/PRAGA/rocky8.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
+[![Rocky9](https://simc.arpae.it/moncic-ci/PRAGA/rocky9.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
+[![Rocky10](https://simc.arpae.it/moncic-ci/PRAGA/rocky10.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
+[![Fedora42](https://simc.arpae.it/moncic-ci/PRAGA/fedora42.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
+[![Fedora44](https://simc.arpae.it/moncic-ci/PRAGA/fedora44.png)](https://simc.arpae.it/moncic-ci/PRAGA/)
 
 [![Build Status](https://copr.fedorainfracloud.org/coprs/simc/stable/package/PRAGA/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/simc/stable/package/PRAGA/)
 

@@ -27,7 +27,7 @@
             void closeEvent(QCloseEvent *event)
             { event->accept(); }
 
-            void changeMethod(const QString& methodName);
+            void changeMethod();
             void changeVar(const QString& varName);
             void changeYears();
             void plotAnnualSeries();

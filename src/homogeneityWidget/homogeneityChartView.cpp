@@ -93,35 +93,38 @@ void HomogeneityChartView::drawSNHT(std::vector<int> years, std::vector<double> 
         axisY->setMax(maxValue+3);
         axisY->setMin(minValue-3);
     }
+
     axisX->setRange(years[0], years[years.size()-1]);
-    int nYears = int(years.size());
-    if ( nYears <= 15)
+
+    const int nrYears = int(years.size());
+    if (nrYears <= 15)
     {
-        axisX->setTickCount(nYears);
+        // all years
+        axisX->setTickCount(nrYears);
     }
     else
     {
-        int div = 0;
-        for (int i = 2; i<=4; i++)
+        axisX->setTickType(QValueAxis::TicksDynamic);
+
+        const int stepYears = (nrYears <= 60) ? 5 : 10;
+        int firstYear = NODATA;
+        for (int year: years)
         {
-            if ( (nYears-1) % i == 0 && (nYears-1)/i <= 15)
+            if (year % stepYears == 0)
             {
-                div = i;
+                firstYear = year;
                 break;
             }
         }
-        if (div == 0)
-        {
-            axisX->setTickCount(2);
-        }
-        else
-        {
-            axisX->setTickCount( (nYears-1)/div + 1);
-        }
+
+        axisX->setTickAnchor(firstYear);
+        axisX->setTickInterval(stepYears);
     }
+
     axisX->setLabelFormat("%d");
     axisY->setLabelFormat("%.1f");
-    axisX->setTitleText("years");
+    axisX->setTitleVisible(false);
+
     axisY->setTitleText("T-value");
     chart()->addSeries(tValues);
     chart()->addSeries(SNHT_T95Values);
