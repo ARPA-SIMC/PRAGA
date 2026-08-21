@@ -934,7 +934,7 @@ int cmdGridAggregationOnZones(PragaProject* myProject, QList<QString> argumentLi
     gis::Crit3DRasterGrid* myRaster = new gis::Crit3DRasterGrid();
     QString fnWithoutExt = myProject->projectPragaFolder + "/" + rasterName;
     std::string myError = "";
-    if (! gis::readEsriGrid(fnWithoutExt.toStdString(), myRaster, myError))
+    if (! gis::readEsriGridFlt(fnWithoutExt.toStdString(), myRaster, myError))
     {
         myProject->errorString = "Load raster failed: " + QString::fromStdString(myError);
         delete myRaster;

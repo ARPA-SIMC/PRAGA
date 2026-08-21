@@ -5270,10 +5270,8 @@ void MainWindow::on_actionFileLoadInterpolation_triggered()
     // load raster
     if (! fileName.isEmpty())
     {
-        QString fileWithoutExtension = QFileInfo(fileName).absolutePath() + QDir::separator() + QFileInfo(fileName).baseName();
-
         std::string myError = "";
-        if (! gis::readEsriGrid(fileWithoutExtension.toStdString(), &myProject.dataRaster, myError))
+        if (! gis::readEsriGridFlt(fileName.toStdString(), &myProject.dataRaster, myError))
         {
             myProject.logError(QString::fromStdString(myError));
         }
@@ -5316,7 +5314,8 @@ void MainWindow::on_actionFileDemOpen_triggered()
 {
     QString defaultPath = myProject.getProjectPath() + PATH_DEM;
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Digital Elevation Model"), defaultPath,
-                                                    tr("ESRI float (*.flt);;ESRI ascii (*.asc);;ENVI image (*.img)"));
+                                                    tr("ESRI float (*.flt);;ESRI bil (*.bil);;ESRI ascii (*.asc)"
+                                                       ";;ENVI image (*.img)"));
     if (fileName.isEmpty())
         return;
 
