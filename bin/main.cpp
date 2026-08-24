@@ -82,7 +82,6 @@ int main(int argc, char *argv[])
         }
     }
 
-    //setProxy("proxy-sc.arpa.emr.net", 8080);
     QNetworkProxyFactory::setUseSystemConfiguration(true);
 
     // read environment

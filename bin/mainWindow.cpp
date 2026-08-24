@@ -5325,6 +5325,8 @@ void MainWindow::on_actionFileDemOpen_triggered()
 
     if (isOk)
         renderDEM();
+    else
+        myProject.logError();
 }
 
 
