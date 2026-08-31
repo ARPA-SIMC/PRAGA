@@ -3560,10 +3560,9 @@ void MainWindow::on_actionInterpolationOutputPointsPeriod_triggered()
 
 void MainWindow::on_actionInterpolationCVCurrentTime_triggered()
 {
-    QString glocalCVPointsName;
     if (myProject.interpolationSettings.getUseGlocalDetrending())
     {
-        QMessageBox msgBox;
+        /*QMessageBox msgBox;
         msgBox.setText("Cross validation with glocal detrending");
         msgBox.setInformativeText("Do you want to load a different .csv stations file?");
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
@@ -3575,20 +3574,31 @@ void MainWindow::on_actionInterpolationCVCurrentTime_triggered()
                                                             tr("Comma separated values (*.csv)"));
             if (glocalCVPointsName.isEmpty())
                 return;
-        }
+        }*/
     }
 
     // check glocal
-    if (myProject.interpolationSettings.getUseGlocalDetrending() && (! myProject.interpolationSettings.isGlocalReady(false) || ! glocalCVPointsName.isEmpty()))
+    if (myProject.interpolationSettings.getUseGlocalDetrending() && (! myProject.interpolationSettings.isGlocalReady(false)))
     {
         myProject.loadGlocalAreasMap();
-        if (glocalCVPointsName.isEmpty())
+        if (! myProject.glocalCVPointsName.isEmpty())
         {
-            myProject.loadGlocalStationsAndCells(false, myProject.getCompleteFileName(myProject.glocalPointsName, PATH_GEO));
+            if (! myProject.loadGlocalStationsAndCells(false, myProject.getCompleteFileName(myProject.glocalPointsName, PATH_GEO),
+                                                 myProject.getCompleteFileName(myProject.glocalCVPointsName, PATH_GEO)))
+            {
+                myProject.logError("Some error occurred while reading the glocal files.");
+                return;
+            }
         }
-        else {
-            myProject.loadGlocalStationsAndCells(false, myProject.getCompleteFileName(glocalCVPointsName, PATH_GEO));
+        else
+        {
+            myProject.logError("Missing station file for glocal cross validation");
+            return;
         }
+
+        //else {
+          //  myProject.loadGlocalStationsAndCells(false, myProject.getCompleteFileName(glocalCVPointsName, PATH_GEO));
+        //}
     }
 
     myProject.logInfoGUI("Cross validation...");
@@ -3679,7 +3689,7 @@ void MainWindow::on_actionInterpolationCVPeriod_triggered()
     if (! isValid)
         myProject.logError("Invalid number of days: " + loadIntervalString);
 
-    QString glocalCVPointsName;
+    /*QString glocalCVPointsName;
     if (myProject.interpolationSettings.getUseGlocalDetrending())
     {
         QMessageBox msgBox;
@@ -3696,11 +3706,11 @@ void MainWindow::on_actionInterpolationCVPeriod_triggered()
                 return;
         }
     }
-
+*/
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save current CV output"), "", tr("text file (*.txt)"));
     if (fileName == "") return;
 
-    if (myProject.interpolationCrossValidationPeriod(myFirstTime.date(), myLastTime.date(), myVar, fileName, loadInterval, glocalCVPointsName))
+    if (myProject.interpolationCrossValidationPeriod(myFirstTime.date(), myLastTime.date(), myVar, fileName, loadInterval))
         myProject.closeLogInfo();
     else
         myProject.logError();
@@ -7365,7 +7375,8 @@ void MainWindow::on_actionLoad_stations_file_triggered()
 
     myProject.logInfoGUI("Loading stations file...");
 
-    if (! myProject.loadGlocalStationsAndCells(myProject.meteoGridLoaded, myProject.getCompleteFileName(myProject.glocalPointsName, PATH_GEO)))
+    if (! myProject.loadGlocalStationsAndCells(myProject.meteoGridLoaded, myProject.getCompleteFileName(myProject.glocalPointsName, PATH_GEO),
+                                               myProject.getCompleteFileName(myProject.glocalCVPointsName, PATH_GEO)))
     {
         myProject.closeLogInfo();
         myProject.logWarning();

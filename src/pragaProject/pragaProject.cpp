@@ -3309,7 +3309,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
 }
 
 
-bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateFin, meteoVariable myVar, QString filename, int nrDaysLoading, QString glocalCVPointsName)
+bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateFin, meteoVariable myVar, QString filename, int nrDaysLoading)
 {    
     logInfoGUI("Starting up...");
 
@@ -3381,16 +3381,24 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
     QDate loadDateFin = QDate(1800, 1, 1);
 
     // check glocal
-    if (interpolationSettings.getUseGlocalDetrending() && (! interpolationSettings.isGlocalReady(false) || ! glocalCVPointsName.isEmpty()))
+    if (interpolationSettings.getUseGlocalDetrending() && (! interpolationSettings.isGlocalReady(false)))
     {
         if (! loadGlocalAreasMap()) return false;
-        if (glocalCVPointsName.isEmpty())
+
+        if (glocalCVPointsName.size() != 0)
         {
-            if (! loadGlocalStationsAndCells(false, getCompleteFileName(glocalPointsName, PATH_GEO))) return false;
+            if (! loadGlocalStationsAndCells(false, getCompleteFileName(glocalPointsName, PATH_GEO),
+                                         getCompleteFileName(glocalCVPointsName, PATH_GEO))) return false;
         }
-        else {
-            if (! loadGlocalStationsAndCells(false, getCompleteFileName(glocalCVPointsName, PATH_GEO))) return false;
+        else
+        {
+            errorString = "Missing station file for glocal cross validation.";
+            return false;
         }
+
+        //else {
+          //  if (! loadGlocalStationsAndCells(false, getCompleteFileName(glocalCVPointsName, PATH_GEO))) return false;
+        //}
     }
 
     logInfoGUI("Cross validating " + QString::fromStdString(getMeteoVarName(myVar)) + " from " + dateIni.toString("yyyy-MM-dd") + " to " + dateFin.toString("yyyy-MM-dd"));

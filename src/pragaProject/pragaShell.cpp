@@ -719,7 +719,7 @@ int cmdInterpolationCrossValidation(PragaProject* myProject, QList<QString> argu
         return PRAGA_INVALID_COMMAND;
     }
 
-    if (! myProject->interpolationCrossValidationPeriod(dateIni, dateFin, meteoVar, fileName, loadInterval, glocalCVPointsName))
+    if (! myProject->interpolationCrossValidationPeriod(dateIni, dateFin, meteoVar, fileName, loadInterval))
         return PRAGA_ERROR;
 
     return PRAGA_OK;
