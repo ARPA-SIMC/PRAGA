@@ -2045,6 +2045,8 @@ void MainWindow::addMeteoPoints()
         connect(point, SIGNAL(changeOrogCodeClicked(std::string, int)), this, SLOT(callChangeOrogCode(std::string, int)));
         connect(point, SIGNAL(markPoint(std::string)), this, SLOT(callMarkPoint(std::string)));
         connect(point, SIGNAL(unmarkPoint(std::string)), this, SLOT(callUnmarkPoint(std::string)));
+        connect(point, SIGNAL(activePoint(std::string)), this, SLOT(callActivePoint(std::string)));
+        connect(point, SIGNAL(deactivePoint(std::string)), this, SLOT(callDeactivePoint(std::string)));
     }
 }
 
@@ -2142,43 +2144,67 @@ void MainWindow::callChangeOrogCode(std::string id, int orogCode)
 }
 
 
-void MainWindow::callMarkPoint(std::string myId)
+int MainWindow::getMeteoPointIndex(const std::string &idStr)
 {
-    bool isFound = false;
-    int i;
-    for (i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); ++i)
     {
-        if (myProject.meteoPoints[i].id == myId)
-        {
-            isFound = true;
-            break;
-        }
+        if (myProject.meteoPoints[i].id == idStr)
+            return i;
     }
 
-    if (isFound)
+    return NODATA;
+}
+
+
+void MainWindow::callMarkPoint(const std::string &idStr)
+{
+    int index = getMeteoPointIndex(idStr);
+
+    if (index != NODATA)
     {
-        myProject.meteoPoints[i].marked = true;
+        myProject.meteoPoints[index].marked = true;
         redrawMeteoPoints(currentPointsVisualization, true);
     }
 }
 
 
-void MainWindow::callUnmarkPoint(std::string myId)
+void MainWindow::callUnmarkPoint(const std::string& idStr)
 {
-    bool isFound = false;
-    int i;
-    for (i = 0; i < myProject.meteoPoints.size(); i++)
-    {
-        if (myProject.meteoPoints[i].id == myId)
-        {
-            isFound = true;
-            break;
-        }
-    }
+    int index = getMeteoPointIndex(idStr);
 
-    if (isFound)
+    if (index != NODATA)
     {
-        myProject.meteoPoints[i].marked = false;
+        myProject.meteoPoints[index].marked = false;
+        redrawMeteoPoints(currentPointsVisualization, true);
+    }
+}
+
+
+void MainWindow::callActivePoint(const std::string &idStr)
+{
+    int index = getMeteoPointIndex(idStr);
+
+    if (index != NODATA)
+    {
+        QList<QString> pList;
+        pList << QString::fromStdString(idStr);
+        myProject.meteoPointsDbHandler->setActiveStatePointList(pList, true);
+        myProject.meteoPoints[index].active = true;
+        redrawMeteoPoints(currentPointsVisualization, true);
+    }
+}
+
+
+void MainWindow::callDeactivePoint(const std::string& idStr)
+{
+    int index = getMeteoPointIndex(idStr);
+
+    if (index != NODATA)
+    {
+        QList<QString> pList;
+        pList << QString::fromStdString(idStr);
+        myProject.meteoPointsDbHandler->setActiveStatePointList(pList, false);
+        myProject.meteoPoints[index].active = false;
         redrawMeteoPoints(currentPointsVisualization, true);
     }
 }

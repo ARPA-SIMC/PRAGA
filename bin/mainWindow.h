@@ -138,8 +138,13 @@
         void callNewSynchronicityTestWidget(std::string id);
         void callSetSynchronicityReference(std::string id);
         void callChangeOrogCode(std::string id, int orogCode);
-        void callMarkPoint(std::string myId);
-        void callUnmarkPoint(std::string myId);
+
+        int getMeteoPointIndex(const std::string &idStr);
+        void callMarkPoint(const std::string& idStr);
+        void callUnmarkPoint(const std::string &idStr);
+        void callActivePoint(const std::string &idStr);
+        void callDeactivePoint(const std::string &idStr);
+
         void callLocalProxyGraph(const gis::Crit3DGeoPoint point);
 
         void on_dayBeforeButton_clicked();
