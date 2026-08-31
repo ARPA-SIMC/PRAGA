@@ -48,13 +48,20 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     _firstHourlyDb(firstHourlyMp), _lastHourlyDb(lastHourlyMp),
     meteoSettings(meteoSettings), settings(settings), climateParameters(climateParameters), quality(quality)
 {
-    this->setWindowTitle("Point statistics Id: " + QString::fromStdString(_meteoPointList[0].id) + " "
-                         + QString::fromStdString(_meteoPointList[0].name));
-    this->resize(1000, 600);
-    this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    this->setAttribute(Qt::WA_DeleteOnClose);
+    // check
+    if (_meteoPointList.isEmpty())
+    {
+        // gestire errore
+        return;
+    }
 
-    std::string metePointId = _meteoPointList[0].id;
+    setWindowTitle("Point statistics Id: " + QString::fromStdString(_meteoPointList[0].id) + " "
+                         + QString::fromStdString(_meteoPointList[0].name));
+    resize(1000, 600);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    setAttribute(Qt::WA_DeleteOnClose);
+
+    const std::string metePointId = _meteoPointList[0].id;
     _idPointList << metePointId;
     _jointIndexList << 0;
 
@@ -62,15 +69,14 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     bool isJointStations = false;
     if (meteoPointsDbHandler != nullptr)
     {
-        QSqlDatabase myDb = meteoPointsDbHandler->getDb();
         QList<QString> jointStationsList = meteoPointsDbHandler->getJointStations(QString::fromStdString(metePointId));
 
         for (int j = 0; j < jointStationsList.size(); j++)
         {
-            std::string jointId = jointStationsList[j].toStdString();
+            const std::string jointId = jointStationsList[j].toStdString();
             int jointIndex = getJointStationIndex(jointId);
             if (jointIndex == NODATA)
-                break; //CT continue would be better?
+                continue;
 
             _idPointList << jointId;
             _jointIndexList << jointIndex;
@@ -87,12 +93,12 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
                                           + " " + QString::fromStdString(_meteoPointList[jointIndex].name));
             if (firstDailyJoint.isValid() && lastDailyJoint.isValid())
             {
-                meteoPointsDbHandler->loadDailyData(myDb, getCrit3DDate(firstDailyJoint),
+                meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDailyJoint),
                                                     getCrit3DDate(lastDailyJoint), _meteoPointList[jointIndex]);
             }
             if (firstHourlyJoint.isValid() && lastHourlyJoint.isValid())
             {
-                meteoPointsDbHandler->loadHourlyData(myDb, getCrit3DDate(firstHourlyJoint.date()),
+                meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourlyJoint.date()),
                                                      getCrit3DDate(lastHourlyJoint.date()), _meteoPointList[jointIndex]);
             }
         }
@@ -227,7 +233,7 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     QLabel *jointStationsLabel = new QLabel(tr("Stations:"));
     jointStationsSelectLayout->addWidget(jointStationsLabel);
     jointStationsSelectLayout->addWidget(&jointStationsListCombo);
-    jointStationsListCombo.setMaximumWidth(this->width()/5);
+    jointStationsListCombo.setMaximumWidth(width()/5);
     for (int i = 1; i < _meteoPointList.size(); i++)
     {
         jointStationsListCombo.addItem(QString::fromStdString(_meteoPointList[i].id)+" "+QString::fromStdString(_meteoPointList[i].name));
@@ -256,13 +262,13 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     jointStationsSelectLayout->addLayout(addDeleteStationLayout);
     jointStationsSelectLayout->addWidget(&saveToDb);
     jointStationsLayout->addLayout(jointStationsSelectLayout);
-    jointStationsSelected.setMaximumWidth(this->width()/4);
+    jointStationsSelected.setMaximumWidth(width()/4);
     jointStationsLayout->addWidget(&jointStationsSelected);
     jointStationsGroupBox->setTitle("Joint stations");
     jointStationsGroupBox->setLayout(jointStationsLayout);
 
     chartView = new PointStatisticsChartView();
-    chartView->setMinimumHeight(this->height()*2/3);
+    chartView->setMinimumHeight(height()*2/3);
     plotLayout->addWidget(chartView);
 
     horizontalGroupBox->setLayout(elabLayout);
@@ -300,7 +306,7 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     smoothing.setValidator(new QIntValidator(0, 366));
     smoothing.setText("0");
     gridLeftLayout->addWidget(&smoothing,3,3,1,-1);
-    gridLeftGroupBox->setMaximumHeight(this->height()/8);
+    gridLeftGroupBox->setMaximumHeight(height()/8);
     gridLeftGroupBox->setLayout(gridLeftLayout);
     leftLayout->addWidget(gridLeftGroupBox);
 
@@ -421,8 +427,8 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
 
     connect(&dailyButton, &QRadioButton::clicked, [=](){ dailyVar(); });
     connect(&hourlyButton, &QRadioButton::clicked, [=](){ hourlyVar(); });
-    connect(&variable, &QComboBox::currentTextChanged, [=](const QString &newVariable){ this->changeVar(newVariable); });
-    connect(&graphType, &QComboBox::currentTextChanged, [=](const QString &newGraph){ this->changeGraph(newGraph); });
+    connect(&variable, &QComboBox::currentTextChanged, [=](const QString &newVariable){ changeVar(newVariable); });
+    connect(&graphType, &QComboBox::currentTextChanged, [=](const QString &newGraph){ changeGraph(newGraph); });
     connect(&compute, &QPushButton::clicked, [=](){ computePlot(); });
     connect(&elaboration, &QPushButton::clicked, [=](){ showElaboration(); });
     connect(&smoothing, &QLineEdit::editingFinished, [=](){ updatePlot(); });
@@ -1717,28 +1723,31 @@ void Crit3DPointStatisticsWidget::on_actionChangeLeftAxis()
 }
 
 
-
 void Crit3DPointStatisticsWidget::on_actionExportGraph()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save current graph"), "", tr("png files (*.png)"));
+    const QString fileName = QFileDialog::getSaveFileName(
+        this, tr("Save current graph"), "", tr("PNG files (*.png)") );
 
-    if (fileName != "")
-    {
-        /*const auto dpr = chartView->devicePixelRatioF();
-        QPixmap buffer(chartView->width() * dpr, chartView->height() * dpr);
-        buffer.setDevicePixelRatio(dpr);*/
+    if (fileName.isEmpty())
+        return;
 
-        QPixmap buffer(chartView->width() * 2, chartView->height() * 2);
-        buffer.fill(Qt::transparent);
+    const qreal scale = 2.0;
+    QPixmap buffer(
+        qRound(chartView->width() * scale),
+        qRound(chartView->height() * scale)
+        );
 
-        QPainter *paint = new QPainter(&buffer);
-        paint->setPen(*(new QColor(255,34,255,255)));
-        chartView->render(paint);
+    buffer.fill(Qt::transparent);
 
-        QFile file(fileName);
-        file.open(QIODevice::WriteOnly);
-        buffer.save(&file, "PNG");
-    }
+    QPainter painter(&buffer);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+
+    chartView->render(&painter);
+
+    painter.end();
+
+    buffer.save(fileName, "PNG");
 }
 
 
@@ -1828,7 +1837,7 @@ void Crit3DPointStatisticsWidget::addStationClicked()
         deleteStation.setEnabled(true);
         saveToDb.setEnabled(true);
 
-        std::string newId = jointStationsListCombo.currentText().section(" ",0,0).toStdString();
+        const std::string newId = jointStationsListCombo.currentText().section(" ",0,0).toStdString();
         int jointIndex = getJointStationIndex(newId);
         if (jointIndex == NODATA)
             return;
@@ -1865,7 +1874,7 @@ void Crit3DPointStatisticsWidget::deleteStationClicked()
 
     foreach(QListWidgetItem * item, items)
     {
-        std::string jointId = item->text().section(" ", 0, 0).toStdString();
+        const std::string jointId = item->text().section(" ", 0, 0).toStdString();
         int index = NODATA;
         for (int i = 0; i < _idPointList.size(); ++i) {
             if (_idPointList[i] == jointId)

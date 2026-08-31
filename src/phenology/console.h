@@ -13,14 +13,19 @@
 
         void Open(const char* filename, const char* mode)
         {
-          if( filename != nullptr )
-              m_stream = fopen(filename, mode);
+            Close();
+
+            if (filename != nullptr)
+                m_stream = fopen(filename, mode);
         }
 
         void Close()
         {
-          if( m_stream )
-              fclose(m_stream);
+            if (m_stream)
+            {
+                fclose(m_stream);
+                m_stream = nullptr;
+            }
         }
 
         void Read(char* message)
@@ -29,7 +34,7 @@
               fgets(message, 256, m_stream);
         }
 
-        void Write(char* message)
+        void Write(const char* message)
         {
           if( m_stream )
               fprintf(m_stream, "%s", message);
@@ -42,7 +47,7 @@
           return true;
         }
 
-        int Show(char* message)
+        int Show(const char* message)
         {
           if( m_stream )
               return fprintf(m_stream, "%s", message);

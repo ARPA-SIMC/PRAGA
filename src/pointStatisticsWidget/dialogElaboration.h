@@ -19,6 +19,7 @@ public:
     void listElaboration(const QString value);
     void changeElab(const QString value);
     bool checkValidData();
+
 private:
     QSettings *settings;
     Crit3DClimate *clima;
