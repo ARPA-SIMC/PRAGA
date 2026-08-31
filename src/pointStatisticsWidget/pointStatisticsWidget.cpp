@@ -51,7 +51,7 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     // check
     if (_meteoPointList.isEmpty())
     {
-        // gestire errore
+        QMessageBox::warning(this, "", "Missing point.");
         return;
     }
 
@@ -104,7 +104,6 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
         }
     }
 
-    // layout
     QVBoxLayout *mainLayout = new QVBoxLayout();
     QHBoxLayout *upperLayout = new QHBoxLayout();
     QVBoxLayout *rightLayout = new QVBoxLayout();
@@ -136,33 +135,28 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
 
     dailyButton.setText("Daily");
     hourlyButton.setText("Hourly");
-    if (_firstDailyDb.isNull() || _lastDailyDb.isNull())
-    {
-        dailyButton.setEnabled(false);
-    }
-    else
-    {
-        dailyButton.setEnabled(true);
-        dailyButton.setChecked(true); //default
-        currentFrequency = daily; //default
-    }
 
-    if (_firstHourlyDb.isNull() || _lastHourlyDb.isNull())
+    currentFrequency = noFrequency;
+    const bool hasDailyData = _firstDailyDb.isValid() && _lastDailyDb.isValid();
+    const bool hasHourlyData = _firstHourlyDb.isValid() && _lastHourlyDb.isValid();
+
+    dailyButton.setEnabled(hasDailyData);
+    hourlyButton.setEnabled(hasHourlyData);
+
+    if (hasDailyData)
     {
-        hourlyButton.setEnabled(false);
+        dailyButton.setChecked(true);
+        currentFrequency = daily;
+    }
+    else if (hasHourlyData)
+    {
+        hourlyButton.setChecked(true);
+        currentFrequency = hourly;
     }
     else
     {
-        hourlyButton.setEnabled(true);
-        if (dailyButton.isEnabled())
-        {
-            hourlyButton.setChecked(false);
-        }
-        else
-        {
-            hourlyButton.setChecked(true);
-            currentFrequency = hourly;
-        }
+        QMessageBox::warning(this, "", "Missing data.");
+        return;
     }
 
     std::map<meteoVariable, std::string>::const_iterator it;
@@ -287,25 +281,30 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     gridLeftLayout->addWidget(valMaxLabel,0,2,1,1);
     QLabel *smoothingLabel = new QLabel(tr("Smoothing"));
     gridLeftLayout->addWidget(smoothingLabel,0,3,1,1);
+
     classWidth.setMaximumWidth(60);
     classWidth.setMaximumHeight(24);
     classWidth.setText("1");
-    classWidth.setValidator(new QIntValidator(1.0, 30.0));
     gridLeftLayout->addWidget(&classWidth,3,0,1,-1);
 
     valMin.setMaximumWidth(60);
     valMin.setMaximumHeight(24);
-    valMin.setValidator(new QDoubleValidator(-999.0, 999.0, 1));
     gridLeftLayout->addWidget(&valMin,3,1,1,-1);
+
     valMax.setMaximumWidth(60);
     valMax.setMaximumHeight(24);
-    valMax.setValidator(new QDoubleValidator(-999.0, 999.0, 1));
     gridLeftLayout->addWidget(&valMax,3,2,1,-1);
+
     smoothing.setMaximumWidth(60);
     smoothing.setMaximumHeight(24);
-    smoothing.setValidator(new QIntValidator(0, 366));
     smoothing.setText("0");
     gridLeftLayout->addWidget(&smoothing,3,3,1,-1);
+
+    classWidth.setValidator(new QIntValidator(1, 30, &classWidth));
+    valMin.setValidator(new QDoubleValidator(-999.0, 999.0, 1, &valMin));
+    valMax.setValidator(new QDoubleValidator(-999.0, 999.0, 1, &valMax));
+    smoothing.setValidator(new QIntValidator(0, 366, &smoothing));
+
     gridLeftGroupBox->setMaximumHeight(height()/8);
     gridLeftGroupBox->setLayout(gridLeftLayout);
     leftLayout->addWidget(gridLeftGroupBox);
@@ -316,39 +315,37 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     graphTypeGroupBox->setTitle("Graph type");
     QHBoxLayout *graphTypeLayout = new QHBoxLayout();
     graphTypeLayout->setAlignment(Qt::AlignCenter);
+
     if (currentFrequency == daily)
     {
-        if (!_firstDailyDb.isNull() || !_lastDailyDb.isNull())
-        {
-            graphType.addItem("Distribution");
-            graphType.addItem("Climate");
-            graphType.addItem("Trend");
-            graphType.addItem("Anomaly trend");
+        graphType.addItem("Distribution");
+        graphType.addItem("Climate");
+        graphType.addItem("Trend");
+        graphType.addItem("Anomaly trend");
 
-            for(int i = 0; i <= _lastDailyDb.year()-_firstDailyDb.year(); i++)
-            {
-                yearFrom.addItem(QString::number(_firstDailyDb.year()+i));
-                yearTo.addItem(QString::number(_firstDailyDb.year()+i));
-                analysisYearFrom.addItem(QString::number(_firstDailyDb.year()+i));
-                analysisYearTo.addItem(QString::number(_firstDailyDb.year()+i));
-            }
-            yearTo.setCurrentText(QString::number(_lastDailyDb.year()));
-            analysisYearTo.setCurrentText(QString::number(_lastDailyDb.year()));
+        for(int i = 0; i <= _lastDailyDb.year()-_firstDailyDb.year(); i++)
+        {
+            yearFrom.addItem(QString::number(_firstDailyDb.year()+i));
+            yearTo.addItem(QString::number(_firstDailyDb.year()+i));
+            analysisYearFrom.addItem(QString::number(_firstDailyDb.year()+i));
+            analysisYearTo.addItem(QString::number(_firstDailyDb.year()+i));
         }
+
+        yearTo.setCurrentText(QString::number(_lastDailyDb.year()));
+        analysisYearTo.setCurrentText(QString::number(_lastDailyDb.year()));
     }
     else if (currentFrequency == hourly)
     {
-        if (!_firstHourlyDb.isNull() || !_lastHourlyDb.isNull())
+        graphType.addItem("Distribution");
+        for(int i = 0; i <= _lastHourlyDb.date().year() - _firstHourlyDb.date().year(); i++)
         {
-            graphType.addItem("Distribution");
-            for(int i = 0; i <= _lastHourlyDb.date().year() - _firstHourlyDb.date().year(); i++)
-            {
-                yearFrom.addItem(QString::number(_firstHourlyDb.date().year()+i));
-                yearTo.addItem(QString::number(_firstHourlyDb.date().year()+i));
-            }
-            yearTo.setCurrentText(QString::number(_lastHourlyDb.date().year()));
+            yearFrom.addItem(QString::number(_firstHourlyDb.date().year()+i));
+            yearTo.addItem(QString::number(_firstHourlyDb.date().year()+i));
         }
+
+        yearTo.setCurrentText(QString::number(_lastHourlyDb.date().year()));
     }
+
     graphType.setMinimumWidth(200);
     graphTypeLayout->addWidget(&graphType);
     graphTypeGroupBox->setLayout(graphTypeLayout);
