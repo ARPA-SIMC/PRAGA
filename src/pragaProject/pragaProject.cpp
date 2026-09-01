@@ -3765,9 +3765,9 @@ void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint)
     closeLogInfo();
 
     bool isGrid = false;
-    Crit3DPointStatisticsWidget w(isGrid, meteoPointsDbHandler, nullptr, nearMeteoPointsList,
-                                  firstDaily, lastDaily, firstHourly, lastHourly,
-                                  meteoSettings, pragaDefaultSettings, &climateParameters, quality);
+    new Crit3DPointStatisticsWidget(isGrid, meteoPointsDbHandler, nullptr, nearMeteoPointsList,
+                                    firstDaily, lastDaily, firstHourly, lastHourly, meteoSettings,
+                                    pragaDefaultSettings, &climateParameters, quality);
 }
 
 
@@ -3928,39 +3928,51 @@ void PragaProject::deleteSynchWidget()
 
 void PragaProject::showPointStatisticsWidgetGrid(std::string id)
 {
-    logInfoGUI("Loading data...");
+    const QDate firstDaily = meteoGridDbHandler->getFirstDailyDate();
+    const QDate lastDaily = meteoGridDbHandler->getLastDailyDate();
 
-    // check dates
-    QDate firstDaily = meteoGridDbHandler->getFirstDailyDate();
-    QDate lastDaily = meteoGridDbHandler->getLastDailyDate();
-    bool hasDailyData = !(firstDaily.isNull() || lastDaily.isNull());
+    const bool hasDailyData = (firstDaily.isValid() && lastDaily.isValid());
 
-    QDate firstHourly = meteoGridDbHandler->getFirstHourlyDate();
-    QDate lastHourly = meteoGridDbHandler->getLastHourlyDate();
-    bool hasHourlyData = !(firstHourly.isNull() || lastHourly.isNull());
+    // disattivati gli orari
+    //const QDate firstHourly = meteoGridDbHandler->getFirstHourlyDate();
+    //const QDate lastHourly = meteoGridDbHandler->getLastHourlyDate();
+    const QDate firstHourly;
+    const QDate lastHourly;
 
-    if (!hasDailyData && !hasHourlyData)
+    const bool hasHourlyData = (firstHourly.isValid() && lastHourly.isValid());
+
+    if (! hasDailyData && ! hasHourlyData)
     {
-        logInfoGUI("No data.");
+        logError("No data.");
         return;
     }
-    QDateTime firstDateTime = QDateTime(firstHourly, QTime(1,0), Qt::UTC);
-    QDateTime lastDateTime = QDateTime(lastHourly.addDays(1), QTime(0,0), Qt::UTC);
 
-    if (! meteoGridDbHandler->gridStructure().isFixedFields())
+    // disattivati gli orari
+    //const QDateTime firstDateTime = QDateTime(firstHourly, QTime(1,0), Qt::UTC);
+    //const QDateTime lastDateTime = QDateTime(lastHourly.addDays(1), QTime(0,0), Qt::UTC);
+    const QDateTime firstDateTime;
+    const QDateTime lastDateTime;
+
+    if (hasDailyData)
     {
         logInfoGUI("Loading daily data...");
-        meteoGridDbHandler->loadGridDailyData(errorString, QString::fromStdString(id), firstDaily, lastDaily);
-        logInfoGUI("Loading hourly data...");
-        meteoGridDbHandler->loadGridHourlyData(meteoGridDbHandler->db(), QString::fromStdString(id),
-                                               firstDateTime, lastDateTime, errorString);
+        if (meteoGridDbHandler->gridStructure().isFixedFields())
+            meteoGridDbHandler->loadGridDailyDataFixedFields(errorString, QString::fromStdString(id),
+                                                             firstDaily, lastDaily);
+        else
+            meteoGridDbHandler->loadGridDailyData(errorString, QString::fromStdString(id),
+                                                  firstDaily, lastDaily);
     }
-    else
+
+    if (hasHourlyData)
     {
-        logInfoGUI("Loading daily data...");
-        meteoGridDbHandler->loadGridDailyDataFixedFields(errorString, QString::fromStdString(id), firstDaily, lastDaily);
         logInfoGUI("Loading hourly data...");
-        meteoGridDbHandler->loadGridHourlyDataFixedFields(errorString, QString::fromStdString(id), firstDateTime, lastDateTime);
+        if (meteoGridDbHandler->gridStructure().isFixedFields())
+            meteoGridDbHandler->loadGridHourlyDataFixedFields(errorString, QString::fromStdString(id),
+                                                              firstDateTime, lastDateTime);
+        else
+            meteoGridDbHandler->loadGridHourlyData(meteoGridDbHandler->db(), QString::fromStdString(id),
+                                                   firstDateTime, lastDateTime, errorString);
     }
 
     closeLogInfo();
@@ -3969,14 +3981,15 @@ void PragaProject::showPointStatisticsWidgetGrid(std::string id)
     if (! meteoGridDbHandler->meteoGrid()->findMeteoPointFromId(&row, &col, id))
         return;
 
-    Crit3DMeteoPoint   mp = meteoGridDbHandler->meteoGrid()->meteoPoint(row, col);
+    Crit3DMeteoPoint mp = meteoGridDbHandler->meteoGrid()->meteoPoint(row, col);
 
     QList<Crit3DMeteoPoint> meteoPointsList;
     meteoPointsList.append(mp);
 
     bool isGrid = true;
-    Crit3DPointStatisticsWidget* w = new Crit3DPointStatisticsWidget(isGrid, nullptr, meteoGridDbHandler, meteoPointsList, firstDaily, lastDaily, firstDateTime, lastDateTime,
-                                          meteoSettings, pragaDefaultSettings, &climateParameters, quality);
+    new Crit3DPointStatisticsWidget(isGrid, nullptr, meteoGridDbHandler, meteoPointsList, firstDaily,
+                                    lastDaily, firstDateTime, lastDateTime,
+                                    meteoSettings, pragaDefaultSettings, &climateParameters, quality);
 }
 
 

@@ -48,13 +48,20 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     _firstHourlyDb(firstHourlyMp), _lastHourlyDb(lastHourlyMp),
     meteoSettings(meteoSettings), settings(settings), climateParameters(climateParameters), quality(quality)
 {
-    this->setWindowTitle("Point statistics Id: " + QString::fromStdString(_meteoPointList[0].id) + " "
-                         + QString::fromStdString(_meteoPointList[0].name));
-    this->resize(1000, 600);
-    this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    this->setAttribute(Qt::WA_DeleteOnClose);
+    // check
+    if (_meteoPointList.isEmpty())
+    {
+        QMessageBox::warning(this, "", "Missing point.");
+        return;
+    }
 
-    std::string metePointId = _meteoPointList[0].id;
+    setWindowTitle("Point statistics Id: " + QString::fromStdString(_meteoPointList[0].id) + " "
+                         + QString::fromStdString(_meteoPointList[0].name));
+    resize(1000, 600);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    setAttribute(Qt::WA_DeleteOnClose);
+
+    const std::string metePointId = _meteoPointList[0].id;
     _idPointList << metePointId;
     _jointIndexList << 0;
 
@@ -62,15 +69,14 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     bool isJointStations = false;
     if (meteoPointsDbHandler != nullptr)
     {
-        QSqlDatabase myDb = meteoPointsDbHandler->getDb();
         QList<QString> jointStationsList = meteoPointsDbHandler->getJointStations(QString::fromStdString(metePointId));
 
         for (int j = 0; j < jointStationsList.size(); j++)
         {
-            std::string jointId = jointStationsList[j].toStdString();
+            const std::string jointId = jointStationsList[j].toStdString();
             int jointIndex = getJointStationIndex(jointId);
             if (jointIndex == NODATA)
-                break; //CT continue would be better?
+                continue;
 
             _idPointList << jointId;
             _jointIndexList << jointIndex;
@@ -87,18 +93,17 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
                                           + " " + QString::fromStdString(_meteoPointList[jointIndex].name));
             if (firstDailyJoint.isValid() && lastDailyJoint.isValid())
             {
-                meteoPointsDbHandler->loadDailyData(myDb, getCrit3DDate(firstDailyJoint),
+                meteoPointsDbHandler->loadDailyData(getCrit3DDate(firstDailyJoint),
                                                     getCrit3DDate(lastDailyJoint), _meteoPointList[jointIndex]);
             }
             if (firstHourlyJoint.isValid() && lastHourlyJoint.isValid())
             {
-                meteoPointsDbHandler->loadHourlyData(myDb, getCrit3DDate(firstHourlyJoint.date()),
+                meteoPointsDbHandler->loadHourlyData(getCrit3DDate(firstHourlyJoint.date()),
                                                      getCrit3DDate(lastHourlyJoint.date()), _meteoPointList[jointIndex]);
             }
         }
     }
 
-    // layout
     QVBoxLayout *mainLayout = new QVBoxLayout();
     QHBoxLayout *upperLayout = new QHBoxLayout();
     QVBoxLayout *rightLayout = new QVBoxLayout();
@@ -130,33 +135,28 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
 
     dailyButton.setText("Daily");
     hourlyButton.setText("Hourly");
-    if (_firstDailyDb.isNull() || _lastDailyDb.isNull())
-    {
-        dailyButton.setEnabled(false);
-    }
-    else
-    {
-        dailyButton.setEnabled(true);
-        dailyButton.setChecked(true); //default
-        currentFrequency = daily; //default
-    }
 
-    if (_firstHourlyDb.isNull() || _lastHourlyDb.isNull())
+    currentFrequency = noFrequency;
+    const bool hasDailyData = _firstDailyDb.isValid() && _lastDailyDb.isValid();
+    const bool hasHourlyData = _firstHourlyDb.isValid() && _lastHourlyDb.isValid();
+
+    dailyButton.setEnabled(hasDailyData);
+    hourlyButton.setEnabled(hasHourlyData);
+
+    if (hasDailyData)
     {
-        hourlyButton.setEnabled(false);
+        dailyButton.setChecked(true);
+        currentFrequency = daily;
+    }
+    else if (hasHourlyData)
+    {
+        hourlyButton.setChecked(true);
+        currentFrequency = hourly;
     }
     else
     {
-        hourlyButton.setEnabled(true);
-        if (dailyButton.isEnabled())
-        {
-            hourlyButton.setChecked(false);
-        }
-        else
-        {
-            hourlyButton.setChecked(true);
-            currentFrequency = hourly;
-        }
+        QMessageBox::warning(this, "", "Missing data.");
+        return;
     }
 
     std::map<meteoVariable, std::string>::const_iterator it;
@@ -227,7 +227,7 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     QLabel *jointStationsLabel = new QLabel(tr("Stations:"));
     jointStationsSelectLayout->addWidget(jointStationsLabel);
     jointStationsSelectLayout->addWidget(&jointStationsListCombo);
-    jointStationsListCombo.setMaximumWidth(this->width()/5);
+    jointStationsListCombo.setMaximumWidth(width()/5);
     for (int i = 1; i < _meteoPointList.size(); i++)
     {
         jointStationsListCombo.addItem(QString::fromStdString(_meteoPointList[i].id)+" "+QString::fromStdString(_meteoPointList[i].name));
@@ -256,13 +256,13 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     jointStationsSelectLayout->addLayout(addDeleteStationLayout);
     jointStationsSelectLayout->addWidget(&saveToDb);
     jointStationsLayout->addLayout(jointStationsSelectLayout);
-    jointStationsSelected.setMaximumWidth(this->width()/4);
+    jointStationsSelected.setMaximumWidth(width()/4);
     jointStationsLayout->addWidget(&jointStationsSelected);
     jointStationsGroupBox->setTitle("Joint stations");
     jointStationsGroupBox->setLayout(jointStationsLayout);
 
     chartView = new PointStatisticsChartView();
-    chartView->setMinimumHeight(this->height()*2/3);
+    chartView->setMinimumHeight(height()*2/3);
     plotLayout->addWidget(chartView);
 
     horizontalGroupBox->setLayout(elabLayout);
@@ -281,26 +281,31 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     gridLeftLayout->addWidget(valMaxLabel,0,2,1,1);
     QLabel *smoothingLabel = new QLabel(tr("Smoothing"));
     gridLeftLayout->addWidget(smoothingLabel,0,3,1,1);
+
     classWidth.setMaximumWidth(60);
     classWidth.setMaximumHeight(24);
     classWidth.setText("1");
-    classWidth.setValidator(new QIntValidator(1.0, 30.0));
     gridLeftLayout->addWidget(&classWidth,3,0,1,-1);
 
     valMin.setMaximumWidth(60);
     valMin.setMaximumHeight(24);
-    valMin.setValidator(new QDoubleValidator(-999.0, 999.0, 1));
     gridLeftLayout->addWidget(&valMin,3,1,1,-1);
+
     valMax.setMaximumWidth(60);
     valMax.setMaximumHeight(24);
-    valMax.setValidator(new QDoubleValidator(-999.0, 999.0, 1));
     gridLeftLayout->addWidget(&valMax,3,2,1,-1);
+
     smoothing.setMaximumWidth(60);
     smoothing.setMaximumHeight(24);
-    smoothing.setValidator(new QIntValidator(0, 366));
     smoothing.setText("0");
     gridLeftLayout->addWidget(&smoothing,3,3,1,-1);
-    gridLeftGroupBox->setMaximumHeight(this->height()/8);
+
+    classWidth.setValidator(new QIntValidator(1, 30, &classWidth));
+    valMin.setValidator(new QDoubleValidator(-999.0, 999.0, 1, &valMin));
+    valMax.setValidator(new QDoubleValidator(-999.0, 999.0, 1, &valMax));
+    smoothing.setValidator(new QIntValidator(0, 366, &smoothing));
+
+    gridLeftGroupBox->setMaximumHeight(height()/8);
     gridLeftGroupBox->setLayout(gridLeftLayout);
     leftLayout->addWidget(gridLeftGroupBox);
 
@@ -310,39 +315,37 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
     graphTypeGroupBox->setTitle("Graph type");
     QHBoxLayout *graphTypeLayout = new QHBoxLayout();
     graphTypeLayout->setAlignment(Qt::AlignCenter);
+
     if (currentFrequency == daily)
     {
-        if (!_firstDailyDb.isNull() || !_lastDailyDb.isNull())
-        {
-            graphType.addItem("Distribution");
-            graphType.addItem("Climate");
-            graphType.addItem("Trend");
-            graphType.addItem("Anomaly trend");
+        graphType.addItem("Distribution");
+        graphType.addItem("Climate");
+        graphType.addItem("Trend");
+        graphType.addItem("Anomaly trend");
 
-            for(int i = 0; i <= _lastDailyDb.year()-_firstDailyDb.year(); i++)
-            {
-                yearFrom.addItem(QString::number(_firstDailyDb.year()+i));
-                yearTo.addItem(QString::number(_firstDailyDb.year()+i));
-                analysisYearFrom.addItem(QString::number(_firstDailyDb.year()+i));
-                analysisYearTo.addItem(QString::number(_firstDailyDb.year()+i));
-            }
-            yearTo.setCurrentText(QString::number(_lastDailyDb.year()));
-            analysisYearTo.setCurrentText(QString::number(_lastDailyDb.year()));
+        for(int i = 0; i <= _lastDailyDb.year()-_firstDailyDb.year(); i++)
+        {
+            yearFrom.addItem(QString::number(_firstDailyDb.year()+i));
+            yearTo.addItem(QString::number(_firstDailyDb.year()+i));
+            analysisYearFrom.addItem(QString::number(_firstDailyDb.year()+i));
+            analysisYearTo.addItem(QString::number(_firstDailyDb.year()+i));
         }
+
+        yearTo.setCurrentText(QString::number(_lastDailyDb.year()));
+        analysisYearTo.setCurrentText(QString::number(_lastDailyDb.year()));
     }
     else if (currentFrequency == hourly)
     {
-        if (!_firstHourlyDb.isNull() || !_lastHourlyDb.isNull())
+        graphType.addItem("Distribution");
+        for(int i = 0; i <= _lastHourlyDb.date().year() - _firstHourlyDb.date().year(); i++)
         {
-            graphType.addItem("Distribution");
-            for(int i = 0; i <= _lastHourlyDb.date().year() - _firstHourlyDb.date().year(); i++)
-            {
-                yearFrom.addItem(QString::number(_firstHourlyDb.date().year()+i));
-                yearTo.addItem(QString::number(_firstHourlyDb.date().year()+i));
-            }
-            yearTo.setCurrentText(QString::number(_lastHourlyDb.date().year()));
+            yearFrom.addItem(QString::number(_firstHourlyDb.date().year()+i));
+            yearTo.addItem(QString::number(_firstHourlyDb.date().year()+i));
         }
+
+        yearTo.setCurrentText(QString::number(_lastHourlyDb.date().year()));
     }
+
     graphType.setMinimumWidth(200);
     graphTypeLayout->addWidget(&graphType);
     graphTypeGroupBox->setLayout(graphTypeLayout);
@@ -421,8 +424,8 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
 
     connect(&dailyButton, &QRadioButton::clicked, [=](){ dailyVar(); });
     connect(&hourlyButton, &QRadioButton::clicked, [=](){ hourlyVar(); });
-    connect(&variable, &QComboBox::currentTextChanged, [=](const QString &newVariable){ this->changeVar(newVariable); });
-    connect(&graphType, &QComboBox::currentTextChanged, [=](const QString &newGraph){ this->changeGraph(newGraph); });
+    connect(&variable, &QComboBox::currentTextChanged, [=](const QString &newVariable){ changeVar(newVariable); });
+    connect(&graphType, &QComboBox::currentTextChanged, [=](const QString &newGraph){ changeGraph(newGraph); });
     connect(&compute, &QPushButton::clicked, [=](){ computePlot(); });
     connect(&elaboration, &QPushButton::clicked, [=](){ showElaboration(); });
     connect(&smoothing, &QLineEdit::editingFinished, [=](){ updatePlot(); });
@@ -1717,28 +1720,31 @@ void Crit3DPointStatisticsWidget::on_actionChangeLeftAxis()
 }
 
 
-
 void Crit3DPointStatisticsWidget::on_actionExportGraph()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save current graph"), "", tr("png files (*.png)"));
+    const QString fileName = QFileDialog::getSaveFileName(
+        this, tr("Save current graph"), "", tr("PNG files (*.png)") );
 
-    if (fileName != "")
-    {
-        /*const auto dpr = chartView->devicePixelRatioF();
-        QPixmap buffer(chartView->width() * dpr, chartView->height() * dpr);
-        buffer.setDevicePixelRatio(dpr);*/
+    if (fileName.isEmpty())
+        return;
 
-        QPixmap buffer(chartView->width() * 2, chartView->height() * 2);
-        buffer.fill(Qt::transparent);
+    const qreal scale = 2.0;
+    QPixmap buffer(
+        qRound(chartView->width() * scale),
+        qRound(chartView->height() * scale)
+        );
 
-        QPainter *paint = new QPainter(&buffer);
-        paint->setPen(*(new QColor(255,34,255,255)));
-        chartView->render(paint);
+    buffer.fill(Qt::transparent);
 
-        QFile file(fileName);
-        file.open(QIODevice::WriteOnly);
-        buffer.save(&file, "PNG");
-    }
+    QPainter painter(&buffer);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+
+    chartView->render(&painter);
+
+    painter.end();
+
+    buffer.save(fileName, "PNG");
 }
 
 
@@ -1828,7 +1834,7 @@ void Crit3DPointStatisticsWidget::addStationClicked()
         deleteStation.setEnabled(true);
         saveToDb.setEnabled(true);
 
-        std::string newId = jointStationsListCombo.currentText().section(" ",0,0).toStdString();
+        const std::string newId = jointStationsListCombo.currentText().section(" ",0,0).toStdString();
         int jointIndex = getJointStationIndex(newId);
         if (jointIndex == NODATA)
             return;
@@ -1865,7 +1871,7 @@ void Crit3DPointStatisticsWidget::deleteStationClicked()
 
     foreach(QListWidgetItem * item, items)
     {
-        std::string jointId = item->text().section(" ", 0, 0).toStdString();
+        const std::string jointId = item->text().section(" ", 0, 0).toStdString();
         int index = NODATA;
         for (int i = 0; i < _idPointList.size(); ++i) {
             if (_idPointList[i] == jointId)

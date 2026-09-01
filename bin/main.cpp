@@ -64,6 +64,25 @@ bool setProxy(QString hostName, unsigned short port)
 }
 
 
+bool checkProxy()
+{
+    const QList<QNetworkProxy> proxies =
+        QNetworkProxyFactory::proxyForQuery(QNetworkProxyQuery(QUrl("https://github.com")));
+
+    if (proxies.isEmpty())
+        return false;
+
+    for (const QNetworkProxy& proxy : proxies)
+    {
+        qDebug() << "Proxy type:" << proxy.type()
+        << "Host:" << proxy.hostName()
+        << "Port:" << proxy.port();
+    }
+
+    return true;
+}
+
+
 int main(int argc, char *argv[])
 {
     // set modality (default: GUI)
@@ -83,6 +102,8 @@ int main(int argc, char *argv[])
     }
 
     QNetworkProxyFactory::setUseSystemConfiguration(true);
+
+    //checkProxy()
 
     // read environment
     QProcessEnvironment myEnvironment = QProcessEnvironment::systemEnvironment();
