@@ -3376,7 +3376,17 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
     }
     else
     {
-        cvOutput << "Time,nrArea,MAE,MBE,RMSE,NS,R2" << "\n";
+        if (! glocalCVPointsName.isEmpty())
+        {
+            cvOutput << "Time,nrArea,MAE,MBE,RMSE,NS,R2" << "\n";
+        }
+        else
+        {
+            cvOutput << "Time";
+            for (int j = 0; j < meteoPoints.size(); j++) cvOutput << "," << QString::fromStdString(meteoPoints[j].id);
+            cvOutput << "\n";
+
+        }
     }
     QDate loadDateFin = QDate(1800, 1, 1);
 
@@ -3385,16 +3395,9 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
     {
         if (! loadGlocalAreasMap()) return false;
 
-        if (glocalCVPointsName.size() != 0)
-        {
-            if (! loadGlocalStationsAndCells(false, getCompleteFileName(glocalPointsName, PATH_GEO),
+        //TODO rendere evidente da qualche parte che senza glocalCVPointsName la CV avviene sui punti
+        if (! loadGlocalStationsAndCells(false, getCompleteFileName(glocalPointsName, PATH_GEO),
                                          getCompleteFileName(glocalCVPointsName, PATH_GEO))) return false;
-        }
-        else
-        {
-            errorString = "Missing station file for glocal cross validation.";
-            return false;
-        }
 
         //else {
           //  if (! loadGlocalStationsAndCells(false, getCompleteFileName(glocalCVPointsName, PATH_GEO))) return false;
@@ -3430,15 +3433,27 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
                 {
                     if (interpolationSettings.getUseGlocalDetrending())
                     {
-                        for (int j = 0; j < glocalCrossValidationStatistics.size(); j++)
+                        if (! glocalCVPointsName.isEmpty())
+                        {
+                            for (int j = 0; j < glocalCrossValidationStatistics.size(); j++)
+                            {
+                                cvOutput << getQDateTime(myTime).toString();
+                                cvOutput << "," << interpolationSettings.getMacroAreaNumber()[j];
+                                cvOutput << "," << glocalCrossValidationStatistics[j].getMeanAbsoluteError();
+                                cvOutput << "," << glocalCrossValidationStatistics[j].getMeanBiasError();
+                                cvOutput << "," << glocalCrossValidationStatistics[j].getRootMeanSquareError();
+                                cvOutput << "," << glocalCrossValidationStatistics[j].getNashSutcliffeEfficiency();
+                                cvOutput << "," << glocalCrossValidationStatistics[j].getR2() << '\n';
+                            }
+                        }
+                        else //CV sui punti
                         {
                             cvOutput << getQDateTime(myTime).toString();
-                            cvOutput << "," << interpolationSettings.getMacroAreaNumber()[j];
-                            cvOutput << "," << glocalCrossValidationStatistics[j].getMeanAbsoluteError();
-                            cvOutput << "," << glocalCrossValidationStatistics[j].getMeanBiasError();
-                            cvOutput << "," << glocalCrossValidationStatistics[j].getRootMeanSquareError();
-                            cvOutput << "," << glocalCrossValidationStatistics[j].getNashSutcliffeEfficiency();
-                            cvOutput << "," << glocalCrossValidationStatistics[j].getR2() << '\n';
+                            for (int j = 0; j < meteoPoints.size(); j++)
+                            {
+                                cvOutput << "," << meteoPoints[j].residual;
+                            }
+                            cvOutput << "\n";
                         }
                     }
                     else
