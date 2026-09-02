@@ -3383,7 +3383,11 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
         else
         {
             cvOutput << "Time";
-            for (int j = 0; j < meteoPoints.size(); j++) cvOutput << "," << QString::fromStdString(meteoPoints[j].id);
+            for (int j = 0; j < meteoPoints.size(); j++)
+            {
+                if (meteoPoints[j].isInsideDem) cvOutput << "," << QString::fromStdString(meteoPoints[j].id);
+            }
+
             cvOutput << "\n";
 
         }
@@ -3437,7 +3441,7 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
                         {
                             for (int j = 0; j < glocalCrossValidationStatistics.size(); j++)
                             {
-                                cvOutput << getQDateTime(myTime).toString();
+                                cvOutput << getQDateTime(myTime).toString("yyyy-MM-dd HH:mm");
                                 cvOutput << "," << interpolationSettings.getMacroAreaNumber()[j];
                                 cvOutput << "," << glocalCrossValidationStatistics[j].getMeanAbsoluteError();
                                 cvOutput << "," << glocalCrossValidationStatistics[j].getMeanBiasError();
@@ -3448,7 +3452,7 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
                         }
                         else //CV sui punti
                         {
-                            cvOutput << getQDateTime(myTime).toString();
+                            cvOutput << getQDateTime(myTime).toString("yyyy-MM-dd");
                             for (int j = 0; j < meteoPoints.size(); j++)
                             {
                                 cvOutput << "," << meteoPoints[j].residual;
@@ -3476,15 +3480,27 @@ bool PragaProject::interpolationCrossValidationPeriod(QDate dateIni, QDate dateF
             {
                 if (interpolationSettings.getUseGlocalDetrending())
                 {
-                    for (int j = 0; j < glocalCrossValidationStatistics.size(); j++)
+                    if (! glocalCVPointsName.isEmpty())
                     {
-                        cvOutput << getQDateTime(myTime).toString();
-                        cvOutput << "," << interpolationSettings.getMacroAreaNumber()[j];
-                        cvOutput << "," << glocalCrossValidationStatistics[j].getMeanAbsoluteError();
-                        cvOutput << "," << glocalCrossValidationStatistics[j].getMeanBiasError();
-                        cvOutput << "," << glocalCrossValidationStatistics[j].getRootMeanSquareError();
-                        cvOutput << "," << glocalCrossValidationStatistics[j].getNashSutcliffeEfficiency();
-                        cvOutput << "," << glocalCrossValidationStatistics[j].getR2() << '\n';
+                        for (int j = 0; j < glocalCrossValidationStatistics.size(); j++)
+                        {
+                            cvOutput << getQDateTime(myTime).toString("yyyy-MM-dd");
+                            cvOutput << "," << interpolationSettings.getMacroAreaNumber()[j];
+                            cvOutput << "," << glocalCrossValidationStatistics[j].getMeanAbsoluteError();
+                            cvOutput << "," << glocalCrossValidationStatistics[j].getMeanBiasError();
+                            cvOutput << "," << glocalCrossValidationStatistics[j].getRootMeanSquareError();
+                            cvOutput << "," << glocalCrossValidationStatistics[j].getNashSutcliffeEfficiency();
+                            cvOutput << "," << glocalCrossValidationStatistics[j].getR2() << '\n';
+                        }
+                    }
+                    else //CV sui punti
+                    {
+                        cvOutput << getQDateTime(myTime).toString("yyyy-MM-dd");
+                        for (int j = 0; j < meteoPoints.size(); j++)
+                        {
+                            if (meteoPoints[j].isInsideDem) cvOutput << "," << meteoPoints[j].residual;
+                        }
+                        cvOutput << "\n";
                     }
                 }
                 else
