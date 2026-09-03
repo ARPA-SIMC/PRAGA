@@ -4523,6 +4523,7 @@ void MainWindow::on_actionDeletePoint_notActive_triggered()
     }
 }
 
+
 void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
 {
     if (myProject.meteoPointsDbHandler == nullptr)
@@ -4538,12 +4539,11 @@ void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
         myProject.updateProgressBar(i);
         if (myProject.meteoPoints[i].active)
         {
-            bool existData = myProject.meteoPointsDbHandler->existTable(myProject.meteoPoints[i], daily)
-                            || myProject.meteoPointsDbHandler->existTable(myProject.meteoPoints[i], hourly);
-            if (! existData)
-            {
-                pointList.append(QString::fromStdString(myProject.meteoPoints[i].id));
-            }
+            bool hasData = myProject.meteoPointsDbHandler->hasData(daily, myProject.meteoPoints[i].id)
+                        || myProject.meteoPointsDbHandler->hasData(hourly, myProject.meteoPoints[i].id);
+
+            if (! hasData)
+                    pointList.append(QString::fromStdString(myProject.meteoPoints[i].id));
         }
     }
     myProject.closeProgressBar();
@@ -4577,6 +4577,7 @@ void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
 
     redrawMeteoPoints(currentPointsVisualization, true);
 }
+
 
 void MainWindow::on_actionDeleteData_Active_triggered()
 {
