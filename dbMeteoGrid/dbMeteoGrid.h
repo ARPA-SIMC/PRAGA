@@ -142,8 +142,8 @@
                                                         const QDateTime &firstTime, const QDateTime &lastTime,
                                                         QDateTime &firstDateTimeDB, QString &errorStr);
 
-        std::vector<float> exportAllDataVar(QString &errorStr, frequencyType freq, meteoVariable variable,
-                                            const QString &id, const QDateTime &myFirstTime, const QDateTime &myLastTime,
+        std::vector<float> exportAllDataVar(QString &errorStr, frequencyType frequency, meteoVariable variable,
+                                            const QString &id, const QDateTime &firstTime, const QDateTime &lastTime,
                                             std::vector<QString> &dateStrList);
 
         bool getYearList(QString &errorStr, QString meteoPoint, QList<QString>* yearList);
