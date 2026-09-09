@@ -2603,47 +2603,43 @@ std::vector<float> Crit3DMeteoGridDbHandler::loadGridDailyVar(const QString &met
 }
 
 
-std::vector<float> Crit3DMeteoGridDbHandler::exportAllDataVar(QString &errorStr, frequencyType freq,
+std::vector<float> Crit3DMeteoGridDbHandler::exportAllDataVar(QString &errorStr, frequencyType frequency,
                                                               meteoVariable variable, const QString &id,
-                                                              const QDateTime &myFirstTime, const QDateTime &myLastTime,
+                                                              const QDateTime &firstTime, const QDateTime &lastTime,
                                                               std::vector<QString> &dateStrList)
 {
-    QString myDateStr;
-    float value;
     std::vector<float> allDataVarList;
-
-    QSqlQuery myQuery(_db);
-    QString tableName;
     QString statement;
-    QString startDate;
-    QString endDate;
-    int idVar;
 
-    if (freq == daily)
+    if (frequency == daily)
     {
-        idVar = getDailyVarCode(variable);
+        const int idVar = getDailyVarCode(variable);
         if (idVar == NODATA)
         {
             errorStr = "The variable does not exist in this meteo grid";
             return allDataVarList;
         }
-        tableName = _tableDaily.prefix + id + _tableDaily.postFix;
-        startDate = myFirstTime.date().toString("yyyy-MM-dd");
-        endDate = myLastTime.date().toString("yyyy-MM-dd");
+
+        const QString tableName = _tableDaily.prefix + id + _tableDaily.postFix;
+        const QString startDate = firstTime.date().toString("yyyy-MM-dd");
+        const QString endDate = lastTime.date().toString("yyyy-MM-dd");
+
         statement = QString( "SELECT * FROM `%1` WHERE VariableCode = '%2' AND `%3` >= '%4' AND `%3`<= '%5' ORDER BY `%3` ASC")
                         .arg(tableName).arg(idVar).arg(_tableDaily.fieldTime).arg(startDate).arg(endDate);
     }
-    else if (freq == hourly)
+    else if (frequency == hourly)
     {
-        idVar = getHourlyVarCode(variable);
+        const int idVar = getHourlyVarCode(variable);
         if (idVar == NODATA)
         {
             errorStr = "The variable does not exist in this meteo grid";
             return allDataVarList;
         }
-        tableName = _tableHourly.prefix + id + _tableHourly.postFix;
-        startDate = myFirstTime.date().toString("yyyy-MM-dd") + " " + myFirstTime.time().toString("hh:mm");
-        endDate = myLastTime.date().toString("yyyy-MM-dd") + " " + myLastTime.time().toString("hh:mm");
+
+        const QString tableName = _tableHourly.prefix + id + _tableHourly.postFix;
+        const QString startDate = firstTime.date().toString("yyyy-MM-dd") + " " + firstTime.time().toString("hh:mm");
+        const QString endDate = lastTime.date().toString("yyyy-MM-dd") + " " + lastTime.time().toString("hh:mm");
+
         statement = QString( "SELECT * FROM `%1` WHERE VariableCode = '%2' AND `%3` >= '%4' AND `%3`<= '%5' ORDER BY `%3` ASC")
                         .arg(tableName).arg(idVar).arg(_tableHourly.fieldTime, startDate, endDate);
     }
@@ -2652,40 +2648,44 @@ std::vector<float> Crit3DMeteoGridDbHandler::exportAllDataVar(QString &errorStr,
         errorStr = "Frequency should be daily or hourly";
         return allDataVarList;
     }
-    QDate date;
-    if( !myQuery.exec(statement) )
+
+    QSqlQuery myQuery(_db);
+    if(! myQuery.exec(statement))
     {
         errorStr = myQuery.lastError().text();
         return allDataVarList;
     }
-    else
+
+    while (myQuery.next())
     {
-        while (myQuery.next())
+        QString currentDateStr;
+
+        if (frequency == daily)
         {
-            if (freq == daily)
+            QDate date;
+            if (! getValue(myQuery.value(_tableDaily.fieldTime), &date))
             {
-                if (! getValue(myQuery.value(_tableDaily.fieldTime), &date))
-                {
-                    errorStr = "Missing fieldTime";
-                    return allDataVarList;
-                }
-                myDateStr = date.toString("yyyy-MM-dd");
-            }
-            else if (freq == hourly)
-            {
-                Crit3DTime dateTime;
-                if (! getValueCrit3DTime(myQuery.value(_tableHourly.fieldTime), &dateTime))
-                {
-                    errorStr = "Missing fieldTime";
-                    return allDataVarList;
-                }
-                myDateStr = QString::fromStdString(dateTime.toISOString());
+                errorStr = "Missing fieldTime";
+                return allDataVarList;
             }
 
-            dateStrList.push_back(myDateStr);
-            value = myQuery.value(2).toFloat();
-            allDataVarList.push_back(value);
+            currentDateStr = date.toString("yyyy-MM-dd");
         }
+        else if (frequency == hourly)
+        {
+            Crit3DTime dateTime;
+            if (! getValueCrit3DTime(myQuery.value(_tableHourly.fieldTime), &dateTime))
+            {
+                errorStr = "Missing fieldTime";
+                return allDataVarList;
+            }
+
+            currentDateStr = QString::fromStdString(dateTime.toISOString());
+        }
+
+        dateStrList.push_back(currentDateStr);
+        const float value = myQuery.value(2).toFloat();
+        allDataVarList.push_back(value);
     }
 
     return allDataVarList;
