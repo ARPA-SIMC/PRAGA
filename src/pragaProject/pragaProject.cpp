@@ -4384,6 +4384,7 @@ bool PragaProject::parserXMLImportExportData(QString xmlName, bool isGrid)
         logError("Missing file: " + xmlName);
         return false;
     }
+
     if (isGrid)
     {
         inOutData = new InOutDataXML(isGrid, nullptr, meteoGridDbHandler, xmlName);
@@ -4392,13 +4393,15 @@ bool PragaProject::parserXMLImportExportData(QString xmlName, bool isGrid)
     {
         inOutData = new InOutDataXML(isGrid, meteoPointsDbHandler, nullptr, xmlName);
     }
+
     errorString = "";
-    if (!inOutData->parserXML(&errorString))
+    if (! inOutData->parserXML(&errorString))
     {
         logError(errorString);
         delete inOutData;
         return false;
     }
+
     return true;
 }
 
@@ -4608,18 +4611,20 @@ bool PragaProject::loadXMLExportData(QString code, QDateTime myFirstTime, QDateT
     return true;
 }
 
-// LC 2 funzioni separate per griglie e punti per eventualmente diversificare anche i dati da esportare (es. le griglie hanno anche i mensili)
-bool PragaProject::loadXMLExportDataGrid(QString code, QDateTime myFirstTime, QDateTime myLastTime)
+
+// LC 2 funzioni separate per griglie e punti per eventualmente diversificare anche i dati da esportare
+// (es. le griglie hanno anche i mensili)
+bool PragaProject::loadXMLExportDataGrid(const QString& codeStr, const QDateTime &firstTime, const QDateTime &lastTime)
 {
     errorString = "";
-    QString filename = inOutData->parseXMLFilename(code);
+    const QString filename = inOutData->parseXMLFilename(codeStr);
     if (filename.isEmpty())
     {
         errorString = "Invalid filename" ;
         return false;
     }
 
-    QString variable = inOutData->getVariableExport();
+    const QString variable = inOutData->getVariableExport();
     meteoVariable meteoVar = getMeteoVar(variable.toStdString());
     if (meteoVar == noMeteoVar)
     {
@@ -4628,46 +4633,46 @@ bool PragaProject::loadXMLExportDataGrid(QString code, QDateTime myFirstTime, QD
     }
 
     QString fixedString = "";
-    int pointCodeFirstChar = inOutData->getPointCodeFirstChar();
+    const int pointCodeFirstChar = inOutData->getPointCodeFirstChar();
     if (pointCodeFirstChar != NODATA)
     {
-        fixedString = code;
+        fixedString = codeStr;
         for (int i = 0; i < pointCodeFirstChar-1; i++)
         {
             fixedString.insert(0, " ");
         }
     }
 
-    int variableCodeFirstChar = inOutData->getVariableCodeFirstChar();
+    const int variableCodeFirstChar = inOutData->getVariableCodeFirstChar();
     int whiteSpaces = variableCodeFirstChar - (fixedString.length()+1);
     for (int i = 0; i < whiteSpaces; i++)
     {
         fixedString.append(" ");
     }
 
-    QString attribute = inOutData->getVariableCodeAttribute();
+    const QString attribute = inOutData->getVariableCodeAttribute();
     if (! attribute.isEmpty())
     {
         fixedString = fixedString + attribute;
     }
 
-    int timeFirstChar = inOutData->getTimeFirstChar();
+    const int timeFirstChar = inOutData->getTimeFirstChar();
     whiteSpaces = timeFirstChar - (fixedString.length()+1);
     for (int i = 0; i < whiteSpaces; i++)
     {
         fixedString.append(" ");
     }
 
-    QString variableAlign = inOutData->getVariableAlign();
-    int variableFirstChar = inOutData->getVariableFirstChar();
-    int variableNrChar = inOutData->getVariableNrChar();
-    QString variableFormat = inOutData->getVariableFormat();
-    QChar charFormat = variableFormat[variableFormat.length()-1];
-    int nDecimals = variableFormat.mid(variableFormat.length()-2,1).toInt();
+    const int variableFirstChar = inOutData->getVariableFirstChar();
+    const int variableNrChar = inOutData->getVariableNrChar();
+    const QString variableFormat = inOutData->getVariableFormat();
+    const QChar charFormat = variableFormat[variableFormat.length()-1];
+    const int nDecimals = variableFormat.mid(variableFormat.length()-2,1).toInt();
 
+    QString variableAlign = inOutData->getVariableAlign();
     if (variableAlign.isEmpty())
     {
-        variableAlign = "right"; //default
+        variableAlign = "right"; // default
     }
     else if (variableAlign != "right" && variableAlign != "left")
     {
@@ -4681,6 +4686,7 @@ bool PragaProject::loadXMLExportDataGrid(QString code, QDateTime myFirstTime, QD
     {
         flagFirstChar = inOutData->getVariableFlagFirstChar();
     }
+
     QString missingValueStr = QString::number(inOutData->getFormatMissingValue());
     QString timeType = inOutData->getTimeType();
     frequencyType freq;
@@ -4698,11 +4704,11 @@ bool PragaProject::loadXMLExportDataGrid(QString code, QDateTime myFirstTime, QD
     }
 
     std::vector<QString> dateStrList;
-    std::vector<float> values = meteoGridDbHandler->exportAllDataVar(errorString, freq, meteoVar, code,
-                                                                     myFirstTime, myLastTime, dateStrList);
+    std::vector<float> values = meteoGridDbHandler->exportAllDataVar(errorString, freq, meteoVar, codeStr,
+                                                                     firstTime, lastTime, dateStrList);
     if (values.size() == 0)
     {
-        errorString = code + " has no data for variable: " + variable;
+        errorString = codeStr + " has no data for variable: " + variable;
         return false;
     }
     QFile file(filename);

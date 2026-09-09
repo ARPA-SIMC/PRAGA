@@ -3470,19 +3470,19 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
     {
         myProject.meteoPointsDbFirstTime = myProject.findDbPointFirstTime();
     }
-    QDateTime myFirstTime = myProject.meteoPointsDbFirstTime;
+    QDateTime firstTime = myProject.meteoPointsDbFirstTime;
 
-    if (myFirstTime.isNull())
+    if (firstTime.isNull())
     {
-        myFirstTime.setDate(myProject.getCurrentDate());
-        myFirstTime.setTime(QTime(myProject.getCurrentHour(),0));
+        firstTime.setDate(myProject.getCurrentDate());
+        firstTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
 
-    QDateTime myLastTime = myProject.meteoPointsDbLastTime;
-    if (myLastTime.isNull())
+    QDateTime lastTime = myProject.meteoPointsDbLastTime;
+    if (lastTime.isNull())
     {
-        myLastTime.setDate(myProject.getCurrentDate());
-        myLastTime.setTime(QTime(myProject.getCurrentHour(),0));
+        lastTime.setDate(myProject.getCurrentDate());
+        lastTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
 
     if (myProject.getCurrentFrequency() == noFrequency)
@@ -3491,7 +3491,7 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
         return;
     }
 
-    FormTimePeriod myForm(&myFirstTime, &myLastTime);
+    FormTimePeriod myForm(&firstTime, &lastTime);
     myForm.show();
     if (myForm.exec() == QDialog::Rejected)
         return;
@@ -3502,7 +3502,7 @@ void MainWindow::on_actionInterpolationMeteogridPeriod_triggered()
 
     QList <meteoVariable> myVariables, aggrVariables, derVariables;
     myVariables.push_back(myVar);
-    if (! myProject.interpolationMeteoGridPeriod(myFirstTime.date(), myLastTime.date(), myVariables,
+    if (! myProject.interpolationMeteoGridPeriod(firstTime.date(), lastTime.date(), myVariables,
                                                 derVariables, aggrVariables, 1, NODATA))
     {
         myProject.logError();
@@ -3686,21 +3686,21 @@ void MainWindow::on_actionInterpolationCVPeriod_triggered()
     {
         myProject.meteoPointsDbFirstTime = myProject.findDbPointFirstTime();
     }
-    QDateTime myFirstTime = myProject.meteoPointsDbFirstTime;
-    if (myFirstTime.isNull())
+    QDateTime firstTime = myProject.meteoPointsDbFirstTime;
+    if (firstTime.isNull())
     {
-        myFirstTime.setDate(myProject.getCurrentDate());
-        myFirstTime.setTime(QTime(myProject.getCurrentHour(),0));
+        firstTime.setDate(myProject.getCurrentDate());
+        firstTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
 
-    QDateTime myLastTime = myProject.meteoPointsDbLastTime;
-    if (myLastTime.isNull())
+    QDateTime lastTime = myProject.meteoPointsDbLastTime;
+    if (lastTime.isNull())
     {
-        myLastTime.setDate(myProject.getCurrentDate());
-        myLastTime.setTime(QTime(myProject.getCurrentHour(),0));
+        lastTime.setDate(myProject.getCurrentDate());
+        lastTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
 
-    FormTimePeriod myForm(&myFirstTime, &myLastTime);
+    FormTimePeriod myForm(&firstTime, &lastTime);
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
 
@@ -3736,7 +3736,7 @@ void MainWindow::on_actionInterpolationCVPeriod_triggered()
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save current CV output"), "", tr("text file (*.txt)"));
     if (fileName == "") return;
 
-    if (myProject.interpolationCrossValidationPeriod(myFirstTime.date(), myLastTime.date(), myVar, fileName, loadInterval))
+    if (myProject.interpolationCrossValidationPeriod(firstTime.date(), lastTime.date(), myVar, fileName, loadInterval))
         myProject.closeLogInfo();
     else
         myProject.logError();
@@ -3957,21 +3957,21 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
     {
         myProject.meteoPointsDbFirstTime = myProject.findDbPointFirstTime();
     }
-    QDateTime myFirstTime = myProject.meteoPointsDbFirstTime;
-    if (myFirstTime.isNull())
+    QDateTime firstTime = myProject.meteoPointsDbFirstTime;
+    if (firstTime.isNull())
     {
-        myFirstTime.setDate(myProject.getCurrentDate());
-        myFirstTime.setTime(QTime(myProject.getCurrentHour(),0));
+        firstTime.setDate(myProject.getCurrentDate());
+        firstTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
 
-    QDateTime myLastTime = myProject.meteoPointsDbLastTime;
-    if (myLastTime.isNull())
+    QDateTime lastTime = myProject.meteoPointsDbLastTime;
+    if (lastTime.isNull())
     {
-        myLastTime.setDate(myProject.getCurrentDate());
-        myLastTime.setTime(QTime(myProject.getCurrentHour(),0));
+        lastTime.setDate(myProject.getCurrentDate());
+        lastTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
 
-    FormTimePeriod myForm(&myFirstTime, &myLastTime);
+    FormTimePeriod myForm(&firstTime, &lastTime);
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
 
@@ -3999,20 +3999,20 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
         return;
     }
 
-    if (myProject.dbMeteoPointDataCount(myFirstTime.date(), myLastTime.date(), myVar, dataset, myCounter))
+    if (myProject.dbMeteoPointDataCount(firstTime.date(), lastTime.date(), myVar, dataset, myCounter))
     {
         QFile myFile(myFilename);
         if (myFile.open(QIODevice::ReadWrite))
         {
             QTextStream outStream(&myFile);
 
-            QDate myDate = myFirstTime.date();
+            QDate myDate = firstTime.date();
             short myHour;
             long i=0;
 
             if (! myProject.interpolationSettings.getUseGlocalDetrending())
             {
-                while (myDate <= myLastTime.date())
+                while (myDate <= lastTime.date())
                 {
                     if (myFreq == daily)
                     {
@@ -4034,7 +4034,7 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
                 {
                     if (! myProject.interpolationSettings.getMacroArea(k).getMeteoPoints().empty())  macroAreaCodes.push_back(k);
                 }
-                while (myDate <= myLastTime.date())
+                while (myDate <= lastTime.date())
                 {
                     if (myFreq == daily)
                     {
@@ -4079,20 +4079,20 @@ void MainWindow::on_actionMeteogridMissingData_triggered()
     meteoVariable myVar = chooseMeteoVariable(myProject);
     if (myVar == noMeteoVar) return;
 
-    QDateTime myFirstTime(myProject.meteoGridDbHandler->firstDate(), QTime(1,0,0), Qt::UTC);
-    QDateTime myLastTime(myProject.meteoGridDbHandler->lastDate().addDays(1), QTime(0,0,0), Qt::UTC);
-    if (myFirstTime.isNull())
+    QDateTime firstTime(myProject.meteoGridDbHandler->firstDate(), QTime(1,0,0), Qt::UTC);
+    QDateTime lastTime(myProject.meteoGridDbHandler->lastDate().addDays(1), QTime(0,0,0), Qt::UTC);
+    if (firstTime.isNull())
     {
-        myFirstTime.setDate(myProject.getCurrentDate());
-        myFirstTime.setTime(QTime(myProject.getCurrentHour(),0));
+        firstTime.setDate(myProject.getCurrentDate());
+        firstTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
-    if (myLastTime.isNull())
+    if (lastTime.isNull())
     {
-        myLastTime.setDate(myProject.getCurrentDate());
-        myLastTime.setTime(QTime(myProject.getCurrentHour(),0));
+        lastTime.setDate(myProject.getCurrentDate());
+        lastTime.setTime(QTime(myProject.getCurrentHour(),0));
     }
 
-    FormTimePeriod myForm(&myFirstTime, &myLastTime);
+    FormTimePeriod myForm(&firstTime, &lastTime);
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
 
@@ -4102,7 +4102,7 @@ void MainWindow::on_actionMeteogridMissingData_triggered()
     QList <QDate> myDateList;
     QList <QString> idList;
 
-    if (myProject.dbMeteoGridMissingData(myFirstTime.date(), myLastTime.date(), myVar, myDateList, idList))
+    if (myProject.dbMeteoGridMissingData(firstTime.date(), lastTime.date(), myVar, myDateList, idList))
     {
         QFile myFile(myFilename);
         if (myFile.open(QIODevice::ReadWrite))
@@ -5663,10 +5663,10 @@ void MainWindow::on_actionInterpolationMeteogridGriddingTaskAdd_triggered()
     QDate myLastDate = myProject.meteoGridDbHandler->lastDate();
     if (myLastDate.isNull()) myLastDate = myProject.getCurrentDate();
     if (myFirstDate.isNull()) myFirstDate = myLastDate;
-    QDateTime myFirstTime(myFirstDate, QTime(1,0,0), Qt::UTC);
-    QDateTime myLastTime(myLastDate.addDays(1), QTime(0,0,0), Qt::UTC);
+    QDateTime firstTime(myFirstDate, QTime(1,0,0), Qt::UTC);
+    QDateTime lastTime(myLastDate.addDays(1), QTime(0,0,0), Qt::UTC);
 
-    FormTimePeriod myForm(&myFirstTime, &myLastTime);
+    FormTimePeriod myForm(&firstTime, &lastTime);
     myForm.show();
     if (myForm.exec() == QDialog::Rejected)
         return;
@@ -5686,13 +5686,13 @@ void MainWindow::on_actionInterpolationMeteogridGriddingTaskAdd_triggered()
     reply = QMessageBox::question(this, "The following information will be saved for gridding. Proceed?\n" ,
                                   "praga_user: " + user + "\n" +
                                   "date_creation: " + QDateTime::currentDateTimeUtc().toString() + "\n" +
-                                  "date_start: " + myFirstTime.date().toString() + "\n" +
-                                  "date_end: " + myLastTime.date().toString() + "\n" +
+                                  "date_start: " + firstTime.date().toString() + "\n" +
+                                  "date_end: " + lastTime.date().toString() + "\n" +
                                   "notes: " + notes,
                                   QMessageBox::Yes|QMessageBox::No);
 
     if (reply == QMessageBox::Yes)
-        if (! myProject.planGriddingTask(myFirstTime.date(), myLastTime.date(), user, notes))
+        if (! myProject.planGriddingTask(firstTime.date(), lastTime.date(), user, notes))
             myProject.logError("Failed to write planning info... " + myProject.errorString);
 }
 
@@ -6782,15 +6782,15 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
         return;
     }
 
-    QDateTime myFirstTime = myProject.meteoPointsDbFirstTime;
-    QDateTime myLastTime = myProject.meteoPointsDbLastTime;
-    if (myFirstTime.isNull() || myLastTime.isNull())
+    QDateTime firstTime = myProject.meteoPointsDbFirstTime;
+    QDateTime lastTime = myProject.meteoPointsDbLastTime;
+    if (firstTime.isNull() || lastTime.isNull())
     {
         myProject.logError("DB is empty");
         return;
     }
 
-    FormTimePeriod myForm(&myFirstTime, &myLastTime);
+    FormTimePeriod myForm(&firstTime, &lastTime);
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
 
@@ -6822,7 +6822,7 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
         for (int i = 0; i < myProject.meteoPoints.size(); i++)
         {
             myProject.updateProgressBar(i);
-            if (! myProject.loadXMLExportData(QString::fromStdString(myProject.meteoPoints[i].id), myFirstTime, myLastTime))
+            if (! myProject.loadXMLExportData(QString::fromStdString(myProject.meteoPoints[i].id), firstTime, lastTime))
             {
                     myProject.logError();
                     myProject.closeProgressBar();
@@ -6838,7 +6838,7 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
         for (int i = 0; i < pointSelected.size(); i++)
         {
             myProject.updateProgressBar(i);
-            if (!myProject.loadXMLExportData(pointSelected[i], myFirstTime, myLastTime))
+            if (!myProject.loadXMLExportData(pointSelected[i], firstTime, lastTime))
             {
                     myProject.logError();
                     myProject.closeProgressBar();
@@ -6862,19 +6862,20 @@ void MainWindow::on_actionFileMeteogridData_XMLexport_triggered()
         return;
     }
 
-    QDateTime myFirstTime;
-    myFirstTime.setDate(myProject.meteoGridDbHandler->firstDate());
-    myFirstTime.setTime(QTime(0,0));
-    QDateTime myLastTime;
-    myLastTime.setDate(myProject.meteoGridDbHandler->lastDate());
-    myLastTime.setTime(QTime(0,0));
-    if (myFirstTime.isNull() || myLastTime.isNull())
+    QDateTime firstTime;
+    firstTime.setDate(myProject.meteoGridDbHandler->firstDate());
+    firstTime.setTime(QTime(0,0));
+    QDateTime lastTime;
+    lastTime.setDate(myProject.meteoGridDbHandler->lastDate());
+    lastTime.setTime(QTime(0,0));
+
+    if (firstTime.isNull() || lastTime.isNull())
     {
-        myProject.logError("DB is empty");
+        myProject.logError("Meteo grid is empty");
         return;
     }
 
-    FormTimePeriod myForm(&myFirstTime, &myLastTime);
+    FormTimePeriod myForm(&firstTime, &lastTime);
     myForm.show();
     if (myForm.exec() == QDialog::Rejected) return;
 
@@ -6883,7 +6884,7 @@ void MainWindow::on_actionFileMeteogridData_XMLexport_triggered()
         return;
 
     bool isGrid = true;
-    if (!myProject.parserXMLImportExportData(xmlName, isGrid))
+    if (! myProject.parserXMLImportExportData(xmlName, isGrid))
         return;
 
     myProject.setProgressBar("Exporting cells...", myProject.meteoGridDbHandler->gridStructure().header().nrRows);
@@ -6894,19 +6895,20 @@ void MainWindow::on_actionFileMeteogridData_XMLexport_triggered()
         {
             if (myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->active)
             {
-                    if ( !myProject.loadXMLExportDataGrid(QString::fromStdString(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id), myFirstTime, myLastTime ))
-                    {
-                        myProject.logError();
-                        myProject.closeProgressBar();
-                        delete myProject.inOutData;
-                        return;
-                    }
+                QString codeStr = QString::fromStdString(myProject.meteoGridDbHandler->meteoGrid()->meteoPoints()[row][col]->id);
+                if (! myProject.loadXMLExportDataGrid(codeStr, firstTime, lastTime))
+                {
+                    myProject.logError();
+                    myProject.closeProgressBar();
+                    delete myProject.inOutData;
+                    return;
+                }
             }
         }
     }
     myProject.closeProgressBar();
+
     delete myProject.inOutData;
-    return;
 }
 
 

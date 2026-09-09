@@ -153,7 +153,7 @@
         bool parserXMLImportExportData(QString xmlName, bool isGrid);
         bool loadXMLImportData(QString fileName);
         bool loadXMLExportData(QString code, QDateTime myFirstTime, QDateTime myLastTime);
-        bool loadXMLExportDataGrid(QString code, QDateTime myFirstTime, QDateTime myLastTime);
+        bool loadXMLExportDataGrid(const QString &codeStr, const QDateTime& firstTime, const QDateTime& lastTime);
         bool monthlyAggregateVariablesGrid(const QDate &firstDate, const QDate &lastDate, QList <meteoVariable> &variablesList, bool showInfo);
         bool computeDroughtIndexGrid(droughtIndex index, int firstYear, int lastYear, QDate date, int timescale, meteoVariable myVar);
         bool computeDroughtIndexPoint(droughtIndex index, int timescale, int refYearStart, int refYearEnd);
