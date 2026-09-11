@@ -72,7 +72,7 @@ void AnnualSeriesChartView::draw(const std::vector<int> &years, std::vector<floa
     {
         axisX->setTickType(QValueAxis::TicksDynamic);
 
-        const int stepYears = (nrYears <= 60) ? 5 : 10;
+        const int stepYears = (nrYears <= 75) ? 5 : 10;
         int firstYear = NODATA;
         for (int year: years)
         {
@@ -85,6 +85,7 @@ void AnnualSeriesChartView::draw(const std::vector<int> &years, std::vector<floa
 
         axisX->setTickAnchor(firstYear);
         axisX->setTickInterval(stepYears);
+        axisX->setMinorTickCount(5);
     }
 
     axisX->setLabelFormat("%d");
