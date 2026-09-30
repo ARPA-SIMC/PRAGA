@@ -2904,8 +2904,8 @@ void MainWindow::showCVResult()
         cvOutput += "Best value: " + QString::number(myProject.interpolationSettings.getTopoDist_Kh()) + "\n";
         cvOutput += "Optimization:\n";
 
-        std::vector <float> khSeries = myProject.interpolationSettings.getKh_series();
-        std::vector <float> khErrors = myProject.interpolationSettings.getKh_error_series();
+        std::vector <double> khSeries = myProject.interpolationSettings.getKh_series();
+        std::vector <double> khErrors = myProject.interpolationSettings.getKh_error_series();
 
         for (unsigned int i=0; i < khSeries.size(); i++)
             cvOutput += "Kh=" + QString::number(khSeries[i]) + " error=" + QString::number(khErrors[i]) + "\n";

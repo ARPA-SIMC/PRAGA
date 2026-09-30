@@ -106,7 +106,7 @@ void HomogeneityChartView::drawSNHT(std::vector<int> years, std::vector<double> 
     {
         axisX->setTickType(QValueAxis::TicksDynamic);
 
-        const int stepYears = (nrYears <= 75) ? 5 : 10;
+        const int stepYears = 10;           // 10 years
         int firstYear = NODATA;
         for (int year: years)
         {
@@ -119,7 +119,7 @@ void HomogeneityChartView::drawSNHT(std::vector<int> years, std::vector<double> 
 
         axisX->setTickAnchor(firstYear);
         axisX->setTickInterval(stepYears);
-        axisX->setMinorTickCount(5);
+        axisX->setMinorTickCount(1);        // each 5 years
     }
 
     axisX->setLabelFormat("%d");
