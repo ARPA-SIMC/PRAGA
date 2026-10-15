@@ -79,14 +79,23 @@ int mainGUI(int argc, char *argv[], QString pragaHome, PragaProject& myProject)
         QString appPath = myApp.applicationDirPath();
         pragaHome = searchDefaultPragaPath(appPath, myProject);
         if (!checkEnvironmentGUI(pragaHome))
+        {
+            myProject.logError();
             return PRAGA_ENV_ERROR;
+        }
     }
 
     if (! myProject.start(pragaHome))
+    {
+        myProject.logError();
         return PRAGA_ERROR;
+    }
 
     if (! myProject.loadPragaProject(myProject.getApplicationPath() + "default.ini"))
+    {
+        myProject.logError();
         return PRAGA_ERROR;
+    }
 
     MainWindow w;
     w.show();
