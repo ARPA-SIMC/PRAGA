@@ -3607,24 +3607,14 @@ void MainWindow::on_actionInterpolationCVCurrentTime_triggered()
     if (myProject.interpolationSettings.getUseGlocalDetrending() && (! myProject.interpolationSettings.isGlocalReady(false)))
     {
         myProject.loadGlocalAreasMap();
-        if (! myProject.glocalCVPointsName.isEmpty())
-        {
-            if (! myProject.loadGlocalStationsAndCells(false, myProject.getCompleteFileName(myProject.glocalPointsName, PATH_GEO),
+
+        if (! myProject.loadGlocalStationsAndCells(false, myProject.getCompleteFileName(myProject.glocalPointsName, PATH_GEO),
                                                  myProject.getCompleteFileName(myProject.glocalCVPointsName, PATH_GEO)))
             {
                 myProject.logError("Some error occurred while reading the glocal files.");
                 return;
             }
-        }
-        else
-        {
-            myProject.logError("Missing station file for glocal cross validation");
-            return;
-        }
 
-        //else {
-          //  myProject.loadGlocalStationsAndCells(false, myProject.getCompleteFileName(glocalCVPointsName, PATH_GEO));
-        //}
     }
 
     myProject.logInfoGUI("Cross validation...");
