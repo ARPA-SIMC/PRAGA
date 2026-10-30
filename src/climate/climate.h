@@ -173,20 +173,20 @@
     bool monthlyAggregateDataSingleCell(Crit3DMeteoGridDbHandler* meteoGridDbHandler, int row, int col,
                                         const QDate &firstDate, const QDate &lastDate, const std::vector<meteoVariable> &dailyMeteoVar,
                                         Crit3DMeteoSettings* meteoSettings, Crit3DQuality *qualityCheck,
-                                        Crit3DClimateParameters *climateParam, QString &errorStr);
+                                        const Crit3DClimateParameters &climateParam, QString &errorStr);
 
     bool monthlyAggregateDataGrid(Crit3DMeteoGridDbHandler* meteoGridDbHandler, const QDate &firstDate, const QDate &lastDate,
-                    const std::vector<meteoVariable> &dailyMeteoVar, Crit3DMeteoSettings* meteoSettings,
-                    Crit3DQuality *qualityCheck, Crit3DClimateParameters *climateParam, QString &errorStr);
+                                  const std::vector<meteoVariable> &dailyMeteoVar, Crit3DMeteoSettings* meteoSettings,
+                                  Crit3DQuality *qualityCheck, const Crit3DClimateParameters &climateParam, QString &errorStr);
 
     int computeAnnualSeriesOnPointFromDaily(Crit3DMeteoPointsDbHandler* meteoPointsDbHandler, Crit3DMeteoGridDbHandler* meteoGridDbHandler,
                                             Crit3DMeteoPoint* meteoPointTemp, Crit3DMeteoSettings* meteoSettings,
                                             const Crit3DClimate& climate, bool isMeteoGrid, bool isAnomaly, bool isDataAlreadyLoaded,
                                             std::vector<float> &outputValues, std::vector<int> &outputYears, QString &errorString);
     
-	void computeClimateOnDailyData(Crit3DMeteoPoint meteoPoint, meteoVariable var, QDate firstDate, QDate lastDate,
-                    int smooth, float* dataPresence, Crit3DQuality* qualityCheck, Crit3DClimateParameters* climateParam,
-                    Crit3DMeteoSettings* meteoSettings, std::vector<float> &dailyClima, std::vector<float> &decadalClima, std::vector<float> &monthlyClima);
+    void computeClimateOnDailyData(Crit3DMeteoPoint meteoPoint, meteoVariable var, QDate firstDate, QDate lastDate,
+                                   int smooth, float* dataPresence, Crit3DQuality* qualityCheck, const Crit3DClimateParameters &climateParam,
+                                   Crit3DMeteoSettings* meteoSettings, std::vector<float> &dailyClima, std::vector<float> &decadalClima, std::vector<float> &monthlyClima);
     
     bool preElaborationWithoutLoad(Crit3DMeteoPoint* meteoPoint, Crit3DMeteoSettings* meteoSettings,
                                    meteoVariable variable, const QDate& startDate, const QDate& endDate,

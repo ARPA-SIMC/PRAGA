@@ -83,11 +83,11 @@ Crit3DPointStatisticsWidget::Crit3DPointStatisticsWidget(bool isGrid, Crit3DMete
             isJointStations = true;
 
             // load all Data
-            QDate firstDailyJoint = meteoPointsDbHandler->getFirstDate(daily, jointId).date();
-            QDate lastDailyJoint = meteoPointsDbHandler->getLastDate(daily, jointId).date();
+            QDate firstDailyJoint = meteoPointsDbHandler->getFirstDatePoint(daily, jointId).date();
+            QDate lastDailyJoint = meteoPointsDbHandler->getLastDatePoint(daily, jointId).date();
 
-            QDateTime firstHourlyJoint = meteoPointsDbHandler->getFirstDate(hourly, jointId);
-            QDateTime lastHourlyJoint = meteoPointsDbHandler->getLastDate(hourly, jointId);
+            QDateTime firstHourlyJoint = meteoPointsDbHandler->getFirstDatePoint(hourly, jointId);
+            QDateTime lastHourlyJoint = meteoPointsDbHandler->getLastDatePoint(hourly, jointId);
 
             jointStationsSelected.addItem(QString::fromStdString(_meteoPointList[jointIndex].id)
                                           + " " + QString::fromStdString(_meteoPointList[jointIndex].name));
@@ -967,7 +967,7 @@ void Crit3DPointStatisticsWidget::plot()
                 meteoPointTemp = _meteoPointList[0];
             }
             computeClimateOnDailyData(meteoPointTemp, myVar, firstDate, lastDate,
-                                      smooth, &dataPresence, quality, climateParameters, meteoSettings, dailyClima, decadalClima, monthlyClima);
+                                      smooth, &dataPresence, quality, *climateParameters, meteoSettings, dailyClima, decadalClima, monthlyClima);
             availability.setText(QString::number(dataPresence, 'f', 3));
 
             QList<QPointF> dailyPointList;
@@ -1326,12 +1326,12 @@ void Crit3DPointStatisticsWidget::plot()
                         int nPoint;
                         for (nPoint = 0; nPoint<_idPointList.size(); nPoint++)
                         {
-                            if (myDate <= meteoPointsDbHandler->getLastDate(hourly, _idPointList[nPoint]).date())
+                            if (myDate <= meteoPointsDbHandler->getLastDatePoint(hourly, _idPointList[nPoint]).date())
                             {
                                 break;
                             }
                         }
-                        QDate myFirstHourly = meteoPointsDbHandler->getFirstDate(hourly, _idPointList[nPoint]).date();
+                        QDate myFirstHourly = meteoPointsDbHandler->getFirstDatePoint(hourly, _idPointList[nPoint]).date();
                         i = myFirstHourly.daysTo(myDate);
                         for (int j = 0; j<_meteoPointList.size(); j++)
                         {
@@ -1343,13 +1343,13 @@ void Crit3DPointStatisticsWidget::plot()
                         }
                     }
                     float myHourlyValue = _meteoPointList[indexMp].getMeteoPointValueH(crit3dDate, myHour, 0, myVar);
-                    if (i<0 || i>_meteoPointList[indexMp].nrObsDataDaysH)
+                    if (i < 0 || i > (int)_meteoPointList[indexMp].obsDataH.size() )
                     {
                         check = quality::missing_data;
                     }
                     else
                     {
-                        check = quality->checkFastValueHourly_SingleValue(myVar, climateParameters, myHourlyValue, myDate.month(), _meteoPointList[indexMp].point.z);
+                        check = quality->checkFastValueHourly_SingleValue(myVar, *climateParameters, myHourlyValue, myDate.month(), _meteoPointList[indexMp].point.z);
                     }
                     if (check == quality::accepted)
                     {
@@ -1843,11 +1843,11 @@ void Crit3DPointStatisticsWidget::addStationClicked()
         _jointIndexList << jointIndex;
 
         // load all Data
-        QDate firstDaily = meteoPointsDbHandler->getFirstDate(daily, newId).date();
-        QDate lastDaily = meteoPointsDbHandler->getLastDate(daily, newId).date();
+        QDate firstDaily = meteoPointsDbHandler->getFirstDatePoint(daily, newId).date();
+        QDate lastDaily = meteoPointsDbHandler->getLastDatePoint(daily, newId).date();
 
-        QDateTime firstHourly = meteoPointsDbHandler->getFirstDate(hourly, newId);
-        QDateTime lastHourly = meteoPointsDbHandler->getLastDate(hourly, newId);
+        QDateTime firstHourly = meteoPointsDbHandler->getFirstDatePoint(hourly, newId);
+        QDateTime lastHourly = meteoPointsDbHandler->getLastDatePoint(hourly, newId);
 
         QSqlDatabase myDb = meteoPointsDbHandler->getDb();
         if (firstDaily.isValid() && lastDaily.isValid())
@@ -1908,22 +1908,22 @@ void Crit3DPointStatisticsWidget::saveToDbClicked()
     saveToDb.setEnabled(false);
 }
 
+
 void Crit3DPointStatisticsWidget::updateYears()
 {
-
-    _lastDailyDb = meteoPointsDbHandler->getLastDate(daily, _meteoPointList[0].id).date();
-    _lastHourlyDb = meteoPointsDbHandler->getLastDate(hourly, _meteoPointList[0].id);
+    _lastDailyDb = meteoPointsDbHandler->getLastDatePoint(daily, _meteoPointList[0].id).date();
+    _lastHourlyDb = meteoPointsDbHandler->getLastDatePoint(hourly, _meteoPointList[0].id);
 
     for (int i = 1; i < _idPointList.size(); i++)
     {
 
-        QDate lastDailyJointStation = meteoPointsDbHandler->getLastDate(daily, _idPointList[i]).date();
+        QDate lastDailyJointStation = meteoPointsDbHandler->getLastDatePoint(daily, _idPointList[i]).date();
         if (lastDailyJointStation.isValid() && lastDailyJointStation > _lastDailyDb )
         {
             _lastDailyDb = lastDailyJointStation;
         }
 
-        QDateTime lastHourlyJointStation = meteoPointsDbHandler->getLastDate(hourly, _idPointList[i]);
+        QDateTime lastHourlyJointStation = meteoPointsDbHandler->getLastDatePoint(hourly, _idPointList[i]);
         if (lastHourlyJointStation.isValid() && lastHourlyJointStation > _lastHourlyDb )
         {
             _lastHourlyDb = lastHourlyJointStation;

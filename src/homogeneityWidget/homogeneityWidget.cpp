@@ -138,8 +138,8 @@ Crit3DHomogeneityWidget::Crit3DHomogeneityWidget(Crit3DMeteoPointsDbHandler* met
         std::string jointId = _jointPointsIdList[i];
         int indexJoint = _jointIndexList[i];
 
-        QDate firstDaily = _meteoPointsDbPointer->getFirstDate(daily, jointId).date();
-        QDate _lastDaily = _meteoPointsDbPointer->getLastDate(daily, jointId).date();
+        QDate firstDaily = _meteoPointsDbPointer->getFirstDatePoint(daily, jointId).date();
+        QDate _lastDaily = _meteoPointsDbPointer->getLastDatePoint(daily, jointId).date();
 
         jointStationsSelected.addItem(QString::fromStdString(_nearMeteoPointsList[indexJoint].id) + " "
                                       + QString::fromStdString(_nearMeteoPointsList[indexJoint].name));
@@ -502,8 +502,8 @@ void Crit3DHomogeneityWidget::addJointStationClicked()
             _jointIndexList << JointIndex;
 
             // load all Data
-            QDate firstDailyNewId = _meteoPointsDbPointer->getFirstDate(daily, newId).date();
-            QDate lastDailyNewId = _meteoPointsDbPointer->getLastDate(daily, newId).date();
+            QDate firstDailyNewId = _meteoPointsDbPointer->getFirstDatePoint(daily, newId).date();
+            QDate lastDailyNewId = _meteoPointsDbPointer->getLastDatePoint(daily, newId).date();
 
             _meteoPointsDbPointer->loadDailyData(myDb, getCrit3DDate(firstDailyNewId), getCrit3DDate(lastDailyNewId), _nearMeteoPointsList[JointIndex]);
             updateYears();
@@ -564,7 +564,7 @@ void Crit3DHomogeneityWidget::updateYears()
 
     for (int i = 1; i < _jointPointsIdList.size(); i++)
     {
-        QDate lastDailyJointStation = _meteoPointsDbPointer->getLastDate(daily, _jointPointsIdList[i]).date();
+        QDate lastDailyJointStation = _meteoPointsDbPointer->getLastDatePoint(daily, _jointPointsIdList[i]).date();
         if (lastDailyJointStation.isValid() && lastDailyJointStation > _lastDaily )
         {
             _lastDaily = lastDailyJointStation;

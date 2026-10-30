@@ -57,8 +57,8 @@ void Crit3DSynchronicityWidget::setReferencePointId(const std::string &value)
         mpRef.cleanAllData();
         mpRef.clear();
         referencePointId = value;
-        firstRefDaily = meteoPointsDbHandler->getFirstDate(daily, value).date();
-        lastRefDaily = meteoPointsDbHandler->getLastDate(daily, value).date();
+        firstRefDaily = meteoPointsDbHandler->getFirstDatePoint(daily, value).date();
+        lastRefDaily = meteoPointsDbHandler->getLastDatePoint(daily, value).date();
         bool hasDailyData = !(firstRefDaily.isNull() || lastRefDaily.isNull());
 
         if (!hasDailyData)

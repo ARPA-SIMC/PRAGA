@@ -1177,6 +1177,13 @@ void MainWindow::on_dateChanged()
 
         redrawAllData();
     }
+
+    // refresh proxy widget
+    if (myProject.proxyWidget != nullptr)
+    {
+        myProject.proxyWidget->close();
+        myProject.showProxyGraph(NODATA);
+    }
 }
 
 
@@ -2149,7 +2156,7 @@ int MainWindow::getMeteoPointIndex(const std::string &idStr)
     for (size_t i = 0; i < myProject.meteoPoints.size(); ++i)
     {
         if (myProject.meteoPoints[i].id == idStr)
-            return i;
+            return int(i);
     }
 
     return NODATA;
@@ -4713,8 +4720,7 @@ void MainWindow::on_action_Proxy_graph_triggered()
         return;
     }
 
-    std::vector<Crit3DProxy> proxy = myProject.interpolationSettings.getCurrentProxy();
-    if (proxy.size() == 0)
+    if (myProject.interpolationSettings.getProxyNr() <= 0)
     {
         myProject.logError("No proxy loaded");
         return;

@@ -361,7 +361,6 @@ std::vector<bool> Crit3DElabList::listDailyCumulated() const
 
 bool Crit3DElabList::addElab(unsigned int index)
 {
-
     QString yearStart = QString::number(_listYearStart[index]);
     QString yearEnd = QString::number(_listYearEnd[index]);
     QString variable = QString::fromStdString(MapDailyMeteoVarToString.at(_listVariable[index])).remove("_");

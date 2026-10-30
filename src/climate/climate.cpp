@@ -280,7 +280,7 @@ bool climateOnPoint(QString &errorString, Crit3DMeteoPointsDbHandler* meteoPoint
         }
         else
         {
-            if (meteoPointTemp->nrObsDataDaysD == 0)
+            if (meteoPointTemp->obsDataD.empty())
             {
                 dataLoaded = false;
             }
@@ -295,10 +295,10 @@ bool climateOnPoint(QString &errorString, Crit3DMeteoPointsDbHandler* meteoPoint
         climate->setCurrentYearEnd(climate->yearEnd());
 
         outputValues.clear();
-        meteoPointTemp->nrObsDataDaysD = 0;
-        meteoPointTemp->nrObsDataDaysH = 0;
 
-        dataLoaded = preElaboration(meteoPointsDbHandler, meteoGridDbHandler, meteoPointTemp, isMeteoGrid, climate->variable(), elab1MeteoComp, startDate, endDate, outputValues, &percValue, meteoSettings, errorString);
+        dataLoaded = preElaboration(meteoPointsDbHandler, meteoGridDbHandler, meteoPointTemp,
+                                    isMeteoGrid, climate->variable(), elab1MeteoComp,
+                                    startDate, endDate, outputValues, &percValue, meteoSettings, errorString);
     }
 
     if (dataLoaded)
@@ -865,7 +865,7 @@ float loadDailyVarSeries(Crit3DMeteoPointsDbHandler *meteoPointsDbHandler,
     }
 
     // only first save
-    if (meteoPoint->nrObsDataDaysD == 0)
+    if (meteoPoint->obsDataD.empty())
     {
         meteoPoint->initializeObsDataD(int(dailyValues.size()), getCrit3DDate(firstDateDB));
     }
@@ -1099,7 +1099,7 @@ float loadHourlyVarSeries(Crit3DMeteoPointsDbHandler* meteoPointsDbHandler,
     int nrRequestedValues = nrOfDays * 24;
 
     // initializes only on first load
-    if (meteoPoint->nrObsDataDaysH == 0)
+    if (meteoPoint->obsDataH.empty())
     {
         meteoPoint->initializeObsDataH(meteoPoint->hourlyFraction, nrOfDays, getCrit3DDate(firstTime.date()));
         meteoPoint->initializeObsDataD(nrOfDays, getCrit3DDate(firstTime.date()));
@@ -1332,7 +1332,7 @@ float computeWinkler(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DD
     {
         index = difference(meteoPoint->obsDataD[0].date, currentDate);
         checkData = false;
-        if (index >= 0 && index < meteoPoint->nrObsDataDaysD)
+        if (index >= 0 && index < meteoPoint->obsDataD.size())
         {
             // TO DO nella versione vb il check prevede anche l'immissione del parametro height
             quality::qualityType qualityTavg = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureAvg, meteoPoint->obsDataD[index].tAvg);
@@ -1425,7 +1425,7 @@ float computeHuglin(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DDa
     {
         index = difference(meteoPoint->obsDataD[0].date, currentDate);
         checkData = false;
-        if (index >= 0 && index < meteoPoint->nrObsDataDaysD)
+        if (index >= 0 && index < meteoPoint->obsDataD.size())
         {
             // TO DO nella versione vb il check prevede anche l'immissione del parametro height
             quality::qualityType qualityTavg = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureAvg, meteoPoint->obsDataD[index].tAvg);
@@ -1489,7 +1489,7 @@ float computeFregoni(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DD
     {
         index = difference(meteoPoint->obsDataD[0].date, presentDate);
         checkData = false;
-        if (index >= 0 && index < meteoPoint->nrObsDataDaysD)
+        if (index >= 0 && index < meteoPoint->obsDataD.size())
         {
 
             // TO DO nella versione vb il check prevede anche l'immissione del parametro height
@@ -1550,7 +1550,7 @@ float computeCorrectedSum(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Cr
     for (int i = 0; i < numberOfDays; i++)
     {
         checkData = false;
-        if (index >= 0 && index < meteoPoint->nrObsDataDaysD)
+        if (index >= 0 && index < meteoPoint->obsDataD.size())
         {
             // TO DO nella versione vb il check prevede anche l'immissione del parametro height
             quality::qualityType qualityTmin = qualityCheck.syntacticQualitySingleValue(dailyAirTemperatureMin, meteoPoint->obsDataD[index].tMin);
@@ -1646,7 +1646,7 @@ bool elaborateDailyAggregatedVarFromDaily(meteoVariable myVar, Crit3DMeteoPoint 
     Crit3DDate date = meteoPoint.obsDataD[0].date;
     Crit3DQuality qualityCheck;
 
-    for (unsigned int index = 0; index < unsigned(meteoPoint.nrObsDataDaysD); index++)
+    for (unsigned int index = 0; index < unsigned(meteoPoint.obsDataD.size()); index++)
     {
         switch(myVar)
         {
@@ -1770,9 +1770,9 @@ bool elaborateDailyAggregatedVarFromDaily(meteoVariable myVar, Crit3DMeteoPoint 
         date = date.addDays(1);
     }
 
-    if (meteoPoint.nrObsDataDaysD > 0)
+    if (! meteoPoint.obsDataD.empty())
     {
-        *percValue = nrValidValues / meteoPoint.nrObsDataDaysD;
+        *percValue = nrValidValues / meteoPoint.obsDataD.size();
     }
     else
         *percValue = 0;
@@ -1791,7 +1791,7 @@ bool elaborateDailyAggregatedVarFromHourly(meteoVariable myVar, Crit3DMeteoPoint
 
     Crit3DDate date;
 
-    for (int index = 0; index < meteoPoint.nrObsDataDaysH; index++)
+    for (int index = 0; index < meteoPoint.obsDataH.size(); index++)
     {
         date = meteoPoint.getMeteoPointHourlyValuesDate(index);
         if (meteoPoint.getMeteoPointValueDayH(date, hourlyValues))
@@ -1960,7 +1960,7 @@ bool elaborateDailyAggrVarFromStartDate(meteoVariable myVar, Crit3DMeteoPoint& m
         outputValues.push_back(result);
     }
 
-    percValue = nrValidValues / meteoPoint.nrObsDataDaysD;
+    percValue = nrValidValues / meteoPoint.obsDataD.size();
 
     return (nrValidValues > 0);
 }
@@ -1970,14 +1970,13 @@ bool aggregatedHourlyToDaily(meteoVariable myVar, Crit3DMeteoPoint* meteoPoint, 
 {
     Crit3DDate date;
     std::vector <float> values;
-    float value, dailyValue;
     short hour;
     meteoVariable hourlyVar = noMeteoVar;
     meteoComputation elab = noMeteoComp;
     float param = NODATA;
     int nValidValues;
 
-    if (meteoPoint->nrObsDataDaysD == 0)
+    if (meteoPoint->obsDataD.empty())
         meteoPoint->initializeObsDataD(dateIni.daysTo(dateFin)+1, dateIni);
 
     switch(myVar)
@@ -2053,37 +2052,28 @@ bool aggregatedHourlyToDaily(meteoVariable myVar, Crit3DMeteoPoint* meteoPoint, 
 
     for (date = dateIni; date <= dateFin; date = date.addDays(1))
     {
-        dailyValue = NODATA;
-        value = NODATA;
         values.clear();
         nValidValues = 0;
 
         for (hour = 1; hour <= 24; hour++)
         {
-            value = meteoPoint->getMeteoPointValueH(date, hour, 0, hourlyVar);
-            if (int(value) != NODATA)
+            const float value = meteoPoint->getMeteoPointValueH(date, hour, 0, hourlyVar);
+            if (! isEqual(value, NODATA))
             {
                 values.push_back(value);
-                nValidValues = nValidValues + 1;
+                nValidValues++;
             }
         }
 
         float validPercentage = (float(nValidValues) / float(24)) * 100;
-        if (validPercentage < meteoSettings->getMinimumPercentage())
-        {
-            dailyValue = NODATA;
-        }
-        else
+
+        float dailyValue = NODATA;
+        if (validPercentage >= meteoSettings->getMinimumPercentage())
         {
             dailyValue = statisticalElab(elab, param, values, int(values.size()), NODATA);
         }
+
         meteoPoint->setMeteoPointValueD(date, myVar, dailyValue);
-
-        if (myVar == dailyLeafWetness && dailyValue > 24)
-        {
-            // todo warning
-        }
-
     }
 
     return true;
@@ -2096,14 +2086,13 @@ std::vector<float> aggregatedHourlyToDailyList(meteoVariable myVar, Crit3DMeteoP
     Crit3DDate date;
     std::vector <float> values;
     std::vector<float> dailyData;
-    float value, dailyValue;
     short hour;
     meteoVariable hourlyVar = noMeteoVar;
     meteoComputation elab = noMeteoComp;
     float param = NODATA;
     int nValidValues;
 
-    if (meteoPoint->nrObsDataDaysD == 0)
+    if (meteoPoint->obsDataD.empty())
     {
         meteoPoint->initializeObsDataD(dateIni.daysTo(dateFin)+1, dateIni);
     }
@@ -2181,35 +2170,29 @@ std::vector<float> aggregatedHourlyToDailyList(meteoVariable myVar, Crit3DMeteoP
 
     for (date = dateIni; date <= dateFin; date = date.addDays(1))
     {
-        dailyValue = NODATA;
-        value = NODATA;
         values.clear();
         nValidValues = 0;
 
         for (hour = 1; hour <= 24; hour++)
         {
-            value = meteoPoint->getMeteoPointValueH(date, hour, 0, hourlyVar);
-            if (int(value) != NODATA)
+            const float value = meteoPoint->getMeteoPointValueH(date, hour, 0, hourlyVar);
+            if (! isEqual(value, NODATA))
             {
                 values.push_back(value);
-                nValidValues = nValidValues + 1;
+                nValidValues++;
             }
         }
 
         float validPercentage = (float(nValidValues) / float(24)) * 100;
+
         if (validPercentage < meteoSettings->getMinimumPercentage())
         {
             dailyData.push_back(NODATA);
         }
         else
         {
-            dailyValue = statisticalElab(elab, param, values, int(values.size()), NODATA);
+            const float dailyValue = statisticalElab(elab, param, values, int(values.size()), NODATA);
             dailyData.push_back(dailyValue);
-        }
-
-        if (myVar == dailyLeafWetness && dailyValue > 24)
-        {
-            // todo warning
         }
     }
 
@@ -5156,7 +5139,7 @@ bool appendXMLAnomaly(Crit3DAnomalyList *listXMLAnomaly, QString xmlFileName, QS
 bool monthlyAggregateDataSingleCell(Crit3DMeteoGridDbHandler* meteoGridDbHandler, int row, int col,
                                     const QDate &firstDate, const QDate &lastDate, const std::vector<meteoVariable> &dailyMeteoVar,
                                     Crit3DMeteoSettings* meteoSettings, Crit3DQuality *qualityCheck,
-                                    Crit3DClimateParameters *climateParam, QString &errorStr)
+                                    const Crit3DClimateParameters &climateParam, QString &errorStr)
 {
     Crit3DMeteoPoint* meteoPoint = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row, col);
     Crit3DMeteoPoint* tmpMeteoPoint = new Crit3DMeteoPoint;
@@ -5165,9 +5148,6 @@ bool monthlyAggregateDataSingleCell(Crit3DMeteoGridDbHandler* meteoGridDbHandler
     tmpMeteoPoint->id = meteoPoint->id;
     tmpMeteoPoint->latitude = meteoPoint->latitude;
     tmpMeteoPoint->point = meteoPoint->point;
-    // tmpMeteoPoint should be init
-    tmpMeteoPoint->nrObsDataDaysH = 0;
-    tmpMeteoPoint->nrObsDataDaysD = 0;
 
     int nrMonths = (lastDate.year() - firstDate.year())*12 + lastDate.month() - firstDate.month() + 1;
     meteoPoint->initializeObsDataM(nrMonths, firstDate.month(), firstDate.year());
@@ -5180,9 +5160,11 @@ bool monthlyAggregateDataSingleCell(Crit3DMeteoGridDbHandler* meteoGridDbHandler
     {
         float percValue;
         std::vector<float> outputValues;
-        if (preElaboration(nullptr, meteoGridDbHandler, tmpMeteoPoint, isMeteoGrid, dailyMeteoVar[i], noMeteoComp, firstDate, lastDate, outputValues, &percValue, meteoSettings, errorStr))
+        if (preElaboration(nullptr, meteoGridDbHandler, tmpMeteoPoint, isMeteoGrid, dailyMeteoVar[i],
+                           noMeteoComp, firstDate, lastDate, outputValues, &percValue, meteoSettings, errorStr))
         {
-            if (tmpMeteoPoint->computeMonthlyAggregate(getCrit3DDate(firstDate), getCrit3DDate(lastDate), dailyMeteoVar[i], meteoSettings, qualityCheck, climateParam))
+            if (tmpMeteoPoint->computeMonthlyAggregate(getCrit3DDate(firstDate), getCrit3DDate(lastDate),
+                                                       dailyMeteoVar[i], meteoSettings, qualityCheck, climateParam))
             {
                 meteoVariable monthlyVar = updateMeteoVariable(dailyMeteoVar[i], monthly);
                 if (monthlyVar != noMeteoVar)
@@ -5211,7 +5193,7 @@ bool monthlyAggregateDataSingleCell(Crit3DMeteoGridDbHandler* meteoGridDbHandler
 
 bool monthlyAggregateDataGrid(Crit3DMeteoGridDbHandler* meteoGridDbHandler, const QDate &firstDate, const QDate &lastDate,
                               const std::vector<meteoVariable> &dailyMeteoVar, Crit3DMeteoSettings* meteoSettings,
-                              Crit3DQuality *qualityCheck, Crit3DClimateParameters *climateParam, QString &errorStr)
+                              Crit3DQuality *qualityCheck, const Crit3DClimateParameters &climateParam, QString &errorStr)
 {
     int nrMonths = (lastDate.year()-firstDate.year())*12+lastDate.month()-(firstDate.month()-1);
     bool isMeteoGrid = true;
@@ -5232,15 +5214,14 @@ bool monthlyAggregateDataGrid(Crit3DMeteoGridDbHandler* meteoGridDbHandler, cons
                 // copy id to meteoPointTemp
                 meteoPointTemp->id = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->id;
                 meteoPointTemp->latitude = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->latitude;
-                // meteoPointTemp should be init
-                meteoPointTemp->nrObsDataDaysH = 0;
-                meteoPointTemp->nrObsDataDaysD = 0;
 
                 for(int i = 0; i < dailyMeteoVar.size(); i++)
                 {
-                    if (preElaboration(nullptr, meteoGridDbHandler, meteoPointTemp, isMeteoGrid, dailyMeteoVar[i], noMeteoComp, firstDate, lastDate, outputValues, &percValue, meteoSettings, errorStr))
+                    if (preElaboration(nullptr, meteoGridDbHandler, meteoPointTemp, isMeteoGrid, dailyMeteoVar[i],
+                                       noMeteoComp, firstDate, lastDate, outputValues, &percValue, meteoSettings, errorStr))
                     {
-                        if (meteoPointTemp->computeMonthlyAggregate(getCrit3DDate(firstDate), getCrit3DDate(lastDate), dailyMeteoVar[i], meteoSettings, qualityCheck, climateParam))
+                        if (meteoPointTemp->computeMonthlyAggregate(getCrit3DDate(firstDate), getCrit3DDate(lastDate), dailyMeteoVar[i],
+                                                                    meteoSettings, qualityCheck, climateParam))
                         {
                             meteoVariable monthlyVar = updateMeteoVariable(dailyMeteoVar[i], monthly);
                             if (monthlyVar != noMeteoVar)
@@ -5289,10 +5270,6 @@ int computeAnnualSeriesOnPointFromDaily(Crit3DMeteoPointsDbHandler* meteoPointsD
         myClimate.setYearStart(myYear);
         myClimate.setYearEnd(myYear);
 
-        if (! isDataAlreadyLoaded)
-        {
-            meteoPointTemp->nrObsDataDaysD = 0; // should be init
-        }
         if (myClimate.nYears() < 0)
         {
             startDate.setDate(myYear + myClimate.nYears(), startDate.month(), startDate.day());
@@ -5351,7 +5328,8 @@ int computeAnnualSeriesOnPointFromDaily(Crit3DMeteoPointsDbHandler* meteoPointsD
 
 
 void computeClimateOnDailyData(Crit3DMeteoPoint meteoPoint, meteoVariable var, QDate firstDate, QDate lastDate,
-                              int smooth, float* dataPresence, Crit3DQuality* qualityCheck, Crit3DClimateParameters* climateParam,
+                              int smooth, float* dataPresence, Crit3DQuality* qualityCheck,
+                               const Crit3DClimateParameters& climateParam,
                                Crit3DMeteoSettings* meteoSettings, std::vector<float> &dailyClima,
                                std::vector<float> &decadalClima, std::vector<float> &monthlyClima)
 {
@@ -5405,7 +5383,7 @@ void computeClimateOnDailyData(Crit3DMeteoPoint meteoPoint, meteoVariable var, Q
 
         int i = getQDate(mpFirstDate).daysTo(myDate);
         float myDailyValue = meteoPoint.getMeteoPointValueD(getCrit3DDate(myDate), var, meteoSettings);
-        if (i<0 || i>meteoPoint.nrObsDataDaysD)
+        if (i<0 || i>meteoPoint.obsDataD.size())
         {
             check = quality::missing_data;
         }

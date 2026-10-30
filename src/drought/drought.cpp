@@ -52,13 +52,13 @@ float Drought::computeDroughtIndex()
         }
     }
 
-    std::vector<float> sumSeries(_meteoPoint->nrObsDataDaysM);
+    std::vector<float> sumSeries(_meteoPoint->obsDataM.size());
     int start, end;
 
     if (_computeAll)
     {
         start = _timeScale;
-        end = _meteoPoint->nrObsDataDaysM;
+        end = int(_meteoPoint->obsDataM.size());
         for (int i = 0; i <= _timeScale; i++)
         {
             sumSeries[i] = NODATA;
@@ -71,7 +71,7 @@ float Drought::computeDroughtIndex()
         end = (currentYear - _meteoPoint->obsDataM[0]._year)*12 + currentMonth-_meteoPoint->obsDataM[0]._month; // starts from 0
         start = end; // parte da 0
 
-        if (end >= _meteoPoint->nrObsDataDaysM)
+        if (end >= _meteoPoint->obsDataM.size())
         {
             return NODATA;
         }
@@ -86,7 +86,7 @@ float Drought::computeDroughtIndex()
         sumSeries[j] = 0;
         for(int i = 0; i <= _timeScale; i++)
         {
-            if ((j-i) >= 0 && j < _meteoPoint->nrObsDataDaysM)
+            if ((j-i) >= 0 && j < _meteoPoint->obsDataM.size())
             {
                 if (_index == INDEX_SPI)
                 {
@@ -125,7 +125,7 @@ float Drought::computeDroughtIndex()
     }
 
     // initialize
-    for (int i = 0; i < _meteoPoint->nrObsDataDaysM; i++)
+    for (int i = 0; i < _meteoPoint->obsDataM.size(); i++)
     {
         droughtResults.push_back(NODATA);
     }
@@ -165,7 +165,7 @@ float Drought::computeDroughtIndex()
                 {
                     temporaryResult = thresholdForWrongMomentum + (temporaryResult-thresholdForWrongMomentum)/8.;
                 }
-                droughtResults[j] = BOUNDFUNCTION(-4.99, 4.99, static_cast<float>(temporaryResult));
+                droughtResults[j] = static_cast<float>(std::clamp(temporaryResult, -4.99, 4.99));
             }
         }
     }
@@ -176,12 +176,12 @@ float Drought::computeDroughtIndex()
 
 bool Drought::computeSpiParameters()
 {
-    if (_meteoPoint->nrObsDataDaysM == 0)
+    if (_meteoPoint->obsDataM.empty())
     {
         return false;
     }
 
-    if (_meteoPoint->obsDataM[0]._year > _lastYear || _meteoPoint->obsDataM[_meteoPoint->nrObsDataDaysM-1]._year < _firstYear)
+    if (_meteoPoint->obsDataM[0]._year > _lastYear || _meteoPoint->obsDataM.back()._year < _firstYear)
     {
         return false;
     }
@@ -195,7 +195,7 @@ bool Drought::computeSpiParameters()
         return false;
     }
 
-    int lastYearStation = std::min(_meteoPoint->obsDataM[_meteoPoint->nrObsDataDaysM-1]._year, _lastYear);
+    int lastYearStation = std::min(_meteoPoint->obsDataM.back()._year, _lastYear);
 
     int n = 0;
     float count = 0;
@@ -204,7 +204,7 @@ bool Drought::computeSpiParameters()
     std::vector<float> monthSeries;
     float minPerc = _meteoSettings->getMinimumPercentage();
 
-    for (int j = indexStart; j<_meteoPoint->nrObsDataDaysM; j++)
+    for (int j = indexStart; j < _meteoPoint->obsDataM.size(); j++)
     {
         if (_meteoPoint->obsDataM[j]._year > lastYearStation)
         {
@@ -261,12 +261,12 @@ bool Drought::computeSpiParameters()
 
 bool Drought::computeSpeiParameters()
 {
-    if (_meteoPoint->nrObsDataDaysM == 0)
+    if (_meteoPoint->obsDataM.empty())
     {
         return false;
     }
 
-    if (_meteoPoint->obsDataM[0]._year > _lastYear || _meteoPoint->obsDataM[_meteoPoint->nrObsDataDaysM-1]._year < _firstYear)
+    if (_meteoPoint->obsDataM[0]._year > _lastYear || _meteoPoint->obsDataM.back()._year < _firstYear)
     {
         return false;
     }
@@ -281,7 +281,7 @@ bool Drought::computeSpeiParameters()
         return false;
     }
 
-    int lastYearStation = std::min(_meteoPoint->obsDataM[_meteoPoint->nrObsDataDaysM-1]._year, _lastYear);
+    int lastYearStation = std::min(_meteoPoint->obsDataM.back()._year, _lastYear);
 
     int n = 0;
     float count = 0;
@@ -291,7 +291,7 @@ bool Drought::computeSpeiParameters()
     std::vector<float> pwm(3);
     float minPerc = _meteoSettings->getMinimumPercentage();
 
-    for (int j = indexStart; j<_meteoPoint->nrObsDataDaysM; j++)
+    for (int j = indexStart; j < _meteoPoint->obsDataM.size(); j++)
     {
         if (_meteoPoint->obsDataM[j]._year > lastYearStation)
         {
@@ -364,7 +364,7 @@ bool Drought::computePercentileValuesCurrentDay()
     {
         return false;
     }
-    if (_meteoPoint->obsDataM[0]._year > _lastYear || _meteoPoint->obsDataM[_meteoPoint->nrObsDataDaysM-1]._year < _firstYear)
+    if (_meteoPoint->obsDataM[0]._year > _lastYear || _meteoPoint->obsDataM.back()._year < _firstYear)
     {
         return false;
     }
@@ -373,14 +373,14 @@ bool Drought::computePercentileValuesCurrentDay()
     {
         return false;
     }
-    int lastYearStation = std::min(_meteoPoint->obsDataM[_meteoPoint->nrObsDataDaysM-1]._year, _lastYear);
+    int lastYearStation = std::min(_meteoPoint->obsDataM.back()._year, _lastYear);
     int myMonth = _meteoPoint->obsDataM[indexStart + _date.month - 1]._month;
     std::vector<float> myValues;
     int nValid = 0;
     int nTot = 0;
     float minPerc = _meteoSettings->getMinimumPercentage();
 
-    for (int j = indexStart+myMonth-1; j < _meteoPoint->nrObsDataDaysM ; j=j+12)
+    for (int j = indexStart+myMonth-1; j < _meteoPoint->obsDataM.size() ; j=j+12)
     {
         if (_meteoPoint->obsDataM[j]._year > lastYearStation)
         {
@@ -404,7 +404,7 @@ bool Drought::computePercentileValuesCurrentDay()
         if ((float)nValid/nTot >= minPerc / 100)
         {
             int _index = (_date.year - _meteoPoint->obsDataM[0]._year)*12 + _date.month -_meteoPoint->obsDataM[0]._month; // starts from 0
-            if (_index < _meteoPoint->nrObsDataDaysM)
+            if (_index < _meteoPoint->obsDataM.size())
             {
                 Crit3DDate mydate(1,_meteoPoint->obsDataM[_index]._month,_meteoPoint->obsDataM[_index]._year);
                 float myValue = _meteoPoint->getMeteoPointValueM(mydate, _var);

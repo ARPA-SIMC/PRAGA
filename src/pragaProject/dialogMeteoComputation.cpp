@@ -398,7 +398,6 @@ DialogMeteoComputation::DialogMeteoComputation(QSettings *settings, bool isMeteo
     connect(&readParam, &QCheckBox::stateChanged, [=](int state){ this->readParameter(state); });
     connect(&copyData, &QPushButton::clicked, [=](){ this->copyDataToAnomaly(); });
 
-
     loadXML.setText("Load from XML");
     appendXML.setText("Append to XML");
     createXML.setText("Create empty XML");
