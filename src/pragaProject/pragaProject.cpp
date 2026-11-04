@@ -5204,7 +5204,6 @@ bool PragaProject::computeDroughtIndexPointGUI(droughtIndex index, int timescale
 
 bool PragaProject::activeMeteoGridCellsWithDEM()
 {
-
     if (modality == MODE_GUI)
         setProgressBar("Active cells... ", meteoGridDbHandler->gridStructure().header().nrRows);
 
