@@ -3010,7 +3010,7 @@ int nParameters(meteoComputation elab)
     case consecutiveDaysBelow:
         return 1;
     case nonConsecutiveDaysAbove:
-        return 2;
+        return 1;
     case percentile:
         return 1;
     case percentileRainThreshold:

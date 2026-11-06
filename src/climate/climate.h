@@ -38,7 +38,7 @@
       { "daysAbove", 1 },
       { "daysBelow", 1 },
       { "consecutiveDaysAbove", 1 },
-      { "nonConsecutiveDaysAbove", 2 },
+      { "nonConsecutiveDaysAbove", 1 },
       { "consecutiveDaysBelow", 1 },
       { "correctedDegreeDaysSum", 1 }
     };
