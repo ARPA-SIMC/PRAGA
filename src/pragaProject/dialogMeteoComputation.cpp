@@ -7,14 +7,15 @@
 
 extern PragaProject myProject;
 
-DialogMeteoComputation::DialogMeteoComputation(QSettings *settings, bool isMeteoGridLoaded, bool isMeteoPointLoaded, bool isAnomaly, bool isSaveClima)
-    : settings(settings), isAnomaly(isAnomaly), saveClima(isSaveClima)
+DialogMeteoComputation::DialogMeteoComputation(QSettings *settings_, bool isMeteoGridLoaded,
+                                               bool isMeteoPointLoaded, bool isAnomaly_, bool isSaveClima_)
+    : settings(settings_), isAnomaly(isAnomaly_), saveClima(isSaveClima_)
 {
     if (saveClima)
     {
         setWindowTitle("Climate Elaboration");
     }
-    else if (this->isAnomaly)
+    else if (isAnomaly)
     {
         setWindowTitle("Anomaly");
     }
@@ -258,14 +259,16 @@ DialogMeteoComputation::DialogMeteoComputation(QSettings *settings, bool isMeteo
     QString value = variableList.currentText();
     meteoVariable key = getKeyMeteoVarMeteoMap(MapDailyMeteoVarToString, value.toStdString());
     std::string keyString = getKeyStringMeteoMap(MapDailyMeteoVar, key);
+
     QString group = QString::fromStdString(keyString)+"_VarToElab1";
     settings->beginGroup(group);
-    int size = settings->beginReadArray(QString::fromStdString(keyString));
+    const int size = settings->beginReadArray(QString::fromStdString(keyString));
     for (int i = 0; i < size; ++i) {
         settings->setArrayIndex(i);
         QString elab = settings->value("elab").toString();
         elaborationList.addItem( elab );
     }
+
     elaborationList.addItem("No elaboration available");
     if (periodSelected == "Daily")
     {
@@ -321,8 +324,8 @@ DialogMeteoComputation::DialogMeteoComputation(QSettings *settings, bool isMeteo
         group = elab1Field +"_Elab1Elab2";
         settings->beginGroup(group);
         secondElabList.addItem("None");
-        size = settings->beginReadArray(elab1Field);
-        for (int i = 0; i < size; ++i) {
+        const int size2 = settings->beginReadArray(elab1Field);
+        for (int i = 0; i < size2; ++i) {
             settings->setArrayIndex(i);
             QString elab2 = settings->value("elab2").toString();
             secondElabList.addItem( elab2 );
@@ -350,7 +353,7 @@ DialogMeteoComputation::DialogMeteoComputation(QSettings *settings, bool isMeteo
     secondElabLayout.addWidget(&elab2Parameter);
 
 
-    if (isAnomaly)
+    if (isAnomaly_)
     {
         if (pointsButton.isChecked())
         {
@@ -427,7 +430,7 @@ DialogMeteoComputation::DialogMeteoComputation(QSettings *settings, bool isMeteo
     mainLayout.addLayout(&readParamLayout);
     mainLayout.addLayout(&secondElabLayout);
 
-    if (isAnomaly)
+    if (isAnomaly_)
     {
         mainLayout.addLayout(&anomalyMainLayout);
     }

@@ -2291,9 +2291,9 @@ void MainWindow::on_actionElaboration_Daily_data_triggered()
         return;
     }
 
-    bool isMeteoGrid = compDialog.getIsMeteoGrid();
+    const bool isMeteoGrid = compDialog.getIsMeteoGrid();
     myProject.lastElabTargetIsGrid = isMeteoGrid;
-    bool showInfo = true;
+    const bool showInfo = true;
     if (! myProject.computeElaboration(isMeteoGrid, isAnomaly, isClimate, showInfo))
     {
         myProject.logError();

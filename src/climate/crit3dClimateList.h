@@ -31,6 +31,7 @@
       { "daysBelow", daysBelow },
       { "consecutiveDaysAbove", consecutiveDaysAbove },
       { "consecutiveDaysBelow", consecutiveDaysBelow },
+      { "nonConsecutiveDaysAbove", nonConsecutiveDaysAbove },
       { "prevailingWindDir", prevailingWindDir },
       { "trend", trend },
       { "mannKendall", mannKendall },

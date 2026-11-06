@@ -6,6 +6,52 @@
 static clock_t start;
 
 
+void Console::Open(const char* filename, const char* mode)
+{
+    Close();
+
+    if (filename != nullptr)
+        m_stream = fopen(filename, mode);
+}
+
+void Console::Close()
+{
+    if (m_stream)
+    {
+        fclose(m_stream);
+        m_stream = nullptr;
+    }
+}
+
+void Console::Read(char* message)
+{
+    if( m_stream )
+        fgets(message, 256, m_stream);
+}
+
+void Console::Write(const char* message)
+{
+    if( m_stream )
+        fprintf(m_stream, "%s", message);
+}
+
+int Console::EndOfFile()
+{
+    if( m_stream )
+        return feof(m_stream);
+    return true;
+}
+
+int Console::Show(const char* message)
+{
+    if( m_stream )
+        return fprintf(m_stream, "%s", message);
+
+    printf("%s", message);
+    return false;
+}
+
+
 void login(const char* log, Console& console)
 {
 	char message[256];
@@ -82,5 +128,4 @@ void logout(Console& console)
 
 	console.Close();
 }
-
 

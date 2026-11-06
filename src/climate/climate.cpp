@@ -3009,6 +3009,8 @@ int nParameters(meteoComputation elab)
         return 1;
     case consecutiveDaysBelow:
         return 1;
+    case nonConsecutiveDaysAbove:
+        return 2;
     case percentile:
         return 1;
     case percentileRainThreshold:
@@ -4800,13 +4802,21 @@ bool appendXMLElaboration(Crit3DElabList *listXMLElab, QString xmlFileName, QStr
     }
 
     root.appendChild(elaborationTag);
+
     // Remove old file and save the new one with same name
     myFile.remove();
+
     QFile outputFile(xmlFileName);
-    outputFile.open(QIODevice::ReadWrite);
+    if (! outputFile.open(QIODevice::ReadWrite))
+    {
+        *myError = outputFile.errorString();
+        return false;
+    }
+
     QTextStream output(&outputFile);
     output << xmlDoc.toString();
     outputFile.close();
+
     return true;
 }
 
@@ -5125,13 +5135,21 @@ bool appendXMLAnomaly(Crit3DAnomalyList *listXMLAnomaly, QString xmlFileName, QS
     }
 
     root.appendChild(elaborationTag);
+
     // Remove old file and save the new one with same name
     myFile.remove();
+
     QFile outputFile(xmlFileName);
-    outputFile.open(QIODevice::ReadWrite);
+    if (! outputFile.open(QIODevice::ReadWrite))
+    {
+        *myError = outputFile.errorString();
+        return false;
+    }
+
     QTextStream output(&outputFile);
     output << xmlDoc.toString();
     outputFile.close();
+
     return true;
 }
 

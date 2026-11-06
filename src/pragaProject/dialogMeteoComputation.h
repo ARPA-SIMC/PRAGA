@@ -74,7 +74,7 @@ class DialogMeteoComputation : public QDialog
 
 
     public:
-        DialogMeteoComputation(QSettings *settings, bool isMeteoGridLoaded, bool isMeteoPointLoaded, bool isAnomaly, bool isSaveClima);
+        DialogMeteoComputation(QSettings *settings_, bool isMeteoGridLoaded, bool isMeteoPointLoaded, bool isAnomaly_, bool isSaveClima_);
         void done(bool res);
 
         void displayPeriod(const QString value);
