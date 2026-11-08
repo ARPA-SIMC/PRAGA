@@ -1,10 +1,13 @@
 #include "homogeneityChartView.h"
 #include "commonConstants.h"
+#include "basicMath.h"
+
 #include <QtCharts/QLegendMarker>
 #include <QtGui/QImage>
 #include <QtGui/QPainter>
 #include <QtCore/QtMath>
 #include <qdebug.h>
+
 
 HomogeneityChartView::HomogeneityChartView(QWidget *parent) :
     QChartView(new QChart(), parent)
@@ -143,12 +146,12 @@ void HomogeneityChartView::drawCraddock(int myFirstYear, int myLastYear, std::ve
     clearCraddockSeries();
     float myMinValue = NODATA;
     float myMaxValue = NODATA;
-    for (int refIndex = 0; refIndex<refNames.size(); refIndex++)
+    for (int refIndex = 0; refIndex < (int)refNames.size(); refIndex++)
     {
         QLineSeries* refSeries = new QLineSeries();
         refSeries->setName(refNames[refIndex]);
         refSeries->append(myFirstYear - 1,0);
-        for (int myYear = 0; myYear < outputValues[refIndex].size(); myYear++)
+        for (int myYear = 0; myYear < (int)outputValues[refIndex].size(); myYear++)
         {
             float myValue = outputValues[refIndex][myYear];
             int year = myFirstYear + myYear;

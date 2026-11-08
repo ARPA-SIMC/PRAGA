@@ -57,7 +57,7 @@ void Crit3DElabList::reset()
 
 void Crit3DElabList::eraseElement(unsigned int index)
 {
-    if (_listAll.size() > index)
+    if ((unsigned)_listAll.size() > index)
     {
         _listAll.erase(_listAll.begin() + index);
     }
