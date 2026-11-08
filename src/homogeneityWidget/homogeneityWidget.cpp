@@ -45,9 +45,9 @@ Crit3DHomogeneityWidget::Crit3DHomogeneityWidget(Crit3DMeteoPointsDbHandler* met
                                                  const std::vector<float>& distanceList, const QList<QString>& jointStationsList,
                                                  const QDate& firstDaily, const QDate& lastDaily, Crit3DMeteoSettings *meteoSettings,
                                                  QSettings *settings, Crit3DClimateParameters *climateParameters, Crit3DQuality *quality)
-    :_meteoPointsDbPointer(meteoPointsDbPointer), _nearMeteoPointsList(nearMeteoPointsList), _sortedIdList(sortedIdList),
-    _distanceList(distanceList), _firstDaily(firstDaily), _lastDaily(lastDaily), meteoSettings(meteoSettings),
-    settings(settings), climateParameters(climateParameters), quality(quality)
+    :_meteoPointsDbPointer(meteoPointsDbPointer), _nearMeteoPointsList(nearMeteoPointsList), _firstDaily(firstDaily),
+      _lastDaily(lastDaily), _sortedIdList(sortedIdList), _distanceList(distanceList), meteoSettings(meteoSettings),
+     settings(settings), climateParameters(climateParameters), quality(quality)
 {
     setWindowTitle("Homogeneity Test Id:" + QString::fromStdString(_nearMeteoPointsList[0].id)
                          + " " + QString::fromStdString(_nearMeteoPointsList[0].name));

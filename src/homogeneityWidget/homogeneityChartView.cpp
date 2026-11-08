@@ -140,7 +140,6 @@ void HomogeneityChartView::drawSNHT(std::vector<int> years, std::vector<double> 
 
 void HomogeneityChartView::drawCraddock(int myFirstYear, int myLastYear, std::vector<std::vector<float>> outputValues, std::vector<QString> refNames, meteoVariable myVar, double averageValue)
 {
-
     clearCraddockSeries();
     float myMinValue = NODATA;
     float myMaxValue = NODATA;
@@ -172,7 +171,7 @@ void HomogeneityChartView::drawCraddock(int myFirstYear, int myLastYear, std::ve
         }
         craddockSeries.push_back(refSeries);
     }
-    float myThreshold;
+    float myThreshold = NODATA;
     if (myVar == dailyPrecipitation)
     {
         myThreshold = averageValue * (myLastYear - myFirstYear) / 25;
@@ -184,6 +183,10 @@ void HomogeneityChartView::drawCraddock(int myFirstYear, int myLastYear, std::ve
         myThreshold = averageValue * (myLastYear - myFirstYear) / 50;
         axisY->setTitleText("[°C]");
     }
+
+    if (isEqual(myThreshold, NODATA))
+        return;
+
     axisY->setMax(std::max(myThreshold, myMaxValue));
     axisY->setMin(std::min(-myThreshold, myMinValue));
     axisX->setLabelFormat("%d");
@@ -205,8 +208,8 @@ void HomogeneityChartView::drawCraddock(int myFirstYear, int myLastYear, std::ve
         craddockSeries[i]->attachAxis(axisY);
         connect(craddockSeries[i], &QScatterSeries::hovered, this, &HomogeneityChartView::tooltipCraddockSeries);
     }
-
 }
+
 
 void HomogeneityChartView::clearSNHTSeries()
 {

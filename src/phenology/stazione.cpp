@@ -81,9 +81,9 @@ bool Stazione::interpolaDatiTemperatura(char* nome, std::vector<float> &dati, co
 {
     char message[256];
 
-    int first = int(dati.size());
+    size_t first = dati.size();
 
-    for(int i = 0; i < dati.size(); i++)
+    for(size_t i = 0; i < dati.size(); i++)
     {
         if( dati[i] == parametri.dato_mancante )
         {
@@ -92,7 +92,7 @@ bool Stazione::interpolaDatiTemperatura(char* nome, std::vector<float> &dati, co
         }
     }
 
-    if(first > parametri.max_giorni_interpolazione )
+    if(first > (size_t)parametri.max_giorni_interpolazione )
     {
         sprintf(message, "\n\n Stazione di %s", nome);
         console.Show(message);
@@ -105,13 +105,13 @@ bool Stazione::interpolaDatiTemperatura(char* nome, std::vector<float> &dati, co
     if( first > 0 )
     {
         sprintf(message, "\n\n Stazione di %s - aggiunte temperature minime iniziali", nome);
-        for(int i = 0; i < first; i++ )
+        for(size_t i = 0; i < first; i++ )
             dati[i] = dati[first];
     }
 
     long missing = 0;
 
-    for(int i = first + 1; i < dati.size(); i++ )
+    for(size_t i = first + 1; i < dati.size(); i++)
     {
         if( dati[i] == parametri.dato_mancante )
         {
@@ -137,7 +137,7 @@ bool Stazione::interpolaDatiTemperatura(char* nome, std::vector<float> &dati, co
         {
             double step = (dati[i] - dati[first]) / static_cast<double>(i - first);
 
-            for(long j = first + 1; j < i; j++ )
+            for(size_t j = first + 1; j < i; j++ )
             {
                 dati[j] = dati[first] + float(step * (j - first));
             }

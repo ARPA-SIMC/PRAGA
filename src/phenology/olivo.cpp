@@ -24,18 +24,22 @@ void Olivo::InduzioneFiorale(const Stazione& stazione)
 
 void Olivo::Fioritura(const Stazione& stazione)
 {
-	long i = long(m_faseFenologica.size()) - 1;
-	double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
+    const long i = long(m_faseFenologica.size()) - 1;
+    const double Tm = ( stazione.Tn(i) + stazione.Tx(i) ) / 2.;
 
-	double Ts = 12.5;
+    const double Ts = 12.5;
 	double gradiGiorno = 0.;
 
-	if( Tm > 12.5 )
-        gradiGiorno += std::max( static_cast<double>(0.), Tm - Ts );
-    else if( stazione.Tx(i) > 12.5 )
+    if( Tm > Ts)
+    {
+        gradiGiorno += std::max( static_cast<double>(0.), Tm - Ts);
+    }
+    else if( stazione.Tx(i) > Ts)
+    {
         gradiGiorno += std::max( static_cast<double>(0.),
-		                      ( stazione.Tx(i) - 12.5 ) *( stazione.Tx(i) - 12.5 ) / 2. /
+                              ( stazione.Tx(i) - Ts) *( stazione.Tx(i) - Ts) / 2. /
 							  ( stazione.Tx(i) - stazione.Tn(i) ) );
+    }
   
 	m_faseFenologica[i] += gradiGiorno / m_limiteGradiGiorno[0];
 }
@@ -49,11 +53,15 @@ void Olivo::Maturazione(const Stazione& stazione)
 	double gradiGiorno = 0.;
 
 	if( Tm > 12.5 )
+    {
         gradiGiorno += std::max( static_cast<double>(0.), Tm - Ts );
+    }
     else if( stazione.Tx(i) > 12.5 )
+    {
         gradiGiorno += std::max( static_cast<double>(0.),
 		                      ( stazione.Tx(i) - 12.5 ) *( stazione.Tx(i) - 12.5 ) / 2. /
 							  ( stazione.Tx(i) - stazione.Tn(i) ) );
+    }
   
 	m_faseFenologica[i] += gradiGiorno / m_limiteGradiGiorno[1];
 }

@@ -1147,8 +1147,6 @@ void Crit3DPointStatisticsWidget::plot()
             }
 
             float dev_std = NODATA;
-            float millile_3Dev = NODATA;
-            float millile3dev = NODATA;
             float avg = NODATA;
             float modeVal = NODATA;
             int nrValues = int(series.size());
@@ -1166,7 +1164,7 @@ void Crit3DPointStatisticsWidget::plot()
                     if (series[i] > 0)
                     {
                         int index = (series[i] - valMinValue)/classWidthValue;
-                        if( index >= 0 && index < bucket.size())
+                        if( index >= 0 && index < (int)bucket.size())
                         {
                             bucket[index] = bucket[index] + 1;
                             visualizedNrValues = visualizedNrValues + 1;
@@ -1184,7 +1182,7 @@ void Crit3DPointStatisticsWidget::plot()
                 for (int i = 0; i < nrValues; i++)
                 {
                     int index = (series[i] - valMinValue)/classWidthValue;
-                    if( index >= 0 && index<bucket.size())
+                    if( index >= 0 && index < (int)bucket.size())
                     {
                         bucket[index] = bucket[index] + 1;
                         visualizedNrValues = visualizedNrValues + 1;
@@ -1192,8 +1190,6 @@ void Crit3DPointStatisticsWidget::plot()
                 }
                 avg = statistics::mean(series);
                 dev_std = statistics::standardDeviation(series, nrValues);
-                millile3dev = sorting::percentile(sortedSeries, nrValues, 99.73f, true);
-                millile_3Dev = sorting::percentile(sortedSeries, nrValues, 0.27f, false);
             }
 
             availability.setText(QString::number((float)nrValues/(float)totDays * 100, 'f', 3));
@@ -1221,7 +1217,7 @@ void Crit3DPointStatisticsWidget::plot()
             median.setText(QString::number(sorting::percentile(sortedSeries, nrValues, 50, false), 'f', 1));
 
             QList<QPointF> lineValues;
-            for (int i = 0; i<bucket.size(); i++)
+            for (int i = 0; i < (int)bucket.size(); i++)
             {
                 float x = valMinValue + (i*classWidthValue) + (classWidthValue/2.0);
                 if (x < float(valMaxValue))
@@ -1250,7 +1246,7 @@ void Crit3DPointStatisticsWidget::plot()
                     }
                 }
             }
-            for (int i = 0; i<bucket.size(); i++)
+            for (int i = 0; i < (int)bucket.size(); i++)
             {
                 bucket[i] = bucket[i]/visualizedNrValues;
             }
@@ -1424,8 +1420,6 @@ void Crit3DPointStatisticsWidget::plot()
         }
 
         float dev_std = NODATA;
-        float millile_3Dev = NODATA;
-        float millile3dev = NODATA;
         float avg = NODATA;
         float modeVal = NODATA;
         int nrValues = int(series.size());
@@ -1442,7 +1436,7 @@ void Crit3DPointStatisticsWidget::plot()
                 if (series[i] > 0)
                 {
                     int index = (series[i] - valMinValue)/classWidthValue;
-                    if( index >= 0 && index<bucket.size())
+                    if( index >= 0 && index < (int)bucket.size())
                     {
                         bucket[index] = bucket[index] + 1;
                         visualizedNrValues = visualizedNrValues + 1;
@@ -1471,8 +1465,6 @@ void Crit3DPointStatisticsWidget::plot()
             }
             avg = statistics::mean(series);
             dev_std = statistics::standardDeviation(series, nrValues);
-            millile3dev = sorting::percentile(sortedSeries, nrValues, 99.73f, true);
-            millile_3Dev = sorting::percentile(sortedSeries, nrValues, 0.27f, false);
         }
         availability.setText(QString::number((float)nrValues/(float)totDays * 100, 'f', 3));
         average.setText(QString::number(avg, 'f', 1));

@@ -6,17 +6,21 @@
 
 double Vite::GradiGiorno(const long& i, const Stazione& stazione)
 {
-	double Ts = 10.;
+    const double Ts = 10.;
 
 	double gradiGiorno = 0.;
 
-    if( stazione.Tn(i) < Ts && stazione.Tx(i) > Ts )
+    if(stazione.Tn(i) < Ts && stazione.Tx(i) > Ts)
+    {
         gradiGiorno += std::max( static_cast<double>(0.),
 							 .5 * ( stazione.Tx(i) - Ts ) * ( stazione.Tx(i) - Ts ) /
 							 ( stazione.Tx(i) - stazione.Tn(i) ) );
+    }
     else
+    {
         gradiGiorno += std::max( static_cast<double>(0.),
 							  .5 * ( stazione.Tx(i) + stazione.Tn(i) ) - Ts );
+    }
 
 	return gradiGiorno;
 }

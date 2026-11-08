@@ -251,7 +251,7 @@ void PointStatisticsChartView::drawDistribution(std::vector<float> barValues, QL
     float maxValueY = NODATA;
     float minValueY = -NODATA;
 
-    for (int i = 0; i<barValues.size(); i++)
+    for (size_t i = 0; i < barValues.size(); i++)
     {
         categories.append(QString::number(i));
         *distributionSet << barValues[i];
