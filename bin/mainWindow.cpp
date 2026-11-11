@@ -58,17 +58,17 @@ MainWindow::MainWindow(QWidget *parent) :
     this->mapView = new MapGraphicsView(mapScene, this->ui->widgetMap);
 
     // set color legends
-    this->meteoPointsLegend = new ColorLegend(myProject.meteoPointsColorScale, ui->widgetColorLegendPoints);
+    this->meteoPointsLegend = new ColorLegend(ui->widgetColorLegendPoints);
     this->meteoPointsLegend->resize(this->ui->widgetColorLegendPoints->size());
+    this->meteoPointsLegend->colorScale = &(myProject.meteoPointsColorScale);
 
-    Crit3DColorScale* scaleRaster = new Crit3DColorScale();
-    this->rasterLegend = new ColorLegend(*scaleRaster, ui->widgetColorLegendRaster);
+    this->rasterLegend = new ColorLegend(ui->widgetColorLegendRaster);
     this->rasterLegend->resize(ui->widgetColorLegendRaster->size());
 
-    this->meteoGridLegend = new ColorLegend(myProject.gridColorScale, ui->widgetColorLegendGrid);
+    this->meteoGridLegend = new ColorLegend(ui->widgetColorLegendGrid);
     this->meteoGridLegend->resize(ui->widgetColorLegendGrid->size());
 
-    this->netcdfLegend = new ColorLegend(myProject.netcdfColorScale, ui->widgetColorLegendNetcdf);
+    this->netcdfLegend = new ColorLegend(ui->widgetColorLegendNetcdf);
     this->netcdfLegend->resize(ui->widgetColorLegendNetcdf->size());
 
     // Set tiles source
@@ -1316,7 +1316,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         // default colorScale: precipitation (radar)
         // TODO use variable
         setColorScale(precipitation, netcdfRaster->colorScale);
-        netcdfLegend->colorScale = netcdfRaster->colorScale;
+        netcdfLegend->colorScale = &(netcdfRaster->colorScale);
 
         showNetcdfGroup->setEnabled(true);
         ui->groupBoxNetcdf->setVisible(true);
@@ -1828,9 +1828,8 @@ void MainWindow::drawMeteoGrid()
         meteoGridObj->initializeUTM(&(myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid), myProject.gisSettings, true);
     }
 
-    meteoGridLegend->colorScale = myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.colorScale;
+    meteoGridLegend->colorScale = &(myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.colorScale);
     ui->meteoGridOpacitySlider->setEnabled(true);
-    meteoGridLegend->update();
 
     if (myProject.loadGridDataAtStart)
     {
@@ -1936,9 +1935,9 @@ void MainWindow::redrawMeteoGrid(visualizationType showType, bool showInterpolat
 
             meteoGridLegend->setVisible(true);
 
-            setColorScale(variable, myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.colorScale);
+            setColorScale(variable, *(meteoGridLegend->colorScale));
             ui->labelMeteoGridScale->setText(QString::fromStdString(getVariableString(myProject.getCurrentVariable())));
-
+            meteoGridLegend->setVisible(true);
             meteoGridLegend->update();
             break;
         }
@@ -2275,7 +2274,7 @@ void MainWindow::on_frequencyButton_clicked()
 void MainWindow::setCurrentRaster(gis::Crit3DRasterGrid *myRaster)
 {
     this->rasterObj->initialize(myRaster, myProject.gisSettings);
-    this->rasterLegend->colorScale = myRaster->colorScale;
+    this->rasterLegend->colorScale = &(myRaster->colorScale);
     emit this->rasterObj->redrawRequested();
 }
 
@@ -2513,7 +2512,7 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
             }
         }
 
-        setColorScale(myProject.clima->variable(), myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.colorScale);
+        setColorScale(myProject.clima->variable(), *(meteoGridLegend->colorScale));
         ui->labelMeteoGridScale->setText(QString::fromStdString(getVariableString(myProject.clima->variable())));
         meteoGridLegend->setVisible(true);
         meteoGridLegend->update();
