@@ -58,18 +58,17 @@ MainWindow::MainWindow(QWidget *parent) :
     this->mapView = new MapGraphicsView(mapScene, this->ui->widgetMap);
 
     // set color legends
-    this->meteoPointsLegend = new ColorLegend(this->ui->widgetColorLegendPoints);
+    this->meteoPointsLegend = new ColorLegend(myProject.meteoPointsColorScale, ui->widgetColorLegendPoints);
     this->meteoPointsLegend->resize(this->ui->widgetColorLegendPoints->size());
-    this->meteoPointsLegend->colorScale = myProject.meteoPointsColorScale;
 
-    this->rasterLegend = new ColorLegend(this->ui->widgetColorLegendRaster);
-    this->rasterLegend->resize(this->ui->widgetColorLegendRaster->size());
+    this->rasterLegend = new ColorLegend(myProject.genericColorScale, ui->widgetColorLegendRaster);
+    this->rasterLegend->resize(ui->widgetColorLegendRaster->size());
 
-    this->meteoGridLegend = new ColorLegend(this->ui->widgetColorLegendGrid);
-    this->meteoGridLegend->resize(this->ui->widgetColorLegendGrid->size());
+    this->meteoGridLegend = new ColorLegend(myProject.genericColorScale, ui->widgetColorLegendGrid);
+    this->meteoGridLegend->resize(ui->widgetColorLegendGrid->size());
 
-    this->netcdfLegend = new ColorLegend(this->ui->widgetColorLegendNetcdf);
-    this->netcdfLegend->resize(this->ui->widgetColorLegendNetcdf->size());
+    this->netcdfLegend = new ColorLegend(myProject.genericColorScale, ui->widgetColorLegendNetcdf);
+    this->netcdfLegend->resize(ui->widgetColorLegendNetcdf->size());
 
     // Set tiles source
     this->setTileSource(WebTileSource::OPEN_STREET_MAP);
@@ -1021,6 +1020,12 @@ void MainWindow::interpolateDemGUI()
         }
     }
 
+    if (! myProject.DEM.isLoaded)
+    {
+        myProject.logWarning(ERROR_STR_MISSING_DEM);
+        return;
+    }
+
     myProject.logInfoGUI("Interpolating on DEM...");
     bool isComputed = false;
 
@@ -1030,16 +1035,21 @@ void MainWindow::interpolateDemGUI()
         {
             Crit3DProxy* myProxy = myProject.interpolationSettings.getProxy(i);
 
-            if(!myProject.interpolationSettings.getCurrentCombination().isProxyActive(i))
+            if(! myProject.interpolationSettings.getCurrentCombination().isProxyActive(i))
                 continue;
 
-            gis::Crit3DRasterGrid* resGrid = new gis::Crit3DRasterGrid();
             gis::Crit3DRasterGrid* proxyGrid = myProject.interpolationSettings.getProxy(i)->getGrid();
 
-            if (myProject.DEM.isLoaded && proxyGrid != nullptr && proxyGrid->isLoaded)
-                gis::resampleGrid(*proxyGrid, resGrid, myProject.DEM.header, aggrAverage, 0);
-
-            myProxy->setGrid(resGrid);
+            if (proxyGrid != nullptr && proxyGrid->isLoaded)
+            {
+                if (! gis::compareGrids(myProject.DEM, *proxyGrid))
+                {
+                    gis::Crit3DRasterGrid* newGrid = new gis::Crit3DRasterGrid();
+                    gis::resampleGrid(*proxyGrid, newGrid, myProject.DEM.header, aggrAverage, 0);
+                    delete proxyGrid;
+                    myProxy->setGrid(newGrid, false);
+                }
+            }
         }
     }
 
@@ -1293,7 +1303,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         gis::Crit3DGeoPoint* center = netcdfObj->getRasterCenter();
         this->mapView->centerOn(qreal(center->longitude), qreal(center->latitude));
 
-        netcdfRaster->header->flag = myProject.netCDF.missingValue;
+        netcdfRaster->header.flag = myProject.netCDF.missingValue;
         netcdfRaster->setConstantValue(myProject.netCDF.missingValue);
         currentNetcdfVisualization = showLocation;
 
@@ -1483,24 +1493,24 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         if (isFixed)
         {
             // choose minimum
-            float minimum = this->netcdfObj->getRasterPointer()->colorScale->minimum();
+            float minimum = this->netcdfObj->getRasterPointer()->colorScale.minimum();
             QString valueStr = editValue("Choose minimum value", QString::number(minimum));
             if (valueStr == "") return;
             minimum = valueStr.toFloat();
 
             // choose maximum
-            float maximum = this->netcdfObj->getRasterPointer()->colorScale->maximum();
+            float maximum = this->netcdfObj->getRasterPointer()->colorScale.maximum();
             valueStr = editValue("Choose maximum value", QString::number(maximum));
             if (valueStr == "") return;
             maximum = valueStr.toFloat();
 
             // set range
-            this->netcdfObj->getRasterPointer()->colorScale->setRange(minimum, maximum);
-            this->netcdfObj->getRasterPointer()->colorScale->setFixedRange(true);
+            this->netcdfObj->getRasterPointer()->colorScale.setRange(minimum, maximum);
+            this->netcdfObj->getRasterPointer()->colorScale.setFixedRange(true);
         }
         else
         {
-            this->netcdfObj->getRasterPointer()->colorScale->setFixedRange(false);
+            this->netcdfObj->getRasterPointer()->colorScale.setFixedRange(false);
         }
 
         redrawNetcdf();
@@ -1668,7 +1678,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                 }
             }
 
-            myProject.meteoPointsColorScale->setRange(NODATA, NODATA);
+            myProject.meteoPointsColorScale.setRange(NODATA, NODATA);
             meteoPointsLegend->update();
             break;
         }
@@ -1689,7 +1699,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                 float minimum, maximum;
                 myProject.getMeteoPointsRange(minimum, maximum, viewNotActivePoints);
 
-                myProject.meteoPointsColorScale->setRange(minimum, maximum);
+                myProject.meteoPointsColorScale.setRange(minimum, maximum);
             }
 
             roundColorScale(myProject.meteoPointsColorScale, 4, true);
@@ -1714,7 +1724,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                             else
                                 pointList[i]->setRadius(5);
 
-                            myColor = myProject.meteoPointsColorScale->getColor(myProject.meteoPoints[i].currentValue);
+                            myColor = myProject.meteoPointsColorScale.getColor(myProject.meteoPoints[i].currentValue);
                             pointList[i]->setFillColor(QColor(myColor->red, myColor->green, myColor->blue));
                             pointList[i]->setOpacity(1.0);
 
@@ -2552,7 +2562,7 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
                 }
             }
 
-            myProject.meteoPointsColorScale->setRange(minimum, maximum);
+            myProject.meteoPointsColorScale.setRange(minimum, maximum);
             roundColorScale(myProject.meteoPointsColorScale, 4, true);
             setColorScale(myProject.clima->variable(), myProject.meteoPointsColorScale);
         }
@@ -2595,7 +2605,7 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
                 else
                     pointList[i]->setRadius(5);
 
-                myColor = myProject.meteoPointsColorScale->getColor(myProject.meteoPoints[i].currentValue);
+                myColor = myProject.meteoPointsColorScale.getColor(myProject.meteoPoints[i].currentValue);
                 pointList[i]->setFillColor(QColor(myColor->red, myColor->green, myColor->blue));
                 pointList[i]->setCurrentValue(myProject.meteoPoints[i].currentValue);
                 pointList[i]->setQuality(myProject.meteoPoints[i].quality);
@@ -2752,7 +2762,7 @@ void MainWindow::showCVResult()
         }
     }
 
-    myProject.meteoPointsColorScale->setRange(minimum, maximum);
+    myProject.meteoPointsColorScale.setRange(minimum, maximum);
     roundColorScale(myProject.meteoPointsColorScale, 4, true);
     setColorScale(anomalyVar, myProject.meteoPointsColorScale);
 
@@ -2762,7 +2772,7 @@ void MainWindow::showCVResult()
         if (! isEqual(myProject.meteoPoints[i].currentValue, NODATA))
         {
             pointList[i]->setRadius(5);
-            myColor = myProject.meteoPointsColorScale->getColor(myProject.meteoPoints[i].currentValue);
+            myColor = myProject.meteoPointsColorScale.getColor(myProject.meteoPoints[i].currentValue);
             pointList[i]->setFillColor(QColor(myColor->red, myColor->green, myColor->blue));
             pointList[i]->setCurrentValue(myProject.meteoPoints[i].currentValue);
             pointList[i]->setQuality(myProject.meteoPoints[i].quality);
@@ -5473,24 +5483,24 @@ void MainWindow::setColorScaleRangeMeteoGrid(bool isFixed)
     if (isFixed)
     {
         // choose minimum
-        float minimum = this->meteoGridObj->getRasterPointer()->colorScale->minimum();
+        float minimum = this->meteoGridObj->getRasterPointer()->colorScale.minimum();
         QString valueStr = editValue("Choose minimum value", QString::number(minimum));
         if (valueStr == "") return;
         minimum = valueStr.toFloat();
 
         // choose maximum
-        float maximum = this->meteoGridObj->getRasterPointer()->colorScale->maximum();
+        float maximum = this->meteoGridObj->getRasterPointer()->colorScale.maximum();
         valueStr = editValue("Choose maximum value", QString::number(maximum));
         if (valueStr == "") return;
         maximum = valueStr.toFloat();
 
         // set range
-        this->meteoGridObj->getRasterPointer()->colorScale->setRange(minimum, maximum);
-        this->meteoGridObj->getRasterPointer()->colorScale->setFixedRange(true);
+        this->meteoGridObj->getRasterPointer()->colorScale.setRange(minimum, maximum);
+        this->meteoGridObj->getRasterPointer()->colorScale.setFixedRange(true);
     }
     else
     {
-        this->meteoGridObj->getRasterPointer()->colorScale->setFixedRange(false);
+        this->meteoGridObj->getRasterPointer()->colorScale.setFixedRange(false);
     }
 
     emit this->meteoGridObj->redrawRequested();
@@ -5516,24 +5526,24 @@ void MainWindow::setColorScaleRangeDEM(bool isFixed)
     if (isFixed)
     {
         // choose minimum
-        float minimum = this->rasterObj->getRasterPointer()->colorScale->minimum();
+        float minimum = this->rasterObj->getRasterPointer()->colorScale.minimum();
         QString valueStr = editValue("Choose minimum value", QString::number(minimum));
         if (valueStr == "") return;
         minimum = valueStr.toFloat();
 
         // choose maximum
-        float maximum = this->rasterObj->getRasterPointer()->colorScale->maximum();
+        float maximum = this->rasterObj->getRasterPointer()->colorScale.maximum();
         valueStr = editValue("Choose maximum value", QString::number(maximum));
         if (valueStr == "") return;
         maximum = valueStr.toFloat();
 
         // set range
-        this->rasterObj->getRasterPointer()->colorScale->setRange(minimum, maximum);
-        this->rasterObj->getRasterPointer()->colorScale->setFixedRange(true);
+        this->rasterObj->getRasterPointer()->colorScale.setRange(minimum, maximum);
+        this->rasterObj->getRasterPointer()->colorScale.setFixedRange(true);
     }
     else
     {
-        this->rasterObj->getRasterPointer()->colorScale->setFixedRange(false);
+        this->rasterObj->getRasterPointer()->colorScale.setFixedRange(false);
     }
 
     emit this->rasterObj->redrawRequested();
@@ -6321,7 +6331,7 @@ void MainWindow::on_actionStatistical_Summary_triggered()
             gis::updateMinMaxRasterGrid(&(myProject.dataRaster));
 
             // [m2] -> [km 2]
-            area = nrValidCells * myProject.dataRaster.header->cellSize * myProject.dataRaster.header->cellSize / 1000000;
+            area = nrValidCells * myProject.dataRaster.header.cellSize * myProject.dataRaster.header.cellSize / 1000000;
             break;
         }
 
@@ -7506,7 +7516,7 @@ void MainWindow::on_actionMeteoPointsAssign_altitude_from_DEM_triggered()
         return;
     }
 
-    DialogCellSize cellSizeDialog(myProject.DEM.header->cellSize);
+    DialogCellSize cellSizeDialog(myProject.DEM.header.cellSize);
     if (cellSizeDialog.result() != QDialog::Accepted)
         return;
 

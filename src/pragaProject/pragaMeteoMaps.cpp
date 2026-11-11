@@ -67,14 +67,14 @@ bool PragaHourlyMeteoMaps::computeWindVector()
 
     float intensity, direction;
 
-    for (long row = 0; row < mapHourlyWindVectorX->header->nrRows; row++)
-        for (long col = 0; col < mapHourlyWindVectorX->header->nrCols; col++)
+    for (long row = 0; row < mapHourlyWindVectorX->header.nrRows; row++)
+        for (long col = 0; col < mapHourlyWindVectorX->header.nrCols; col++)
         {
-            mapHourlyWindVectorInt->value[row][col] = mapHourlyWindVectorInt->header->flag;
-            mapHourlyWindVectorDir->value[row][col] = mapHourlyWindVectorDir->header->flag;
+            mapHourlyWindVectorInt->value[row][col] = mapHourlyWindVectorInt->header.flag;
+            mapHourlyWindVectorDir->value[row][col] = mapHourlyWindVectorDir->header.flag;
 
-            if (! isEqual(mapHourlyWindVectorX->value[row][col], mapHourlyWindVectorX->header->flag)
-                    && ! isEqual(mapHourlyWindVectorY->value[row][col], mapHourlyWindVectorY->header->flag))
+            if (! isEqual(mapHourlyWindVectorX->value[row][col], mapHourlyWindVectorX->header.flag)
+                    && ! isEqual(mapHourlyWindVectorY->value[row][col], mapHourlyWindVectorY->header.flag))
             {
                 if (computeWindPolar(mapHourlyWindVectorX->value[row][col], mapHourlyWindVectorX->value[row][col], &intensity, &direction))
                 {

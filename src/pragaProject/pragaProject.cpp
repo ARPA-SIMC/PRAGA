@@ -1881,17 +1881,18 @@ bool PragaProject::downloadHourlyDataArkimet(QList<QString> variables, QDate sta
         }
     }
 
-    if (dbPointsFileName != "")
+    bool isOk = true;
+    if (! dbPointsFileName.isEmpty())
         if (! loadMeteoPointsDB(dbPointsFileName))
         {
             errorString = "load Meteo Points DB failed:\n" + dbPointsFileName;
             errorType = ERROR_DBPOINT;
-            logError();
-            return false;
+            isOk = false;
         }
 
     delete myDownload;
-    return true;
+
+    return isOk;
 }
 
 
@@ -1910,8 +1911,8 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
         logInfoGUI("Assign aggregation points...");
     }
 
-    std::vector <std::vector<int> > meteoGridRow(zoneGrid->header->nrRows, std::vector<int>(zoneGrid->header->nrCols, NODATA));
-    std::vector <std::vector<int> > meteoGridCol(zoneGrid->header->nrRows, std::vector<int>(zoneGrid->header->nrCols, NODATA));
+    std::vector <std::vector<int> > meteoGridRow(zoneGrid->header.nrRows, std::vector<int>(zoneGrid->header.nrCols, NODATA));
+    std::vector <std::vector<int> > meteoGridCol(zoneGrid->header.nrRows, std::vector<int>(zoneGrid->header.nrCols, NODATA));
 
     meteoGridDbHandler->meteoGrid()->saveRowColfromZone(zoneGrid, meteoGridRow, meteoGridCol);
 
@@ -1929,13 +1930,13 @@ bool PragaProject::averageSeriesOnZonesMeteoGrid(meteoVariable variable, meteoCo
     std::vector<double> utmYvector(maximumId + 1, 0.);
     std::vector<int> count(maximumId + 1, 0);
 
-    for (int zoneRow = 0; zoneRow < zoneGrid->header->nrRows; zoneRow++)
+    for (int zoneRow = 0; zoneRow < zoneGrid->header.nrRows; zoneRow++)
     {
-        for (int zoneCol = 0; zoneCol < zoneGrid->header->nrCols; zoneCol++)
+        for (int zoneCol = 0; zoneCol < zoneGrid->header.nrCols; zoneCol++)
         {
             const float zoneGridValue = zoneGrid->value[zoneRow][zoneCol];
 
-            if (! isEqual(zoneGridValue, zoneGrid->header->flag))
+            if (! isEqual(zoneGridValue, zoneGrid->header.flag))
             {
                 const int zoneIndex = int(zoneGridValue);
 
@@ -2092,13 +2093,13 @@ bool PragaProject::dailyZoneAggregationMeteoGrid(meteoVariable variable, const Q
         if (showInfo && (day % infoStep) == 0)
             updateProgressBar(day);
 
-        for (int zoneRow = 0; zoneRow < zoneGrid->header->nrRows; zoneRow++)
+        for (int zoneRow = 0; zoneRow < zoneGrid->header.nrRows; zoneRow++)
         {
-            for (int zoneCol = 0; zoneCol < zoneGrid->header->nrCols; zoneCol++)
+            for (int zoneCol = 0; zoneCol < zoneGrid->header.nrCols; zoneCol++)
             {
                 float zoneNr = zoneGrid->value[zoneRow][zoneCol];
 
-                if (! isEqual(zoneNr, zoneGrid->header->flag))
+                if (! isEqual(zoneNr, zoneGrid->header.flag))
                 {
                     if (meteoGridRow[zoneRow][zoneCol] != NODATA && meteoGridCol[zoneRow][zoneCol] != NODATA)
                     {
@@ -2227,12 +2228,12 @@ bool PragaProject::hourlyZoneAggregationMeteoGrid(meteoVariable variable, const 
 
         for (int hour = 0; hour < 24; hour++)
         {
-            for (int row = 0; row < zoneRaster->header->nrRows; row++)
+            for (int row = 0; row < zoneRaster->header.nrRows; row++)
             {
-                for (int col = 0; col < zoneRaster->header->nrCols; col++)
+                for (int col = 0; col < zoneRaster->header.nrCols; col++)
                 {
                     float zoneNr = zoneRaster->value[row][col];
-                    if (! isEqual(zoneNr, zoneRaster->header->flag))
+                    if (! isEqual(zoneNr, zoneRaster->header.flag))
                     {
                         if (meteoGridRow[row][col] != NODATA && meteoGridCol[row][col] != NODATA)
                         {
@@ -2911,13 +2912,14 @@ bool PragaProject::assignProxyValues(meteoVariable myVar)
                     gis::Crit3DRasterGrid* proxyGrid = interpolationSettings.getProxy(i)->getGrid();
                     Crit3DProxy* myProxy = interpolationSettings.getProxy(i);
 
-                    if (DEM.isLoaded && proxyGrid != nullptr)
+                    if (DEM.isLoaded && proxyGrid != nullptr && proxyGrid->isLoaded)
                     {
-                        if (! gis::compareGrids(DEM,*proxyGrid))
+                        if (! gis::compareGrids(DEM, *proxyGrid))
                         {
-                            gis::Crit3DRasterGrid* resGrid = new gis::Crit3DRasterGrid();
-                            gis::resampleGrid(*proxyGrid, resGrid, DEM.header, aggrAverage, 0);
-                            myProxy->setGrid(resGrid);
+                            gis::Crit3DRasterGrid* newGrid = new gis::Crit3DRasterGrid();
+                            gis::resampleGrid(*proxyGrid, newGrid, DEM.header, aggrAverage, 0);
+                            delete proxyGrid;
+                            myProxy->setGrid(newGrid, false);
                         }
                     }
                 }
@@ -3095,6 +3097,7 @@ bool PragaProject::interpolationMeteoGridPeriod(QDate dateIni, QDate dateFin, QL
             varToSave.push_back(windVectorIntensity);
     }
 
+    // FT ??
     assignProxyValues(myVar);
 
     // derivedVariables
