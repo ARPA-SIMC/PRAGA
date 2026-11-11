@@ -65,12 +65,10 @@ MainWindow::MainWindow(QWidget *parent) :
     this->rasterLegend = new ColorLegend(*scaleRaster, ui->widgetColorLegendRaster);
     this->rasterLegend->resize(ui->widgetColorLegendRaster->size());
 
-    Crit3DColorScale* scaleGrid = new Crit3DColorScale();
-    this->meteoGridLegend = new ColorLegend(*scaleGrid, ui->widgetColorLegendGrid);
+    this->meteoGridLegend = new ColorLegend(myProject.gridColorScale, ui->widgetColorLegendGrid);
     this->meteoGridLegend->resize(ui->widgetColorLegendGrid->size());
 
-    Crit3DColorScale* scaleNetcdf = new Crit3DColorScale();
-    this->netcdfLegend = new ColorLegend(*scaleNetcdf, ui->widgetColorLegendNetcdf);
+    this->netcdfLegend = new ColorLegend(myProject.netcdfColorScale, ui->widgetColorLegendNetcdf);
     this->netcdfLegend->resize(ui->widgetColorLegendNetcdf->size());
 
     // Set tiles source
@@ -643,10 +641,10 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
         {
             QMenu menu;
 
-            QAction *openProxyGraph;
-            QAction *markMacroAreaStations;
-            QAction *addMacroAreaLR;
-            QAction *unmarkStations;
+            QAction *openProxyGraph = nullptr;
+            QAction *markMacroAreaStations = nullptr;
+            QAction *addMacroAreaLR = nullptr;
+            QAction *unmarkStations = nullptr;
             if (myProject.interpolationSettings.getUseLocalDetrending() || myProject.interpolationSettings.getUseGlocalDetrending())
                openProxyGraph = menu.addAction("Open local proxy graph");
             if (myProject.interpolationSettings.getUseGlocalDetrending())
@@ -1316,6 +1314,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
         currentNetcdfVisualization = showLocation;
 
         // default colorScale: precipitation (radar)
+        // TODO use variable
         setColorScale(precipitation, netcdfRaster->colorScale);
         netcdfLegend->colorScale = netcdfRaster->colorScale;
 
@@ -2512,8 +2511,8 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
             {
                 myProject.meteoGridDbHandler->meteoGrid()->fillMeteoRasterAnomalyValue();
             }
-
         }
+
         setColorScale(myProject.clima->variable(), myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.colorScale);
         ui->labelMeteoGridScale->setText(QString::fromStdString(getVariableString(myProject.clima->variable())));
         meteoGridLegend->setVisible(true);
