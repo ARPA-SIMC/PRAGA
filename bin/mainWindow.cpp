@@ -61,13 +61,16 @@ MainWindow::MainWindow(QWidget *parent) :
     this->meteoPointsLegend = new ColorLegend(myProject.meteoPointsColorScale, ui->widgetColorLegendPoints);
     this->meteoPointsLegend->resize(this->ui->widgetColorLegendPoints->size());
 
-    this->rasterLegend = new ColorLegend(myProject.genericColorScale, ui->widgetColorLegendRaster);
+    Crit3DColorScale* scaleRaster = new Crit3DColorScale();
+    this->rasterLegend = new ColorLegend(*scaleRaster, ui->widgetColorLegendRaster);
     this->rasterLegend->resize(ui->widgetColorLegendRaster->size());
 
-    this->meteoGridLegend = new ColorLegend(myProject.genericColorScale, ui->widgetColorLegendGrid);
+    Crit3DColorScale* scaleGrid = new Crit3DColorScale();
+    this->meteoGridLegend = new ColorLegend(*scaleGrid, ui->widgetColorLegendGrid);
     this->meteoGridLegend->resize(ui->widgetColorLegendGrid->size());
 
-    this->netcdfLegend = new ColorLegend(myProject.genericColorScale, ui->widgetColorLegendNetcdf);
+    Crit3DColorScale* scaleNetcdf = new Crit3DColorScale();
+    this->netcdfLegend = new ColorLegend(*scaleNetcdf, ui->widgetColorLegendNetcdf);
     this->netcdfLegend->resize(ui->widgetColorLegendNetcdf->size());
 
     // Set tiles source
