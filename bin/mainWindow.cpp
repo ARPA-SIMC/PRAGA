@@ -1831,6 +1831,7 @@ void MainWindow::drawMeteoGrid()
 
     meteoGridLegend->colorScale = myProject.meteoGridDbHandler->meteoGrid()->dataMeteoGrid.colorScale;
     ui->meteoGridOpacitySlider->setEnabled(true);
+    meteoGridLegend->update();
 
     if (myProject.loadGridDataAtStart)
     {
@@ -3371,12 +3372,15 @@ void MainWindow::on_actionFileOpenProject_triggered()
 
     if (myProject.isProjectLoaded())
     {
-        on_actionFileMeteogridClose_triggered();
-        on_actionFileMeteopointClose_triggered();
+        closeMeteoGrid();
+        closeMeteoPoints();
         clearDEM();
 
-        this->ui->labelFrequency->setText("None");
-        this->ui->labelVariable->setText(("None"));
+        ui->labelFrequency->setText("None");
+        ui->labelVariable->setText(("None"));
+
+        currentGridVisualization = showLocation;
+        currentPointsVisualization = showLocation;
     }
 
     if (myProject.loadPragaProject(fileName))
@@ -3400,13 +3404,13 @@ void MainWindow::on_actionFileCloseProject_triggered()
 
     closeMeteoGrid();
     closeMeteoPoints();
+    clearDEM();
 
     ui->labelFrequency->setText("None");
     ui->labelVariable->setText(("None"));
+
     currentGridVisualization = showLocation;
     currentPointsVisualization = showLocation;
-
-    clearDEM();
 
     mapView->centerOn(startCenter->lonLat());
 
