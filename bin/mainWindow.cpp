@@ -1046,8 +1046,13 @@ void MainWindow::interpolateDemGUI()
                 {
                     gis::Crit3DRasterGrid* newGrid = new gis::Crit3DRasterGrid();
                     gis::resampleGrid(*proxyGrid, newGrid, myProject.DEM.header, aggrAverage, 0);
-                    delete proxyGrid;
-                    myProxy->setGrid(newGrid, false);
+
+                    bool isShared = myProxy->isSharedGrid();
+
+                    if (! isShared)
+                        delete proxyGrid;
+
+                    myProxy->setGrid(newGrid, isShared);
                 }
             }
         }
