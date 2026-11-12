@@ -11,11 +11,9 @@
         #include "crit3dClimateList.h"
     #endif
 
-    #ifndef QSQLDATABASE_H
-        #include <QSqlDatabase>
-    #endif
+    #include <QSqlDatabase>
 
-    class QDate;
+    #include <QDate>
 
     class Crit3DClimate
     {
@@ -30,11 +28,13 @@
 
         void copyParam(Crit3DClimate* myClimate);
 
-        const QSqlDatabase& db()
-        { return _db; }
+        const QSqlDatabase& db() {
+            return _db;
+        }
 
-        void setDb(const QSqlDatabase &db)
-        { _db = db; }
+        void setDb(const QSqlDatabase &db) {
+            _db = db;
+        }
 
         QString climateElab() const;
         void setClimateElab(const QString &climateElab);
@@ -54,14 +54,18 @@
         meteoVariable variable() const;
         void setVariable(const meteoVariable &variable);
 
-        QDate genericPeriodDateStart() const;
+        QDate genericPeriodDateStart() const {
+            return _genericPeriodDateStart;
+        }
         void setGenericPeriodDateStart(const QDate &genericPeriodDateStart);
 
-        QDate genericPeriodDateEnd() const;
+        QDate genericPeriodDateEnd() const {
+            return _genericPeriodDateEnd;
+        }
         void setGenericPeriodDateEnd(const QDate &genericPeriodDateEnd);
 
-        int nYears() const;
-        void setNYears(int nYears);
+        int nYears() const { return _nYears; }
+        void setNYears(int nYears) { _nYears = nYears; }
 
         QString elab1() const;
         void setElab1(const QString &elab1);

@@ -7,7 +7,7 @@
 
 // LC saveDailyElab is a bit more efficient respect saveDailyElabSingleValue, making prepare just once.
 // Anyway all the process for each id_point is only 2seconds.
-bool saveDailyElab(QSqlDatabase db, QString &errorStr, QString id, std::vector<float> allResults, const QString &elab)
+bool saveDailyElab(QSqlDatabase &db, QString &errorStr, const QString &id, const std::vector<float> &allResults, const QString &elab)
 {
     QSqlQuery qry(db);
     if (db.driverName() == "QSQLITE")
@@ -52,7 +52,7 @@ bool saveDailyElab(QSqlDatabase db, QString &errorStr, QString id, std::vector<f
 }
 
 
-bool deleteElab(QSqlDatabase db, QString &errorStr, const QString &table, const QString &elab)
+bool deleteElab(QSqlDatabase &db, QString &errorStr, const QString &table, const QString &elab)
 {
     QSqlQuery qry(db);
     QString statement = QString("DELETE FROM `%1`").arg(table);
@@ -109,7 +109,6 @@ float readClimateElab(const QSqlDatabase &db, const QString &table, const int &t
 QList<QString> getIdListFromElab(const QSqlDatabase &db, const QString &table, QString &errorStr, const QString &elab)
 {
     QSqlQuery qry(db);
-    QString id;
     QList<QString> idList;
 
     QString statement = QString("SELECT distinct(id_point) FROM `%1`").arg(table);
@@ -125,6 +124,7 @@ QList<QString> getIdListFromElab(const QSqlDatabase &db, const QString &table, Q
     {
         while (qry.next())
         {
+            QString id;
             getValue(qry.value("id_point"), &id);
             idList.append(id);
         }
@@ -137,9 +137,7 @@ QList<QString> getIdListFromElab(const QSqlDatabase &db, const QString &table, Q
 QList<QString> getIdListFromElab(const QSqlDatabase &db, const QString &table, QString &errorStr, const QString &elab, int index)
 {
     QSqlQuery qry(db);
-    QString id;
     QList<QString> idList;
-    int i;
 
     QString statement = QString("SELECT * FROM `%1`").arg(table);
     qry.prepare( statement + " WHERE elab = :elab AND climate_value != -9999.0" );
@@ -154,7 +152,9 @@ QList<QString> getIdListFromElab(const QSqlDatabase &db, const QString &table, Q
     {
         while (qry.next())
         {
+            int i;
             getValue(qry.value(0), &i);
+            QString id;
             getValue(qry.value("id_point"), &id);
             if (i == index)
             {
@@ -167,7 +167,7 @@ QList<QString> getIdListFromElab(const QSqlDatabase &db, const QString &table, Q
 }
 
 
-bool saveDecadalElab(QSqlDatabase db, QString &errorStr, QString id, std::vector<float> allResults, const QString &elab)
+bool saveDecadalElab(QSqlDatabase &db, QString &errorStr, const QString &id, const std::vector<float> &allResults, const QString &elab)
 {
     QSqlQuery qry(db);
     if (db.driverName() == "QSQLITE")
@@ -210,7 +210,7 @@ bool saveDecadalElab(QSqlDatabase db, QString &errorStr, QString id, std::vector
 }
 
 
-bool saveMonthlyElab(QSqlDatabase db, QString &errorStr, QString id, std::vector<float> allResults, const QString &elab)
+bool saveMonthlyElab(QSqlDatabase &db, QString &errorStr, const QString &id, const std::vector<float> &allResults, const QString &elab)
 {
     QSqlQuery qry(db);
     if (db.driverName() == "QSQLITE")
@@ -252,7 +252,7 @@ bool saveMonthlyElab(QSqlDatabase db, QString &errorStr, QString id, std::vector
     return true;
 }
 
-bool saveSeasonalElab(QSqlDatabase db, QString &errorStr, QString id, std::vector<float> allResults, const QString &elab)
+bool saveSeasonalElab(QSqlDatabase &db, QString &errorStr, const QString &id, const std::vector<float> &allResults, const QString &elab)
 {
     QSqlQuery qry(db);
     if (db.driverName() == "QSQLITE")
@@ -294,7 +294,7 @@ bool saveSeasonalElab(QSqlDatabase db, QString &errorStr, QString id, std::vecto
     return true;
 }
 
-bool saveAnnualElab(QSqlDatabase db, QString &errorStr, QString id, float result, QString elab)
+bool saveAnnualElab(QSqlDatabase &db, QString &errorStr, const QString &id, float result, QString elab)
 {
     QSqlQuery qry(db);
     if (db.driverName() == "QSQLITE")
@@ -332,7 +332,7 @@ bool saveAnnualElab(QSqlDatabase db, QString &errorStr, QString id, float result
     return true;
 }
 
-bool saveGenericElab(QSqlDatabase db, QString &errorStr, QString id, float result, QString elab)
+bool saveGenericElab(QSqlDatabase &db, QString &errorStr, const QString &id, float result, QString elab)
 {
     QSqlQuery qry(db);
     if (db.driverName() == "QSQLITE")
