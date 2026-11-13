@@ -161,7 +161,7 @@ bool anomalyOnPoint(Crit3DMeteoPoint* meteoPoint, float refValue)
 
 
 bool passingClimateToAnomaly(QString &errorStr, Crit3DMeteoPoint* meteoPointTemp, Crit3DClimate* climateElab,
-                             std::vector<Crit3DMeteoPoint> &meteoPoints, Crit3DElaborationSettings *elabSettings)
+                             std::vector<Crit3DMeteoPoint> &meteoPoints, const Crit3DElaborationSettings &elabSettings)
 {
     float valueClimate;
     QString table = getTable(climateElab->climateElab());
@@ -174,8 +174,8 @@ bool passingClimateToAnomaly(QString &errorStr, Crit3DMeteoPoint* meteoPointTemp
     }
     else
     {
-        float maxVerticalDist = elabSettings->getAnomalyPtsMaxDeltaZ();
-        float maxHorizontalDist = elabSettings->getAnomalyPtsMaxDistance();
+        float maxVerticalDist = elabSettings.getAnomalyPtsMaxDeltaZ();
+        float maxHorizontalDist = elabSettings.getAnomalyPtsMaxDistance();
 
         QList<QString> idList;
         if (table == "climate_generic" || table == "climate_annual")
@@ -364,14 +364,11 @@ bool climateTemporalCycle(QString &errorStr, Crit3DClimate* clima, std::vector<f
 
             // reset currentPeriod
             clima->setCurrentPeriodType(noPeriodType);
-            /*int offsetNonCumulated = clima->offset();
-            while (offsetNonCumulated < 0)
-            {
-                offsetNonCumulated += 366;
-            }
 
-            auto first = allResults.begin() + offsetNonCumulated%366;*/
-            auto first = allResults.begin() + (clima->offset())%366;
+            // normalize the offset to [0, 365]: it can be negative
+            const int offsetDays = ((clima->offset() % 366) + 366) % 366;
+            auto first = allResults.begin() + offsetDays;
+
             // rotate vector elements to take into account the offset
             std::rotate(allResults.begin(), first, allResults.end());
 
@@ -1315,7 +1312,7 @@ float dailyLeafWetnessComputation(TObsDataH* hourlyValues, float minimumPercenta
 }
 
 
-float computeWinkler(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DDate finishDate, float minimumPercentage)
+float computeWinkler(Crit3DMeteoPoint* meteoPoint, const Crit3DDate &firstDate, const Crit3DDate &finishDate, float minimumPercentage)
 {
     float computeWinkler = 0;
 
@@ -1380,20 +1377,23 @@ float computeWinkler(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DD
 }
 
 
-float computeLastDayBelowThreshold(std::vector<float> &inputValues, Crit3DDate firstDateDailyVar, Crit3DDate firstDate, Crit3DDate finishDate, float param1)
+float computeLastDayBelowThreshold(const std::vector<float> &inputValues, const Crit3DDate &firstDateDailyVar,
+                                   const Crit3DDate &firstDate, const Crit3DDate &finishDate, float param1)
 {
     float lastDay = NODATA;
 
     const int numberOfDays = difference(firstDate, finishDate) +1;
+
     Crit3DDate presentDate = finishDate;
     for (int i = 0; i < numberOfDays; i++)
     {
         const int index = difference(firstDateDailyVar, presentDate);
-        if (index >= 0 && index < inputValues.size())
+        if (index >= 0 && index < int(inputValues.size()))
         {
             if (inputValues.at(index) != NODATA && inputValues.at(index) < param1)
             {
                 lastDay = getDoyFromDate(presentDate);
+                break;      // going backward: the first match is the last day
             }
         }
         presentDate = presentDate.addDays(-1);
@@ -1403,7 +1403,7 @@ float computeLastDayBelowThreshold(std::vector<float> &inputValues, Crit3DDate f
 }
 
 
-float computeHuglin(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DDate finishDate, float minimumPercentage)
+float computeHuglin(Crit3DMeteoPoint* meteoPoint, const Crit3DDate &firstDate, const Crit3DDate &finishDate, float minimumPercentage)
 {
     float Huglin = 0;
 
@@ -1466,7 +1466,7 @@ float computeHuglin(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DDa
 }
 
 
-float computeFregoni(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DDate finishDate, float minimumPercentage)
+float computeFregoni(Crit3DMeteoPoint* meteoPoint, const Crit3DDate &firstDate, const Crit3DDate &finishDate, float minimumPercentage)
 {
     const int threshold = 10;
     float computeFregoni = 0;
@@ -1530,7 +1530,8 @@ float computeFregoni(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DD
 }
 
 
-float computeCorrectedSum(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Crit3DDate finishDate, float param, float minimumPercentage)
+float computeCorrectedSum(Crit3DMeteoPoint* meteoPoint, const Crit3DDate &firstDate,
+                          const Crit3DDate &finishDate, float param, float minimumPercentage)
 {
     float sum = 0;
 
@@ -1600,7 +1601,9 @@ float computeCorrectedSum(Crit3DMeteoPoint* meteoPoint, Crit3DDate firstDate, Cr
 }
 
 
-bool elaborateDailyAggregatedVar(meteoVariable myVar, Crit3DMeteoPoint meteoPoint, std::vector<float> &outputValues, float* percValue, Crit3DMeteoSettings* meteoSettings)
+bool elaborateDailyAggregatedVar(meteoVariable myVar, Crit3DMeteoPoint &meteoPoint,
+                                 std::vector<float> &outputValues, float* percValue,
+                                 Crit3DMeteoSettings* meteoSettings)
 {
     outputValues.clear();
 
@@ -1637,7 +1640,8 @@ frequencyType getAggregationFrequency(meteoVariable myVar)
 }
 
 
-bool elaborateDailyAggregatedVarFromDaily(meteoVariable myVar, Crit3DMeteoPoint meteoPoint, Crit3DMeteoSettings* meteoSettings,
+bool elaborateDailyAggregatedVarFromDaily(meteoVariable myVar, Crit3DMeteoPoint &meteoPoint,
+                                          Crit3DMeteoSettings* meteoSettings,
                                           std::vector<float> &outputValues, float* percValue)
 {
     float result;
@@ -1752,7 +1756,7 @@ bool elaborateDailyAggregatedVarFromDaily(meteoVariable myVar, Crit3DMeteoPoint 
                     result = NODATA;
                 }
             }
-            meteoPoint.obsDataD[index].dd_heating = result;
+            meteoPoint.obsDataD[index].dd_cooling = result;
             break;
         }
         default:
@@ -1771,7 +1775,7 @@ bool elaborateDailyAggregatedVarFromDaily(meteoVariable myVar, Crit3DMeteoPoint 
 
     if (! meteoPoint.obsDataD.empty())
     {
-        *percValue = nrValidValues / meteoPoint.obsDataD.size();
+        *percValue = float(nrValidValues) / float(meteoPoint.obsDataD.size());
     }
     else
         *percValue = 0;
@@ -1780,19 +1784,17 @@ bool elaborateDailyAggregatedVarFromDaily(meteoVariable myVar, Crit3DMeteoPoint 
 }
 
 
-bool elaborateDailyAggregatedVarFromHourly(meteoVariable myVar, Crit3DMeteoPoint meteoPoint, std::vector<float> &outputValues, Crit3DMeteoSettings *meteoSettings)
+bool elaborateDailyAggregatedVarFromHourly(meteoVariable myVar, Crit3DMeteoPoint &meteoPoint,
+                                           std::vector<float> &outputValues, Crit3DMeteoSettings *meteoSettings)
 {
-
-    float result;
     int nrValidValues = 0;
 
-    TObsDataH* hourlyValues;
-
-    Crit3DDate date;
+    TObsDataH* hourlyValues = nullptr;
 
     for (int index = 0; index < (int)meteoPoint.obsDataH.size(); index++)
     {
-        date = meteoPoint.getMeteoPointHourlyValuesDate(index);
+        float result = NODATA;
+        const Crit3DDate date = meteoPoint.getMeteoPointHourlyValuesDate(index);
         if (meteoPoint.getMeteoPointValueDayH(date, hourlyValues))
         {
             switch(myVar)
@@ -1827,7 +1829,8 @@ bool elaborateDailyAggregatedVarFromHourly(meteoVariable myVar, Crit3DMeteoPoint
 }
 
 
-bool elaborateDailyAggrVarFromStartDate(meteoVariable myVar, Crit3DMeteoPoint& meteoPoint, Crit3DMeteoSettings* meteoSettings,
+bool elaborateDailyAggrVarFromStartDate(meteoVariable myVar, Crit3DMeteoPoint &meteoPoint,
+                                        Crit3DMeteoSettings* meteoSettings,
                                         const QDate &firstDate, const QDate &lastDate,
                                         std::vector<float> &outputValues, float &percValue)
 {
@@ -1945,7 +1948,7 @@ bool elaborateDailyAggrVarFromStartDate(meteoVariable myVar, Crit3DMeteoPoint& m
                     result = NODATA;
                 }
             }
-            meteoPoint.obsDataD[index].dd_heating = result;
+            meteoPoint.obsDataD[index].dd_cooling = result;
             break;
         }
         default:
@@ -1959,7 +1962,11 @@ bool elaborateDailyAggrVarFromStartDate(meteoVariable myVar, Crit3DMeteoPoint& m
         outputValues.push_back(result);
     }
 
-    percValue = nrValidValues / meteoPoint.obsDataD.size();
+    const int nrRequestedDays = int(firstDate.daysTo(lastDate)) + 1;
+    if (nrRequestedDays > 0)
+        percValue = float(nrValidValues) / float(nrRequestedDays);
+    else
+        percValue = 0;
 
     return (nrValidValues > 0);
 }
@@ -3033,36 +3040,37 @@ int nParameters(meteoComputation elab)
     default:
         return 0;
     }
-
 }
 
-bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXMLAnomaly, Crit3DDroughtList *listXMLDrought, Crit3DPhenologyList *listXMLPhenology, QString xmlFileName, QString *myError)
-{
 
+bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXMLAnomaly,
+                         Crit3DDroughtList *listXMLDrought, Crit3DPhenologyList *listXMLPhenology,
+                         QString xmlFileName, QString *errorStr)
+{
     QDomDocument xmlDoc;
 
     // check
     if (xmlFileName == "")
     {
-        *myError = "Missing XML file.";
+        *errorStr = "Missing XML file.";
         return false;
     }
 
     QFile myFile(xmlFileName);
     if (!myFile.open(QIODevice::ReadOnly))
     {
-        *myError = "Open XML failed:\n" + xmlFileName + "\n" + myFile.errorString();
+        *errorStr = "Open XML failed:\n" + xmlFileName + "\n" + myFile.errorString();
         return (false);
     }
 
     int myErrLine, myErrColumn;
-    if (!xmlDoc.setContent(&myFile, myError, &myErrLine, &myErrColumn))
+    if (!xmlDoc.setContent(&myFile, errorStr, &myErrLine, &myErrColumn))
     {
-        QString completeError = "Parse xml failed:" + xmlFileName
+        *errorStr = "Parse xml failed:" + xmlFileName
                 + " Row: " + QString::number(myErrLine)
                 + " - Column: " + QString::number(myErrColumn)
-                + "\n" + *myError;
-       *myError = completeError;
+                + "\n" + *errorStr;
+
         myFile.close();
         return(false);
     }
@@ -3142,7 +3150,7 @@ bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXML
                 listXMLElab->insertDailyCumulated(false);
             }
 
-            if (parseXMLPeriodType(ancestor, "PeriodType", listXMLElab, listXMLAnomaly, false, false, &period, myError) == false)
+            if (parseXMLPeriodType(ancestor, "PeriodType", listXMLElab, listXMLAnomaly, false, false, &period, errorStr) == false)
             {
                 listXMLElab->eraseElement(nElab);
                 ancestor = ancestor.nextSibling(); // something is wrong, go to next elab
@@ -3187,6 +3195,7 @@ bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXML
             }
 
             periodPresent = false;
+            bool isElabValid = true;
             child = ancestor.firstChild();
             while( !child.isNull())
             {
@@ -3226,11 +3235,10 @@ bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXML
                     if (firstYear.isEmpty() || lastYear.isEmpty())
                     {
                         listXMLElab->eraseElement(nElab);
-                        ancestor = ancestor.nextSibling(); // something is wrong, go to next elab
                         qDebug() << "PERIOD tag must be placed after YEARINTERVAL tag in xml file. Skipping elaboration.";
-                        continue;
+                        errorElab = true;
                     }
-                    if (parseXMLPeriodTag(child, listXMLElab, listXMLAnomaly, false, false, period, firstYear, lastYear, myError) == false)
+                    else if (parseXMLPeriodTag(child, listXMLElab, listXMLAnomaly, false, false, period, firstYear, lastYear, errorStr) == false)
                     {
                         listXMLElab->eraseElement(nElab);
                         qDebug() << "parseXMLPeriodTag ";
@@ -3359,26 +3367,32 @@ bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXML
                 if (errorElab)
                 {
                     errorElab = false;
+                    isElabValid = false;
                     child = child.lastChild();
                     child = child.nextSibling();
-                    nElab = nElab - 1;
+                    nElab--;
                 }
                 else
                 {
                     child = child.nextSibling();
                 }
             }
-            if (periodPresent == false)
+
+            // default values only for a valid elaboration:
+            // a discarded one has already been erased from the lists
+            if (isElabValid)
             {
-                listXMLElab->insertDateStart(QDate(firstYear.toInt(), 0, 0));
-                listXMLElab->insertDateEnd(QDate(lastYear.toInt(), 0, 0));
-                listXMLElab->insertNYears(0);
+                if (periodPresent == false)
+                {
+                    listXMLElab->insertDateStart(QDate(firstYear.toInt(), 0, 0));
+                    listXMLElab->insertDateEnd(QDate(lastYear.toInt(), 0, 0));
+                    listXMLElab->insertNYears(0);
+                }
+                if ((int)listXMLElab->listOffset().size() < (nElab+1))
+                    listXMLElab->insertOffset(0);
             }
-            if ((int)listXMLElab->listOffset().size() < (nElab+1))
-                listXMLElab->insertOffset(0);
 
             nElab++;
-            qDebug() << "nElab " << nElab;
         }
         else if (ancestor.toElement().tagName().toUpper() == "ANOMALY")
         {
@@ -3423,7 +3437,7 @@ bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXML
                 continue;
             }
 
-            if (parseXMLPeriodType(ancestor, "PeriodType", listXMLElab, listXMLAnomaly, true, false, &period, myError) == false)
+            if (parseXMLPeriodType(ancestor, "PeriodType", listXMLElab, listXMLAnomaly, true, false, &period, errorStr) == false)
             {
                 ancestor = ancestor.nextSibling(); // something is wrong, go to next elab/anomaly
                 continue;
@@ -3458,7 +3472,7 @@ bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXML
             }
             else
             {
-                if (parseXMLPeriodType(ancestor, "RefPeriodType", listXMLElab, listXMLAnomaly, true, true, &refPeriod, myError) == false)
+                if (parseXMLPeriodType(ancestor, "RefPeriodType", listXMLElab, listXMLAnomaly, true, true, &refPeriod, errorStr) == false)
                 {
                     ancestor = ancestor.nextSibling(); // something is wrong, go to next elab/anomaly
                     continue;
@@ -3526,7 +3540,7 @@ bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXML
 
                 if (myTag == "PERIOD")
                 {
-                    if (parseXMLPeriodTag(child, listXMLElab, listXMLAnomaly, true, false, period, firstYear, lastYear, myError) == false)
+                    if (parseXMLPeriodTag(child, listXMLElab, listXMLAnomaly, true, false, period, firstYear, lastYear, errorStr) == false)
                     {
                         listXMLAnomaly->eraseElement(nAnomaly);
                         errorAnomaly = true;
@@ -3536,7 +3550,7 @@ bool parseXMLElaboration(Crit3DElabList *listXMLElab, Crit3DAnomalyList *listXML
                 {
                     if (myTag == "REFPERIOD")
                     {
-                        if (parseXMLPeriodTag(child, listXMLElab, listXMLAnomaly, true, true, refPeriod, refFirstYear, refLastYear, myError) == false)
+                        if (parseXMLPeriodTag(child, listXMLElab, listXMLAnomaly, true, true, refPeriod, refFirstYear, refLastYear, errorStr) == false)
                         {
                             listXMLAnomaly->eraseElement(nAnomaly);
                             errorAnomaly = true;
@@ -5212,57 +5226,70 @@ bool monthlyAggregateDataGrid(Crit3DMeteoGridDbHandler* meteoGridDbHandler, cons
                               const std::vector<meteoVariable> &dailyMeteoVar, Crit3DMeteoSettings* meteoSettings,
                               Crit3DQuality *qualityCheck, const Crit3DClimateParameters &climateParam, QString &errorStr)
 {
-    int nrMonths = (lastDate.year()-firstDate.year())*12+lastDate.month()-(firstDate.month()-1);
-    bool isMeteoGrid = true;
-    Crit3DMeteoPoint* meteoPointTemp = new Crit3DMeteoPoint;
-    float percValue;
-    std::vector<float> outputValues;
-    QList<meteoVariable> meteoVariableList;
+    const int nrMonths = (lastDate.year() - firstDate.year())*12 + lastDate.month() - firstDate.month() + 1;
+    const bool isMeteoGrid = true;
+    const int nrRows = int(meteoGridDbHandler->meteoGrid()->gridStructure().header().nrRows);
+    const int nrCols = int(meteoGridDbHandler->meteoGrid()->gridStructure().header().nrCols);
 
-    for (unsigned row = 0; row < unsigned(meteoGridDbHandler->meteoGrid()->gridStructure().header().nrRows); row++)
+    for (int row = 0; row < nrRows; row++)
     {
-        for (unsigned col = 0; col < unsigned(meteoGridDbHandler->meteoGrid()->gridStructure().header().nrCols); col++)
+        for (int col = 0; col < nrCols; col++)
         {
-            meteoVariableList.clear();
-            if (meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->active)
-            {
-                meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->initializeObsDataM(nrMonths, firstDate.month(), firstDate.year());
-                meteoPointTemp->initializeObsDataM(nrMonths, firstDate.month(), firstDate.year());
-                // copy id to meteoPointTemp
-                meteoPointTemp->id = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->id;
-                meteoPointTemp->latitude = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->latitude;
+            Crit3DMeteoPoint* meteoPoint = meteoGridDbHandler->meteoGrid()->meteoPointPointer(row, col);
+            if (! meteoPoint->active)
+                continue;
 
-                for(int i = 0; i < (int)dailyMeteoVar.size(); i++)
+            // a new temporary point for each cell: no data left from the previous cell
+            Crit3DMeteoPoint tmpMeteoPoint;
+
+            // copy id, lat and point (height is used by the quality check)
+            tmpMeteoPoint.id = meteoPoint->id;
+            tmpMeteoPoint.latitude = meteoPoint->latitude;
+            tmpMeteoPoint.point = meteoPoint->point;
+
+            meteoPoint->initializeObsDataM(nrMonths, firstDate.month(), firstDate.year());
+            tmpMeteoPoint.initializeObsDataM(nrMonths, firstDate.month(), firstDate.year());
+
+            QList<meteoVariable> meteoVariableList;
+
+            for (int i = 0; i < (int)dailyMeteoVar.size(); i++)
+            {
+                // local to each variable: preElaboration appends to outputValues
+                float percValue;
+                std::vector<float> outputValues;
+
+                if (preElaboration(nullptr, meteoGridDbHandler, &tmpMeteoPoint, isMeteoGrid, dailyMeteoVar[i],
+                                   noMeteoComp, firstDate, lastDate, outputValues, &percValue, meteoSettings, errorStr))
                 {
-                    if (preElaboration(nullptr, meteoGridDbHandler, meteoPointTemp, isMeteoGrid, dailyMeteoVar[i],
-                                       noMeteoComp, firstDate, lastDate, outputValues, &percValue, meteoSettings, errorStr))
+                    if (tmpMeteoPoint.computeMonthlyAggregate(getCrit3DDate(firstDate), getCrit3DDate(lastDate), dailyMeteoVar[i],
+                                                              meteoSettings, qualityCheck, climateParam))
                     {
-                        if (meteoPointTemp->computeMonthlyAggregate(getCrit3DDate(firstDate), getCrit3DDate(lastDate), dailyMeteoVar[i],
-                                                                    meteoSettings, qualityCheck, climateParam))
+                        meteoVariable monthlyVar = updateMeteoVariable(dailyMeteoVar[i], monthly);
+                        if (monthlyVar != noMeteoVar)
                         {
-                            meteoVariable monthlyVar = updateMeteoVariable(dailyMeteoVar[i], monthly);
-                            if (monthlyVar != noMeteoVar)
-                            {
-                                meteoVariableList.append(monthlyVar);
-                            }
+                            meteoVariableList.append(monthlyVar);
                         }
                     }
                 }
-                // copy meteoPointTemp values
-                meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->obsDataM = meteoPointTemp->obsDataM ;
-                if (! meteoVariableList.isEmpty())
+            }
+
+            // copy tmp values
+            meteoPoint->obsDataM = tmpMeteoPoint.obsDataM;
+
+            // clean tmp values
+            tmpMeteoPoint.cleanAllData();
+
+            if (! meteoVariableList.isEmpty())
+            {
+                if (! meteoGridDbHandler->saveCellGridMonthlyData(errorStr, QString::fromStdString(meteoPoint->id),
+                                                                  row, col, firstDate, lastDate, meteoVariableList))
                 {
-                    if (! meteoGridDbHandler->saveCellGridMonthlyData(errorStr, QString::fromStdString(meteoGridDbHandler->meteoGrid()->meteoPointPointer(row,col)->id), row, col, firstDate, lastDate, meteoVariableList))
-                    {
-                        delete meteoPointTemp;
-                        return false;
-                    }
+                    return false;
                 }
             }
         }
     }
 
-    delete meteoPointTemp;
     return true;
 }
 
@@ -5344,7 +5371,7 @@ int computeAnnualSeriesOnPointFromDaily(Crit3DMeteoPointsDbHandler* meteoPointsD
 }
 
 
-void computeClimateOnDailyData(Crit3DMeteoPoint meteoPoint, meteoVariable var, QDate firstDate, QDate lastDate,
+void computeClimateOnDailyData(const Crit3DMeteoPoint &meteoPoint, meteoVariable var, QDate firstDate, QDate lastDate,
                               int smooth, float* dataPresence, Crit3DQuality* qualityCheck,
                                const Crit3DClimateParameters& climateParam,
                                Crit3DMeteoSettings* meteoSettings, std::vector<float> &dailyClima,
@@ -5552,7 +5579,8 @@ void computeClimateOnDailyData(Crit3DMeteoPoint meteoPoint, meteoVariable var, Q
 }
 
 
-void setMpValues(Crit3DMeteoPoint meteoPointGet, Crit3DMeteoPoint* meteoPointSet, QDate myDate, meteoVariable myVar, Crit3DMeteoSettings* meteoSettings)
+void setMpValues(const Crit3DMeteoPoint &meteoPointGet, Crit3DMeteoPoint* meteoPointSet,
+                 QDate myDate, meteoVariable myVar, Crit3DMeteoSettings* meteoSettings)
 {
     bool automaticETP = meteoSettings->getAutomaticET0HS();
     Crit3DQuality qualityCheck;

@@ -2469,7 +2469,10 @@ void MainWindow::on_actionClimate_triggered()
 
     bool isMeteoGrid = compDialog.getIsMeteoGrid();
     myProject.lastElabTargetIsGrid = isMeteoGrid;
-    myProject.clima->getListElab()->setListClimateElab(compDialog.getElabSaveList());
+
+    QList<QString> listElabToSave = compDialog.getElabSaveList();
+    myProject.clima->getListElab().setListClimateElab(listElabToSave);
+
     if (! myProject.computeElaboration(isMeteoGrid, isAnomaly, isClimate, true))
     {
         myProject.logError();

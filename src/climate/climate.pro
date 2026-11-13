@@ -36,7 +36,6 @@ SOURCES += \
     climate.cpp \
     crit3dDroughtList.cpp \
     crit3dPhenologyList.cpp \
-    elaborationSettings.cpp \
     crit3dClimate.cpp \
     dbClimate.cpp \
     crit3dClimateList.cpp \
@@ -48,8 +47,8 @@ HEADERS += \
     crit3dPhenologyList.h \
     dbClimate.h \
     climate.h \
-    elaborationSettings.h \
     crit3dClimate.h \
     crit3dClimateList.h \
     crit3dElabList.h \
-    crit3dAnomalyList.h
+    crit3dAnomalyList.h \
+    elaborationSettings.h

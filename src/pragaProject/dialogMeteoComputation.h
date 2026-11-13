@@ -94,7 +94,7 @@ class DialogMeteoComputation : public QDialog
         void changeOffsetDate();
 
         bool getIsMeteoGrid() const { return isMeteoGrid; }
-        QList<QString> getElabSaveList() { return saveClimaLayout.getList(); }
+        QList<QString> getElabSaveList() const { return saveClimaLayout.getList(); }
 
 };
 

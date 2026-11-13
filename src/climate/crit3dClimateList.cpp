@@ -6,21 +6,12 @@
 #include "climate.h"
 
 
-Crit3DClimateList::Crit3DClimateList()
-{
-
-}
-
-Crit3DClimateList::~Crit3DClimateList()
-{
-}
-
 QList<QString> Crit3DClimateList::listClimateElab() const
 {
     return _listClimateElab;
 }
 
-void Crit3DClimateList::setListClimateElab(const QList<QString> &listClimateElab)
+void Crit3DClimateList::setListClimateElab(QList<QString> &listClimateElab)
 {
     _listClimateElab = listClimateElab;
 }

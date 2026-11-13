@@ -6,35 +6,6 @@
 #include "commonConstants.h"
 
 
-Crit3DElabList::Crit3DElabList()
-{
-
-}
-
-Crit3DElabList::~Crit3DElabList()
-{
-}
-
-bool Crit3DElabList::isMeteoGrid() const
-{
-    return _isMeteoGrid;
-}
-
-void Crit3DElabList::setIsMeteoGrid(bool isMeteoGrid)
-{
-    _isMeteoGrid = isMeteoGrid;
-}
-
-QList<QString> Crit3DElabList::listAll() const
-{
-    return _listAll;
-}
-
-void Crit3DElabList::setListAll(const QList<QString> &listElab)
-{
-    _listAll = listElab;
-}
-
 void Crit3DElabList::reset()
 {
     _listAll.clear();
@@ -53,6 +24,8 @@ void Crit3DElabList::reset()
     _listYearEnd.clear();
     _listYearStart.clear();
     _listDailyCumulated.clear();
+    _listOffset.clear();
+    _listFileName.clear();
 }
 
 void Crit3DElabList::eraseElement(unsigned int index)
@@ -121,7 +94,16 @@ void Crit3DElabList::eraseElement(unsigned int index)
     {
         _listDailyCumulated.erase(_listDailyCumulated.begin() + index);
     }
+    if (_listOffset.size() > index)
+    {
+        _listOffset.erase(_listOffset.begin() + index);
+    }
+    if (_listFileName.size() > index)
+    {
+        _listFileName.erase(_listFileName.begin() + index);
+    }
 }
+
 
 std::vector<int> Crit3DElabList::listYearStart() const
 {

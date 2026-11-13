@@ -51,11 +51,10 @@
     {
 
     public:
-        Crit3DClimateList();
-        ~Crit3DClimateList();
+        Crit3DClimateList() {}
 
         QList<QString> listClimateElab() const;
-        void setListClimateElab(const QList<QString> &listClimateElab);
+        void setListClimateElab(QList<QString> &listClimateElab);
 
         void resetListClimateElab();
 

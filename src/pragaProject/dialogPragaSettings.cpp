@@ -49,7 +49,7 @@ ElaborationTab::ElaborationTab(Crit3DElaborationSettings *elabSettings)
 
 DialogPragaSettings::DialogPragaSettings(PragaProject *myProject) : DialogSettings(myProject)
 {
-    _elabSettings = myProject->clima->getElabSettings();
+    _elabSettings = &(myProject->clima->getElabSettings());
     elabTab = new ElaborationTab(_elabSettings);
 
     project_ = myProject;

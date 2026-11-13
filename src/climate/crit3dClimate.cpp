@@ -8,44 +8,10 @@
 
 Crit3DClimate::Crit3DClimate()
 {
-    _climateElab = "";
-    _yearStart = NODATA;
-    _yearEnd = NODATA;
-    _periodType = noPeriodType;
-    _variable = noMeteoVar;
-    _periodStr = "";
-    _genericPeriodDateStart.setDate(1800,1,1);
-    _genericPeriodDateEnd.setDate(1800,1,1);
-    _hourStart = NODATA;
-    _hourEnd = NODATA;
-    _nYears = NODATA;
-    _elab1 = "";
-    _param1 = NODATA;
-    _param1IsClimate = false;
-    _param1ClimateField = "";
-    _param1ClimateIndex = NODATA;
-    _isClimateAnomalyFromDb = false;
-    _elab2 = "";
-    _param2 = NODATA;
-    _dailyCumulated = false;
-    _offset = 0;
-
-    _currentVar = noMeteoVar;
-    _currentElab1 = "";
-    _currentYearStart = NODATA;
-    _currentYearEnd = NODATA;
-    _currentPeriodType = noPeriodType;
-
-    elabSettings = new Crit3DElaborationSettings();
-    listElab = new Crit3DClimateList();
+    resetParam();
+    resetCurrentValues();
 }
 
-
-Crit3DClimate::~Crit3DClimate()
-{
-    delete Crit3DElaborationSettings();
-    delete Crit3DClimateList();
-}
 
 void Crit3DClimate::resetParam()
 {
@@ -106,7 +72,6 @@ void Crit3DClimate::copyParam(Crit3DClimate* myClimate)
     _param2 = myClimate->param2();
     _dailyCumulated = myClimate->dailyCumulated();
     _offset = myClimate->offset();
-
 }
 
 
@@ -120,7 +85,6 @@ void Crit3DClimate::setClimateElab(const QString &climateElab)
     _climateElab = climateElab;
 }
 
-
 meteoVariable Crit3DClimate::variable() const
 {
     return _variable;
@@ -129,16 +93,6 @@ meteoVariable Crit3DClimate::variable() const
 void Crit3DClimate::setVariable(const meteoVariable &variable)
 {
     _variable = variable;
-}
-
-void Crit3DClimate::setGenericPeriodDateStart(const QDate &genericPeriodDateStart)
-{
-    _genericPeriodDateStart = genericPeriodDateStart;
-}
-
-void Crit3DClimate::setGenericPeriodDateEnd(const QDate &genericPeriodDateEnd)
-{
-    _genericPeriodDateEnd = genericPeriodDateEnd;
 }
 
 QString Crit3DClimate::elab1() const
@@ -221,12 +175,7 @@ void Crit3DClimate::setPeriodStr(const QString &periodStr)
     _periodStr = periodStr;
 }
 
-Crit3DElaborationSettings *Crit3DClimate::getElabSettings() const
-{
-    return elabSettings;
-}
-
-void Crit3DClimate::setElabSettings(Crit3DElaborationSettings *value)
+void Crit3DClimate::setElabSettings(const Crit3DElaborationSettings &value)
 {
     elabSettings = value;
 }
@@ -281,17 +230,12 @@ void Crit3DClimate::setCurrentPeriodType(const climatePeriod &currentPeriodType)
     _currentPeriodType = currentPeriodType;
 }
 
-Crit3DClimateList *Crit3DClimate::getListElab() const
-{
-    return listElab;
-}
-
 void Crit3DClimate::resetListElab()
 {
-    listElab->resetListClimateElab();
+    listElab.resetListClimateElab();
 }
 
-void Crit3DClimate::setListElab(Crit3DClimateList *value)
+void Crit3DClimate::setListElab(const Crit3DClimateList &value)
 {
     listElab = value;
 }
@@ -325,7 +269,4 @@ void Crit3DClimate::setDailyCumulated(bool newDailyCumulated)
 {
     _dailyCumulated = newDailyCumulated;
 }
-
-
-
 

@@ -17,17 +17,27 @@ class Crit3DElabList
 {
 
 public:
-    Crit3DElabList();
-    ~Crit3DElabList();
-
-    bool isMeteoGrid() const;
-    void setIsMeteoGrid(bool isMeteoGrid);
-
-    QList<QString> listAll() const;
-    void setListAll(const QList<QString> &listClimateElab);
+    Crit3DElabList() {}
 
     void reset();
+
     void eraseElement(unsigned int index);
+
+    bool isMeteoGrid() const {
+        return _isMeteoGrid;
+    }
+
+    void setIsMeteoGrid(bool isMeteoGrid) {
+        _isMeteoGrid = isMeteoGrid;
+    }
+
+    QList<QString> listAll() const {
+        return _listAll;
+    }
+
+    void setListAll(const QList<QString> &listElab) {
+        _listAll = listElab;
+    }
 
     std::vector<int> listYearStart() const;
     void setListYearStart(const std::vector<int> &listYearStart);
@@ -100,8 +110,10 @@ public:
 
 private:
 
+    bool _isMeteoGrid = false;
+
     QList<QString> _listAll;
-    bool _isMeteoGrid;
+
     std::vector<int> _listYearStart;
     std::vector<int> _listYearEnd;
     std::vector<meteoVariable> _listVariable;

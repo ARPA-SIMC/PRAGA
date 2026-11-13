@@ -126,23 +126,23 @@ bool PragaProject::loadPragaSettings()
         if (group == "elaboration")
         {
             parametersSettings->beginGroup(group);
-            Crit3DElaborationSettings* elabSettings = clima->getElabSettings();
+            Crit3DElaborationSettings elabSettings = clima->getElabSettings();
 
             if (parametersSettings->contains("anomaly_pts_max_distance") && !parametersSettings->value("anomaly_pts_max_distance").toString().isEmpty())
             {
-                elabSettings->setAnomalyPtsMaxDistance(parametersSettings->value("anomaly_pts_max_distance").toFloat());
+                elabSettings.setAnomalyPtsMaxDistance(parametersSettings->value("anomaly_pts_max_distance").toFloat());
             }
             if (parametersSettings->contains("anomaly_pts_max_delta_z") && !parametersSettings->value("anomaly_pts_max_delta_z").toString().isEmpty())
             {
-                elabSettings->setAnomalyPtsMaxDeltaZ(parametersSettings->value("anomaly_pts_max_delta_z").toFloat());
+                elabSettings.setAnomalyPtsMaxDeltaZ(parametersSettings->value("anomaly_pts_max_delta_z").toFloat());
             }
             if (parametersSettings->contains("grid_min_coverage") && !parametersSettings->value("grid_min_coverage").toString().isEmpty())
             {
-                elabSettings->setGridMinCoverage(parametersSettings->value("grid_min_coverage").toFloat());
+                elabSettings.setGridMinCoverage(parametersSettings->value("grid_min_coverage").toFloat());
             }
             if (parametersSettings->contains("merge_joint_stations") && !parametersSettings->value("merge_joint_stations").toString().isEmpty())
             {
-                elabSettings->setMergeJointStations(parametersSettings->value("merge_joint_stations").toBool());
+                elabSettings.setMergeJointStations(parametersSettings->value("merge_joint_stations").toBool());
             }
 
             parametersSettings->endGroup();
@@ -1429,10 +1429,10 @@ bool PragaProject::climateCyclePoints(bool showInfo)
         infoStep = setProgressBar(infoStr, (int)meteoPoints.size());
     }
     // parser all the list
-    Crit3DClimateList* climateList = clima->getListElab();
+    Crit3DClimateList climateList = clima->getListElab();
 
     errorString = "";
-    climateList->parserElaboration(errorString);
+    climateList.parserElaboration(errorString);
     if (! errorString.isEmpty())
     {
         logError();
@@ -1456,30 +1456,30 @@ bool PragaProject::climateCyclePoints(bool showInfo)
 
             std::vector<float> outputValues;
 
-            for (int j = 0; j < climateList->listClimateElab().size(); j++)
+            for (int j = 0; j < climateList.listClimateElab().size(); j++)
             {
                 clima->resetParam();
-                clima->setClimateElab(climateList->listClimateElab().at(j));
+                clima->setClimateElab(climateList.listClimateElab().at(j));
 
-                if (climateList->listClimateElab().at(j)!= nullptr)
+                if (climateList.listClimateElab().at(j)!= nullptr)
                 {
                     // copy current elaboration to clima
-                    clima->setDailyCumulated(climateList->listDailyCumulated()[j]);
-                    clima->setYearStart(climateList->listYearStart().at(j));
-                    clima->setYearEnd(climateList->listYearEnd().at(j));
-                    clima->setPeriodType(climateList->listPeriodType().at(j));
-                    clima->setPeriodStr(climateList->listPeriodStr().at(j));
-                    clima->setGenericPeriodDateStart(climateList->listGenericPeriodDateStart().at(j));
-                    clima->setGenericPeriodDateEnd(climateList->listGenericPeriodDateEnd().at(j));
-                    clima->setNYears(climateList->listNYears().at(j));
-                    clima->setVariable(climateList->listVariable().at(j));
-                    clima->setElab1(climateList->listElab1().at(j));
-                    clima->setElab2(climateList->listElab2().at(j));
-                    clima->setParam1(climateList->listParam1().at(j));
-                    clima->setParam2(climateList->listParam2().at(j));
-                    clima->setParam1IsClimate(climateList->listParam1IsClimate().at(j));
-                    clima->setParam1ClimateField(climateList->listParam1ClimateField().at(j));
-                    clima->setOffset(climateList->listOffset().at(j));
+                    clima->setDailyCumulated(climateList.listDailyCumulated()[j]);
+                    clima->setYearStart(climateList.listYearStart().at(j));
+                    clima->setYearEnd(climateList.listYearEnd().at(j));
+                    clima->setPeriodType(climateList.listPeriodType().at(j));
+                    clima->setPeriodStr(climateList.listPeriodStr().at(j));
+                    clima->setGenericPeriodDateStart(climateList.listGenericPeriodDateStart().at(j));
+                    clima->setGenericPeriodDateEnd(climateList.listGenericPeriodDateEnd().at(j));
+                    clima->setNYears(climateList.listNYears().at(j));
+                    clima->setVariable(climateList.listVariable().at(j));
+                    clima->setElab1(climateList.listElab1().at(j));
+                    clima->setElab2(climateList.listElab2().at(j));
+                    clima->setParam1(climateList.listParam1().at(j));
+                    clima->setParam2(climateList.listParam2().at(j));
+                    clima->setParam1IsClimate(climateList.listParam1IsClimate().at(j));
+                    clima->setParam1ClimateField(climateList.listParam1ClimateField().at(j));
+                    clima->setOffset(climateList.listOffset().at(j));
 
                     if (clima->periodType() == genericPeriod)
                     {
@@ -1562,10 +1562,10 @@ bool PragaProject::climateCycleGrid(bool showInfo)
     }
 
     // parser all the list
-    Crit3DClimateList* climateList = clima->getListElab();
+    Crit3DClimateList climateList = clima->getListElab();
 
     errorString = "";
-    climateList->parserElaboration(errorString);
+    climateList.parserElaboration(errorString);
     if (! errorString.isEmpty())
     {
         logError();
@@ -1591,30 +1591,30 @@ bool PragaProject::climateCycleGrid(bool showInfo)
                changeDataSet = true;
                std::vector<float> outputValues;
 
-               for (int j = 0; j < climateList->listClimateElab().size(); j++)
+               for (int j = 0; j < climateList.listClimateElab().size(); j++)
                {
                    clima->resetParam();
-                   clima->setClimateElab(climateList->listClimateElab().at(j));
+                   clima->setClimateElab(climateList.listClimateElab().at(j));
 
-                   if (climateList->listClimateElab().at(j)!= nullptr)
+                   if (climateList.listClimateElab().at(j)!= nullptr)
                    {
                        // copy current elaboration to clima
-                       clima->setDailyCumulated(climateList->listDailyCumulated()[j]);
-                       clima->setYearStart(climateList->listYearStart().at(j));
-                       clima->setYearEnd(climateList->listYearEnd().at(j));
-                       clima->setPeriodType(climateList->listPeriodType().at(j));
-                       clima->setPeriodStr(climateList->listPeriodStr().at(j));
-                       clima->setGenericPeriodDateStart(climateList->listGenericPeriodDateStart().at(j));
-                       clima->setGenericPeriodDateEnd(climateList->listGenericPeriodDateEnd().at(j));
-                       clima->setNYears(climateList->listNYears().at(j));
-                       clima->setVariable(climateList->listVariable().at(j));
-                       clima->setElab1(climateList->listElab1().at(j));
-                       clima->setElab2(climateList->listElab2().at(j));
-                       clima->setParam1(climateList->listParam1().at(j));
-                       clima->setParam2(climateList->listParam2().at(j));
-                       clima->setParam1IsClimate(climateList->listParam1IsClimate().at(j));
-                       clima->setParam1ClimateField(climateList->listParam1ClimateField().at(j));
-                       clima->setOffset(climateList->listOffset().at(j));
+                       clima->setDailyCumulated(climateList.listDailyCumulated()[j]);
+                       clima->setYearStart(climateList.listYearStart().at(j));
+                       clima->setYearEnd(climateList.listYearEnd().at(j));
+                       clima->setPeriodType(climateList.listPeriodType().at(j));
+                       clima->setPeriodStr(climateList.listPeriodStr().at(j));
+                       clima->setGenericPeriodDateStart(climateList.listGenericPeriodDateStart().at(j));
+                       clima->setGenericPeriodDateEnd(climateList.listGenericPeriodDateEnd().at(j));
+                       clima->setNYears(climateList.listNYears().at(j));
+                       clima->setVariable(climateList.listVariable().at(j));
+                       clima->setElab1(climateList.listElab1().at(j));
+                       clima->setElab2(climateList.listElab2().at(j));
+                       clima->setParam1(climateList.listParam1().at(j));
+                       clima->setParam2(climateList.listParam2().at(j));
+                       clima->setParam1IsClimate(climateList.listParam1IsClimate().at(j));
+                       clima->setParam1ClimateField(climateList.listParam1ClimateField().at(j));
+                       clima->setOffset(climateList.listOffset().at(j));
 
                        if (clima->periodType() == genericPeriod)
                        {
@@ -2342,10 +2342,10 @@ bool PragaProject::hourlyZoneAggregationMeteoGrid(meteoVariable variable, const 
 void PragaProject::savePragaParameters()
 {
     parametersSettings->beginGroup("elaboration");
-        parametersSettings->setValue("anomaly_pts_max_distance", QString::number(double(clima->getElabSettings()->getAnomalyPtsMaxDistance())));
-        parametersSettings->setValue("anomaly_pts_max_delta_z", QString::number(double(clima->getElabSettings()->getAnomalyPtsMaxDeltaZ())));
-        parametersSettings->setValue("grid_min_coverage", QString::number(double(clima->getElabSettings()->getGridMinCoverage())));
-        parametersSettings->setValue("merge_joint_stations", clima->getElabSettings()->getMergeJointStations());
+        parametersSettings->setValue("anomaly_pts_max_distance", QString::number(double(clima->getElabSettings().getAnomalyPtsMaxDistance())));
+        parametersSettings->setValue("anomaly_pts_max_delta_z", QString::number(double(clima->getElabSettings().getAnomalyPtsMaxDeltaZ())));
+        parametersSettings->setValue("grid_min_coverage", QString::number(double(clima->getElabSettings().getGridMinCoverage())));
+        parametersSettings->setValue("merge_joint_stations", clima->getElabSettings().getMergeJointStations());
     parametersSettings->endGroup();
 }
 
@@ -3745,7 +3745,7 @@ void PragaProject::showPointStatisticsWidgetPoint(std::string idMeteoPoint)
 
     const double mpUtmX = mp.point.utm.x;
     const double mpUtmY = mp.point.utm.y;
-    const float maxDistance = clima->getElabSettings()->getAnomalyPtsMaxDistance();
+    const float maxDistance = clima->getElabSettings().getAnomalyPtsMaxDistance();
 
     for (int i = 0; i < meteoPoints.size(); i++)
     {
@@ -3811,7 +3811,7 @@ void PragaProject::showHomogeneityTestWidgetPoint(const std::string &idMeteoPoin
 
     const double x0 = mp.point.utm.x;
     const double y0 = mp.point.utm.y;
-    const float maxDistance = clima->getElabSettings()->getAnomalyPtsMaxDistance();
+    const float maxDistance = clima->getElabSettings().getAnomalyPtsMaxDistance();
 
     for (int i = 0; i < meteoPoints.size(); i++)
     {
@@ -5219,7 +5219,7 @@ bool PragaProject::activeMeteoGridCellsWithDEM()
     bool excludeNoData = true;
     QList<QString> idActiveList;
     QList<QString> idNotActiveList;
-    float minCoverage = clima->getElabSettings()->getGridMinCoverage();
+    float minCoverage = clima->getElabSettings().getGridMinCoverage();
 
     for (int row = 0; row < this->meteoGridDbHandler->gridStructure().header().nrRows; row++)
     {
@@ -5443,7 +5443,9 @@ bool PragaProject::computeClimatePointXML(QString xmlName)
         delete listXMLPhenology;
         return false;
     }
-    if (listXMLElab->listAll().isEmpty())
+
+    QList<QString> elabList = listXMLElab->listAll();
+    if (elabList.isEmpty())
     {
         errorString = "There are not valid Elaborations";
         delete listXMLElab;
@@ -5453,7 +5455,7 @@ bool PragaProject::computeClimatePointXML(QString xmlName)
         return false;
     }
 
-    clima->getListElab()->setListClimateElab(listXMLElab->listAll());
+    clima->getListElab().setListClimateElab(elabList);
     int validCell = 0;
     bool changeDataSet = true;
     QDate startDate;

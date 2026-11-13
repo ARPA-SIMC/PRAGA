@@ -379,7 +379,7 @@ DialogMeteoComputation::DialogMeteoComputation(QSettings *settings_, bool isMete
     }
     else if(saveClima)
     {
-        saveClimaLayout.setList(myProject.clima->getListElab()->listClimateElab());
+        saveClimaLayout.setList(myProject.clima->getListElab().listClimateElab());
         saveClimaMainLayout.addWidget(&saveClimaLayout);
     }
 

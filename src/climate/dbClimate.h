@@ -5,7 +5,7 @@
     #include <vector>
 
     bool saveDailyElab(QSqlDatabase &db, QString &errorStr, const QString &id,
-                   const std::vector<float> &allResults, const QString &elab);
+                        const std::vector<float> &allResults, const QString &elab);
     bool saveDecadalElab(QSqlDatabase &db, QString &errorStr, const QString &id,
                          const std::vector<float> &allResults, const QString &elab);
     bool saveMonthlyElab(QSqlDatabase &db, QString &errorStr, const QString &id,

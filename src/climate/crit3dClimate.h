@@ -20,7 +20,6 @@
 
     public:
         Crit3DClimate();
-        ~Crit3DClimate();
 
         void resetParam();
 
@@ -28,7 +27,7 @@
 
         void copyParam(Crit3DClimate* myClimate);
 
-        const QSqlDatabase& db() {
+        const QSqlDatabase& db() const {
             return _db;
         }
 
@@ -57,12 +56,18 @@
         QDate genericPeriodDateStart() const {
             return _genericPeriodDateStart;
         }
-        void setGenericPeriodDateStart(const QDate &genericPeriodDateStart);
+
+        void setGenericPeriodDateStart(const QDate &genericPeriodDateStart) {
+            _genericPeriodDateStart = genericPeriodDateStart;
+        }
 
         QDate genericPeriodDateEnd() const {
             return _genericPeriodDateEnd;
         }
-        void setGenericPeriodDateEnd(const QDate &genericPeriodDateEnd);
+
+        void setGenericPeriodDateEnd(const QDate &genericPeriodDateEnd) {
+            _genericPeriodDateEnd = genericPeriodDateEnd;
+        }
 
         int nYears() const { return _nYears; }
         void setNYears(int nYears) { _nYears = nYears; }
@@ -91,8 +96,6 @@
         QString periodStr() const;
         void setPeriodStr(const QString &periodStr);
 
-        Crit3DElaborationSettings *getElabSettings() const;
-        void setElabSettings(Crit3DElaborationSettings *value);
 
         meteoVariable getCurrentVar() const;
         void setCurrentVar(const meteoVariable &currentVar);
@@ -109,8 +112,15 @@
         climatePeriod getCurrentPeriodType() const;
         void setCurrentPeriodType(const climatePeriod &currentPeriodType);
 
-        Crit3DClimateList *getListElab() const;
-        void setListElab(Crit3DClimateList *value);
+        Crit3DElaborationSettings& getElabSettings() {
+            return elabSettings;
+        }
+        void setElabSettings(const Crit3DElaborationSettings &value);
+
+        Crit3DClimateList& getListElab() {
+            return listElab;
+        }
+        void setListElab(const Crit3DClimateList &value);
         void resetListElab();
 
         int getParam1ClimateIndex() const;
@@ -148,7 +158,6 @@
         float _param2;
         bool _dailyCumulated;
         int _offset;
-        Crit3DElaborationSettings *elabSettings;
 
         meteoVariable _currentVar;
         climatePeriod _currentPeriodType;
@@ -156,7 +165,8 @@
         int _currentYearStart;
         int _currentYearEnd;
 
-        Crit3DClimateList *listElab;
+        Crit3DElaborationSettings elabSettings;
+        Crit3DClimateList listElab;
     };
 
 
