@@ -1484,7 +1484,7 @@ void MainWindow::on_timeEdit_valueChanged(int myHour)
             return;
         }
 
-        reverseColorScale(this->netcdfObj->getRasterPointer()->colorScale);
+        netcdfObj->getRasterPointer()->colorScale.reverse();
         redrawNetcdf();
     }
 
@@ -5484,7 +5484,7 @@ void MainWindow::on_actionMeteoGrid_Reverse_color_scale_triggered()
 {
     if (! checkMeteoGridColorScale()) return;
 
-    reverseColorScale(this->meteoGridObj->getRasterPointer()->colorScale);
+    meteoGridObj->getRasterPointer()->colorScale.reverse();
     emit this->meteoGridObj->redrawRequested();
 }
 

@@ -1788,15 +1788,13 @@ bool elaborateDailyAggregatedVarFromHourly(meteoVariable myVar, Crit3DMeteoPoint
                                            std::vector<float> &outputValues, Crit3DMeteoSettings *meteoSettings)
 {
     int nrValidValues = 0;
-
-    TObsDataH* hourlyValues = nullptr;
-
     for (int index = 0; index < (int)meteoPoint.obsDataH.size(); index++)
     {
         float result = NODATA;
-        const Crit3DDate date = meteoPoint.getMeteoPointHourlyValuesDate(index);
-        if (meteoPoint.getMeteoPointValueDayH(date, hourlyValues))
+        const Crit3DDate myDate = meteoPoint.getMeteoPointHourlyValuesDate(index);
+        if (myDate != NO_DATE)
         {
+            TObsDataH* hourlyValues = &(meteoPoint.obsDataH[index]);
             switch(myVar)
             {
                 case dailyThomHoursAbove:
