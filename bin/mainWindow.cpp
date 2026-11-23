@@ -613,7 +613,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                     }
                     if (selection == unmarkStations)
                     {
-                        for (int i = 0; i < myProject.meteoPoints.size(); i++)
+                        for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
                         {
                             myProject.meteoPoints[i].marked = false;
                         }
@@ -693,7 +693,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event)
                 }
                 else if (selection == unmarkStations)
                 {
-                    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+                    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
                     {
                         myProject.meteoPoints[i].marked = false;
                     }
@@ -1601,7 +1601,7 @@ void MainWindow::drawWindVector(int i)
 
 bool MainWindow::isMeteoPointVisible(int i)
 {
-    if (i >= myProject.meteoPoints.size())
+    if (i >= (int)myProject.meteoPoints.size())
         return false;
 
     return ((myProject.meteoPoints[i].active || viewNotActivePoints || myProject.meteoPoints[i].marked)
@@ -1619,7 +1619,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
     if (pointList.size() == 0) return;
 
     // initialize (hide all meteo points)
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         pointList[i]->setVisible(false);
         pointList[i]->setMarked(myProject.meteoPoints[i].marked);
@@ -1643,7 +1643,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
             ui->actionShowPointsLocation->setChecked(true);
             ui->actionMeteopointRectangleSelection->setEnabled(true);
 
-            for (int i = 0; i < myProject.meteoPoints.size(); i++)
+            for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
             {
                 myProject.meteoPoints[i].currentValue = NODATA;
                 bool isVisible = isMeteoPointVisible(i);
@@ -1715,7 +1715,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                                  || myProject.getCurrentVariable() == windVectorDirection);
 
             Crit3DColor *myColor;
-            for (int i = 0; i < myProject.meteoPoints.size(); i++)
+            for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
             {
                 if (! isEqual(myProject.meteoPoints[i].currentValue, NODATA))
                 {
@@ -1971,6 +1971,12 @@ void MainWindow::redrawMeteoGrid(visualizationType showType, bool showInterpolat
             showElabResult(true, true, false, false, true, myProject.climateIndex);
             break;
         }
+        case showCVResidual:
+        {
+            // nothing to do with grid
+            break;
+        }
+
     }
 
     emit meteoGridObj->redrawRequested();
@@ -2013,7 +2019,7 @@ void MainWindow::addMeteoPoints()
 {
     myProject.clearSelectedPoints();
 
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         StationMarker* point = new StationMarker(5.0, true, QColor(Qt::white));
 
@@ -2528,7 +2534,7 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
         {
             float minimum = NODATA;
             float maximum = NODATA;
-            for (int i = 0; i < myProject.meteoPoints.size(); i++)
+            for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
             {
                 if (! isAnomaly)
                 {
@@ -2578,7 +2584,7 @@ void MainWindow::showElabResult(bool updateColorSCale, bool isMeteoGrid, bool is
         }
 
         Crit3DColor *myColor;
-        for (int i = 0; i < myProject.meteoPoints.size(); i++)
+        for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
         {
             if (! updateColorSCale)
             {
@@ -2749,7 +2755,7 @@ void MainWindow::showCVResult()
 
     float minimum = NODATA;
     float maximum = NODATA;
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         myProject.meteoPoints[i].currentValue = myProject.meteoPoints[i].residual;
 
@@ -2777,7 +2783,7 @@ void MainWindow::showCVResult()
     setColorScale(anomalyVar, myProject.meteoPointsColorScale);
 
     Crit3DColor *myColor;
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         if (! isEqual(myProject.meteoPoints[i].currentValue, NODATA))
         {
@@ -2912,7 +2918,7 @@ void MainWindow::showCVResult()
                                 if (getProxyPragaName(myProxy->getName()) == proxyHeight)
                                 {
                                     cvOutput += "function: " + QString::fromStdString(getKeyStringElevationFunction(myProxy->getFittingFunctionName())) + "\n";
-                                    for (int j=0; j < par[i].size(); j++)
+                                    for (size_t j=0; j < par[i].size(); j++)
                                         cvOutput += "par" + QString::number(j) + ": " + QString::number(par[i][j]) + "\n";
 
                                 }
@@ -4059,7 +4065,7 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
                     if (myFreq == daily)
                     {
                         //myCounter contains counters for every macroarea so it must be split
-                        for (int k = 0; k < macroAreaCodes.size(); k++)
+                        for (size_t k = 0; k < macroAreaCodes.size(); k++)
                         {
                             outStream << myDate.toString("yyyy-MM-dd") << "," << QString::number(macroAreaCodes[k]) << "," << QString::number(myCounter[i+k]) + "\n";
                         }
@@ -4068,7 +4074,7 @@ void MainWindow::on_actionMeteopointDataCount_triggered()
                     else if (myFreq == hourly)
                     {
                         //
-                        for (int k = 0; k < macroAreaCodes.size(); k++)
+                        for (size_t k = 0; k < macroAreaCodes.size(); k++)
                         {
                             for (myHour = 1; myHour <= 24; myHour++)
                             {
@@ -4391,7 +4397,7 @@ void MainWindow::on_actionAll_active_triggered()
         return;
     }
 
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         myProject.meteoPoints[i].active = true;
     }
@@ -4414,7 +4420,7 @@ void MainWindow::on_actionAll_notActive_triggered()
         return;
     }
 
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         myProject.meteoPoints[i].active = false;
     }
@@ -4453,7 +4459,7 @@ void MainWindow::on_actionDeletePoint_selected_triggered()
     }
 
     QList<QString> pointList;
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         if (myProject.meteoPoints[i].selected)
         {
@@ -4486,7 +4492,7 @@ void MainWindow::on_actionDeletePoint_notSelected_triggered()
     }
 
     QList<QString> pointList;
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         if (! myProject.meteoPoints[i].selected)
         {
@@ -4519,7 +4525,7 @@ void MainWindow::on_actionDeletePoint_notActive_triggered()
     }
 
     QList<QString> pointList;
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         if (!myProject.meteoPoints[i].active)
         {
@@ -4554,7 +4560,7 @@ void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
 
     myProject.setProgressBar("Checking points...", (int)myProject.meteoPoints.size());
     QList<QString> pointList;
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         myProject.updateProgressBar(i);
         if (myProject.meteoPoints[i].active)
@@ -4586,7 +4592,7 @@ void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
 
     for (int j = 0; j < pointList.size(); j++)
     {
-        for (int i = 0; i < myProject.meteoPoints.size(); i++)
+        for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
         {
             if (myProject.meteoPoints[i].id == pointList[j].toStdString())
             {
@@ -4608,7 +4614,7 @@ void MainWindow::on_actionDeleteData_Active_triggered()
     }
 
     QList<QString> pointList;
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         if (myProject.meteoPoints[i].active)
         {
@@ -4642,7 +4648,7 @@ void MainWindow::on_actionDeleteData_notActive_triggered()
     }
 
     QList<QString> pointList;
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         if (!myProject.meteoPoints[i].active)
         {
@@ -4676,7 +4682,7 @@ void MainWindow::on_actionDeleteData_selected_triggered()
     }
 
     QList<QString> pointList;
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         if (myProject.meteoPoints[i].selected)
         {
@@ -5256,7 +5262,7 @@ void MainWindow::on_actionPointStyleText_multicolor_triggered()
 
 void MainWindow::on_actionUnmark_all_points_triggered()
 {
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         myProject.meteoPoints[i].marked = false;
     }
@@ -5284,7 +5290,7 @@ void MainWindow::on_actionExport_MeteoPoints_toCsv_triggered()
         myStream.setRealNumberPrecision(1);
         QString header = "id,name,dataset,state,region,province,municipality,lapse_rate_code,lat,lon,utmx,utmy,altitude,value";
         myStream << header << "\n";
-        for (int i = 0; i < myProject.meteoPoints.size(); i++)
+        for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
         {
             if (! isEqual(myProject.meteoPoints[i].currentValue, NODATA))
             {
@@ -5825,7 +5831,7 @@ void MainWindow::searchMeteoPoint(bool isName)
         return;
 
     // initialize
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         myProject.meteoPoints[i].marked = false;
     }
@@ -5833,7 +5839,7 @@ void MainWindow::searchMeteoPoint(bool isName)
     // mark
     int nrFound = 0;
     QString refString = "";
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         if (isName)
         {
@@ -5984,7 +5990,7 @@ void MainWindow::on_actionCompute_daily_from_Hourly_all_triggered()
     }
 
     QList<std::string> idPointList;
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         idPointList << myProject.meteoPoints[i].id;
     }
@@ -6002,7 +6008,7 @@ void MainWindow::on_actionCompute_daily_from_Hourly_selected_triggered()
     }
 
     QList<std::string> idPointList;
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         if (myProject.meteoPoints[i].selected)
         {
@@ -6022,7 +6028,8 @@ void MainWindow::on_actionCompute_daily_from_Hourly_selected_triggered()
 
 void MainWindow::computeDailyFromHourly_MeteoPoints(const QList<std::string>& idPointList)
 {
-    if (idPointList.size() == 0) return;
+    if (idPointList.size() == 0)
+        return;
 
     bool isGrid = false;
     bool allPoints = (idPointList.size() == myProject.meteoPoints.size());
@@ -6214,7 +6221,7 @@ void MainWindow::on_actionStatistical_Summary_triggered()
                 {
                     float minValue = statistics::minList(validValues, int(validValues.size()));
                     float maxValue = statistics::maxList(validValues, int(validValues.size()));
-                    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+                    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
                     {
                         if (minValue == myProject.meteoPoints[i].currentValue)
                         {
@@ -6823,7 +6830,7 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
 
     QList<QString> pointSelected;
     bool allPoints = false;
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         if (myProject.meteoPoints[i].selected)
         {
@@ -6838,7 +6845,7 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
     if (allPoints)
     {
         myProject.setProgressBar("Exporting points...", (int)myProject.meteoPoints.size());
-        for (int i = 0; i < myProject.meteoPoints.size(); i++)
+        for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
         {
             myProject.updateProgressBar(i);
             if (! myProject.loadXMLExportData(QString::fromStdString(myProject.meteoPoints[i].id), firstTime, lastTime))
@@ -7018,7 +7025,7 @@ void MainWindow::on_actionWaterTable_computeSingleWell_triggered()
     }
 
     QList<QString> wellsId;
-    for (int i = 0; i < myProject.wellPoints.size(); i++)
+    for (size_t i = 0; i < myProject.wellPoints.size(); i++)
     {
         wellsId.append(myProject.wellPoints[i].getId());
     }
@@ -7030,7 +7037,7 @@ void MainWindow::on_actionWaterTable_computeSingleWell_triggered()
 
     QString selectedId = selectWell.getIdSelected();
     int selectedIndex = NODATA;
-    for (int i = 0; i < myProject.wellPoints.size(); i++)
+    for (size_t i = 0; i < myProject.wellPoints.size(); i++)
     {
         QString id = myProject.wellPoints[i].getId();
         if (id == selectedId)
@@ -7091,7 +7098,7 @@ void MainWindow::on_actionWaterTable_computeAllWells_triggered()
     myProject.waterTableList.clear();
     myProject.setProgressBar("Computing well...", int(myProject.wellPoints.size()));
 
-    for (int i = 0; i < myProject.wellPoints.size(); i++)
+    for (size_t i = 0; i < myProject.wellPoints.size(); i++)
     {
         QString idStr = myProject.wellPoints[i].getId();
         if (myProject.wellPoints[i].getObsDepthNr() == 0)
@@ -7284,7 +7291,7 @@ void MainWindow::on_actionMark_macro_area_stations_triggered()
 
 void MainWindow::on_actionAll_Selected_triggered()
 {
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         if (currentPointsVisualization == showCurrentVariable)
         {
@@ -7303,7 +7310,7 @@ void MainWindow::on_actionAll_Selected_triggered()
 
 void MainWindow::on_actionSelect_All_not_marked_triggered()
 {
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         if (! myProject.meteoPoints[i].marked)
         {
@@ -7343,7 +7350,7 @@ void MainWindow::on_action_deselect_with_criteria_triggered()
 
 void MainWindow::on_action_deselect_Marked_triggered()
 {
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         if (myProject.meteoPoints[i].marked)
             myProject.meteoPoints[i].selected = false;
@@ -7489,7 +7496,7 @@ void MainWindow::on_actionExport_selected_points_triggered()
     }
 
     bool hasSelected = false;
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         if (myProject.meteoPoints[i].selected)
         {
@@ -7559,7 +7566,7 @@ void MainWindow::on_actionClimate_Copy_to_Elaboration_triggered()
         return;
     }
 
-    for (int i = 0; i < myProject.meteoPoints.size(); i++)
+    for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
         myProject.meteoPoints[i].elaboration = myProject.meteoPoints[i].climate;
     }
