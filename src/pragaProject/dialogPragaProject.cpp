@@ -75,7 +75,7 @@ void DialogPragaProject::accept()
         str2 = lastTime.toString();
 
         QDateTimeEdit *firstDateEdit = new QDateTimeEdit;
-        firstDateEdit->setTimeSpec(Qt::UTC);
+        firstDateEdit->setTimeZone(QTimeZone::utc());
         firstDateEdit->setDateTimeRange(firstTime, lastTime);
         firstDateEdit->setDateTime(firstTime);
 
@@ -83,7 +83,7 @@ void DialogPragaProject::accept()
         firstDateLabel->setBuddy(firstDateEdit);
 
         QDateTimeEdit *lastDateEdit = new QDateTimeEdit;
-        lastDateEdit->setTimeSpec(Qt::UTC);
+        lastDateEdit->setTimeZone(QTimeZone::utc());
         lastDateEdit->setDateTimeRange(firstTime, lastTime);
         lastDateEdit->setDateTime(lastTime);
 

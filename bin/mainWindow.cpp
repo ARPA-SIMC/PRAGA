@@ -1,5 +1,5 @@
 #include <sstream>
-#include "math.h"
+#include <cmath>
 
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
@@ -1646,7 +1646,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
             for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
             {
                 myProject.meteoPoints[i].currentValue = NODATA;
-                bool isVisible = isMeteoPointVisible(i);
+                bool isVisible = isMeteoPointVisible(int(i));
                 pointList[i]->setVisible(isVisible);
 
                 if (isVisible)
@@ -1719,7 +1719,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
             {
                 if (! isEqual(myProject.meteoPoints[i].currentValue, NODATA))
                 {
-                    bool isVisible = isMeteoPointVisible(i);
+                    bool isVisible = isMeteoPointVisible(int(i));
                     pointList[i]->setVisible(isVisible);
 
                     if (isVisible)
@@ -1736,7 +1736,7 @@ void MainWindow::redrawMeteoPoints(visualizationType showType, bool updateColorS
                             pointList[i]->setOpacity(1.0);
 
                             if (isWindVector)
-                                drawWindVector(i);
+                                drawWindVector(int(i));
                         }
                         else
                         {
@@ -4105,8 +4105,8 @@ void MainWindow::on_actionMeteogridMissingData_triggered()
     meteoVariable myVar = chooseMeteoVariable(myProject);
     if (myVar == noMeteoVar) return;
 
-    QDateTime firstTime(myProject.meteoGridDbHandler->firstDate(), QTime(1,0,0), Qt::UTC);
-    QDateTime lastTime(myProject.meteoGridDbHandler->lastDate().addDays(1), QTime(0,0,0), Qt::UTC);
+    QDateTime firstTime(myProject.meteoGridDbHandler->firstDate(), QTime(1,0,0), QTimeZone::utc());
+    QDateTime lastTime(myProject.meteoGridDbHandler->lastDate().addDays(1), QTime(0,0,0), QTimeZone::utc());
     if (firstTime.isNull())
     {
         firstTime.setDate(myProject.getCurrentDate());
@@ -4562,7 +4562,7 @@ void MainWindow::on_actionWith_NO_DATA_notActive_triggered()
     QList<QString> pointList;
     for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
     {
-        myProject.updateProgressBar(i);
+        myProject.updateProgressBar(int(i));
         if (myProject.meteoPoints[i].active)
         {
             bool hasData = myProject.meteoPointsDbHandler->hasData(daily, myProject.meteoPoints[i].id)
@@ -5688,8 +5688,8 @@ void MainWindow::on_actionInterpolationMeteogridGriddingTaskAdd_triggered()
     QDate myLastDate = myProject.meteoGridDbHandler->lastDate();
     if (myLastDate.isNull()) myLastDate = myProject.getCurrentDate();
     if (myFirstDate.isNull()) myFirstDate = myLastDate;
-    QDateTime firstTime(myFirstDate, QTime(1,0,0), Qt::UTC);
-    QDateTime lastTime(myLastDate.addDays(1), QTime(0,0,0), Qt::UTC);
+    QDateTime firstTime(myFirstDate, QTime(1,0,0), QTimeZone::utc());
+    QDateTime lastTime(myLastDate.addDays(1), QTime(0,0,0), QTimeZone::utc());
 
     FormTimePeriod myForm(&firstTime, &lastTime);
     myForm.show();
@@ -6847,7 +6847,7 @@ void MainWindow::on_actionFileMeteopointData_XMLexport_triggered()
         myProject.setProgressBar("Exporting points...", (int)myProject.meteoPoints.size());
         for (size_t i = 0; i < myProject.meteoPoints.size(); i++)
         {
-            myProject.updateProgressBar(i);
+            myProject.updateProgressBar(int(i));
             if (! myProject.loadXMLExportData(QString::fromStdString(myProject.meteoPoints[i].id), firstTime, lastTime))
             {
                     myProject.logError();
@@ -7047,7 +7047,7 @@ void MainWindow::on_actionWaterTable_computeSingleWell_triggered()
                     myProject.logError("The selected well " + id + " has not data. Import data before.");
                     return;
             }
-            selectedIndex = i;
+            selectedIndex = int(i);
             break;
         }
     }
@@ -7107,7 +7107,7 @@ void MainWindow::on_actionWaterTable_computeAllWells_triggered()
             continue;
         }
 
-        if (! myProject.waterTableComputeSingleWell(i))
+        if (! myProject.waterTableComputeSingleWell(int(i)))
         {
             myProject.logInfo("Error in computing well: " + idStr);
             continue;
@@ -7124,7 +7124,7 @@ void MainWindow::on_actionWaterTable_computeAllWells_triggered()
             wellsListObj[i]->SquareObject::setToolTip(text);
         }
 
-        myProject.updateProgressBar(i);
+        myProject.updateProgressBar(int(i));
     }
 
     myProject.closeProgressBar();
